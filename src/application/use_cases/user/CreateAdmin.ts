@@ -1,9 +1,10 @@
 import { User } from '../../../domain/User'
 import UserRepository from '../../../domain/repositories/UserRepository'
+import UseCase from '../../UseCase'
 import BadRequestError from '../../errors/BadRequestError'
 import ConflictError from '../../errors/ConflictError'
 
-export default class CreateAdmin {
+export default class CreateAdmin implements UseCase {
   constructor(private _userRepository: UserRepository) {}
 
   async exec(input: any): Promise<User> {
