@@ -33,9 +33,15 @@ export class User {
     const { email, password, level } = params
     const emailRegex = /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/gi
 
-    if (!emailRegex.test(email)) throw new Error('User: Invalid email')
-    if (!password) throw new Error('User: Password required')
-    if (!Object.values(LevelEnum).includes(level)) throw new Error('User: Invalid level')
+    if (!emailRegex.test(email))
+      throw new Error('User: Invalid email')
+
+    if (!password)
+      throw new Error('User: Password required')
+
+    if (!Object.values(LevelEnum).includes(level))
+      throw new Error('User: Invalid level')
+
 
     return new User(params, id)
   }

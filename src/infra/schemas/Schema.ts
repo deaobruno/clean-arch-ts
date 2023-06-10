@@ -1,3 +1,3 @@
 export default interface Schema {
-  validate: (payload: any) => void
+  validate: (payload: any) => void | Error
 }

@@ -1,6 +1,7 @@
 import Schema from '../../infra/schemas/Schema'
 import UseCase from '../../application/UseCase'
 import Presenter from '../presenters/Presenter'
+import BadRequestError from '../../application/errors/BadRequestError'
 
 export type ControllerOptions = {
   useCase: UseCase
@@ -27,7 +28,12 @@ export default abstract class Controller {
   }
 
   async handle(payload: any): Promise<any> {
-    if (this._inputSchema) this._inputSchema.validate(payload)
+    if (this._inputSchema) {
+      const error = this._inputSchema.validate(payload)
+
+      if (error instanceof Error)
+        throw new BadRequestError(error.message)
+    }
 
     const response = await this._useCase.exec(payload)
 

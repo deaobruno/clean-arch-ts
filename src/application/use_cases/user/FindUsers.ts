@@ -11,9 +11,8 @@ export default class FindUsers implements UseCase {
 
     const users = await this._userRepository.find(input)
 
-    if (users.length <= 0) {
+    if (users.length <= 0)
       throw new NotFoundError('Users not found')
-    }
 
     return users
   }

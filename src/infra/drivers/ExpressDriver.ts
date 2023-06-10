@@ -34,9 +34,8 @@ export default class ExpressDriver implements Server {
       ) => {
         console.error(error.stack)
 
-        if (!error.statusCode) {
+        if (!error.statusCode)
           error = new InternalServerError(error.message) // eslint-disable-line no-param-reassign
-        }
 
         const { statusCode, message } = error
 
