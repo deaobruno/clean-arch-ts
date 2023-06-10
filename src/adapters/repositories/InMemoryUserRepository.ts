@@ -7,15 +7,19 @@ export default class InMemoryUserRepository extends InMemoryDriver<User> impleme
     super()
   }
 
-  findAdmins(): Promise<User[]> {
+  async findOneByID(user_id: string): Promise<User | undefined> {
+    return this.findOne({ user_id })
+  }
+
+  async findOneByEmail(email: string): Promise<User | undefined> {
+    return this.findOne({ email })
+  }
+
+  async findAdmins(): Promise<User[]> {
     return this.find({ level: 0 })
   }
 
-  findCustomers(): Promise<User[]> {
+  async findCustomers(): Promise<User[]> {
     return this.find({ level: 1 })
-  }
-
-  findOneByEmail(email: string): Promise<User | undefined> {
-    return this.findOne({ email })
   }
 }

@@ -5,5 +5,4 @@ export default interface Repository<Entity> {
   findOneByID(id: string): Promise<Entity | undefined>
   exists(id: string): Promise<boolean>
   delete(id: string): Promise<void>
-  deleteMany(filters?: object): Promise<void>
 }

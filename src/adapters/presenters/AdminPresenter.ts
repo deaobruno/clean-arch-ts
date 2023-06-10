@@ -4,13 +4,13 @@ import Presenter from './Presenter'
 export default class AdminPresenter implements Presenter {
   present(user: User) {
     const {
-      id,
+      user_id,
       email,
       level,
     } = user
 
     return {
-      id,
+      id: user_id,
       email,
       level: LevelEnum[level],
     }

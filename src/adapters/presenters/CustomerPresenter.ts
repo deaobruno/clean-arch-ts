@@ -4,12 +4,12 @@ import Presenter from './Presenter'
 export default class CustomerPresenter implements Presenter {
   present(user: User) {
     const {
-      id,
+      user_id,
       email,
     } = user
 
     return {
-      id,
+      id: user_id,
       email,
     }
   }

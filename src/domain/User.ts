@@ -13,7 +13,7 @@ type UserParams = {
 }
 
 export class User {
-  readonly id: string
+  readonly user_id: string
   readonly email: string
   readonly password: string
   readonly level: number
@@ -21,7 +21,7 @@ export class User {
   private constructor(params: UserParams, id?: string) {
     const { email, password, level } = params
 
-    this.id = id ?? CryptoDriver.generateID()
+    this.user_id = id ?? CryptoDriver.generateID()
     this.email = email
     this.password = password
     this.level = level
