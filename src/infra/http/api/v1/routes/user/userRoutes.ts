@@ -1,12 +1,12 @@
-import CreateUserController from "../../../../../../adapters/controllers/CreateUserController"
-import AdminPresenter from "../../../../../../adapters/presenters/AdminPresenter"
-import CustomerPresenter from "../../../../../../adapters/presenters/CustomerPresenter"
-import InMemoryUserRepository from "../../../../../../adapters/repositories/InMemoryUserRepository"
-import CreateAdmin from "../../../../../../application/user/CreateAdmin"
-import CreateCustomer from "../../../../../../application/user/CreateCustomer"
-import CreateUserSchema from "../../../../../schemas/CreateUserSchema"
-import Route from "../../../../Route"
-import Server from "../../../../Server"
+import CreateUserController from '../../../../../../adapters/controllers/CreateUserController'
+import AdminPresenter from '../../../../../../adapters/presenters/AdminPresenter'
+import CustomerPresenter from '../../../../../../adapters/presenters/CustomerPresenter'
+import InMemoryUserRepository from '../../../../../../adapters/repositories/InMemoryUserRepository'
+import CreateAdmin from '../../../../../../application/use_cases/user/CreateAdmin'
+import CreateCustomer from '../../../../../../application/use_cases/user/CreateCustomer'
+import CreateUserSchema from '../../../../../schemas/CreateUserSchema'
+import Route from '../../../../Route'
+import Server from '../../../../Server'
 
 const repository = new InMemoryUserRepository()
 const createCustomerUseCase = new CreateCustomer(repository)
