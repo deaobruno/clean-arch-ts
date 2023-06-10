@@ -1,6 +1,7 @@
 import CryptoDriver from '../infra/drivers/CryptoDriver'
 
 export enum LevelEnum {
+  ROOT,
   ADMIN,
   CUSTOMER,
 }

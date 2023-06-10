@@ -7,12 +7,13 @@ import InMemoryUserRepository from '../../../../../../adapters/repositories/InMe
 import CreateUserSchema from '../../../../../schemas/CreateUserSchema'
 import Route from '../../../../Route'
 import Server from '../../../../Server'
+import FindUsersSchema from '../../../../../schemas/FindUsersSchema'
 
 const repository = new InMemoryUserRepository()
 
 const createCustomerController = new CreateCustomerController(repository, CreateUserSchema)
 const createAdminController = new CreateAdminController(repository, CreateUserSchema)
-const findUsersController = new FindUsersController(repository)
+const findUsersController = new FindUsersController(repository, FindUsersSchema)
 
 const customerPresenter = new CustomerPresenter()
 const adminPresenter = new AdminPresenter()

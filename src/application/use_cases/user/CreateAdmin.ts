@@ -16,7 +16,7 @@ export default class CreateAdmin implements UseCase {
 
     if (userByEmail instanceof User) throw new ConflictError('Email already in use')
 
-    input.level = 0
+    input.level = 1
 
     const user = User.create(input)
 

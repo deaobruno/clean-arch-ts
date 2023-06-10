@@ -16,7 +16,7 @@ export default class CreateCustomer implements UseCase {
 
     if (userByEmail instanceof User) throw new ConflictError('Email already in use')
 
-    input.level = 1
+    input.level = 2
 
     const user = User.create(input)
 
