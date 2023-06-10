@@ -2,11 +2,10 @@ let data: any[] = []
 
 export default abstract class InMemoryDriver<T> {
   async save(entity: T, id?: string): Promise<T> {
-    if (id && await this.exists(id)) {
+    if (id && await this.exists(id))
       data = data.map((item: any) => item.id === id ? entity : item)
-    } else {
+    else
       data.push(entity)
-    }
 
     return entity
   }
@@ -19,17 +18,18 @@ export default abstract class InMemoryDriver<T> {
     if (paramKeys.length > 0) {
       dataKeys.forEach((key: string) => {
         const item = data[key]
+        let found = false
 
         paramKeys.forEach((paramKey: string) => {
-          if (item[paramKey] === params[paramKey]) {
-            result.push(item)
-          }
+          if (item[paramKey] === params[paramKey])
+            found = true
         })
+
+        if (found)
+          result.push(item)
       })
     } else {
-      data.forEach((item: any) => {
-        result.push(item)
-      })
+      data.forEach((item: any) => result.push(item))
     }
 
     return result
