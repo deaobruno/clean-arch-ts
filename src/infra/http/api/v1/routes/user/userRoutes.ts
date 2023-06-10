@@ -1,18 +1,27 @@
-import CreateCustomerController from "../../../../../../adapters/controllers/CreateCustomerController";
-import CustomerPresenter from "../../../../../../adapters/presenters/CustomerPresenter";
-import InMemoryUserRepository from "../../../../../../adapters/repositories/InMemoryUserRepository";
-import CreateCustomer from "../../../../../../application/user/CreateCustomer";
-import CreateUserSchema from "../../../../../schemas/CreateUserSchema";
-import Route from "../../../../Route";
-import Server from "../../../../Server";
+import CreateUserController from "../../../../../../adapters/controllers/CreateUserController"
+import AdminPresenter from "../../../../../../adapters/presenters/AdminPresenter"
+import CustomerPresenter from "../../../../../../adapters/presenters/CustomerPresenter"
+import InMemoryUserRepository from "../../../../../../adapters/repositories/InMemoryUserRepository"
+import CreateAdmin from "../../../../../../application/user/CreateAdmin"
+import CreateCustomer from "../../../../../../application/user/CreateCustomer"
+import CreateUserSchema from "../../../../../schemas/CreateUserSchema"
+import Route from "../../../../Route"
+import Server from "../../../../Server"
 
 const repository = new InMemoryUserRepository()
 const createCustomerUseCase = new CreateCustomer(repository)
-const createCustomerController = new CreateCustomerController(createCustomerUseCase, CreateUserSchema)
+const createAdminUseCase = new CreateAdmin(repository)
+const createCustomerController = new CreateUserController(createCustomerUseCase, CreateUserSchema)
+const createAdminController = new CreateUserController(createAdminUseCase, CreateUserSchema)
 const customerPresenter = new CustomerPresenter()
+const adminPresenter = new AdminPresenter()
 
 export default (server: Server) => {
+  const createCustomerRoute = server.route(new Route('post', '/users', createCustomerController, customerPresenter))
+  const createAdminRoute = server.route(new Route('post', '/users/admin', createAdminController, adminPresenter))
+
   return [
-    server.route(new Route(createCustomerController, customerPresenter))
+    createCustomerRoute,
+    createAdminRoute,
   ]
 }

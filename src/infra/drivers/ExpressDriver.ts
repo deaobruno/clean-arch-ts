@@ -15,8 +15,8 @@ export default class ExpressDriver implements Server {
   httpPort = 8080
 
   start(): void {
-    this.app.use(bodyParser.json());
-    this.app.use(bodyParser.urlencoded({ extended: false }));
+    this.app.use(bodyParser.json())
+    this.app.use(bodyParser.urlencoded({ extended: false }))
     this.app.use('/api/v1', <any>routes(this))
 
     this.app.use((req: Request, res: Response, next: NextFunction) => {

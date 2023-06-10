@@ -1,5 +1,5 @@
-import { User } from '../../domain/User';
-import UserRepository from '../../domain/repositories/UserRepository';
+import { User } from '../../domain/User'
+import UserRepository from '../../domain/repositories/UserRepository'
 import InMemoryDriver from '../../infra/drivers/InMemoryDriver'
 
 export default class InMemoryUserRepository extends InMemoryDriver<User> implements UserRepository {

@@ -16,24 +16,24 @@ export default abstract class InMemoryDriver<T extends { id?: string }> implemen
   }
 
   async find(params: object = {}): Promise<T[]> {
-    const dataKeys = Object.keys(data);
-    const paramKeys = Object.keys(params);
-    const result: T[] = [];
+    const dataKeys = Object.keys(data)
+    const paramKeys = Object.keys(params)
+    const result: T[] = []
 
     if (paramKeys.length > 0) {
       dataKeys.forEach((key: string) => {
-        const item = data[key];
+        const item = data[key]
 
         paramKeys.forEach((paramKey: string) => {
           if (item[paramKey] === params[paramKey]) {
-            result.push(item);
+            result.push(item)
           }
-        });
-      });
+        })
+      })
     } else {
       data.forEach((item: any) => {
-        result.push(item);
-      });
+        result.push(item)
+      })
     }
 
     return result
