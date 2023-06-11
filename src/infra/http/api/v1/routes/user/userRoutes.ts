@@ -12,6 +12,7 @@ import UpdateUserController from '../../../../../../adapters/controllers/user/Up
 import UpdateUserSchema from '../../../../../schemas/user/UpdateUserSchema'
 import UpdateUserPasswordController from '../../../../../../adapters/controllers/user/UpdateUserPasswordController'
 import UpdateUserPasswordSchema from '../../../../../schemas/user/UpdateUserPasswordSchema'
+import DeleteUserController from '../../../../../../adapters/controllers/user/DeleteUserController'
 
 const repository = new InMemoryUserRepository()
 
@@ -21,6 +22,7 @@ const findUsersController = new FindUsersController(repository, FindUsersSchema)
 const findUserByIdController = new FindUserByIdController(repository)
 const updateUserController = new UpdateUserController(repository, UpdateUserSchema)
 const updateUserPasswordController = new UpdateUserPasswordController(repository, UpdateUserPasswordSchema)
+const deleteUserController = new DeleteUserController(repository)
 
 const customerPresenter = new CustomerPresenter()
 const adminPresenter = new AdminPresenter()
@@ -34,6 +36,7 @@ export default (server: Server) => {
   const findUserByIdRoute = server.route('get', `${basePath}/:userId`, findUserByIdController, customerPresenter)
   const updateUserRoute = server.route('put', `${basePath}/:userId`, updateUserController, customerPresenter)
   const updateUserPasswordRoute = server.route('put', `${basePath}/:userId/update-password`, updateUserPasswordController, customerPresenter)
+  const deleteUser = server.route('delete', `${basePath}/:userId`, deleteUserController)
 
   return [
     createCustomerRoute,
@@ -42,5 +45,6 @@ export default (server: Server) => {
     findUserByIdRoute,
     updateUserRoute,
     updateUserPasswordRoute,
+    deleteUser,
   ]
 }

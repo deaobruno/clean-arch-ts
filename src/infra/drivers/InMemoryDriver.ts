@@ -1,6 +1,8 @@
+import Repository from "../../domain/repositories/Repository"
+
 let data: any[] = []
 
-export default abstract class InMemoryDriver<T> {
+export default abstract class InMemoryDriver<T> implements Repository<T> {
   async save(entity: T, id?: string): Promise<T> {
     if (id && await this.exists(id))
       data = data.map((item: any) => item.id === id ? entity : item)
@@ -10,9 +12,9 @@ export default abstract class InMemoryDriver<T> {
     return entity
   }
 
-  async find(params: object = {}): Promise<T[]> {
+  async find(filters: object = {}): Promise<T[]> {
     const dataKeys = Object.keys(data)
-    const paramKeys = Object.keys(params)
+    const paramKeys = Object.keys(filters)
     const result: T[] = []
 
     if (paramKeys.length > 0) {
@@ -21,7 +23,7 @@ export default abstract class InMemoryDriver<T> {
         let found = true
 
         paramKeys.forEach((paramKey: string) => {
-          if (item[paramKey] !== params[paramKey])
+          if (item[paramKey] !== filters[paramKey])
             found = false
         })
 
@@ -35,8 +37,8 @@ export default abstract class InMemoryDriver<T> {
     return result
   }
 
-  async findOne(params: object): Promise<T> {
-    const results = await this.find(params)
+  async findOne(filters: object): Promise<T> {
+    const results = await this.find(filters)
 
     return results[0]
   }
@@ -47,7 +49,17 @@ export default abstract class InMemoryDriver<T> {
     return !!await this.findOneById(id)
   }
 
-  async delete(id: string): Promise<void> {
-    data = data.filter((item: any) => item.id !== id)
+  async delete(filters: object): Promise<void> {
+    data = data.filter((item: any) => {
+      let found = true
+
+      Object.keys(filters).forEach((paramKey: string) => {
+        if (item[paramKey] !== filters[paramKey])
+          found = false
+      })
+
+      if (!found)
+        return item
+    })
   }
 }
