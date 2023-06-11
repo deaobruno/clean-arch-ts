@@ -6,6 +6,8 @@ import routes from '../http/api/v1/routes/routes'
 import bodyParser from 'body-parser'
 import NotFoundError from '../../application/errors/NotFoundError'
 import InternalServerError from '../../application/errors/InternalServerError'
+import Controller from '../../adapters/controllers/Controller'
+import Presenter from '../../adapters/presenters/Presenter'
 
 export default class ExpressDriver implements Server {
   app = express()
@@ -53,7 +55,9 @@ export default class ExpressDriver implements Server {
     this.httpServer?.close(callback)
   }
 
-  route(route: Route): Router {
+  route(method: string, path: string, controller: Controller, presenter?: Presenter): Router {
+    const route = new Route(method.toLowerCase(), path, controller, presenter)
+
     return this.router[route.method](route.path, this.adaptRoute(route))
   }
 

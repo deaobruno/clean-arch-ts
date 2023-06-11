@@ -13,7 +13,7 @@ export class CreateAdmin implements CreateAdminUseCase {
     const { email, password, confirm_password } = input
 
     if (password !== confirm_password)
-      throw new BadRequestError('Passwords mismatching')
+      throw new BadRequestError('Passwords mismatch')
 
     const userByEmail = await this._userRepository.findOneByEmail(email)
 

@@ -9,7 +9,7 @@ export class FindUsers implements FindUsersUseCase {
   constructor(private _userRepository: UserRepository) {}
 
   async exec(input: any): Promise<User[]> {
-    input.level = LevelEnum.CUSTOMER
+    // input.level = LevelEnum.CUSTOMER
 
     const users = await this._userRepository.find(input)
 

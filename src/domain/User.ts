@@ -14,8 +14,8 @@ type UserParams = {
 
 export class User {
   readonly user_id: string
-  readonly email: string
-  readonly password: string
+  public email: string
+  public password: string
   readonly level: number
 
   private constructor(params: UserParams, id?: string) {
@@ -26,7 +26,7 @@ export class User {
     this.password = password
     this.level = level
 
-    Object.freeze(this)
+    // Object.freeze(this)
   }
 
   get isRoot(): boolean {

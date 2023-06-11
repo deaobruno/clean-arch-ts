@@ -7,7 +7,7 @@ export default class InMemoryUserRepository extends InMemoryDriver<User> impleme
     super()
   }
 
-  async findOneByID(user_id: string): Promise<User | undefined> {
+  async findOneById(user_id: string): Promise<User | undefined> {
     return this.findOne({ user_id })
   }
 

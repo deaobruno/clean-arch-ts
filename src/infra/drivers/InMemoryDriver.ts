@@ -41,8 +41,10 @@ export default abstract class InMemoryDriver<T> {
     return results[0]
   }
 
+  abstract findOneById(id?: string): Promise<T | undefined>
+
   async exists(id?: string): Promise<boolean> {
-    return !!await this.findOne({ id })
+    return !!await this.findOneById(id)
   }
 
   async delete(id: string): Promise<void> {
