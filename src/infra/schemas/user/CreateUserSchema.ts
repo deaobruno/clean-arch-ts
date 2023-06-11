@@ -1,6 +1,6 @@
 export default {
   validate(payload: any): void | Error {
-    const { email } = payload
+    const { email, password, confirm_password } = payload
     const emailRegex = /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/gi
 
     if (!email)
@@ -9,10 +9,13 @@ export default {
     if (!emailRegex.test(email))
       return new Error('Invalid "email" format')
 
-    if (!payload.password)
+    if (!password)
       return new Error('"password" is required')
 
-    if (!payload.confirm_password)
+    if (!confirm_password)
       return new Error('"confirm_password" is required')
+
+    if (password !== confirm_password)
+      return new Error('Passwords mismatch')
   }
 }

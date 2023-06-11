@@ -7,7 +7,7 @@ export default class UpdateUserPassword implements UseCase<any, User> {
   constructor(private userRepository: UserRepository) {}
 
   async exec(input: any): Promise<User> {
-    const { userId, password, confirm_password } = input
+    const { userId, password } = input
     const user = await this.userRepository.findOneById(userId)
 
     // if (!user || (user && !user.isCustomer))
