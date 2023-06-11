@@ -1,11 +1,9 @@
-import { LevelEnum, User } from '../../../domain/User'
+import { User } from '../../../domain/User'
 import UserRepository from '../../../domain/repositories/UserRepository'
 import UseCase from '../../UseCase'
 import NotFoundError from '../../errors/NotFoundError'
 
-export type FindUsersUseCase = UseCase<any, User[]>
-
-export class FindUsers implements FindUsersUseCase {
+export default class FindUsers implements UseCase<any, User[]> {
   constructor(private _userRepository: UserRepository) {}
 
   async exec(input: any): Promise<User[]> {

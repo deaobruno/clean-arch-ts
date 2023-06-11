@@ -3,20 +3,18 @@ import UserRepository from '../../../domain/repositories/UserRepository'
 import UseCase from '../../UseCase'
 import NotFoundError from '../../errors/NotFoundError'
 
-export default class UpdateUser implements UseCase<any, User> {
+export default class UpdateUserPassword implements UseCase<any, User> {
   constructor(private userRepository: UserRepository) {}
 
   async exec(input: any): Promise<User> {
-    const { userId, ...userInput } = input
+    const { userId, password, confirm_password } = input
     const user = await this.userRepository.findOneById(userId)
 
     // if (!user || (user && !user.isCustomer))
     if (!user)
       throw new NotFoundError('User not found')
 
-    Object.keys(userInput).forEach(key => {
-      user[key] = userInput[key]
-    })
+    user.password = password
 
     return this.userRepository.save(user, userId)
   }

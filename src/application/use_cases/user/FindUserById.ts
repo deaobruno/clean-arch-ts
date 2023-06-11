@@ -3,9 +3,7 @@ import UserRepository from '../../../domain/repositories/UserRepository'
 import UseCase from '../../UseCase'
 import NotFoundError from '../../errors/NotFoundError'
 
-export type FindUserByIdUseCase = UseCase<any, User>
-
-export class FindUserById implements FindUserByIdUseCase {
+export default class FindUserById implements UseCase<any, User> {
   constructor(private userRepository: UserRepository) {}
 
   async exec(input: any): Promise<User> {

@@ -10,6 +10,8 @@ import FindUsersSchema from '../../../../../schemas/user/FindUsersSchema'
 import FindUserByIdController from '../../../../../../adapters/controllers/user/FindUserByIdController'
 import UpdateUserController from '../../../../../../adapters/controllers/user/UpdateUserController'
 import UpdateUserSchema from '../../../../../schemas/user/UpdateUserSchema'
+import UpdateUserPasswordController from '../../../../../../adapters/controllers/user/UpdateUserPasswordController'
+import UpdateUserPasswordSchema from '../../../../../schemas/user/UpdateUserPasswordSchema'
 
 const repository = new InMemoryUserRepository()
 
@@ -18,6 +20,7 @@ const createAdminController = new CreateAdminController(repository, CreateUserSc
 const findUsersController = new FindUsersController(repository, FindUsersSchema)
 const findUserByIdController = new FindUserByIdController(repository)
 const updateUserController = new UpdateUserController(repository, UpdateUserSchema)
+const updateUserPasswordController = new UpdateUserPasswordController(repository, UpdateUserPasswordSchema)
 
 const customerPresenter = new CustomerPresenter()
 const adminPresenter = new AdminPresenter()
@@ -30,6 +33,7 @@ export default (server: Server) => {
   const findUsersRoute = server.route('get', `${basePath}`, findUsersController, adminPresenter)
   const findUserByIdRoute = server.route('get', `${basePath}/:userId`, findUserByIdController, customerPresenter)
   const updateUserRoute = server.route('put', `${basePath}/:userId`, updateUserController, customerPresenter)
+  const updateUserPasswordRoute = server.route('put', `${basePath}/:userId/update-password`, updateUserPasswordController, customerPresenter)
 
   return [
     createCustomerRoute,
@@ -37,5 +41,6 @@ export default (server: Server) => {
     findUsersRoute,
     findUserByIdRoute,
     updateUserRoute,
+    updateUserPasswordRoute,
   ]
 }
