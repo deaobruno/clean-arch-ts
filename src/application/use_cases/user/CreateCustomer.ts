@@ -4,7 +4,9 @@ import UseCase from '../../UseCase'
 import BadRequestError from '../../errors/BadRequestError'
 import ConflictError from '../../errors/ConflictError'
 
-export default class CreateCustomer implements UseCase {
+export type CreateCustomerUseCase = UseCase<any, User>
+
+export class CreateCustomer implements CreateCustomerUseCase {
   constructor(private _userRepository: UserRepository) {}
 
   async exec(input: any): Promise<User> {

@@ -18,11 +18,11 @@ export default abstract class InMemoryDriver<T> {
     if (paramKeys.length > 0) {
       dataKeys.forEach((key: string) => {
         const item = data[key]
-        let found = false
+        let found = true
 
         paramKeys.forEach((paramKey: string) => {
-          if (item[paramKey] === params[paramKey])
-            found = true
+          if (item[paramKey] !== params[paramKey])
+            found = false
         })
 
         if (found)

@@ -4,13 +4,13 @@ import Presenter from '../presenters/Presenter'
 import BadRequestError from '../../application/errors/BadRequestError'
 
 export type ControllerOptions = {
-  useCase: UseCase
+  useCase: UseCase<any, any>
   inputSchema?: Schema
   statusCode: number
 }
 
 export default abstract class Controller {
-  protected _useCase: UseCase
+  protected _useCase: UseCase<any, any>
   protected _inputSchema?: Schema
   protected _presenter?: Presenter
   protected _statusCode: number

@@ -29,6 +29,18 @@ export class User {
     Object.freeze(this)
   }
 
+  get isRoot(): boolean {
+    return this.level === LevelEnum.ROOT
+  }
+
+  get isAdmin(): boolean {
+    return this.level === LevelEnum.ADMIN
+  }
+
+  get isCustomer(): boolean {
+    return this.level === LevelEnum.CUSTOMER
+  }
+
   static create(params: UserParams, id?: string) {
     const { email, password, level } = params
     const emailRegex = /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/gi
