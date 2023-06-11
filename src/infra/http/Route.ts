@@ -4,10 +4,7 @@ import HttpRequest from './HttpRequest'
 import HttpResponse from './HttpResponse'
 
 export default class Route {
-  method = 'post'
-  path = '/users'
-
-  constructor(private _controller: Controller, private _presenter?: Presenter) {}
+  constructor(readonly method: string, readonly path: string, private _controller: Controller, private _presenter?: Presenter) {}
 
   private _getPayload(request: HttpRequest) {
     const { body, query, params } = request

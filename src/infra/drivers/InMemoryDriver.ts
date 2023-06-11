@@ -1,68 +1,65 @@
-import Repository from '../../domain/repositories/Repository'
+import Repository from "../../domain/repositories/Repository"
 
 let data: any[] = []
 
-export default abstract class InMemoryDriver<T extends { id?: string }> implements Repository<T> {
-  async save(entity: T): Promise<T> {
-    const { id } = entity
-
-    if (await this.exists(id)) {
+export default abstract class InMemoryDriver<T> implements Repository<T> {
+  async save(entity: T, id?: string): Promise<T> {
+    if (id && await this.exists(id))
       data = data.map((item: any) => item.id === id ? entity : item)
-    } else {
+    else
       data.push(entity)
-    }
 
     return entity
   }
 
-  async find(params: object = {}): Promise<T[]> {
-    const dataKeys = Object.keys(data);
-    const paramKeys = Object.keys(params);
-    const result: T[] = [];
+  async find(filters: object = {}): Promise<T[]> {
+    const dataKeys = Object.keys(data)
+    const paramKeys = Object.keys(filters)
+    const result: T[] = []
 
     if (paramKeys.length > 0) {
       dataKeys.forEach((key: string) => {
-        const item = data[key];
+        const item = data[key]
+        let found = true
 
         paramKeys.forEach((paramKey: string) => {
-          if (item[paramKey] === params[paramKey]) {
-            result.push(item);
-          }
-        });
-      });
+          if (item[paramKey] !== filters[paramKey])
+            found = false
+        })
+
+        if (found)
+          result.push(item)
+      })
     } else {
-      data.forEach((item: any) => {
-        result.push(item);
-      });
+      data.forEach((item: any) => result.push(item))
     }
 
     return result
   }
 
-  async findOne(params: object): Promise<T> {
-    const results = await this.find(params)
+  async findOne(filters: object): Promise<T> {
+    const results = await this.find(filters)
 
     return results[0]
   }
 
-  async findOneByID(id: string): Promise<T | undefined> {
-    return this.findOne({ id })
-  }
+  abstract findOneById(id?: string): Promise<T | undefined>
 
   async exists(id?: string): Promise<boolean> {
-    return !!await this.findOne({ id })
+    return !!await this.findOneById(id)
   }
 
-  async delete(id: string): Promise<void> {
-    data = data.filter((item: any) => item.id !== id)
-  }
+  async delete(filters: object): Promise<void> {
+    data = data.filter((item: any) => {
+      let found = true
 
-  async deleteMany(filters?: object): Promise<void> {
-    const items = await this.find(filters)
+      Object.keys(filters).forEach((paramKey: string) => {
+        if (item[paramKey] !== filters[paramKey])
+          found = false
+      })
 
-    items.forEach(async (item) => {
-      if (item.id)
-        await this.delete(item.id)
+      if (!found)
+        return item
     })
   }
 }

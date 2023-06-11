@@ -113,7 +113,7 @@ describe('/infra/drivers/InMemoryDriver.ts', () => {
 
     await customRepository.save(customObj)
 
-    const result = await customRepository.findOneByID(customObj.id)
+    const result = await customRepository.findOneById(customObj.id)
 
     expect(result).deep.equal(customObj)
   })

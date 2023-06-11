@@ -4,6 +4,10 @@ import Server from '../http/Server'
 import { Server as HttpServer } from 'http'
 import routes from '../http/api/v1/routes/routes'
 import bodyParser from 'body-parser'
+import NotFoundError from '../../application/errors/NotFoundError'
+import InternalServerError from '../../application/errors/InternalServerError'
+import Controller from '../../adapters/controllers/Controller'
+import Presenter from '../../adapters/presenters/Presenter'
 
 export default class ExpressDriver implements Server {
   app = express()
@@ -15,30 +19,29 @@ export default class ExpressDriver implements Server {
   httpPort = 8080
 
   start(): void {
-    this.app.use(bodyParser.json());
-    this.app.use(bodyParser.urlencoded({ extended: false }));
+    this.app.use(bodyParser.json())
+    this.app.use(bodyParser.urlencoded({ extended: false }))
     this.app.use('/api/v1', <any>routes(this))
 
     this.app.use((req: Request, res: Response, next: NextFunction) => {
-      next(new Error('Invalid URL'))
+      next(new NotFoundError('Invalid URL'))
     })
 
     this.app.use(
       (
-        error: Error & { statusCode?: number },
+        error: Error & { statusCode: number },
         req: Request,
         res: Response,
         next: NextFunction
       ) => {
         console.error(error.stack)
 
-        if (!error.statusCode) {
-          error = new Error(error.message) // eslint-disable-line no-param-reassign
-        }
+        if (!error.statusCode)
+          error = new InternalServerError(error.message) // eslint-disable-line no-param-reassign
 
         const { statusCode, message } = error
 
-        res.status(statusCode ?? 500).send({ error: message })
+        res.status(statusCode).send({ error: message })
       }
     )
 
@@ -52,7 +55,9 @@ export default class ExpressDriver implements Server {
     this.httpServer?.close(callback)
   }
 
-  route(route: Route): Router {
+  route(method: string, path: string, controller: Controller, presenter?: Presenter): Router {
+    const route = new Route(method.toLowerCase(), path, controller, presenter)
+
     return this.router[route.method](route.path, this.adaptRoute(route))
   }
 

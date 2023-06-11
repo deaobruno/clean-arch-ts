@@ -20,7 +20,7 @@ const userRepository: UserRepository = {
   async findOne(params: any): Promise<User | undefined> {
     return
   },
-  async findOneByID(id: string): Promise<User | undefined> {
+  async findOneById(id: string): Promise<User | undefined> {
     return
   },
   async findOneByEmail(email: string): Promise<User | undefined> {

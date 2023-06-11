@@ -6,7 +6,7 @@
   "scripts": {
     "test": "npm run test:unit",
     "test:unit": "nyc mocha -r ts-node/register test/unit/**/*.test.ts --recursive --exit",
-    "dev": "ts-node src/infra/http/api/server.ts"
+    "dev": "nodemon src/infra/http/api/server.ts"
   },
   "keywords": [],
   "author": "Bruno Oliveira",
@@ -19,6 +19,7 @@
     "@types/node": "^18.7.15",
     "chai": "^4.3.7",
     "mocha": "^10.2.0",
+    "nodemon": "^2.0.22",
     "nyc": "^15.1.0",
     "ts-node": "^10.9.1",
     "typescript": "^5.0.4"
