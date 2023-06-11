@@ -1,13 +1,13 @@
-import CreateCustomerController from '../../../../../../adapters/controllers/CreateCustomerController'
-import CreateAdminController from '../../../../../../adapters/controllers/CreateAdminController'
-import FindUsersController from '../../../../../../adapters/controllers/FindUsersController'
-import AdminPresenter from '../../../../../../adapters/presenters/AdminPresenter'
-import CustomerPresenter from '../../../../../../adapters/presenters/CustomerPresenter'
+import CreateCustomerController from '../../../../../../adapters/controllers/user/CreateCustomerController'
+import CreateAdminController from '../../../../../../adapters/controllers/user/CreateAdminController'
+import FindUsersController from '../../../../../../adapters/controllers/user/FindUsersController'
+import AdminPresenter from '../../../../../../adapters/presenters/user/AdminPresenter'
+import CustomerPresenter from '../../../../../../adapters/presenters/user/CustomerPresenter'
 import InMemoryUserRepository from '../../../../../../adapters/repositories/InMemoryUserRepository'
-import CreateUserSchema from '../../../../../schemas/CreateUserSchema'
+import CreateUserSchema from '../../../../../schemas/user/CreateUserSchema'
 import Route from '../../../../Route'
 import Server from '../../../../Server'
-import FindUsersSchema from '../../../../../schemas/FindUsersSchema'
+import FindUsersSchema from '../../../../../schemas/user/FindUsersSchema'
 
 const repository = new InMemoryUserRepository()
 
