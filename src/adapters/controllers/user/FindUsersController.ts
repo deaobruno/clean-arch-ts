@@ -5,6 +5,6 @@ import UserRepository from '../../../domain/repositories/UserRepository'
 
 export default class FindUsersController extends Controller {
   constructor(repository: UserRepository, inputSchema?: Schema, useCase = new FindUsers(repository)) {
-    super({ useCase, inputSchema, statusCode: 200 })
+    super({ useCase, inputSchema })
   }
 }

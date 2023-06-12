@@ -6,25 +6,21 @@ import BadRequestError from '../../application/errors/BadRequestError'
 export type ControllerOptions = {
   useCase: UseCase<any, any>
   inputSchema?: Schema
-  statusCode: number
 }
 
 export default abstract class Controller {
   protected _useCase: UseCase<any, any>
   protected _inputSchema?: Schema
   protected _presenter?: Presenter
-  protected _statusCode: number
 
   constructor(options: ControllerOptions) {
     const {
       useCase,
       inputSchema,
-      statusCode,
     } = options
 
     this._useCase = useCase
     this._inputSchema = inputSchema
-    this._statusCode = statusCode
   }
 
   async handle(payload: any): Promise<any> {
@@ -35,11 +31,6 @@ export default abstract class Controller {
         throw new BadRequestError(error.message)
     }
 
-    const response = await this._useCase.exec(payload)
-
-    return {
-      statusCode: this._statusCode,
-      response,
-    }
+    return await this._useCase.exec(payload)
   }
 }

@@ -3,10 +3,14 @@ import UserRepository from '../../../domain/repositories/UserRepository'
 import UseCase from '../../UseCase'
 import NotFoundError from '../../errors/NotFoundError'
 
-export default class FindUserById implements UseCase<any, User> {
+type Input = {
+  userId: string
+}
+
+export default class FindUserById implements UseCase<Input, User> {
   constructor(private userRepository: UserRepository) {}
 
-  async exec(input: any): Promise<User> {
+  async exec(input: Input): Promise<User> {
     const { userId } = input
     const user = await this.userRepository.findOneById(userId)
 

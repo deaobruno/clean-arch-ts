@@ -2,11 +2,11 @@
   "name": "clean-arch-ts",
   "version": "0.0.1",
   "description": "RESTful API example designed following Clean Architecture principles",
-  "main": "infra/http/api/server.js",
+  "main": "infra/app.js",
   "scripts": {
     "test": "npm run test:unit",
     "test:unit": "nyc mocha -r ts-node/register test/unit/**/*.test.ts --recursive --exit",
-    "dev": "nodemon src/infra/http/api/server.ts"
+    "dev": "nodemon src/infra/app.ts"
   },
   "keywords": [],
   "author": "Bruno Oliveira",
