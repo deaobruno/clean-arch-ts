@@ -5,6 +5,6 @@ import Controller from '../Controller'
 
 export default class FindUserByIdController extends Controller {
   constructor(repository: UserRepository, inputSchema?: Schema, useCase = new FindUserById(repository)) {
-    super({ useCase, inputSchema, statusCode: 200 })
+    super({ useCase, inputSchema })
   }
 }

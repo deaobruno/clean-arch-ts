@@ -5,6 +5,6 @@ import Controller from '../Controller'
 
 export default class UpdateUserController extends Controller {
   constructor(repository: UserRepository, inputSchema?: Schema, useCase = new UpdateUser(repository)) {
-    super({ useCase, inputSchema, statusCode: 200 })
+    super({ useCase, inputSchema })
   }
 }

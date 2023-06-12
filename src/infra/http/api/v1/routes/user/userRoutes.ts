@@ -30,13 +30,13 @@ const adminPresenter = new AdminPresenter()
 const basePath = '/users'
 
 export default (server: Server) => {
-  const createCustomerRoute = server.route('post', `${basePath}`, createCustomerController, customerPresenter)
-  const createAdminRoute = server.route('post', `${basePath}/admin`, createAdminController, adminPresenter)
-  const findUsersRoute = server.route('get', `${basePath}`, findUsersController, adminPresenter)
-  const findUserByIdRoute = server.route('get', `${basePath}/:userId`, findUserByIdController, customerPresenter)
-  const updateUserRoute = server.route('put', `${basePath}/:userId`, updateUserController, customerPresenter)
-  const updateUserPasswordRoute = server.route('put', `${basePath}/:userId/update-password`, updateUserPasswordController, customerPresenter)
-  const deleteUser = server.route('delete', `${basePath}/:userId`, deleteUserController)
+  const createCustomerRoute = server.route('post', `${basePath}`, 201, createCustomerController, customerPresenter)
+  const createAdminRoute = server.route('post', `${basePath}/admin`, 201, createAdminController, adminPresenter)
+  const findUsersRoute = server.route('get', `${basePath}`, 200, findUsersController, adminPresenter)
+  const findUserByIdRoute = server.route('get', `${basePath}/:userId`, 200, findUserByIdController, customerPresenter)
+  const updateUserRoute = server.route('put', `${basePath}/:userId`, 200, updateUserController, customerPresenter)
+  const updateUserPasswordRoute = server.route('put', `${basePath}/:userId/update-password`, 200, updateUserPasswordController, customerPresenter)
+  const deleteUser = server.route('delete', `${basePath}/:userId`, 204, deleteUserController)
 
   return [
     createCustomerRoute,

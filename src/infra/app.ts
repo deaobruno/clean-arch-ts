@@ -1,4 +1,4 @@
-import ExpressDriver from '../../drivers/ExpressDriver'
+import ExpressDriver from './drivers/ExpressDriver'
 
 const server = new ExpressDriver()
 

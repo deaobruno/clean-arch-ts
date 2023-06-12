@@ -25,8 +25,6 @@ export class User {
     this.email = email
     this.password = password
     this.level = level
-
-    // Object.freeze(this)
   }
 
   get isRoot(): boolean {

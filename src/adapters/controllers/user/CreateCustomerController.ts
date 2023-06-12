@@ -5,6 +5,6 @@ import CreateCustomer from '../../../application/use_cases/user/CreateCustomer'
 
 export default class CreateCustomerController extends Controller {
   constructor(repository: UserRepository, inputSchema?: Schema, useCase = new CreateCustomer(repository)) {
-    super({ useCase, inputSchema, statusCode: 201 })
+    super({ useCase, inputSchema })
   }
 }

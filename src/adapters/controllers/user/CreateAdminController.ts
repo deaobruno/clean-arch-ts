@@ -5,6 +5,6 @@ import CreateAdmin from '../../../application/use_cases/user/CreateAdmin'
 
 export default class CreateAdminController extends Controller {
   constructor(repository: UserRepository, inputSchema?: Schema, useCase = new CreateAdmin(repository)) {
-    super({ useCase, inputSchema, statusCode: 201 })
+    super({ useCase, inputSchema })
   }
 }
