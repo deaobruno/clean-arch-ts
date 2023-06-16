@@ -52,7 +52,6 @@ export class User {
     if (!Object.values(LevelEnum).includes(level))
       throw new Error('User: Invalid level')
 
-
     return new User(params, id)
   }
 }
