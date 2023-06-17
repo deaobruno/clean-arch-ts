@@ -1,10 +1,9 @@
-import Schema from '../../../infra/schemas/Schema'
-import Controller from '../Controller'
+import BaseController from '../BaseController'
 import FindUsers from '../../../application/use_cases/user/FindUsers'
-import UserRepository from '../../../domain/repositories/UserRepository'
+import FindUsersSchema from '../../../infra/schemas/user/FindUsersSchema'
 
-export default class FindUsersController extends Controller {
-  constructor(repository: UserRepository, inputSchema?: Schema, useCase = new FindUsers(repository)) {
+export default class FindUsersController extends BaseController {
+  constructor(useCase: FindUsers, inputSchema: typeof FindUsersSchema) {
     super({ useCase, inputSchema })
   }
 }

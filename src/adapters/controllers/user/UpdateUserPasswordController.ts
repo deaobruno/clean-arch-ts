@@ -1,10 +1,9 @@
+import BaseController from '../BaseController'
 import UpdateUserPassword from '../../../application/use_cases/user/UpdateUserPassword'
-import UserRepository from '../../../domain/repositories/UserRepository'
-import Schema from '../../../infra/schemas/Schema'
-import Controller from '../Controller'
+import UpdateUserSchema from '../../../infra/schemas/user/UpdateUserSchema'
 
-export default class UpdateUserPasswordController extends Controller {
-  constructor(repository: UserRepository, inputSchema?: Schema, useCase = new UpdateUserPassword(repository)) {
+export default class UpdateUserPasswordController extends BaseController {
+  constructor(useCase: UpdateUserPassword, inputSchema: typeof UpdateUserSchema) {
     super({ useCase, inputSchema })
   }
 }

@@ -1,7 +1,7 @@
 import { LevelEnum, User } from '../../../domain/User'
-import Presenter from '../Presenter'
+import IPresenter from '../IPresenter'
 
-export default class AdminPresenter implements Presenter {
+export default class AdminPresenter implements IPresenter {
   present(user: User) {
     const {
       user_id,

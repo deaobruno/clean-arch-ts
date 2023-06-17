@@ -1,10 +1,9 @@
-import Schema from '../../../infra/schemas/Schema'
-import Controller from '../Controller'
-import UserRepository from '../../../domain/repositories/UserRepository'
+import BaseController from '../BaseController'
 import CreateCustomer from '../../../application/use_cases/user/CreateCustomer'
+import CreateUserSchema from '../../../infra/schemas/user/CreateUserSchema'
 
-export default class CreateCustomerController extends Controller {
-  constructor(repository: UserRepository, inputSchema?: Schema, useCase = new CreateCustomer(repository)) {
+export default class CreateCustomerController extends BaseController {
+  constructor(useCase: CreateCustomer, inputSchema: typeof CreateUserSchema) {
     super({ useCase, inputSchema })
   }
 }

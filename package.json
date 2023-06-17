@@ -4,9 +4,11 @@
   "description": "RESTful API example designed following Clean Architecture principles",
   "main": "infra/app.js",
   "scripts": {
+    "build": "rm -rf dist/ && tsc",
+    "start": "npm run build && ts-node dist/infra/app.js",
+    "dev": "nodemon src/infra/app.ts",
     "test": "npm run test:unit",
-    "test:unit": "nyc mocha -r ts-node/register test/unit/**/*.test.ts --recursive --exit",
-    "dev": "nodemon src/infra/app.ts"
+    "test:unit": "nyc mocha -r ts-node/register test/unit/**/*.test.ts --recursive --exit"
   },
   "keywords": [],
   "author": "Bruno Oliveira",

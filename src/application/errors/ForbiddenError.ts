@@ -1,6 +1,6 @@
-import ApplicationError from './ApplicationError'
+import BaseError from './BaseError'
 
-export default class ForbiddenError extends ApplicationError {
+export default class ForbiddenError extends BaseError {
   statusCode = 403
 
   constructor(message = 'Forbidden') {

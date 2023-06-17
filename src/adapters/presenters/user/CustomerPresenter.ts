@@ -1,7 +1,7 @@
 import { User } from '../../../domain/User'
-import Presenter from '../Presenter'
+import IPresenter from '../IPresenter'
 
-export default class CustomerPresenter implements Presenter {
+export default class CustomerPresenter implements IPresenter {
   present(user: User) {
     const {
       user_id,

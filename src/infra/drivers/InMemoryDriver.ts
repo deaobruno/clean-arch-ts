@@ -1,56 +1,53 @@
-import Repository from "../../domain/repositories/Repository"
+import Repository from "../../domain/repositories/IRepository"
 
-let data: any[] = []
+export default class InMemoryDriver implements Repository<any> {
+  data: any[] = []
 
-export default abstract class InMemoryDriver<T> implements Repository<T> {
-  async save(entity: T, id?: string): Promise<T> {
-    if (id && await this.exists(id))
-      data = data.map((item: any) => item.id === id ? entity : item)
-    else
-      data.push(entity)
+  async save(entity: any, filters?: object): Promise<any> {
+    const item = filters && await this.findOne(filters)
+
+    if (item) {
+      const filterKeys = Object.keys(filters)
+      
+      this.data = this.data.map((item: any) => {
+        let found = true
+
+        filterKeys.forEach(paramKey => found = (item[paramKey] === filters[paramKey]) ? true : false)
+
+        return found ? entity : item
+      })
+    } else
+      this.data.push(entity)
 
     return entity
   }
 
-  async find(filters: object = {}): Promise<T[]> {
-    const dataKeys = Object.keys(data)
-    const paramKeys = Object.keys(filters)
-    const result: T[] = []
+  async find(filters: object = {}): Promise<any[]> {
+    const filterKeys = Object.keys(filters)
+    const result: any[] = []
+    
+    if (filterKeys.length <= 0) return this.data
+    
+    this.data.forEach((item: any) => {
+      let found = true
 
-    if (paramKeys.length > 0) {
-      dataKeys.forEach((key: string) => {
-        const item = data[key]
-        let found = true
+      filterKeys.forEach(paramKey => found = (item[paramKey] === filters[paramKey]) ? true : false)
 
-        paramKeys.forEach((paramKey: string) => {
-          if (item[paramKey] !== filters[paramKey])
-            found = false
-        })
-
-        if (found)
-          result.push(item)
-      })
-    } else {
-      data.forEach((item: any) => result.push(item))
-    }
+      if (found)
+        result.push(item)
+    })
 
     return result
   }
 
-  async findOne(filters: object): Promise<T> {
+  async findOne(filters: object): Promise<any> {
     const results = await this.find(filters)
 
     return results[0]
   }
 
-  abstract findOneById(id?: string): Promise<T | undefined>
-
-  async exists(id?: string): Promise<boolean> {
-    return !!await this.findOneById(id)
-  }
-
   async delete(filters: object): Promise<void> {
-    data = data.filter((item: any) => {
+    this.data = this.data.filter((item: any) => {
       let found = true
 
       Object.keys(filters).forEach((paramKey: string) => {

@@ -1,11 +1,11 @@
 import { expect } from 'chai'
-import Controller from '../../../../src/adapters/controllers/Controller'
+import BaseController from '../../../../src/adapters/controllers/Controller'
 
 describe('/adapters/controllers/Controller.ts', () => {
   it('should return a successful HttpResponse object without data', async () => {
     const statusCode = 200
 
-    class CustomController extends Controller {
+    class CustomController extends BaseController {
       constructor(dependencies: any) {
         super({ ...dependencies, statusCode })
       }
@@ -27,7 +27,7 @@ describe('/adapters/controllers/Controller.ts', () => {
     const statusCode = 200
     const body = { test: 'OK' }
 
-    class CustomController extends Controller {
+    class CustomController extends BaseController {
       constructor(dependencies: any) {
         super({ ...dependencies, statusCode })
       }
@@ -49,7 +49,7 @@ describe('/adapters/controllers/Controller.ts', () => {
     const statusCode = 200
     const body = { test: 'OK' }
 
-    class CustomController extends Controller {
+    class CustomController extends BaseController {
       constructor(dependencies: any) {
         super({ ...dependencies, statusCode })
       }
@@ -78,7 +78,7 @@ describe('/adapters/controllers/Controller.ts', () => {
     const statusCode = 200
     const body = [{ test: 'OK' }, { test: 'OK' }]
 
-    class CustomController extends Controller {
+    class CustomController extends BaseController {
       constructor(dependencies: any) {
         super({ ...dependencies, statusCode })
       }
@@ -108,7 +108,7 @@ describe('/adapters/controllers/Controller.ts', () => {
     const body = { test: 'OK' }
     const params = { id: 1 }
 
-    class CustomController extends Controller {
+    class CustomController extends BaseController {
       constructor(dependencies: any) {
         super({ ...dependencies, statusCode })
       }
@@ -130,7 +130,7 @@ describe('/adapters/controllers/Controller.ts', () => {
     const statusCode = 200
     const body = { test: '' }
 
-    class CustomController extends Controller {
+    class CustomController extends BaseController {
       constructor(dependencies: any) {
         super({ ...dependencies, statusCode })
       }

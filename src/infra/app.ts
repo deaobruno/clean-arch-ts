@@ -1,8 +1,9 @@
+import routes from './http/routes'
 import ExpressDriver from './drivers/ExpressDriver'
 
 const server = new ExpressDriver()
 
-server.start()
+server.start(routes)
 
 const gracefulShutdown = (signal: string, code: number) => {
   server.stop(() => {
