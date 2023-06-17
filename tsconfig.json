@@ -7,11 +7,12 @@
     "outDir": "./dist",
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
-    "suppressImplicitAnyIndexErrors": true,
     "strict": true,
     "skipLibCheck": true,
     "noImplicitAny": true,
-    "types": ["node", "mocha"]
+    "types": ["node", "mocha"],
+    "suppressImplicitAnyIndexErrors": true, // TODO: fix array index references to remove this options
+    "ignoreDeprecations": "5.0" // TODO: fix array index references to remove this options
   },
   "include": ["src/**/*.ts"],
   "exclude": ["./node_modules"]
