@@ -1,10 +1,10 @@
-import CreateAdminRoute from './CreateAdminRoute'
-import CreateCustomerRoute from './CreateCustomerRoute'
-import DeleteUserRoute from './DeleteUserRoute'
-import FindUserByIdRoute from './FindUserByIdRoute'
-import FindUsersRoute from './FindUsersRoute'
-import UpdateUserPasswordRoute from './UpdateUserPasswordRoute'
-import UpdateUserRoute from './UpdateUserRoute'
+import CreateAdminRoute from './routes/user/CreateAdminRoute'
+import CreateCustomerRoute from './routes/user/CreateCustomerRoute'
+import DeleteUserRoute from './routes/user/DeleteUserRoute'
+import FindUserByIdRoute from './routes/user/FindUserByIdRoute'
+import FindUsersRoute from './routes/user/FindUsersRoute'
+import UpdateUserPasswordRoute from './routes/user/UpdateUserPasswordRoute'
+import UpdateUserRoute from './routes/user/UpdateUserRoute'
 
 const basePath = '/users'
 

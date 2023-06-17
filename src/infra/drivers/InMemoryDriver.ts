@@ -1,4 +1,4 @@
-import Repository from "../../domain/repositories/Repository"
+import Repository from "../../domain/repositories/IRepository"
 
 export default class InMemoryDriver implements Repository<any> {
   data: any[] = []

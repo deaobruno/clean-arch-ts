@@ -1,21 +1,21 @@
-import Controller from '../../../../../adapters/controllers/Controller'
-import Middleware from '../../../../../adapters/middlewares/Middleware'
-import Presenter from '../../../../../adapters/presenters/Presenter'
+import BaseController from '../../../adapters/controllers/BaseController'
+import BaseMiddleware from '../../../adapters/middlewares/BaseMiddleware'
+import IPresenter from '../../../adapters/presenters/IPresenter'
 
 type RouteConfig = {
   path: string,
-  controller: Controller,
-  presenter?: Presenter,
-  middlewares?: Middleware[]
+  controller: BaseController,
+  presenter?: IPresenter,
+  middlewares?: BaseMiddleware[]
 }
 
-export default abstract class Route {
+export default abstract class BaseRoute {
   readonly abstract method: string
   readonly abstract statusCode: number
   readonly path: string
-  private _controller: Controller
-  private _presenter?: Presenter
-  readonly middlewares?: Middleware[]
+  private _controller: BaseController
+  private _presenter?: IPresenter
+  readonly middlewares?: BaseMiddleware[]
 
   constructor(routeConfig: RouteConfig) {
     const { path, controller, presenter, middlewares } = routeConfig

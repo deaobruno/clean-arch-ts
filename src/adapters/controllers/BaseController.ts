@@ -1,17 +1,17 @@
-import Schema from '../../infra/schemas/Schema'
-import UseCase from '../../application/UseCase'
-import Presenter from '../presenters/Presenter'
+import ISchema from '../../infra/schemas/ISchema'
+import IUseCase from '../../application/IUseCase'
+import IPresenter from '../presenters/IPresenter'
 import BadRequestError from '../../application/errors/BadRequestError'
 
 export type ControllerOptions = {
-  useCase: UseCase<any, any>
-  inputSchema?: Schema
+  useCase: IUseCase<any, any>
+  inputSchema?: ISchema
 }
 
-export default abstract class Controller {
-  protected _useCase: UseCase<any, any>
-  protected _inputSchema?: Schema
-  protected _presenter?: Presenter
+export default abstract class BaseController {
+  protected _useCase: IUseCase<any, any>
+  protected _inputSchema?: ISchema
+  protected _presenter?: IPresenter
 
   constructor(options: ControllerOptions) {
     const {
@@ -31,6 +31,6 @@ export default abstract class Controller {
         throw new BadRequestError(error.message)
     }
 
-    return await this._useCase.exec(payload)
+    return this._useCase.exec(payload)
   }
 }

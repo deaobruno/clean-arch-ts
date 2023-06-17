@@ -1,10 +1,10 @@
 import { User } from '../../../domain/User'
-import UserRepository from '../../../domain/repositories/UserRepository'
-import UseCase from '../../UseCase'
+import IUserRepository from '../../../domain/repositories/IUserRepository'
+import IUseCase from '../../IUseCase'
 import NotFoundError from '../../errors/NotFoundError'
 
-export default class FindUsers implements UseCase<any, User[]> {
-  constructor(private _userRepository: UserRepository) {}
+export default class FindUsers implements IUseCase<any, User[]> {
+  constructor(private _userRepository: IUserRepository) {}
 
   async exec(input: any): Promise<User[]> {
     // input.level = LevelEnum.CUSTOMER

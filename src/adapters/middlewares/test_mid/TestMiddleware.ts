@@ -1,6 +1,6 @@
-import Middleware from "./Middleware"
+import BaseMiddleware from "../BaseMiddleware"
 
-export default class TestMiddleware extends Middleware {
+export default class TestMiddleware extends BaseMiddleware {
   constructor() {
     super({
       exec: async () => {

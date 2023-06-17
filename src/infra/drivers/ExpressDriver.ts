@@ -1,14 +1,13 @@
 import express, { NextFunction, Request, Response, Router } from 'express'
-import Route from '../http/api/v1/routes/Route'
-import Server from '../http/Server'
+import BaseRoute from '../http/routes/BaseRoute'
+import IServer from '../http/IServer'
 import { Server as HttpServer } from 'http'
-import routes from '../http/api/v1/routes/routes'
 import bodyParser from 'body-parser'
 import NotFoundError from '../../application/errors/NotFoundError'
 import InternalServerError from '../../application/errors/InternalServerError'
-import Middleware from '../../adapters/middlewares/Middleware'
+import BaseMiddleware from '../../adapters/middlewares/BaseMiddleware'
 
-export default class ExpressDriver implements Server {
+export default class ExpressDriver implements IServer {
   app = express()
 
   httpServer?: HttpServer
@@ -17,7 +16,7 @@ export default class ExpressDriver implements Server {
 
   httpPort = 8080
 
-  start(): void {
+  start(routes: BaseRoute[]): void {
     this.app.use(bodyParser.json())
     this.app.use(bodyParser.urlencoded({ extended: false }))
     this.app.use('/api/v1', this.adaptRoutes(routes))
@@ -54,11 +53,33 @@ export default class ExpressDriver implements Server {
     this.httpServer?.close(callback)
   }
 
-  adaptRoutes(routes: Route[]): Router[] {
-    return routes.map(this.adaptRoute)
+  adaptRoutes(routes: BaseRoute[]): Router[] {
+    return routes.map(this._adaptRoute)
   }
 
-  adaptRoute = (route: Route): Router => {
+  adaptMiddleware = (middleware: BaseMiddleware) =>
+    async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+      try {
+        await middleware.handle(this._getPayload(req))
+
+        next()
+      } catch (error) {
+        next(error)
+      }
+    }
+
+  adaptHandler = (route: BaseRoute) =>
+    async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+      try {
+        res
+          .status(route.statusCode)
+          .send(await route.handle(this._getPayload(req)))
+      } catch (error) {
+        next(error)
+      }
+    }
+
+  private _adaptRoute = (route: BaseRoute): Router => {
     let handlers = []
 
     route.middlewares?.forEach(middleware => handlers.push(this.adaptMiddleware(middleware)))
@@ -68,29 +89,7 @@ export default class ExpressDriver implements Server {
     return this.router[route.method](route.path, handlers)
   }
 
-  adaptMiddleware = (middleware: Middleware) =>
-    async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-      try {
-        await middleware.handle(this.getPayload(req))
-
-        next()
-      } catch (error) {
-        next(error)
-      }
-    }
-
-  adaptHandler = (route: Route) =>
-    async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-      try {
-        res
-          .status(route.statusCode)
-          .send(await route.handle(this.getPayload(req)))
-      } catch (error) {
-        next(error)
-      }
-    }
-
-  getPayload(req: Request) {
+  private _getPayload(req: Request) {
     const { body, query, params } = req
     const reqData = [body, query, params].filter(
       (value) => Object.keys(value).length !== 0

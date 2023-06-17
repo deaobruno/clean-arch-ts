@@ -1,20 +1,20 @@
-import UserRepository from '../../../domain/repositories/UserRepository'
-import UseCase from '../../UseCase'
+import IUserRepository from '../../../domain/repositories/IUserRepository'
+import IUseCase from '../../IUseCase'
 import NotFoundError from '../../errors/NotFoundError'
 
 type Input = {
   userId: string
 }
 
-export default class DeleteUser implements UseCase<Input, void> {
-  constructor(private userRepository: UserRepository) {}
+export default class DeleteUser implements IUseCase<Input, void> {
+  constructor(private _userRepository: IUserRepository) {}
 
   async exec(input: Input): Promise<void> {
     const { userId: user_id } = input
 
-    if (!await this.userRepository.findOne({ user_id }))
+    if (!await this._userRepository.findOne({ user_id }))
       throw new NotFoundError('User not found')
 
-    await this.userRepository.delete({ user_id })
+    await this._userRepository.delete({ user_id })
   }
 }

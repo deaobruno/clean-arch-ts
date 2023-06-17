@@ -1,15 +1,15 @@
 import { User } from '../../../domain/User'
-import UserRepository from '../../../domain/repositories/UserRepository'
-import UseCase from '../../UseCase'
+import IUserRepository from '../../../domain/repositories/IUserRepository'
+import IUseCase from '../../IUseCase'
 import NotFoundError from '../../errors/NotFoundError'
 
-export default class UpdateUser implements UseCase<any, User> {
-  constructor(private userRepository: UserRepository) {}
+export default class UpdateUser implements IUseCase<any, User> {
+  constructor(private _userRepository: IUserRepository) {}
 
   async exec(input: any): Promise<User> {
     const { userId, ...userInput } = input
     const filter = { user_id: userId }
-    const user = await this.userRepository.findOne(filter)
+    const user = await this._userRepository.findOne(filter)
 
     // if (!user || (user && !user.isCustomer))
     if (!user)
@@ -19,6 +19,6 @@ export default class UpdateUser implements UseCase<any, User> {
       user[key] = userInput[key]
     })
 
-    return await this.userRepository.save(user)
+    return this._userRepository.save(user)
   }
 }

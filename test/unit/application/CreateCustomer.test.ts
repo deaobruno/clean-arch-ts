@@ -2,9 +2,9 @@ import { faker } from '@faker-js/faker'
 import { expect } from 'chai'
 import CreateCustomer from '../../../src/application/user/CreateCustomer'
 import { User } from '../../../src/domain/User'
-import UserRepository from '../../../src/domain/repositories/UserRepository'
+import IUserRepository from '../../../src/domain/repositories/UserRepository'
 
-const userRepository: UserRepository = {
+const userRepository: IUserRepository = {
   async save(data: any): Promise<User> {
     return data
   },

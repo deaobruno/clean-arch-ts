@@ -1,6 +1,6 @@
-import ApplicationError from './ApplicationError'
+import BaseError from './BaseError'
 
-export default class UnauthorizedError extends ApplicationError {
+export default class UnauthorizedError extends BaseError {
   statusCode = 401
 
   constructor(message = 'Unauthorized') {

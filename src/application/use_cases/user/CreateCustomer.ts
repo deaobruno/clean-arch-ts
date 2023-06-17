@@ -1,6 +1,6 @@
 import { User } from '../../../domain/User'
-import UserRepository from '../../../domain/repositories/UserRepository'
-import UseCase from '../../UseCase'
+import IUserRepository from '../../../domain/repositories/IUserRepository'
+import IUseCase from '../../IUseCase'
 import ConflictError from '../../errors/ConflictError'
 
 type Input = {
@@ -8,8 +8,8 @@ type Input = {
   password: string
 }
 
-export default class CreateCustomer implements UseCase<Input, User> {
-  constructor(private _userRepository: UserRepository) {}
+export default class CreateCustomer implements IUseCase<Input, User> {
+  constructor(private _userRepository: IUserRepository) {}
 
   async exec(input: Input): Promise<User> {
     const { email } = input
