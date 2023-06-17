@@ -13,7 +13,7 @@ export default class UpdateUserPassword implements UseCase<Input, User> {
 
   async exec(input: Input): Promise<User> {
     const { userId, password } = input
-    const user = await this.userRepository.findOneById(userId)
+    const user = await this.userRepository.findOne({ user_id: userId })
 
     // if (!user || (user && !user.isCustomer))
     if (!user)
@@ -21,6 +21,6 @@ export default class UpdateUserPassword implements UseCase<Input, User> {
 
     user.password = password
 
-    return this.userRepository.save(user, userId)
+    return this.userRepository.save(user)
   }
 }

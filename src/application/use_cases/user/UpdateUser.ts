@@ -8,7 +8,8 @@ export default class UpdateUser implements UseCase<any, User> {
 
   async exec(input: any): Promise<User> {
     const { userId, ...userInput } = input
-    const user = await this.userRepository.findOneById(userId)
+    const filter = { user_id: userId }
+    const user = await this.userRepository.findOne(filter)
 
     // if (!user || (user && !user.isCustomer))
     if (!user)
@@ -18,6 +19,6 @@ export default class UpdateUser implements UseCase<any, User> {
       user[key] = userInput[key]
     })
 
-    return this.userRepository.save(user, userId)
+    return await this.userRepository.save(user)
   }
 }

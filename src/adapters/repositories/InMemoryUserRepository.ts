@@ -2,24 +2,26 @@ import { User } from '../../domain/User'
 import UserRepository from '../../domain/repositories/UserRepository'
 import InMemoryDriver from '../../infra/drivers/InMemoryDriver'
 
-export default class InMemoryUserRepository extends InMemoryDriver<User> implements UserRepository {
-  constructor() {
-    super()
-  }
+export default class InMemoryUserRepository implements UserRepository {
+  constructor(private _driver: InMemoryDriver) {}
 
-  async findOneById(user_id: string): Promise<User | undefined> {
-    return this.findOne({ user_id })
+  find = (filters?: object) => (this._driver.find)(filters)
+  findOne = (filters: object) => (this._driver.findOne)(filters)
+  delete = (filters: object) => (this._driver.delete)(filters)
+
+  async save(entity: User) {
+    return this._driver.save(entity, { user_id: entity.user_id })
   }
 
   async findOneByEmail(email: string): Promise<User | undefined> {
-    return this.findOne({ email })
+    return this._driver.findOne({ email })
   }
 
   async findAdmins(): Promise<User[]> {
-    return this.find({ level: 0 })
+    return this._driver.find({ level: 0 })
   }
 
   async findCustomers(): Promise<User[]> {
-    return this.find({ level: 1 })
+    return this._driver.find({ level: 1 })
   }
 }

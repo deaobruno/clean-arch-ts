@@ -20,7 +20,7 @@ export default class ExpressDriver implements Server {
   start(): void {
     this.app.use(bodyParser.json())
     this.app.use(bodyParser.urlencoded({ extended: false }))
-    this.app.use('/api/v1', this.adaptRoutes(<any>routes))
+    this.app.use('/api/v1', this.adaptRoutes(routes))
 
     this.app.use((req: Request, res: Response, next: NextFunction) => {
       next(new NotFoundError('Invalid URL'))
@@ -96,9 +96,9 @@ export default class ExpressDriver implements Server {
       (value) => Object.keys(value).length !== 0
     )
     const data = reqData.length > 1
-      ? [Object.assign(reqData[0], reqData[1], reqData[2])]
-      : reqData
+      ? Object.assign(reqData[0], reqData[1], reqData[2])
+      : reqData[0]
 
-    return data[0] ?? {}
+    return data ?? {}
   }
 }

@@ -12,7 +12,7 @@ export default class FindUserById implements UseCase<Input, User> {
 
   async exec(input: Input): Promise<User> {
     const { userId } = input
-    const user = await this.userRepository.findOneById(userId)
+    const user = await this.userRepository.findOne({ user_id: userId })
 
     // if (!user || (user && !user.isCustomer))
     if (!user)
