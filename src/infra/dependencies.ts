@@ -21,12 +21,15 @@ import UpdateUserPasswordController from "../adapters/controllers/user/UpdateUse
 import DeleteUserController from "../adapters/controllers/user/DeleteUserController"
 import CustomerPresenter from "../adapters/presenters/user/CustomerPresenter"
 import AdminPresenter from "../adapters/presenters/user/AdminPresenter"
+import CryptoDriver from "./drivers/CryptoDriver"
 
 const inMemoryDriver = new InMemoryDriver()
+const cryptoDriver = new CryptoDriver()
+
 const userRepository = new InMemoryUserRepository(inMemoryDriver)
 
-const createAdminUseCase = new CreateAdmin(userRepository)
-const createCustomerUseCase = new CreateCustomer(userRepository)
+const createAdminUseCase = new CreateAdmin(userRepository, cryptoDriver)
+const createCustomerUseCase = new CreateCustomer(userRepository, cryptoDriver)
 const findUsersUseCase = new FindUsers(userRepository)
 const findUserByIdUseCase = new FindUserById(userRepository)
 const updateUserUseCase = new UpdateUser(userRepository)

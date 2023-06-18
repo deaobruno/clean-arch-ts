@@ -1,5 +1,6 @@
 import { User } from '../../../domain/User'
 import IUserRepository from '../../../domain/repositories/IUserRepository'
+import CryptoDriver from '../../../infra/drivers/CryptoDriver'
 import IUseCase from '../../IUseCase'
 import ConflictError from '../../errors/ConflictError'
 
@@ -9,7 +10,7 @@ type Input = {
 }
 
 export default class CreateCustomer implements IUseCase<Input, User> {
-  constructor(private _userRepository: IUserRepository) {}
+  constructor(private _userRepository: IUserRepository, private _cryptoDriver: CryptoDriver) {}
 
   async exec(input: Input): Promise<User> {
     const { email } = input
@@ -19,7 +20,7 @@ export default class CreateCustomer implements IUseCase<Input, User> {
     if (userByEmail instanceof User)
       throw new ConflictError('Email already in use')
 
-    const user = User.create({ ...input, level: 2 })
+    const user = User.create({ user_id: this._cryptoDriver.generateID(), level: 2, ...input })
 
     await this._userRepository.save(user)
 
