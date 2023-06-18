@@ -1,5 +1,3 @@
-import CryptoDriver from '../infra/drivers/CryptoDriver'
-
 export enum LevelEnum {
   ROOT,
   ADMIN,
@@ -7,6 +5,7 @@ export enum LevelEnum {
 }
 
 type UserParams = {
+  user_id: string
   email: string
   password: string
   level: LevelEnum
@@ -18,10 +17,10 @@ export class User {
   public password: string
   readonly level: number
 
-  private constructor(params: UserParams, id?: string) {
-    const { email, password, level } = params
+  private constructor(params: UserParams) {
+    const { user_id, email, password, level } = params
 
-    this.user_id = id ?? CryptoDriver.generateID()
+    this.user_id = user_id
     this.email = email
     this.password = password
     this.level = level
@@ -39,9 +38,12 @@ export class User {
     return this.level === LevelEnum.CUSTOMER
   }
 
-  static create(params: UserParams, id?: string) {
-    const { email, password, level } = params
+  static create(params: UserParams) {
+    const { user_id, email, password, level } = params
     const emailRegex = /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/gi
+
+    if (!user_id)
+      throw new Error('User: ID required')
 
     if (!emailRegex.test(email))
       throw new Error('User: Invalid email')
@@ -52,6 +54,6 @@ export class User {
     if (!Object.values(LevelEnum).includes(level))
       throw new Error('User: Invalid level')
 
-    return new User(params, id)
+    return new User(params)
   }
 }

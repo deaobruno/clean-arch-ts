@@ -1,5 +1,5 @@
-export default class CryptoAdapter {
-  static generateID(): string {
+export default class CryptoDriver {
+  generateID(): string {
     return crypto.randomUUID()
   }
 }
