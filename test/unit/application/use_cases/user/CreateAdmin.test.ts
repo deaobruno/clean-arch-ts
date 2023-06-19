@@ -1,6 +1,6 @@
 import { faker } from '@faker-js/faker'
 import { expect } from 'chai'
-import CreateCustomer from '../../../../../src/application/use_cases/user/CreateCustomer'
+import CreateAdmin from '../../../../../src/application/use_cases/user/CreateAdmin'
 import { LevelEnum, User } from '../../../../../src/domain/User'
 import CryptoDriver from '../../../../../src/infra/drivers/CryptoDriver'
 import InMemoryDriver from '../../../../../src/infra/drivers/InMemoryDriver'
@@ -17,39 +17,39 @@ const user_id = faker.datatype.uuid()
 const email = faker.internet.email()
 const password = '$Baw@Y;nH5dUq!HRBkGctpiFLYM=73icS^_?e#dTWmM[?g]:1aV#X&w]bXp:KC+h'
 
-describe('/application/CreateCustomer.ts', () => {
-  const createCustomerUseCase = new CreateCustomer(userRepository, cryptoDriver)
+describe('/application/CreateAdmin.ts', () => {
+  const createAdminUseCase = new CreateAdmin(userRepository, cryptoDriver)
 
-  it('should successfully create a Customer', async () => {
+  it('should successfully create a Admin', async () => {
     const userParams = {
       email,
       password,
       confirm_password: password,
-      level: 2
+      level: 1
     }
 
-    const user = await createCustomerUseCase.exec(userParams)
+    const user = await createAdminUseCase.exec(userParams)
 
     expect(typeof user.user_id).equal('string')
     expect(user.email).equal(userParams.email)
     expect(user.password).equal(userParams.password)
-    expect(user.level).equal(LevelEnum.CUSTOMER)
-    expect(user.isCustomer).equal(true)
+    expect(user.level).equal(LevelEnum.ADMIN)
+    expect(user.isAdmin).equal(true)
   })
 
-  it('should fail when trying to create a Customer with repeated email', async () => {
+  it('should fail when trying to create a Admin with repeated email', async () => {
     const userParams = {
       email,
       password,
       confirm_password: password,
-      level: 2
+      level: 1
     }
 
     userRepository.findOneByEmail = async (email) => {
       return User.create({ user_id, ...userParams })
     }
 
-    await createCustomerUseCase.exec(userParams)
+    await createAdminUseCase.exec(userParams)
       .catch((error) => {
         expect(error.message).equal('Email already in use')
       })

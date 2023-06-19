@@ -6,7 +6,7 @@ import NotFoundError from '../../errors/NotFoundError'
 export default class FindUsers implements IUseCase<any, User[]> {
   constructor(private _userRepository: IUserRepository) {}
 
-  async exec(input: any): Promise<User[]> {
+  async exec(input?: any): Promise<User[]> {
     // input.level = LevelEnum.CUSTOMER
 
     const users = await this._userRepository.find(input)

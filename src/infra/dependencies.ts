@@ -1,5 +1,5 @@
 import InMemoryDriver from "./drivers/InMemoryDriver"
-import InMemoryUserRepository from "../adapters/repositories/inMemory/InMemoryUserRepository"
+import UserRepository from "../adapters/repositories/UserRepository"
 import CreateAdmin from "../application/use_cases/user/CreateAdmin"
 import CreateCustomer from "../application/use_cases/user/CreateCustomer"
 import FindUsers from "../application/use_cases/user/FindUsers"
@@ -26,7 +26,7 @@ import CryptoDriver from "./drivers/CryptoDriver"
 const inMemoryDriver = new InMemoryDriver()
 const cryptoDriver = new CryptoDriver()
 
-const userRepository = new InMemoryUserRepository(inMemoryDriver)
+const userRepository = new UserRepository(inMemoryDriver)
 
 const createAdminUseCase = new CreateAdmin(userRepository, cryptoDriver)
 const createCustomerUseCase = new CreateCustomer(userRepository, cryptoDriver)

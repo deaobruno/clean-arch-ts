@@ -1,14 +1,13 @@
 import { faker } from '@faker-js/faker'
 import { expect } from 'chai'
-import InMemoryUserRepository from '../../../../../src/adapters/repositories/inMemory/InMemoryUserRepository'
-import InMemoryDriver from '../../../../../src/infra/drivers/InMemoryDriver'
-import { User } from '../../../../../src/domain/User'
+import UserRepository from '../../../../src/adapters/repositories/UserRepository'
+import InMemoryDriver from '../../../../src/infra/drivers/InMemoryDriver'
+import { User } from '../../../../src/domain/User'
 
 const inMemoryDriver = new InMemoryDriver()
+const userRepository = new UserRepository(inMemoryDriver)
 
-const userRepository = new InMemoryUserRepository(inMemoryDriver)
-
-describe('/adapters/repositories/InMemoryUserRepository', () => {
+describe('/adapters/repositories/UserRepository', () => {
   afterEach(async () => {
     const users = await userRepository.find()
 
