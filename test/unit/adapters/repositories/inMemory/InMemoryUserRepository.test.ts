@@ -5,7 +5,6 @@ import InMemoryDriver from '../../../../../src/infra/drivers/InMemoryDriver'
 import { User } from '../../../../../src/domain/User'
 
 const inMemoryDriver = new InMemoryDriver()
-
 const userRepository = new InMemoryUserRepository(inMemoryDriver)
 
 describe('/adapters/repositories/InMemoryUserRepository', () => {

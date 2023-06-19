@@ -2,32 +2,12 @@ import { faker } from '@faker-js/faker'
 import { expect } from 'chai'
 import CreateAdmin from '../../../../../src/application/use_cases/user/CreateAdmin'
 import { LevelEnum, User } from '../../../../../src/domain/User'
-import IUserRepository from '../../../../../src/domain/repositories/IUserRepository'
 import CryptoDriver from '../../../../../src/infra/drivers/CryptoDriver'
+import InMemoryDriver from '../../../../../src/infra/drivers/InMemoryDriver'
+import InMemoryUserRepository from '../../../../../src/adapters/repositories/inMemory/InMemoryUserRepository'
 
-const userRepository: IUserRepository = {
-  async save(data: any, filters?: object): Promise<User> {
-    return data
-  },
-  async find(filters?: any): Promise<User[]> {
-    return []
-  },
-  async findCustomers(): Promise<User[]> {
-    return []
-  },
-  async findAdmins(): Promise<User[]> {
-    return []
-  },
-  async findOne(filters: any): Promise<User | undefined> {
-    return
-  },
-  async findOneByEmail(email: string): Promise<User | undefined> {
-    return
-  },
-  async delete(filters: any): Promise<void> {
-    return
-  },
-}
+const inMemoryDriver = new InMemoryDriver()
+const userRepository = new InMemoryUserRepository(inMemoryDriver)
 
 const cryptoDriver: CryptoDriver = {
   generateID: () => faker.datatype.uuid()
