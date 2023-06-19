@@ -1,9 +1,9 @@
 import { faker } from '@faker-js/faker'
 import { expect } from 'chai'
-import CreateCustomer from '../../../src/application/use_cases/user/CreateCustomer'
-import { LevelEnum, User } from '../../../src/domain/User'
-import IUserRepository from '../../../src/domain/repositories/IUserRepository'
-import CryptoDriver from '../../../src/infra/drivers/CryptoDriver'
+import CreateCustomer from '../../../../../src/application/use_cases/user/CreateCustomer'
+import { LevelEnum, User } from '../../../../../src/domain/User'
+import IUserRepository from '../../../../../src/domain/repositories/IUserRepository'
+import CryptoDriver from '../../../../../src/infra/drivers/CryptoDriver'
 
 const userRepository: IUserRepository = {
   async save(data: any, filters?: object): Promise<User> {

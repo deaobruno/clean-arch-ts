@@ -1,6 +1,6 @@
 import { faker } from '@faker-js/faker'
 import { expect } from 'chai'
-import CreateUserSchema from '../../../../src/infra/schemas/user/CreateUserSchema'
+import CreateUserSchema from '../../../../../src/infra/schemas/user/CreateUserSchema'
 
 const { validate } = CreateUserSchema
 
