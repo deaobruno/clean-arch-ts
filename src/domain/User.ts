@@ -40,10 +40,11 @@ export class User {
 
   static create(params: UserParams) {
     const { user_id, email, password, level } = params
+    const uuidRegex = /^[0-9a-f]{8}\b-[0-9a-f]{4}\b-[0-9a-f]{4}\b-[0-9a-f]{4}\b-[0-9a-f]{12}$/gi
     const emailRegex = /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/gi
 
-    if (!user_id)
-      throw new Error('User: ID required')
+    if (!uuidRegex.test(user_id))
+      throw new Error('User: Invalid UUID')
 
     if (!emailRegex.test(email))
       throw new Error('User: Invalid email')
