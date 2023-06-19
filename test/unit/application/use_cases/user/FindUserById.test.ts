@@ -1,5 +1,5 @@
 import { faker } from '@faker-js/faker'
-import InMemoryUserRepository from "../../../../../src/adapters/repositories/inMemory/InMemoryUserRepository"
+import UserRepository from "../../../../../src/adapters/repositories/UserRepository"
 import { User } from "../../../../../src/domain/User"
 import InMemoryDriver from "../../../../../src/infra/drivers/InMemoryDriver"
 import FindUserById from '../../../../../src/application/use_cases/user/FindUserById'
@@ -7,7 +7,7 @@ import { expect } from 'chai'
 import NotFoundError from '../../../../../src/application/errors/NotFoundError'
 
 const inMemoryDriver = new InMemoryDriver()
-const userRepository = new InMemoryUserRepository(inMemoryDriver)
+const userRepository = new UserRepository(inMemoryDriver)
 
 describe('/application/FindUserById.ts', () => {
   const findUsersById = new FindUserById(userRepository)

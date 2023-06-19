@@ -1,8 +1,8 @@
-import { User } from '../../../domain/User'
-import IUserRepository from '../../../domain/repositories/IUserRepository'
-import InMemoryDriver from '../../../infra/drivers/InMemoryDriver'
+import { User } from '../../domain/User'
+import IUserRepository from '../../domain/repositories/IUserRepository'
+import InMemoryDriver from '../../infra/drivers/InMemoryDriver'
 
-export default class InMemoryUserRepository implements IUserRepository {
+export default class UserRepository implements IUserRepository {
   constructor(private _driver: InMemoryDriver) {}
 
   find = (filters?: object) => (this._driver.find)(filters)

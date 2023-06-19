@@ -4,10 +4,10 @@ import CreateAdmin from '../../../../../src/application/use_cases/user/CreateAdm
 import { LevelEnum, User } from '../../../../../src/domain/User'
 import CryptoDriver from '../../../../../src/infra/drivers/CryptoDriver'
 import InMemoryDriver from '../../../../../src/infra/drivers/InMemoryDriver'
-import InMemoryUserRepository from '../../../../../src/adapters/repositories/inMemory/InMemoryUserRepository'
+import UserRepository from '../../../../../src/adapters/repositories/UserRepository'
 
 const inMemoryDriver = new InMemoryDriver()
-const userRepository = new InMemoryUserRepository(inMemoryDriver)
+const userRepository = new UserRepository(inMemoryDriver)
 
 const cryptoDriver: CryptoDriver = {
   generateID: () => faker.datatype.uuid()
