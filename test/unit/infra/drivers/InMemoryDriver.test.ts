@@ -1,18 +1,29 @@
 import { expect } from 'chai'
 import InMemoryDriver from '../../../../src/infra/drivers/InMemoryDriver'
 
-class InMemoryCustomRepository extends InMemoryDriver {}
+class InMemoryCustomRepository {
+  constructor(private _driver: InMemoryDriver) {}
 
-const customRepository = new InMemoryCustomRepository()
+  async save(entity: any) {
+    return this._driver.save(entity, { id: entity.id })
+  }
+
+  find = (filters?: object) => (this._driver.find)(filters)
+  findOne = (filters: object) => (this._driver.findOne)(filters)
+  delete = (filters: object) => (this._driver.delete)(filters)
+}
+
+const inMemoryDriver = new InMemoryDriver()
+const customRepository = new InMemoryCustomRepository(inMemoryDriver)
 
 describe('/infra/drivers/InMemoryDriver.ts', () => {
   afterEach(async () => {
-    const users = await customRepository.find()
+    const items = await customRepository.find()
 
-    users.forEach(async user => {
-      const { user_id } = user
+    items.forEach(async item => {
+      const { id } = item
 
-      await customRepository.delete({ user_id })
+      await customRepository.delete({ id })
     })
   })
 
@@ -33,6 +44,13 @@ describe('/infra/drivers/InMemoryDriver.ts', () => {
     }
 
     await customRepository.save(customObj)
+
+    const customObj2 = {
+      id: '2',
+      test: false
+    }
+
+    await customRepository.save(customObj2)
 
     customObj.test = false
 
