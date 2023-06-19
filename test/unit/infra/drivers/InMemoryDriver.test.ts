@@ -1,18 +1,30 @@
 import { expect } from 'chai'
 import InMemoryDriver from '../../../../src/infra/drivers/InMemoryDriver'
 
-type CustomEntity = {
-  id: string
-  test: boolean
+class InMemoryCustomRepository {
+  constructor(private _driver: InMemoryDriver) {}
+
+  async save(entity: any) {
+    return this._driver.save(entity, { id: entity.id })
+  }
+
+  find = (filters?: object) => (this._driver.find)(filters)
+  findOne = (filters: object) => (this._driver.findOne)(filters)
+  delete = (filters: object) => (this._driver.delete)(filters)
 }
 
-class InMemoryCustomRepository extends InMemoryDriver<CustomEntity> {}
-
-const customRepository = new InMemoryCustomRepository()
+const inMemoryDriver = new InMemoryDriver()
+const customRepository = new InMemoryCustomRepository(inMemoryDriver)
 
 describe('/infra/drivers/InMemoryDriver.ts', () => {
   afterEach(async () => {
-    await customRepository.deleteMany()
+    const items = await customRepository.find()
+
+    items.forEach(async item => {
+      const { id } = item
+
+      await customRepository.delete({ id })
+    })
   })
 
   it('should save a new item', async () => {
@@ -32,6 +44,13 @@ describe('/infra/drivers/InMemoryDriver.ts', () => {
     }
 
     await customRepository.save(customObj)
+
+    const customObj2 = {
+      id: '2',
+      test: false
+    }
+
+    await customRepository.save(customObj2)
 
     customObj.test = false
 
@@ -105,46 +124,6 @@ describe('/infra/drivers/InMemoryDriver.ts', () => {
     expect(result).deep.equal(customObj)
   })
 
-  it('should find one item passing an ID as a filter', async () => {
-    const customObj = {
-      id: '1',
-      test: true
-    }
-
-    await customRepository.save(customObj)
-
-    const result = await customRepository.findOneById(customObj.id)
-
-    expect(result).deep.equal(customObj)
-  })
-
-  it('should return true when validating item existence using right ID as a filter', async () => {
-    const customObj = {
-      id: '1',
-      test: true
-    }
-
-    await customRepository.save(customObj)
-
-    const result = await customRepository.exists(customObj.id)
-
-    expect(result).equal(true)
-  })
-
-  it('should return false when validating item existence using wrong ID as a filter', async () => {
-    const customObj = {
-      id: '1',
-      test: true
-    }
-
-    await customRepository.save(customObj)
-
-    const result = await customRepository.exists('2')
-
-    expect(result).equal(false)
-
-  })
-
   it('should delete one item passing an ID as a filter', async () => {
     const customObj = {
       id: '1',
@@ -153,42 +132,7 @@ describe('/infra/drivers/InMemoryDriver.ts', () => {
 
     await customRepository.save(customObj)
 
-    await customRepository.delete(customObj.id)
-
-    const result = await customRepository.find()
-
-    expect(result).length(0)
-  })
-
-  it('should delete many items passing a filter', async () => {
-    for (let i = 0; i < 2; i++)
-      await customRepository.save({
-        id: `${i}`,
-        test: true
-      })
-
-    const customObj = {
-      id: '3',
-      test: false
-    }
-
-    await customRepository.save(customObj)
-
-    await customRepository.deleteMany({ test: true })
-
-    const result = await customRepository.find()
-
-    expect(result).length(1)
-  })
-
-  it('should delete all items', async () => {
-    for (let i = 0; i < 2; i++)
-      await customRepository.save({
-        id: `${i}`,
-        test: true
-      })
-
-    await customRepository.deleteMany()
+    await customRepository.delete({ id: customObj.id })
 
     const result = await customRepository.find()
 

@@ -18,10 +18,10 @@ export default class InMemoryUserRepository implements IUserRepository {
   }
 
   async findAdmins(): Promise<User[]> {
-    return this._driver.find({ level: 0 })
+    return this._driver.find({ level: 1 })
   }
 
   async findCustomers(): Promise<User[]> {
-    return this._driver.find({ level: 1 })
+    return this._driver.find({ level: 2 })
   }
 }
