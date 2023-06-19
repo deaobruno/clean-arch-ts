@@ -5,7 +5,7 @@ describe('/adapters/controllers/Controller.ts', () => {
   it('should return successfully without data', async () => {
     class CustomController extends BaseController {
       constructor(dependencies: any) {
-        super({ ...dependencies })
+        super(dependencies)
       }
     }
 
@@ -25,7 +25,7 @@ describe('/adapters/controllers/Controller.ts', () => {
 
     class CustomController extends BaseController {
       constructor(dependencies: any) {
-        super({ ...dependencies })
+        super(dependencies)
       }
     }
 
@@ -46,7 +46,7 @@ describe('/adapters/controllers/Controller.ts', () => {
 
     class CustomController extends BaseController {
       constructor(dependencies: any) {
-        super({ ...dependencies })
+        super(dependencies)
       }
     }
 
@@ -66,7 +66,7 @@ describe('/adapters/controllers/Controller.ts', () => {
 
     class CustomController extends BaseController {
       constructor(dependencies: any) {
-        super({ ...dependencies })
+        super(dependencies)
       }
     }
 
@@ -76,8 +76,8 @@ describe('/adapters/controllers/Controller.ts', () => {
       }
     }
     const inputSchema = {
-      validate: async (payload: any) => {
-        if (!payload.test) throw new Error('"test" is required')
+      validate: (payload: any) => {
+        if (!payload.test) return new Error('"test" is required')
       }
     }
     const customerController = new CustomController({ useCase, inputSchema })
