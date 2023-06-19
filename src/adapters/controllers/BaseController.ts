@@ -1,6 +1,5 @@
 import ISchema from '../../infra/schemas/ISchema'
 import IUseCase from '../../application/IUseCase'
-import IPresenter from '../presenters/IPresenter'
 import BadRequestError from '../../application/errors/BadRequestError'
 
 export type ControllerOptions = {
@@ -11,7 +10,6 @@ export type ControllerOptions = {
 export default abstract class BaseController {
   protected _useCase: IUseCase<any, any>
   protected _inputSchema?: ISchema
-  protected _presenter?: IPresenter
 
   constructor(options: ControllerOptions) {
     const {
@@ -25,10 +23,10 @@ export default abstract class BaseController {
 
   async handle(payload: any): Promise<any> {
     if (this._inputSchema) {
-      const error = this._inputSchema.validate(payload)
+      const validation = this._inputSchema.validate(payload)
 
-      if (error instanceof Error)
-        throw new BadRequestError(error.message)
+      if (validation instanceof Error)
+        throw new BadRequestError(validation.message)
     }
 
     return this._useCase.exec(payload)
