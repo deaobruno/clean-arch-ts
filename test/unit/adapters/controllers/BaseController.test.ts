@@ -1,19 +1,20 @@
 import { expect } from 'chai'
 import BaseController from '../../../../src/adapters/controllers/BaseController'
 
+class CustomController extends BaseController {
+  constructor(dependencies: any) {
+    super(dependencies)
+  }
+}
+
 describe('/adapters/controllers/Controller.ts', () => {
   it('should return successfully without data', async () => {
-    class CustomController extends BaseController {
-      constructor(dependencies: any) {
-        super(dependencies)
-      }
-    }
-
     const useCase = {
       exec: async (data: any) => {
         return
       }
     }
+
     const customerController = new CustomController({ useCase })
     const result = await customerController.handle({ headers: {}, body: {}, query: {}, params: {} })
 
