@@ -8,10 +8,9 @@ import NotFoundError from '../../../../../src/application/errors/NotFoundError'
 
 const inMemoryDriver = new InMemoryDriver()
 const userRepository = new UserRepository(inMemoryDriver)
+const findUsersById = new FindUserById(userRepository)
 
 describe('/application/FindUserById.ts', () => {
-  const findUsersById = new FindUserById(userRepository)
-
   afterEach(async () => {
     const users = await userRepository.find()
 
