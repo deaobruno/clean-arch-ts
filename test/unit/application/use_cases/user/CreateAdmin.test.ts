@@ -16,10 +16,9 @@ const cryptoDriver: CryptoDriver = {
 const user_id = faker.datatype.uuid()
 const email = faker.internet.email()
 const password = '$Baw@Y;nH5dUq!HRBkGctpiFLYM=73icS^_?e#dTWmM[?g]:1aV#X&w]bXp:KC+h'
+const createAdmin = new CreateAdmin(userRepository, cryptoDriver)
 
 describe('/application/CreateAdmin.ts', () => {
-  const createAdminUseCase = new CreateAdmin(userRepository, cryptoDriver)
-
   it('should successfully create a Admin', async () => {
     const userParams = {
       email,
@@ -28,7 +27,7 @@ describe('/application/CreateAdmin.ts', () => {
       level: 1
     }
 
-    const user = await createAdminUseCase.exec(userParams)
+    const user = await createAdmin.exec(userParams)
 
     expect(typeof user.user_id).equal('string')
     expect(user.email).equal(userParams.email)
@@ -49,7 +48,7 @@ describe('/application/CreateAdmin.ts', () => {
       return User.create({ user_id, ...userParams })
     }
 
-    await createAdminUseCase.exec(userParams)
+    await createAdmin.exec(userParams)
       .catch((error) => {
         expect(error.message).equal('Email already in use')
       })

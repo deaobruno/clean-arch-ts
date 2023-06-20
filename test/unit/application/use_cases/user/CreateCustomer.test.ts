@@ -16,10 +16,9 @@ const cryptoDriver: CryptoDriver = {
 const user_id = faker.datatype.uuid()
 const email = faker.internet.email()
 const password = '$Baw@Y;nH5dUq!HRBkGctpiFLYM=73icS^_?e#dTWmM[?g]:1aV#X&w]bXp:KC+h'
+const createCustomer = new CreateCustomer(userRepository, cryptoDriver)
 
 describe('/application/CreateCustomer.ts', () => {
-  const createCustomerUseCase = new CreateCustomer(userRepository, cryptoDriver)
-
   it('should successfully create a Customer', async () => {
     const userParams = {
       email,
@@ -28,7 +27,7 @@ describe('/application/CreateCustomer.ts', () => {
       level: 2
     }
 
-    const user = await createCustomerUseCase.exec(userParams)
+    const user = await createCustomer.exec(userParams)
 
     expect(typeof user.user_id).equal('string')
     expect(user.email).equal(userParams.email)
@@ -49,7 +48,7 @@ describe('/application/CreateCustomer.ts', () => {
       return User.create({ user_id, ...userParams })
     }
 
-    await createCustomerUseCase.exec(userParams)
+    await createCustomer.exec(userParams)
       .catch((error) => {
         expect(error.message).equal('Email already in use')
       })
