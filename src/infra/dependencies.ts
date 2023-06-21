@@ -1,7 +1,7 @@
 import InMemoryDriver from "./drivers/InMemoryDriver"
 import UserRepository from "../adapters/repositories/UserRepository"
 import { CreateAdmin } from "../application/use_cases/user/CreateAdmin"
-import CreateCustomer from "../application/use_cases/user/CreateCustomer"
+import { Register } from "../application/use_cases/auth/Register"
 import { FindUsers } from "../application/use_cases/user/FindUsers"
 import FindUserById from "../application/use_cases/user/FindUserById"
 import { UpdateUser } from "../application/use_cases/user/UpdateUser"
@@ -13,7 +13,7 @@ import UpdateUserSchema from "./schemas/user/UpdateUserSchema"
 import UpdateUserPasswordSchema from "./schemas/user/UpdateUserPasswordSchema"
 import TestMiddleware from "../adapters/middlewares/test_mid/TestMiddleware"
 import CreateAdminController from "../adapters/controllers/user/CreateAdminController"
-import CreateCustomerController from "../adapters/controllers/user/CreateCustomerController"
+import RegisterController from "../adapters/controllers/auth/RegisterController"
 import FindUsersController from "../adapters/controllers/user/FindUsersController"
 import FindUserByIdController from "../adapters/controllers/user/FindUserByIdController"
 import UpdateUserController from "../adapters/controllers/user/UpdateUserController"
@@ -28,8 +28,8 @@ const cryptoDriver = new CryptoDriver()
 
 const userRepository = new UserRepository(inMemoryDriver)
 
+const registerUseCase = new Register(userRepository, cryptoDriver)
 const createAdminUseCase = new CreateAdmin(userRepository, cryptoDriver)
-const createCustomerUseCase = new CreateCustomer(userRepository, cryptoDriver)
 const findUsersUseCase = new FindUsers(userRepository)
 const findUserByIdUseCase = new FindUserById(userRepository)
 const updateUserUseCase = new UpdateUser(userRepository)
@@ -38,8 +38,8 @@ const deleteUserUseCase = new DeleteUser(userRepository)
 
 const testMiddleware = new TestMiddleware()
 
+const registerController = new RegisterController(registerUseCase, CreateAdminSchema)
 const createAdminController = new CreateAdminController(createAdminUseCase, CreateAdminSchema)
-const createCustomerController = new CreateCustomerController(createCustomerUseCase, CreateAdminSchema)
 const findUsersController = new FindUsersController(findUsersUseCase, FindUsersSchema)
 const findUserByIdController = new FindUserByIdController(findUserByIdUseCase)
 const updateUserController = new UpdateUserController(updateUserUseCase, UpdateUserSchema)
@@ -54,8 +54,8 @@ export default {
     testMiddleware,
   },
   controllers: {
+    registerController,
     createAdminController,
-    createCustomerController,
     findUsersController,
     findUserByIdController,
     updateUserController,

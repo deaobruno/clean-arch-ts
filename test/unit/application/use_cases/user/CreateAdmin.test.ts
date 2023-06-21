@@ -16,7 +16,7 @@ const email = faker.internet.email()
 const password = faker.internet.password()
 const createAdmin = new CreateAdmin(userRepository, cryptoDriver)
 
-describe('/application/CreateAdmin.ts', () => {
+describe('/application/use_cases/user/CreateAdmin.ts', () => {
   it('should successfully create a Admin', async () => {
     const userParams = {
       email,

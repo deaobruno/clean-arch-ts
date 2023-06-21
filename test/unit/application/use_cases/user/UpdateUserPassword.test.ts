@@ -20,9 +20,11 @@ describe('/application/use_cases/user/UpdateUserPassword.ts', () => {
   before(async () => await userRepository.save(User.create(userData)))
 
   it('should update the password of an existing user', async () => {
+    const password = faker.internet.password()
     const updateData = {
       userId: user_id,
-      password: faker.internet.password(),
+      password,
+      confirm_password: password,
     }
     const result = await updateUserPassword.exec(updateData)
 
@@ -33,7 +35,7 @@ describe('/application/use_cases/user/UpdateUserPassword.ts', () => {
   })
 
   it('should fail when trying to update an user password passing wrong ID', async () => {
-    await updateUserPassword.exec({ userId: '', password: '' })
+    await updateUserPassword.exec({ userId: '', password: '', confirm_password: '' })
       .catch(error => {
         expect(error.message).equal('User not found')
       })
