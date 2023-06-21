@@ -1,5 +1,4 @@
 import CreateAdminRoute from './routes/user/CreateAdminRoute'
-import CreateCustomerRoute from './routes/user/CreateCustomerRoute'
 import DeleteUserRoute from './routes/user/DeleteUserRoute'
 import FindUserByIdRoute from './routes/user/FindUserByIdRoute'
 import FindUsersRoute from './routes/user/FindUsersRoute'
@@ -15,7 +14,6 @@ export default (dependencies: any) => {
     },
     controllers: {
       createAdminController,
-      createCustomerController,
       findUsersController,
       findUserByIdController,
       updateUserController,
@@ -29,7 +27,6 @@ export default (dependencies: any) => {
   } = dependencies
 
   return [
-    new CreateCustomerRoute(basePath, createCustomerController, customerPresenter),
     new CreateAdminRoute(`${basePath}/admin`, createAdminController, adminPresenter, [testMiddleware]),
     new FindUsersRoute(basePath, findUsersController, customerPresenter),
     new FindUserByIdRoute(`${basePath}/:userId`, findUserByIdController, customerPresenter),

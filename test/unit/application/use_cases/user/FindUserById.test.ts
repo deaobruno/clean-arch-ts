@@ -10,7 +10,7 @@ const inMemoryDriver = new InMemoryDriver()
 const userRepository = new UserRepository(inMemoryDriver)
 const findUsersById = new FindUserById(userRepository)
 
-describe('/application/FindUserById.ts', () => {
+describe('/application/use_cases/user/FindUserById.ts', () => {
   afterEach(async () => {
     const users = await userRepository.find()
 

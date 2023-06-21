@@ -1,5 +1,7 @@
+import { UpdateUserInput } from '../../../application/use_cases/user/UpdateUser'
+
 export default {
-  validate(payload: any): void | Error {
+  validate(payload: UpdateUserInput): void | Error {
     let error
 
     Object.keys(payload).forEach(key => {
@@ -17,7 +19,7 @@ export default {
           if (typeof email !== 'string')
             error = new Error('"email" must be a string')
 
-          if (!emailRegex.test(email))
+          if (email && !emailRegex.test(email))
             error = new Error('Invalid "email" format')
 
           break

@@ -7,7 +7,7 @@ class CustomController extends BaseController {
   }
 }
 
-describe('/adapters/controllers/Controller.ts', () => {
+describe('/adapters/controllers/BaseController.ts', () => {
   it('should return successfully without data', async () => {
     const useCase = {
       exec: async (data: any) => {

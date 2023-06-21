@@ -3,13 +3,17 @@ import IUserRepository from '../../../domain/repositories/IUserRepository'
 import IUseCase from '../../IUseCase'
 import NotFoundError from '../../errors/NotFoundError'
 
-export default class UpdateUser implements IUseCase<any, User> {
+export type UpdateUserInput = {
+  userId: string
+  email?: string
+}
+
+export class UpdateUser implements IUseCase<UpdateUserInput, User> {
   constructor(private _userRepository: IUserRepository) {}
 
-  async exec(input: any): Promise<User> {
+  async exec(input: UpdateUserInput): Promise<User> {
     const { userId, ...userInput } = input
-    const filter = { user_id: userId }
-    const user = await this._userRepository.findOne(filter)
+    const user = await this._userRepository.findOne({ user_id: userId })
 
     // if (!user || (user && !user.isCustomer))
     if (!user)

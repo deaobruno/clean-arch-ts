@@ -1,5 +1,7 @@
+import { UpdateUserPasswordInput } from "../../../application/use_cases/user/UpdateUserPassword"
+
 export default {
-  validate(payload: any): void | Error {
+  validate(payload: UpdateUserPasswordInput): void | Error {
     const { password, confirm_password } = payload
 
     if (!password)

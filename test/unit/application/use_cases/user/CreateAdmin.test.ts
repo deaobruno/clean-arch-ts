@@ -1,24 +1,22 @@
 import { faker } from '@faker-js/faker'
 import { expect } from 'chai'
-import CreateAdmin from '../../../../../src/application/use_cases/user/CreateAdmin'
+import { CreateAdmin } from '../../../../../src/application/use_cases/user/CreateAdmin'
 import { LevelEnum, User } from '../../../../../src/domain/User'
 import CryptoDriver from '../../../../../src/infra/drivers/CryptoDriver'
 import InMemoryDriver from '../../../../../src/infra/drivers/InMemoryDriver'
 import UserRepository from '../../../../../src/adapters/repositories/UserRepository'
 
 const inMemoryDriver = new InMemoryDriver()
-const userRepository = new UserRepository(inMemoryDriver)
-
 const cryptoDriver: CryptoDriver = {
   generateID: () => faker.datatype.uuid()
 }
-
+const userRepository = new UserRepository(inMemoryDriver)
 const user_id = faker.datatype.uuid()
 const email = faker.internet.email()
-const password = '$Baw@Y;nH5dUq!HRBkGctpiFLYM=73icS^_?e#dTWmM[?g]:1aV#X&w]bXp:KC+h'
+const password = faker.internet.password()
 const createAdmin = new CreateAdmin(userRepository, cryptoDriver)
 
-describe('/application/CreateAdmin.ts', () => {
+describe('/application/use_cases/user/CreateAdmin.ts', () => {
   it('should successfully create a Admin', async () => {
     const userParams = {
       email,

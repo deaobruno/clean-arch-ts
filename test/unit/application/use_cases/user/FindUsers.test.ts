@@ -2,7 +2,7 @@ import { faker } from '@faker-js/faker'
 import UserRepository from "../../../../../src/adapters/repositories/UserRepository"
 import { User } from "../../../../../src/domain/User"
 import InMemoryDriver from "../../../../../src/infra/drivers/InMemoryDriver"
-import FindUsers from '../../../../../src/application/use_cases/user/FindUsers'
+import { FindUsers } from '../../../../../src/application/use_cases/user/FindUsers'
 import { expect } from 'chai'
 import NotFoundError from '../../../../../src/application/errors/NotFoundError'
 
@@ -10,7 +10,7 @@ const inMemoryDriver = new InMemoryDriver()
 const userRepository = new UserRepository(inMemoryDriver)
 const findUsers = new FindUsers(userRepository)
 
-describe('/application/FindUsers.ts', () => {
+describe('/application/use_cases/user/FindUsers.ts', () => {
   afterEach(async () => {
     const users = await userRepository.find()
 

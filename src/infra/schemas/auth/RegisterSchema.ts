@@ -1,5 +1,7 @@
+import { RegisterInput } from "../../../application/use_cases/auth/Register"
+
 export default {
-  validate(payload: any): void | Error {
+  validate(payload: RegisterInput): void | Error {
     const { email, password, confirm_password } = payload
     const emailRegex = /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/gi
 

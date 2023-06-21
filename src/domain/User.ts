@@ -43,17 +43,23 @@ export class User {
     const uuidRegex = /^[0-9a-f]{8}\b-[0-9a-f]{4}\b-[0-9a-f]{4}\b-[0-9a-f]{4}\b-[0-9a-f]{12}$/gi
     const emailRegex = /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/gi
 
-    if (!uuidRegex.test(user_id))
-      throw new Error('User: Invalid UUID')
+    if (!user_id)
+      throw new Error('User: "user_id" required')
+
+    if (!user_id || (user_id && !uuidRegex.test(user_id)))
+      throw new Error('User: Invalid "user_id"')
+
+    if (!email)
+      throw new Error('User: "email" required')
 
     if (!emailRegex.test(email))
-      throw new Error('User: Invalid email')
+      throw new Error('User: Invalid "email"')
 
     if (!password)
-      throw new Error('User: Password required')
+      throw new Error('User: "password" required')
 
     if (!Object.values(LevelEnum).includes(level))
-      throw new Error('User: Invalid level')
+      throw new Error('User: Invalid "level"')
 
     return new User(params)
   }

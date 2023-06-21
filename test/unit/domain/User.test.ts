@@ -4,7 +4,7 @@ import { LevelEnum, User } from '../../../src/domain/User'
 
 const user_id = faker.datatype.uuid()
 const email = faker.internet.email()
-const password = '$Baw@Y;nH5dUq!HRBkGctpiFLYM=73icS^_?e#dTWmM[?g]:1aV#X&w]bXp:KC+h'
+const password = faker.internet.password()
 
 describe('/domain/User.ts', () => {
   it('should create a root User entity object', () => {
@@ -55,7 +55,7 @@ describe('/domain/User.ts', () => {
     expect(user.isCustomer).equal(true)
   })
 
-  it('should fail when tryin to create an User entity with empty user_id', () => {
+  it('should fail when trying to create an User entity with empty user_id', () => {
     const userParams = {
       user_id: '',
       email,
@@ -63,7 +63,18 @@ describe('/domain/User.ts', () => {
       level: 1
     }
 
-    expect(() => User.create(userParams)).throw('User: Invalid UUID')
+    expect(() => User.create(userParams)).throw('User: "user_id" required')
+  })
+
+  it('should fail when trying to create an User entity with invalid user_id', () => {
+    const userParams = {
+      user_id: 'test',
+      email,
+      password,
+      level: 1
+    }
+
+    expect(() => User.create(userParams)).throw('User: Invalid "user_id"')
   })
 
   it('should fail when trying to create an User entity with empty email', () => {
@@ -74,7 +85,7 @@ describe('/domain/User.ts', () => {
       level: 0
     }
 
-    expect(() => User.create(userParams)).throw('User: Invalid email')
+    expect(() => User.create(userParams)).throw('User: "email" required')
   })
 
   it('should fail when trying to create an User entity with invalid email', () => {
@@ -85,7 +96,7 @@ describe('/domain/User.ts', () => {
       level: 0
     }
 
-    expect(() => User.create(userParams)).throw('User: Invalid email')
+    expect(() => User.create(userParams)).throw('User: Invalid "email"')
   })
 
   it('should fail when trying to create an User entity with empty password', () => {
@@ -96,7 +107,7 @@ describe('/domain/User.ts', () => {
       level: 0
     }
 
-    expect(() => User.create(userParams)).throw('User: Password required')
+    expect(() => User.create(userParams)).throw('User: "password" required')
   })
 
   it('should fail when trying to create an User entity with invalid level', () => {
@@ -107,6 +118,6 @@ describe('/domain/User.ts', () => {
       level: -1
     }
 
-    expect(() => User.create(userParams)).throw('User: Invalid level')
+    expect(() => User.create(userParams)).throw('User: Invalid "level"')
   })
 })
