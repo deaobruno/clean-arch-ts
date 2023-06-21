@@ -1,5 +1,5 @@
 import BaseController from '../BaseController'
-import UpdateUser from '../../../application/use_cases/user/UpdateUser'
+import { UpdateUser } from '../../../application/use_cases/user/UpdateUser'
 import UpdateUserSchema from '../../../infra/schemas/user/UpdateUserSchema'
 
 export default class UpdateUserController extends BaseController {

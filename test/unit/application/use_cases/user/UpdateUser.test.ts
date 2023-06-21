@@ -3,7 +3,7 @@ import { expect } from "chai"
 import InMemoryDriver from "../../../../../src/infra/drivers/InMemoryDriver"
 import UserRepository from "../../../../../src/adapters/repositories/UserRepository"
 import { LevelEnum, User } from "../../../../../src/domain/User"
-import UpdateUser from '../../../../../src/application/use_cases/user/UpdateUser'
+import { UpdateUser } from '../../../../../src/application/use_cases/user/UpdateUser'
 
 const inMemoryDriver = new InMemoryDriver()
 const userRepository = new UserRepository(inMemoryDriver)
