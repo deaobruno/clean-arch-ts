@@ -1,5 +1,7 @@
+import { FindUsersInput } from "../../../application/use_cases/user/FindUsers"
+
 export default {
-  validate(payload: any): void | Error {
+  validate(payload: FindUsersInput): void | Error {
     let error
 
     Object.keys(payload).forEach(key => {
@@ -14,7 +16,7 @@ export default {
           if (typeof email !== 'string')
             error = new Error('"email" must be a string')
 
-          if (!emailRegex.test(email))
+          if (email && !emailRegex.test(email))
             error = new Error('Invalid "email" format')
 
           break

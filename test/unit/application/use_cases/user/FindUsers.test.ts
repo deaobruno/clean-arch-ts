@@ -2,7 +2,7 @@ import { faker } from '@faker-js/faker'
 import UserRepository from "../../../../../src/adapters/repositories/UserRepository"
 import { User } from "../../../../../src/domain/User"
 import InMemoryDriver from "../../../../../src/infra/drivers/InMemoryDriver"
-import FindUsers from '../../../../../src/application/use_cases/user/FindUsers'
+import { FindUsers } from '../../../../../src/application/use_cases/user/FindUsers'
 import { expect } from 'chai'
 import NotFoundError from '../../../../../src/application/errors/NotFoundError'
 

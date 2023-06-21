@@ -3,10 +3,14 @@ import IUserRepository from '../../../domain/repositories/IUserRepository'
 import IUseCase from '../../IUseCase'
 import NotFoundError from '../../errors/NotFoundError'
 
-export default class FindUsers implements IUseCase<any, User[]> {
+export type FindUsersInput = {
+  email?: string
+}
+
+export class FindUsers implements IUseCase<FindUsersInput, User[]> {
   constructor(private _userRepository: IUserRepository) {}
 
-  async exec(input?: any): Promise<User[]> {
+  async exec(input?: FindUsersInput): Promise<User[]> {
     // input.level = LevelEnum.CUSTOMER
 
     const users = await this._userRepository.find(input)
