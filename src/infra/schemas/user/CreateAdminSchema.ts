@@ -1,5 +1,7 @@
+import { CreateAdminInput } from "../../../application/use_cases/user/CreateAdmin"
+
 export default {
-  validate(payload: any): void | Error {
+  validate(payload: CreateAdminInput): void | Error {
     const { email, password, confirm_password } = payload
     const emailRegex = /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/gi
 

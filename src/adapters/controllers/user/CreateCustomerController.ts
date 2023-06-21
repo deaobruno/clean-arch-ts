@@ -1,9 +1,9 @@
 import BaseController from '../BaseController'
 import CreateCustomer from '../../../application/use_cases/user/CreateCustomer'
-import CreateUserSchema from '../../../infra/schemas/user/CreateUserSchema'
+import CreateAdminSchema from '../../../infra/schemas/user/CreateAdminSchema'
 
 export default class CreateCustomerController extends BaseController {
-  constructor(useCase: CreateCustomer, inputSchema: typeof CreateUserSchema) {
+  constructor(useCase: CreateCustomer, inputSchema: typeof CreateAdminSchema) {
     super({ useCase, inputSchema })
   }
 }

@@ -1,13 +1,13 @@
 import InMemoryDriver from "./drivers/InMemoryDriver"
 import UserRepository from "../adapters/repositories/UserRepository"
-import CreateAdmin from "../application/use_cases/user/CreateAdmin"
+import { CreateAdmin } from "../application/use_cases/user/CreateAdmin"
 import CreateCustomer from "../application/use_cases/user/CreateCustomer"
 import { FindUsers } from "../application/use_cases/user/FindUsers"
 import FindUserById from "../application/use_cases/user/FindUserById"
 import { UpdateUser } from "../application/use_cases/user/UpdateUser"
 import { UpdateUserPassword } from "../application/use_cases/user/UpdateUserPassword"
 import DeleteUser from "../application/use_cases/user/DeleteUser"
-import CreateUserSchema from "./schemas/user/CreateUserSchema"
+import CreateAdminSchema from "./schemas/user/CreateAdminSchema"
 import FindUsersSchema from "./schemas/user/FindUsersSchema"
 import UpdateUserSchema from "./schemas/user/UpdateUserSchema"
 import UpdateUserPasswordSchema from "./schemas/user/UpdateUserPasswordSchema"
@@ -38,8 +38,8 @@ const deleteUserUseCase = new DeleteUser(userRepository)
 
 const testMiddleware = new TestMiddleware()
 
-const createAdminController = new CreateAdminController(createAdminUseCase, CreateUserSchema)
-const createCustomerController = new CreateCustomerController(createCustomerUseCase, CreateUserSchema)
+const createAdminController = new CreateAdminController(createAdminUseCase, CreateAdminSchema)
+const createCustomerController = new CreateCustomerController(createCustomerUseCase, CreateAdminSchema)
 const findUsersController = new FindUsersController(findUsersUseCase, FindUsersSchema)
 const findUserByIdController = new FindUserByIdController(findUserByIdUseCase)
 const updateUserController = new UpdateUserController(updateUserUseCase, UpdateUserSchema)
