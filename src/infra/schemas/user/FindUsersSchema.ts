@@ -1,7 +1,5 @@
-import { FindUsersInput } from "../../../application/use_cases/user/FindUsers"
-
 export default {
-  validate(payload: FindUsersInput): void | Error {
+  validate(payload: any): void | Error {
     let error
 
     Object.keys(payload).forEach(key => {
@@ -11,10 +9,7 @@ export default {
           const emailRegex = /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/gi
 
           if (!email)
-            error = new Error('"email" is empty')
-
-          if (typeof email !== 'string')
-            error = new Error('"email" must be a string')
+            error = new Error('"email" is required')
 
           if (email && !emailRegex.test(email))
             error = new Error('Invalid "email" format')
@@ -22,7 +17,7 @@ export default {
           break
       
         default:
-          error = new Error(`Invalid search param: ${key}`)
+          error = new Error(`Invalid param: "${key}"`)
       }
     })
 
