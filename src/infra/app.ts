@@ -1,7 +1,7 @@
 import routes from './http/routes'
 import ExpressDriver from './drivers/ExpressDriver'
 
-const server = new ExpressDriver()
+const server = new ExpressDriver(8080)
 
 server.start(routes)
 
