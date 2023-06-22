@@ -13,7 +13,7 @@ describe('/infra/schemas/user/FindUsersSchema.ts', () => {
     expect(validation).equal(undefined)
   })
 
-  it('should fail when missing email', () => {
+  it('should fail when email is empty', () => {
     const validation = <Error>validate({
       email: '',
     })
