@@ -1,12 +1,11 @@
 export default {
   validate(payload: any): void | Error {
-    const { password, confirm_password } = payload
+    const { userId, password, confirm_password } = payload
     let error
 
     Object.keys(payload).forEach(key => {
       switch (key) {
         case 'userId':
-          const { userId } = payload
           const uuidRegex = /^[0-9a-f]{8}\b-[0-9a-f]{4}\b-[0-9a-f]{4}\b-[0-9a-f]{4}\b-[0-9a-f]{12}$/gi
 
           if (!userId)

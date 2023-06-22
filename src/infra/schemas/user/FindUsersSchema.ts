@@ -17,7 +17,7 @@ export default {
           break
       
         default:
-          error = new Error(`Invalid search param: "${key}"`)
+          error = new Error(`Invalid param: "${key}"`)
       }
     })
 
