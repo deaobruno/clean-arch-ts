@@ -6,13 +6,13 @@ const { validate } = CreateAdminSchema
 
 describe('/infra/schemas/user/CreateAdminSchema.ts', () => {
   it('should execute without errors', () => {
-    validate({
+    const validation = validate({
       email: faker.internet.email(),
       password: 'test',
       confirm_password: 'test',
     })
 
-    expect(true)
+    expect(validation).equal(undefined)
   })
 
   it('should fail when missing email', () => {
