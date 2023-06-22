@@ -1,23 +1,41 @@
-import { RegisterInput } from "../../../application/use_cases/auth/Register"
-
 export default {
-  validate(payload: RegisterInput): void | Error {
+  validate(payload: any): void | Error {
     const { email, password, confirm_password } = payload
-    const emailRegex = /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/gi
+    let error
 
-    if (!email)
-      return new Error('"email" is required')
+    Object.keys(payload).forEach(key => {
+      switch (key) {
+        case 'email':
+          const emailRegex = /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/gi
 
-    if (!emailRegex.test(email))
-      return new Error('Invalid "email" format')
+          if (!email)
+            error = new Error('"email" is required')
 
-    if (!password)
-      return new Error('"password" is required')
+          if (email && !emailRegex.test(email))
+            error = new Error('Invalid "email" format')
 
-    if (!confirm_password)
-      return new Error('"confirm_password" is required')
+          break
+      
+        case 'password':
+          if (!password)
+            error = new Error('"password" is required')
 
-    if (password !== confirm_password)
-      return new Error('Passwords mismatch')
+          break
+
+        case 'confirm_password':
+          if (!confirm_password)
+            error = new Error('"confirm_password" is required')
+
+          break
+      
+        default:
+          error = new Error(`Invalid param: "${key}"`)
+      }
+    })
+
+    if (password && confirm_password && (password !== confirm_password))
+      error = new Error('Passwords mismatch')
+
+    return error
   }
 }
