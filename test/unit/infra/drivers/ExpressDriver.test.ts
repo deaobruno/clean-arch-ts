@@ -7,9 +7,7 @@ import BaseMiddleware from '../../../../src/adapters/middlewares/BaseMiddleware'
 const server = new ExpressDriver(3031)
 
 const useCase = {
-  exec(): Promise<void> {
-    return Promise.resolve()
-  }
+  exec: (): Promise<void> => Promise.resolve()
 }
 
 class CustomController extends BaseController {}
@@ -17,9 +15,7 @@ class CustomController extends BaseController {}
 const controller = new CustomController({ useCase })
 
 const presenter = {
-  present(data: any) {
-    return data
-  }
+  present: (data: any) => data
 }
 
 class CustomMiddleware extends BaseMiddleware {}

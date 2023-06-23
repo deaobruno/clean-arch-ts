@@ -5,14 +5,6 @@ import IPresenter from '../../../../../src/adapters/presenters/IPresenter'
 
 class CustomController extends BaseController {}
 
-const presenter = {
-  present(data: any) {
-    const { test } = data
-
-    return { test }
-  }
-}
-
 class CustomRoute extends BaseRoute {
   method = 'get'
   statusCode = 200
@@ -28,14 +20,20 @@ class CustomRoute extends BaseRoute {
   }
 }
 
+const useCase = {
+  exec: (data: any): Promise<void> => Promise.resolve(data)
+}
+const controller = new CustomController({ useCase })
+const presenter = {
+  present(data: any) {
+    const { test } = data
+
+    return { test }
+  }
+}
+
 describe('/infra/http/routes/BaseRoute.ts', () => {
   it('should return a single object equal to payload when no presenter is passed', async () => {
-    const useCase = {
-      exec(data: any): Promise<void> {
-        return Promise.resolve(data)
-      }
-    }
-    const controller = new CustomController({ useCase })
     const route = new CustomRoute(controller)
     const data = { test: 'test' }
   
@@ -43,12 +41,6 @@ describe('/infra/http/routes/BaseRoute.ts', () => {
   })
 
   it('should return a single object formatted by presenter', async () => {
-    const useCase = {
-      exec(data: any): Promise<void> {
-        return Promise.resolve(data)
-      }
-    }
-    const controller = new CustomController({ useCase })
     const route = new CustomRoute(controller, presenter)
     const data = { test: 'test', invalid: false }
   
@@ -56,12 +48,6 @@ describe('/infra/http/routes/BaseRoute.ts', () => {
   })
 
   it('should return an array of objects formatted by presenter', async () => {
-    const useCase = {
-      exec(data: any): Promise<void> {
-        return Promise.resolve(data)
-      }
-    }
-    const controller = new CustomController({ useCase })
     const route = new CustomRoute(controller, presenter)
     const data = { test: 'test', invalid: false }
     const result = await route.handle([data, data, data])
