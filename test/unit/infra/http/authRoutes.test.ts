@@ -22,7 +22,7 @@ describe('/infra/http/authRoutes.ts', () => {
   it('should return an array of auth routes', () => {
     authRotes(dependencies).map(route => {
       expect(route.path.split('/')[1]).equal('auth')
-      expect(['get', 'post', 'update', 'delete'].includes(route.method)).equal(true)
+      expect(['get', 'post', 'put', 'delete'].includes(route.method)).equal(true)
       expect([200, 201, 204].includes(route.statusCode)).equal(true)
     })
   })
