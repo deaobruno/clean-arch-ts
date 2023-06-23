@@ -14,12 +14,12 @@ export default class ExpressDriver implements IServer {
 
   router = Router()
 
-  httpPort = 8080
+  constructor(private _httpPort: number) {}
 
   start(routes: BaseRoute[]): void {
     this.app.use(bodyParser.json())
     this.app.use(bodyParser.urlencoded({ extended: false }))
-    this.app.use('/api/v1', this.adaptRoutes(routes))
+    this.app.use('/api/v1', this._adaptRoutes(routes))
 
     this.app.use((req: Request, res: Response, next: NextFunction) => {
       next(new NotFoundError('Invalid URL'))
@@ -43,8 +43,8 @@ export default class ExpressDriver implements IServer {
       }
     )
 
-    this.httpServer = this.app.listen(this.httpPort, () => {
-        console.log(`Server started. Listening on port ${this.httpPort}.`)
+    this.httpServer = this.app.listen(this._httpPort, () => {
+        console.log(`Server started. Listening on port ${this._httpPort}.`)
       }
     )
   }
@@ -53,11 +53,21 @@ export default class ExpressDriver implements IServer {
     this.httpServer?.close(callback)
   }
 
-  adaptRoutes(routes: BaseRoute[]): Router[] {
+  private _adaptRoutes(routes: BaseRoute[]): Router[] {
     return routes.map(this._adaptRoute)
   }
 
-  adaptMiddleware = (middleware: BaseMiddleware) =>
+  private _adaptRoute = (route: BaseRoute): Router => {
+    let handlers = []
+
+    route.middlewares?.forEach(middleware => handlers.push(this._adaptMiddleware(middleware)))
+
+    handlers.push(this._adaptHandler(route))
+
+    return this.router[route.method](route.path, handlers)
+  }
+
+  private _adaptMiddleware = (middleware: BaseMiddleware) =>
     async (req: Request, res: Response, next: NextFunction): Promise<void> => {
       try {
         await middleware.handle(this._getPayload(req))
@@ -68,7 +78,7 @@ export default class ExpressDriver implements IServer {
       }
     }
 
-  adaptHandler = (route: BaseRoute) =>
+  private _adaptHandler = (route: BaseRoute) =>
     async (req: Request, res: Response, next: NextFunction): Promise<void> => {
       try {
         res
@@ -78,16 +88,6 @@ export default class ExpressDriver implements IServer {
         next(error)
       }
     }
-
-  private _adaptRoute = (route: BaseRoute): Router => {
-    let handlers = []
-
-    route.middlewares?.forEach(middleware => handlers.push(this.adaptMiddleware(middleware)))
-
-    handlers.push(this.adaptHandler(route))
-
-    return this.router[route.method](route.path, handlers)
-  }
 
   private _getPayload(req: Request) {
     const { body, query, params } = req
