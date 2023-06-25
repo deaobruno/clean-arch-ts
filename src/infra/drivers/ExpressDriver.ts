@@ -1,16 +1,16 @@
+import { Server } from 'node:http'
 import express, { NextFunction, Request, Response, Router } from 'express'
+import bodyParser from 'body-parser'
 import BaseRoute from '../http/routes/BaseRoute'
 import IServer from '../http/IServer'
-import { Server as HttpServer } from 'http'
-import bodyParser from 'body-parser'
+import BaseMiddleware from '../../adapters/middlewares/BaseMiddleware'
 import NotFoundError from '../../application/errors/NotFoundError'
 import InternalServerError from '../../application/errors/InternalServerError'
-import BaseMiddleware from '../../adapters/middlewares/BaseMiddleware'
 
 export default class ExpressDriver implements IServer {
   app = express()
 
-  httpServer?: HttpServer
+  httpServer?: Server
 
   router = Router()
 

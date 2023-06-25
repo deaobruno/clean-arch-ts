@@ -7,8 +7,9 @@
     "build": "rm -rf dist/ && tsc",
     "start": "npm run build && ts-node dist/infra/app.js",
     "dev": "nodemon src/infra/app.ts",
-    "test": "npm run test:unit",
-    "test:unit": "nyc mocha -r ts-node/register test/unit/**/*.test.ts --recursive --exit"
+    "test": "npm run test:unit && npm run test:integration",
+    "test:unit": "nyc mocha -r ts-node/register test/unit/**/*.test.ts --recursive --exit",
+    "test:integration": "nyc mocha -r ts-node/register test/integration/**/*.test.ts --recursive --exit"
   },
   "keywords": [],
   "author": "Bruno Oliveira",
@@ -19,14 +20,17 @@
     "@types/express": "^4.17.17",
     "@types/mocha": "^10.0.1",
     "@types/node": "^18.7.15",
+    "@types/sinon": "^10.0.15",
     "chai": "^4.3.7",
     "mocha": "^10.2.0",
     "nodemon": "^2.0.22",
     "nyc": "^15.1.0",
+    "sinon": "^15.2.0",
     "ts-node": "^10.9.1",
     "typescript": "^5.0.4"
   },
   "dependencies": {
+    "axios": "^1.4.0",
     "body-parser": "^1.20.2",
     "express": "^4.18.2"
   }
