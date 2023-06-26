@@ -32,14 +32,14 @@ export default class ExpressDriver implements IServer {
         res: Response,
         next: NextFunction
       ) => {
-        console.error(error.stack)
-
-        if (!error.statusCode)
-          error = new InternalServerError(error.message)
-
         const { statusCode, message } = error
 
-        res.status(statusCode).send({ error: message })
+        if (!statusCode)
+          error = new InternalServerError((!message || message === '') ? undefined : message)
+
+        console.error(error.stack)
+
+        res.status(error.statusCode).send({ error: error.message })
       }
     )
 

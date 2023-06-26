@@ -11,7 +11,6 @@ import CreateAdminSchema from "./schemas/user/CreateAdminSchema"
 import FindUsersSchema from "./schemas/user/FindUsersSchema"
 import UpdateUserSchema from "./schemas/user/UpdateUserSchema"
 import UpdateUserPasswordSchema from "./schemas/user/UpdateUserPasswordSchema"
-import TestMiddleware from "../adapters/middlewares/test_mid/TestMiddleware"
 import CreateAdminController from "../adapters/controllers/user/CreateAdminController"
 import RegisterController from "../adapters/controllers/auth/RegisterController"
 import FindUsersController from "../adapters/controllers/user/FindUsersController"
@@ -36,8 +35,6 @@ const updateUserUseCase = new UpdateUser(userRepository)
 const updateUserPasswordUseCase = new UpdateUserPassword(userRepository)
 const deleteUserUseCase = new DeleteUser(userRepository)
 
-const testMiddleware = new TestMiddleware()
-
 const registerController = new RegisterController(registerUseCase, CreateAdminSchema)
 const createAdminController = new CreateAdminController(createAdminUseCase, CreateAdminSchema)
 const findUsersController = new FindUsersController(findUsersUseCase, FindUsersSchema)
@@ -51,7 +48,7 @@ const adminPresenter = new AdminPresenter()
 
 export default {
   middlewares: {
-    testMiddleware,
+
   },
   controllers: {
     registerController,

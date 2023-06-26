@@ -35,7 +35,7 @@ describe('/auth/register', () => {
     }
 
     await axios.post(url, payload)
-      .catch(async ({ response: { status, data } }) => {
+      .catch(({ response: { status, data } }) => {
 
         expect(status).equal(400)
         expect(data.error).equal('"email" is required')
@@ -50,7 +50,7 @@ describe('/auth/register', () => {
     }
 
     await axios.post(url, payload)
-      .catch(async ({ response: { status, data } }) => {
+      .catch(({ response: { status, data } }) => {
 
         expect(status).equal(400)
         expect(data.error).equal('Invalid "email" format')
@@ -65,7 +65,7 @@ describe('/auth/register', () => {
     }
 
     await axios.post(url, payload)
-      .catch(async ({ response: { status, data } }) => {
+      .catch(({ response: { status, data } }) => {
 
         expect(status).equal(400)
         expect(data.error).equal('"password" is required')
@@ -80,7 +80,7 @@ describe('/auth/register', () => {
     }
 
     await axios.post(url, payload)
-      .catch(async ({ response: { status, data } }) => {
+      .catch(({ response: { status, data } }) => {
 
         expect(status).equal(400)
         expect(data.error).equal('"confirm_password" is required')
@@ -95,7 +95,7 @@ describe('/auth/register', () => {
     }
 
     await axios.post(url, payload)
-      .catch(async ({ response: { status, data } }) => {
+      .catch(({ response: { status, data } }) => {
 
         expect(status).equal(400)
         expect(data.error).equal('Passwords mismatch')
@@ -111,7 +111,7 @@ describe('/auth/register', () => {
     }
 
     await axios.post(url, payload)
-      .catch(async ({ response: { status, data } }) => {
+      .catch(({ response: { status, data } }) => {
 
         expect(status).equal(400)
         expect(data.error).equal('Invalid param: "test"')
@@ -136,7 +136,7 @@ describe('/auth/register', () => {
     }
 
     await axios.post(url, payload)
-      .catch(async ({ response: { status, data } }) => {
+      .catch(({ response: { status, data } }) => {
 
         expect(status).equal(409)
         expect(data.error).equal('Email already in use')

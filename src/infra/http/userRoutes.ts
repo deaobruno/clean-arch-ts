@@ -10,7 +10,7 @@ const basePath = '/users'
 export default (dependencies: any) => {
   const {
     middlewares: {
-      testMiddleware,
+      
     },
     controllers: {
       createAdminController,
@@ -27,7 +27,7 @@ export default (dependencies: any) => {
   } = dependencies
 
   return [
-    new CreateAdminRoute(`${basePath}/admin`, createAdminController, adminPresenter, [testMiddleware]),
+    new CreateAdminRoute(`${basePath}/admin`, createAdminController, adminPresenter),
     new FindUsersRoute(basePath, findUsersController, customerPresenter),
     new FindUserByIdRoute(`${basePath}/:userId`, findUserByIdController, customerPresenter),
     new UpdateUserRoute(`${basePath}/:userId`, updateUserController, customerPresenter),

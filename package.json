@@ -7,7 +7,7 @@
     "build": "rm -rf dist/ && tsc",
     "start": "npm run build && ts-node dist/infra/app.js",
     "dev": "nodemon src/infra/app.ts",
-    "test": "npm run test:unit && npm run test:integration",
+    "test": "nyc mocha -r ts-node/register test/**/*.test.ts --recursive --exit",
     "test:unit": "nyc mocha -r ts-node/register test/unit/**/*.test.ts --recursive --exit",
     "test:integration": "nyc mocha -r ts-node/register test/integration/**/*.test.ts --recursive --exit"
   },
