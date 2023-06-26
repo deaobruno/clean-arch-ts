@@ -70,7 +70,6 @@ describe('server', () => {
   it('should get status 404 when trying to send request to invalid URL', async () => {
     await axios.get('http://localhost:8080/test')
       .catch(({ response: { status, data } }) => {
-
         expect(status).equal(404)
         expect(data.error).equal('Invalid URL')
     })
@@ -79,7 +78,6 @@ describe('server', () => {
   it('should get status 500 when trying to access route with error', async () => {
     await axios.get('http://localhost:8080/api/v1/error')
       .catch(({ response: { status, data } }) => {
-
         expect(status).equal(500)
         expect(data.error).equal('Internal Server Error')
     })
@@ -95,7 +93,6 @@ describe('server', () => {
   it('should get status 500 when trying to access route with middleware with error', async () => {
     await axios.get('http://localhost:8080/api/v1/error-middleware')
       .catch(({ response: { status, data } }) => {
-
         expect(status).equal(500)
         expect(data.error).equal('Internal Server Error')
     })

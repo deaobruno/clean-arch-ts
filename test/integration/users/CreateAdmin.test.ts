@@ -10,7 +10,7 @@ import { User } from '../../../src/domain/User'
 const server = new ExpressDriver(8080)
 const url = 'http://localhost:8080/api/v1/users/create-admin'
 
-describe('/users/create-admin', () => {
+describe('POST /users/create-admin', () => {
   before(() => server.start(routes))
   after(() => server.stop())
 
@@ -36,7 +36,6 @@ describe('/users/create-admin', () => {
 
     await axios.post(url, payload)
       .catch(({ response: { status, data } }) => {
-
         expect(status).equal(400)
         expect(data.error).equal('"email" is required')
       })
@@ -51,7 +50,6 @@ describe('/users/create-admin', () => {
 
     await axios.post(url, payload)
       .catch(({ response: { status, data } }) => {
-
         expect(status).equal(400)
         expect(data.error).equal('Invalid "email" format')
       })
@@ -66,7 +64,6 @@ describe('/users/create-admin', () => {
 
     await axios.post(url, payload)
       .catch(({ response: { status, data } }) => {
-
         expect(status).equal(400)
         expect(data.error).equal('"password" is required')
       })
@@ -81,7 +78,6 @@ describe('/users/create-admin', () => {
 
     await axios.post(url, payload)
       .catch(({ response: { status, data } }) => {
-
         expect(status).equal(400)
         expect(data.error).equal('"confirm_password" is required')
       })
@@ -96,7 +92,6 @@ describe('/users/create-admin', () => {
 
     await axios.post(url, payload)
       .catch(({ response: { status, data } }) => {
-
         expect(status).equal(400)
         expect(data.error).equal('Passwords mismatch')
       })
@@ -112,7 +107,6 @@ describe('/users/create-admin', () => {
 
     await axios.post(url, payload)
       .catch(({ response: { status, data } }) => {
-
         expect(status).equal(400)
         expect(data.error).equal('Invalid param: "test"')
       })
@@ -137,7 +131,6 @@ describe('/users/create-admin', () => {
 
     await axios.post(url, payload)
       .catch(({ response: { status, data } }) => {
-
         expect(status).equal(409)
         expect(data.error).equal('Email already in use')
 
