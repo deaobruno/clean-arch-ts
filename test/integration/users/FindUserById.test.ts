@@ -11,11 +11,11 @@ const user_id = faker.datatype.uuid()
 const server = new ExpressDriver(8080)
 const url = 'http://localhost:8080/api/v1/users'
 
-describe('DELETE /users', () => {
+describe('GET /users/:user_id', () => {
   before(() => server.start(routes))
   after(() => server.stop())
 
-  it('should get 204 status code when trying to delete an existing user', async () => {
+  it('should get 200 status code when trying to find an user by id', async () => {
     const findStub = sinon.stub(InMemoryDriver.prototype, 'find')
       .resolves([User.create({
         user_id,
@@ -23,9 +23,11 @@ describe('DELETE /users', () => {
         password: faker.internet.password(),
         level: 2
       })])
-    const { status } = await axios.delete(`${url}/${user_id}`)
+    const { status, data } = await axios.get(`${url}/${user_id}`)
 
-    expect(status).equal(204)
+    expect(status).equal(200)
+    expect(data.id).equal(user_id)
+    expect(typeof data.email).equal('string')
 
     findStub.restore()
   })
