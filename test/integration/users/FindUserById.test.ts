@@ -8,14 +8,14 @@ import routes from '../../../src/infra/http/routes'
 import { User } from '../../../src/domain/User'
 
 const user_id = faker.datatype.uuid()
-const server = new ExpressDriver(8080)
-const url = 'http://localhost:8080/api/v1/users'
+const server = new ExpressDriver(3031)
+const url = 'http://localhost:3031/api/v1/users'
 
 describe('GET /users/:user_id', () => {
   before(() => server.start(routes))
   after(() => server.stop())
 
-  it('should get 200 status code when trying to find an user by id', async () => {
+  it('should get 200 status code and an object with a single user data when trying to find an user by id', async () => {
     const findStub = sinon.stub(InMemoryDriver.prototype, 'find')
       .resolves([User.create({
         user_id,

@@ -7,8 +7,8 @@ import InMemoryDriver from '../../../src/infra/drivers/InMemoryDriver'
 import routes from '../../../src/infra/http/routes'
 import { User } from '../../../src/domain/User'
 
-const server = new ExpressDriver(8080)
-const url = 'http://localhost:8080/api/v1/users/create-admin'
+const server = new ExpressDriver(3031)
+const url = 'http://localhost:3031/api/v1/users/create-admin'
 
 describe('POST /users/create-admin', () => {
   before(() => server.start(routes))

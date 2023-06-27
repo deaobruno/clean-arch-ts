@@ -8,8 +8,8 @@ import routes from '../../../src/infra/http/routes'
 import { User } from '../../../src/domain/User'
 
 const user_id = faker.datatype.uuid()
-const server = new ExpressDriver(8080)
-const url = 'http://localhost:8080/api/v1/users'
+const server = new ExpressDriver(3031)
+const url = 'http://localhost:3031/api/v1/users'
 
 describe('DELETE /users', () => {
   before(() => server.start(routes))
