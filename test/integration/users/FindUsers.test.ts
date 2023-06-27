@@ -10,7 +10,7 @@ import { User } from '../../../src/domain/User'
 const server = new ExpressDriver(3031)
 const url = 'http://localhost:3031/api/v1/users'
 
-describe.only('GET /users', () => {
+describe('GET /users', () => {
   before(() => server.start(routes))
   after(() => server.stop())
 
@@ -72,7 +72,7 @@ describe.only('GET /users', () => {
     findStub.restore()
   })
 
-  it('should get 400 status code when trying find users passing empty "email" as filter', async () => {
+  it('should get 400 status code when trying to find users passing empty "email" as filter', async () => {
     await axios.get(`${url}?email=`)
       .catch(({ response: { status, data } }) => {
         expect(status).equal(400)
@@ -80,7 +80,7 @@ describe.only('GET /users', () => {
     })
   })
 
-  it('should get 400 status code when trying find users passing invalid "email" as filter', async () => {
+  it('should get 400 status code when trying to find users passing invalid "email" as filter', async () => {
     await axios.get(`${url}?email=test`)
       .catch(({ response: { status, data } }) => {
         expect(status).equal(400)
@@ -88,7 +88,7 @@ describe.only('GET /users', () => {
     })
   })
 
-  it('should get 400 status code when trying find users passing invalid param as filter', async () => {
+  it('should get 400 status code when trying to find users passing invalid param as filter', async () => {
     await axios.get(`${url}?test=test`)
       .catch(({ response: { status, data } }) => {
         expect(status).equal(400)

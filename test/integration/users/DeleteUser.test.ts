@@ -7,9 +7,9 @@ import InMemoryDriver from '../../../src/infra/drivers/InMemoryDriver'
 import routes from '../../../src/infra/http/routes'
 import { User } from '../../../src/domain/User'
 
-const user_id = faker.datatype.uuid()
 const server = new ExpressDriver(3031)
 const url = 'http://localhost:3031/api/v1/users'
+const user_id = faker.datatype.uuid()
 
 describe('DELETE /users', () => {
   before(() => server.start(routes))

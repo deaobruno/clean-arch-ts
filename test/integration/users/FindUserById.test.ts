@@ -32,8 +32,8 @@ describe('GET /users/:user_id', () => {
     findStub.restore()
   })
 
-  it('should get 404 status code when trying to delete an user with wrong id', async () => {
-    await axios.delete(`${url}/test`)
+  it('should get 404 status code when user is not found', async () => {
+    await axios.delete(`${url}/${faker.datatype.uuid()}`)
       .catch(({ response: { status, data } }) => {
         expect(status).equal(404)
         expect(data.error).equal('User not found')
