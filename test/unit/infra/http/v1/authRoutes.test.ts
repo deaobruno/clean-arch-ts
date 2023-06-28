@@ -1,5 +1,5 @@
 import { expect } from 'chai'
-import authRotes from '../../../../../src/infra/http/v1/authRoutes'
+import authRotes from '../../../../../src/infra/http/v1/routes/authRoutes'
 import BaseController from '../../../../../src/adapters/controllers/BaseController'
 
 class CustomController extends BaseController {}

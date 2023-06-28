@@ -10,4 +10,7 @@ export default {
   server: {
     httpPort: process.env.HTTP_PORT ?? 8080,
   },
+  app: {
+    accessTokenSecret: process.env.ACCESS_TOKEN_SECRET ?? '',
+  }
 }

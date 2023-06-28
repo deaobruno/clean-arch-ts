@@ -1,7 +1,7 @@
 import dependencies from '../../dependencies'
 import BaseRoute from '../BaseRoute'
-import authRoutes from './authRoutes'
-import userRoutes from './userRoutes'
+import authRoutes from './routes/authRoutes'
+import userRoutes from './routes/userRoutes'
 
 const prefix = '/api/v1'
 const routes: BaseRoute[] = []
