@@ -21,6 +21,8 @@ import DeleteUserController from "../adapters/controllers/user/DeleteUserControl
 import CustomerPresenter from "../adapters/presenters/user/CustomerPresenter"
 import AdminPresenter from "../adapters/presenters/user/AdminPresenter"
 import CryptoDriver from "./drivers/CryptoDriver"
+import FindUserByIdSchema from "./schemas/user/FindUserByIdSchema"
+import DeleteUserSchema from "./schemas/user/DeleteUserSchema"
 
 const inMemoryDriver = new InMemoryDriver()
 const cryptoDriver = new CryptoDriver()
@@ -38,10 +40,10 @@ const deleteUserUseCase = new DeleteUser(userRepository)
 const registerController = new RegisterController(registerUseCase, CreateAdminSchema)
 const createAdminController = new CreateAdminController(createAdminUseCase, CreateAdminSchema)
 const findUsersController = new FindUsersController(findUsersUseCase, FindUsersSchema)
-const findUserByIdController = new FindUserByIdController(findUserByIdUseCase)
+const findUserByIdController = new FindUserByIdController(findUserByIdUseCase, FindUserByIdSchema)
 const updateUserController = new UpdateUserController(updateUserUseCase, UpdateUserSchema)
 const updateUserPasswordController = new UpdateUserPasswordController(updateUserPasswordUseCase, UpdateUserPasswordSchema)
-const deleteUserController = new DeleteUserController(deleteUserUseCase)
+const deleteUserController = new DeleteUserController(deleteUserUseCase, DeleteUserSchema)
 
 const customerPresenter = new CustomerPresenter()
 const adminPresenter = new AdminPresenter()

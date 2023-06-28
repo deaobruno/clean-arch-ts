@@ -22,7 +22,7 @@ describe('/infra/schemas/user/UpdateUserSchema.ts', () => {
       email,
     })
 
-    expect(validation.message).equal('User ID is required')
+    expect(validation.message).equal('Invalid "user_id" format')
   })
 
   it('should fail when passing a number as user ID', () => {
@@ -31,7 +31,7 @@ describe('/infra/schemas/user/UpdateUserSchema.ts', () => {
       email,
     })
 
-    expect(validation.message).equal('User ID must be an UUID')
+    expect(validation.message).equal('Invalid "user_id" format')
   })
 
   it('should fail when passing a boolean as user ID', () => {
@@ -40,7 +40,7 @@ describe('/infra/schemas/user/UpdateUserSchema.ts', () => {
       email,
     })
 
-    expect(validation.message).equal('User ID must be an UUID')
+    expect(validation.message).equal('Invalid "user_id" format')
   })
 
   it('should fail when passing an object as user ID', () => {
@@ -49,7 +49,7 @@ describe('/infra/schemas/user/UpdateUserSchema.ts', () => {
       email,
     })
 
-    expect(validation.message).equal('User ID must be an UUID')
+    expect(validation.message).equal('Invalid "user_id" format')
   })
 
   it('should fail when passing a Bigint as user ID', () => {
@@ -58,7 +58,7 @@ describe('/infra/schemas/user/UpdateUserSchema.ts', () => {
       email,
     })
 
-    expect(validation.message).equal('User ID must be an UUID')
+    expect(validation.message).equal('Invalid "user_id" format')
   })
 
   it('should fail when passing invalid user ID', () => {
@@ -67,7 +67,7 @@ describe('/infra/schemas/user/UpdateUserSchema.ts', () => {
       email,
     })
 
-    expect(validation.message).equal('User ID must be an UUID')
+    expect(validation.message).equal('Invalid "user_id" format')
   })
 
   it('should fail when email is empty', () => {

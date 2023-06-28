@@ -24,7 +24,7 @@ describe('/infra/schemas/user/UpdateUserPasswordSchema.ts', () => {
       confirm_password: password,
     })
 
-    expect(validation.message).equal('User ID is required')
+    expect(validation.message).equal('Invalid "user_id" format')
   })
 
   it('should fail when passing a number as user ID', () => {
@@ -34,7 +34,7 @@ describe('/infra/schemas/user/UpdateUserPasswordSchema.ts', () => {
       confirm_password: password,
     })
 
-    expect(validation.message).equal('User ID must be an UUID')
+    expect(validation.message).equal('Invalid "user_id" format')
   })
 
   it('should fail when passing a boolean as user ID', () => {
@@ -44,7 +44,7 @@ describe('/infra/schemas/user/UpdateUserPasswordSchema.ts', () => {
       confirm_password: password,
     })
 
-    expect(validation.message).equal('User ID must be an UUID')
+    expect(validation.message).equal('Invalid "user_id" format')
   })
 
   it('should fail when passing an object as user ID', () => {
@@ -54,7 +54,7 @@ describe('/infra/schemas/user/UpdateUserPasswordSchema.ts', () => {
       confirm_password: password,
     })
 
-    expect(validation.message).equal('User ID must be an UUID')
+    expect(validation.message).equal('Invalid "user_id" format')
   })
 
   it('should fail when passing a Bigint as user ID', () => {
@@ -64,7 +64,7 @@ describe('/infra/schemas/user/UpdateUserPasswordSchema.ts', () => {
       confirm_password: password,
     })
 
-    expect(validation.message).equal('User ID must be an UUID')
+    expect(validation.message).equal('Invalid "user_id" format')
   })
 
   it('should fail when passing invalid user ID', () => {
@@ -74,7 +74,7 @@ describe('/infra/schemas/user/UpdateUserPasswordSchema.ts', () => {
       confirm_password: password,
     })
 
-    expect(validation.message).equal('User ID must be an UUID')
+    expect(validation.message).equal('Invalid "user_id" format')
   })
 
   it('should fail when password is empty', () => {

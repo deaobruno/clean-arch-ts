@@ -32,8 +32,16 @@ describe('GET /users/:user_id', () => {
     findStub.restore()
   })
 
+  it('should get 400 status code when trying to find an user passing invalid id', async () => {
+    await axios.get(`${url}/test`)
+      .catch(({ response: { status, data } }) => {
+        expect(status).equal(400)
+        expect(data.error).equal('Invalid "user_id" format')
+    })
+  })
+
   it('should get 404 status code when user is not found', async () => {
-    await axios.delete(`${url}/${faker.datatype.uuid()}`)
+    await axios.get(`${url}/${faker.datatype.uuid()}`)
       .catch(({ response: { status, data } }) => {
         expect(status).equal(404)
         expect(data.error).equal('User not found')

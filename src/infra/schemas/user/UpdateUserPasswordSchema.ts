@@ -8,7 +8,7 @@ export default {
         case 'userId':
           const uuidRegex = /^[0-9a-f]{8}\b-[0-9a-f]{4}\b-[0-9a-f]{4}\b-[0-9a-f]{4}\b-[0-9a-f]{12}$/gi
 
-          if (userId && !uuidRegex.test(userId))
+          if (!uuidRegex.test(userId))
             error = new Error('Invalid "user_id" format')
 
           break
