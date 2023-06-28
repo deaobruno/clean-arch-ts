@@ -4,7 +4,7 @@ import { faker } from '@faker-js/faker'
 import { expect } from 'chai'
 import ExpressDriver from '../../../src/infra/drivers/ExpressDriver'
 import InMemoryDriver from '../../../src/infra/drivers/InMemoryDriver'
-import routes from '../../../src/infra/http/routes'
+import routes from '../../../src/infra/http/v1/routes'
 import { User } from '../../../src/domain/User'
 
 const server = new ExpressDriver(3031)
@@ -12,7 +12,7 @@ const url = 'http://localhost:3031/api/v1/users'
 const user_id = faker.datatype.uuid()
 
 describe('PUT /users/:user_id', () => {
-  before(() => server.start(routes))
+  before(() => server.start(routes.routes, routes.prefix))
   after(() => server.stop())
 
   it('should get 200 when trying to update an existing user', async () => {

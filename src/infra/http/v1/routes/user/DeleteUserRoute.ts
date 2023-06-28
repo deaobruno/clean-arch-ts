@@ -1,5 +1,5 @@
-import BaseRoute from '../BaseRoute'
-import DeleteUserController from '../../../../adapters/controllers/user/DeleteUserController'
+import BaseRoute from '../../../BaseRoute'
+import DeleteUserController from '../../../../../adapters/controllers/user/DeleteUserController'
 
 export default class DeleteUserRoute extends BaseRoute {
   method = 'delete'

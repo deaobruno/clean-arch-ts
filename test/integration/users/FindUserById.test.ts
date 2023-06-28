@@ -4,7 +4,7 @@ import { faker } from '@faker-js/faker'
 import { expect } from 'chai'
 import ExpressDriver from '../../../src/infra/drivers/ExpressDriver'
 import InMemoryDriver from '../../../src/infra/drivers/InMemoryDriver'
-import routes from '../../../src/infra/http/routes'
+import routes from '../../../src/infra/http/v1/routes'
 import { User } from '../../../src/domain/User'
 
 const user_id = faker.datatype.uuid()
@@ -12,7 +12,7 @@ const server = new ExpressDriver(3031)
 const url = 'http://localhost:3031/api/v1/users'
 
 describe('GET /users/:user_id', () => {
-  before(() => server.start(routes))
+  before(() => server.start(routes.routes, routes.prefix))
   after(() => server.stop())
 
   it('should get 200 status code and an object with a single user data when trying to find an user by id', async () => {

@@ -1,6 +1,6 @@
 import { expect } from 'chai'
-import authRotes from '../../../../src/infra/http/authRoutes'
-import BaseController from '../../../../src/adapters/controllers/BaseController'
+import authRotes from '../../../../../src/infra/http/v1/authRoutes'
+import BaseController from '../../../../../src/adapters/controllers/BaseController'
 
 class CustomController extends BaseController {}
 
@@ -20,7 +20,7 @@ const dependencies = {
 
 describe('/infra/http/authRoutes.ts', () => {
   it('should return an array of auth routes', () => {
-    authRotes(dependencies).map(route => {
+    authRotes(dependencies).forEach(route => {
       expect(route.path.split('/')[1]).equal('auth')
       expect(['get', 'post', 'put', 'delete'].includes(route.method)).equal(true)
       expect([200, 201, 204].includes(route.statusCode)).equal(true)

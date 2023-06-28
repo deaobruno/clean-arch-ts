@@ -1,12 +1,13 @@
 import axios from 'axios'
 import { expect } from 'chai'
 import ExpressDriver from '../../src/infra/drivers/ExpressDriver'
-import routes from '../../src/infra/http/routes'
-import BaseRoute from '../../src/infra/http/routes/BaseRoute'
+import httpRoutes from '../../src/infra/http/v1/routes'
+import BaseRoute from '../../src/infra/http/BaseRoute'
 import BaseController from '../../src/adapters/controllers/BaseController'
 import IUseCase from '../../src/application/IUseCase'
 import BaseMiddleware from '../../src/adapters/middlewares/BaseMiddleware'
 
+const { routes } = httpRoutes
 const server = new ExpressDriver(3031)
 
 const customUseCase = {
@@ -76,7 +77,7 @@ describe('server', () => {
   })
 
   it('should get status 500 when trying to access route with error', async () => {
-    await axios.get('http://localhost:3031/api/v1/error')
+    await axios.get('http://localhost:3031/error')
       .catch(({ response: { status, data } }) => {
         expect(status).equal(500)
         expect(data.error).equal('Internal Server Error')
@@ -84,14 +85,14 @@ describe('server', () => {
   })
 
   it('should get status 200 when trying to access route with middleware', async () => {
-    const { status, data } = await axios.get('http://localhost:3031/api/v1/middleware?test=test')
+    const { status, data } = await axios.get('http://localhost:3031/middleware?test=test')
     
     expect(status).equal(200)
     expect(data).deep.equal({ test: 'test' })
   })
 
   it('should get status 500 when trying to access route with middleware with error', async () => {
-    await axios.get('http://localhost:3031/api/v1/error-middleware')
+    await axios.get('http://localhost:3031/error-middleware')
       .catch(({ response: { status, data } }) => {
         expect(status).equal(500)
         expect(data.error).equal('Internal Server Error')

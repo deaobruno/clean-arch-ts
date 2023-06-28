@@ -1,6 +1,6 @@
-import RegisterController from '../../../../adapters/controllers/auth/RegisterController'
-import CustomerPresenter from '../../../../adapters/presenters/user/CustomerPresenter'
-import BaseRoute from '../BaseRoute'
+import RegisterController from '../../../../../adapters/controllers/auth/RegisterController'
+import CustomerPresenter from '../../../../../adapters/presenters/user/CustomerPresenter'
+import BaseRoute from '../../../BaseRoute'
 
 export default class RegisterRoute extends BaseRoute {
   method = 'post'

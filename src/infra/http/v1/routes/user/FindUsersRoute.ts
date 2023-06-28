@@ -1,6 +1,6 @@
-import BaseRoute from '../BaseRoute'
-import FindUsersController from '../../../../adapters/controllers/user/FindUsersController'
-import CustomerPresenter from '../../../../adapters/presenters/user/CustomerPresenter'
+import BaseRoute from '../../../BaseRoute'
+import FindUsersController from '../../../../../adapters/controllers/user/FindUsersController'
+import CustomerPresenter from '../../../../../adapters/presenters/user/CustomerPresenter'
 
 export default class FindUsersRoute extends BaseRoute {
   method = 'get'

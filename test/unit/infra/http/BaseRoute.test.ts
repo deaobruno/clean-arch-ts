@@ -1,7 +1,7 @@
 import { expect } from 'chai'
-import BaseController from '../../../../../src/adapters/controllers/BaseController'
-import BaseRoute from '../../../../../src/infra/http/routes/BaseRoute'
-import IPresenter from '../../../../../src/adapters/presenters/IPresenter'
+import BaseController from '../../../../src/adapters/controllers/BaseController'
+import BaseRoute from '../../../../src/infra/http/BaseRoute'
+import IPresenter from '../../../../src/adapters/presenters/IPresenter'
 
 class CustomController extends BaseController {}
 

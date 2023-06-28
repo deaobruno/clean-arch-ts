@@ -1,7 +1,7 @@
 import { expect } from 'chai'
-import userRotes from '../../../../src/infra/http/userRoutes'
-import BaseController from '../../../../src/adapters/controllers/BaseController'
-import BaseMiddleware from '../../../../src/adapters/middlewares/BaseMiddleware'
+import userRotes from '../../../../../src/infra/http/v1/userRoutes'
+import BaseController from '../../../../../src/adapters/controllers/BaseController'
+import BaseMiddleware from '../../../../../src/adapters/middlewares/BaseMiddleware'
 
 class CustomController extends BaseController {}
 class CustomMiddleware extends BaseMiddleware {}
@@ -33,7 +33,7 @@ const dependencies = {
 
 describe('/infra/http/userRoutes.ts', () => {
   it('should return an array of user routes', () => {
-    userRotes(dependencies).map(route => {
+    userRotes(dependencies).forEach(route => {
       expect(route.path.split('/')[1]).equal('users')
       expect(['get', 'post', 'put', 'delete'].includes(route.method)).equal(true)
       expect([200, 201, 204].includes(route.statusCode)).equal(true)

@@ -1,7 +1,7 @@
 import { Server } from 'node:http'
 import express, { NextFunction, Request, Response, Router } from 'express'
 import bodyParser from 'body-parser'
-import BaseRoute from '../http/routes/BaseRoute'
+import BaseRoute from '../http/BaseRoute'
 import IServer from '../http/IServer'
 import BaseMiddleware from '../../adapters/middlewares/BaseMiddleware'
 import NotFoundError from '../../application/errors/NotFoundError'
@@ -14,12 +14,14 @@ export default class ExpressDriver implements IServer {
 
   router = Router()
 
-  constructor(private _httpPort: number) {}
+  constructor(private _httpPort: string | number) {}
 
-  start(routes: BaseRoute[]): void {
+  start(routes: BaseRoute[], prefix?: string): void {
     this.app.use(bodyParser.json())
+
     this.app.use(bodyParser.urlencoded({ extended: false }))
-    this.app.use('/api/v1', this._adaptRoutes(routes))
+
+    this.app.use(prefix ?? '', this._adaptRoutes(routes))
 
     this.app.use((req: Request, res: Response, next: NextFunction) => {
       next(new NotFoundError('Invalid URL'))
