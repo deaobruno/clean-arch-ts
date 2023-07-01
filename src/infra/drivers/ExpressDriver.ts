@@ -72,7 +72,10 @@ export default class ExpressDriver implements IServer {
   private _adaptMiddleware = (middleware: BaseMiddleware) =>
     async (req: Request, res: Response, next: NextFunction): Promise<void> => {
       try {
-        await middleware.handle(this._getPayload(req))
+        const result = await middleware.handle(this._getPayload(req), req.headers)
+        const index = Object.keys(result)[0]
+
+        req.body[index] = result[index]
 
         next()
       } catch (error) {
@@ -85,7 +88,7 @@ export default class ExpressDriver implements IServer {
       try {
         res
           .status(route.statusCode)
-          .send(await route.handle(this._getPayload(req)))
+          .send(await route.handle(this._getPayload(req), req.headers))
       } catch (error) {
         next(error)
       }

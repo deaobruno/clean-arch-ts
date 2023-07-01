@@ -21,14 +21,16 @@ export default class AuthenticateUser implements IUseCase<Input, Output> {
   async exec(input: Input): Promise<Output> {
     const { email, password } = input
     const user = await this._userRepository.findOneByEmail(email)
-
+    
     if (!user || user.password !== password)
       throw new UnauthorizedError()
-
+  
+    const { user_id, level } = user
     const userData = {
-      id: user.user_id,
+      id: user_id,
       email,
       password,
+      level,
     }
 
     return {

@@ -16,6 +16,6 @@ export default (dependencies: any) => {
 
   return [
     new RegisterRoute(`${basePath}/register`, registerController, customerPresenter),
-    new AuthenticateUserRoute(basePath, authenticateUserController)
+    new AuthenticateUserRoute(basePath, authenticateUserController),
   ]
 }

@@ -1,9 +1,9 @@
 import FindUserById from '../../../application/use_cases/user/FindUserById'
-import FindUserByIdSchema from '../../../infra/schemas/user/FindUserByIdSchema'
+import ISchema from '../../../infra/schemas/ISchema'
 import BaseController from '../BaseController'
 
 export default class FindUserByIdController extends BaseController {
-  constructor(useCase: FindUserById, inputSchema: typeof FindUserByIdSchema) {
-    super({ useCase, inputSchema })
+  constructor(useCase: FindUserById, payloadSchema: ISchema) {
+    super({ useCase, payloadSchema })
   }
 }

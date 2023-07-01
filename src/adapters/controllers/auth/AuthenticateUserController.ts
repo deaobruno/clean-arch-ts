@@ -1,9 +1,9 @@
 import BaseController from '../BaseController'
 import AuthenticateUser from '../../../application/use_cases/auth/AuthenticateUser'
-import AuthenticateUserSchema from '../../../infra/schemas/auth/AuthenticateUserSchema'
+import ISchema from '../../../infra/schemas/ISchema'
 
 export default class AuthenticateUserController extends BaseController {
-  constructor(useCase: AuthenticateUser, inputSchema: typeof AuthenticateUserSchema) {
-    super({ useCase, inputSchema })
+  constructor(useCase: AuthenticateUser, payloadSchema: ISchema) {
+    super({ useCase, payloadSchema })
   }
 }

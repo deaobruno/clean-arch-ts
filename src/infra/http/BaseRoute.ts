@@ -26,7 +26,9 @@ export default abstract class BaseRoute {
     this.middlewares = middlewares
   }
 
-  private _formatResponseData(data: any) {
+  handle = async (payload: any, headers?: any): Promise<any> => {
+    const data = await this._controller.handle(payload, headers)
+
     if (!this._presenter) {
       return data
     }
@@ -35,7 +37,4 @@ export default abstract class BaseRoute {
       ? data.map(this._presenter.present)
       : this._presenter.present(data)
   }
-
-  handle = async (payload: any): Promise<any> =>
-    this._formatResponseData(await this._controller.handle(payload))
 }

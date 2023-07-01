@@ -76,12 +76,12 @@ describe('/adapters/controllers/BaseController.ts', () => {
         return data
       }
     }
-    const inputSchema = {
+    const payloadSchema = {
       validate: (payload: any) => {
         if (!payload.test) return new Error('"test" is required')
       }
     }
-    const customerController = new CustomController({ useCase, inputSchema })
+    const customerController = new CustomController({ useCase, payloadSchema })
 
     await customerController.handle(body)
       .catch(error => {
