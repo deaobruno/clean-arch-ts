@@ -1,12 +1,12 @@
 import AuthenticateUserRoute from './auth/AuthenticateUserRoute'
-import RegisterRoute from './auth/RegisterRoute'
+import RegisterUserRoute from './auth/RegisterUserRoute'
 
 const basePath = '/auth'
 
 export default (dependencies: any) => {
   const {
     controllers: {
-      registerController,
+      registerUserController,
       authenticateUserController,
     },
     presenters: {
@@ -15,7 +15,7 @@ export default (dependencies: any) => {
   } = dependencies
 
   return [
-    new RegisterRoute(`${basePath}/register`, registerController, customerPresenter),
+    new RegisterUserRoute(`${basePath}/register`, registerUserController, customerPresenter),
     new AuthenticateUserRoute(basePath, authenticateUserController),
   ]
 }

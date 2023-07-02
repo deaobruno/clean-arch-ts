@@ -4,16 +4,19 @@ import CryptoDriver from '../../../infra/drivers/CryptoDriver'
 import IUseCase from '../../IUseCase'
 import ConflictError from '../../errors/ConflictError'
 
-export type RegisterInput = {
+type RegisterUserInput = {
   email: string
   password: string
   confirm_password: string
 }
 
-export class Register implements IUseCase<RegisterInput, User> {
-  constructor(private _userRepository: IUserRepository, private _cryptoDriver: CryptoDriver) {}
+export default class RegisterUser implements IUseCase<RegisterUserInput, User> {
+  constructor(
+    private _userRepository: IUserRepository,
+    private _cryptoDriver: CryptoDriver,
+  ) {}
 
-  async exec(input: RegisterInput): Promise<User> {
+  async exec(input: RegisterUserInput): Promise<User> {
     const { email } = input
 
     const userByEmail = await this._userRepository.findOneByEmail(email)

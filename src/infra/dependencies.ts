@@ -2,7 +2,7 @@ import config from './config'
 import InMemoryDriver from './drivers/InMemoryDriver'
 import UserRepository from '../adapters/repositories/UserRepository'
 import { CreateAdmin } from '../application/use_cases/user/CreateAdmin'
-import { Register } from '../application/use_cases/auth/Register'
+import RegisterUser from '../application/use_cases/auth/RegisterUser'
 import { FindUsers } from '../application/use_cases/user/FindUsers'
 import FindUserById from '../application/use_cases/user/FindUserById'
 import { UpdateUser } from '../application/use_cases/user/UpdateUser'
@@ -13,7 +13,7 @@ import FindUsersSchema from './schemas/user/FindUsersSchema'
 import UpdateUserSchema from './schemas/user/UpdateUserSchema'
 import UpdateUserPasswordSchema from './schemas/user/UpdateUserPasswordSchema'
 import CreateAdminController from '../adapters/controllers/user/CreateAdminController'
-import RegisterController from '../adapters/controllers/auth/RegisterController'
+import RegisterUserController from '../adapters/controllers/auth/RegisterUserController'
 import FindUsersController from '../adapters/controllers/user/FindUsersController'
 import FindUserByIdController from '../adapters/controllers/user/FindUserByIdController'
 import UpdateUserController from '../adapters/controllers/user/UpdateUserController'
@@ -30,6 +30,7 @@ import JwtDriver from './drivers/JwtDriver'
 import AuthenticateUserSchema from './schemas/auth/AuthenticateUserSchema'
 import ValidateAuthenticationMiddleware from '../adapters/middlewares/auth/ValidateAuthenticationMiddleware'
 import ValidateAuthentication from '../application/use_cases/auth/ValidateAuthentication'
+import RegisterUserSchema from './schemas/auth/RegisterUserSchema'
 
 const {
   app: {
@@ -43,7 +44,7 @@ const jwtDriver = new JwtDriver(accessTokenSecret)
 
 const userRepository = new UserRepository(inMemoryDriver)
 
-const registerUseCase = new Register(userRepository, cryptoDriver)
+const registerUserUseCase = new RegisterUser(userRepository, cryptoDriver)
 const authenticateUserUseCase = new AuthenticateUser(userRepository, jwtDriver)
 const validateAuthenticationUseCase = new ValidateAuthentication(jwtDriver)
 const createAdminUseCase = new CreateAdmin(userRepository, cryptoDriver)
@@ -55,7 +56,7 @@ const deleteUserUseCase = new DeleteUser(userRepository)
 
 const validateAuthenticationMiddleware = new ValidateAuthenticationMiddleware(validateAuthenticationUseCase)
 
-const registerController = new RegisterController(registerUseCase, CreateAdminSchema)
+const registerUserController = new RegisterUserController(registerUserUseCase, RegisterUserSchema)
 const authenticateUserController = new AuthenticateUserController(authenticateUserUseCase, AuthenticateUserSchema)
 const createAdminController = new CreateAdminController(createAdminUseCase, CreateAdminSchema)
 const findUsersController = new FindUsersController(findUsersUseCase, FindUsersSchema)
@@ -72,7 +73,7 @@ export default {
     validateAuthenticationMiddleware,
   },
   controllers: {
-    registerController,
+    registerUserController,
     authenticateUserController,
     createAdminController,
     findUsersController,
