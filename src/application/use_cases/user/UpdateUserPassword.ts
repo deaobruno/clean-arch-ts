@@ -3,13 +3,13 @@ import IUserRepository from '../../../domain/repositories/IUserRepository'
 import IUseCase from '../../IUseCase'
 import NotFoundError from '../../errors/NotFoundError'
 
-export type UpdateUserPasswordInput = {
+type UpdateUserPasswordInput = {
   userId: string
   password: string
   confirm_password: string
 }
 
-export class UpdateUserPassword implements IUseCase<UpdateUserPasswordInput, User> {
+export default class UpdateUserPassword implements IUseCase<UpdateUserPasswordInput, User> {
   constructor(private _userRepository: IUserRepository) {}
 
   async exec(input: UpdateUserPasswordInput): Promise<User> {

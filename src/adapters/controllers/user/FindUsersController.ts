@@ -1,9 +1,8 @@
 import BaseController from '../BaseController'
-import { FindUsers } from '../../../application/use_cases/user/FindUsers'
-import ISchema from '../../../infra/schemas/ISchema'
+import FindUsers from '../../../application/use_cases/user/FindUsers'
 
 export default class FindUsersController extends BaseController {
-  constructor(useCase: FindUsers, payloadSchema: ISchema) {
-    super({ useCase, payloadSchema })
+  constructor(useCase: FindUsers) {
+    super(useCase)
   }
 }

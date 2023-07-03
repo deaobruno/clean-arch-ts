@@ -2,7 +2,7 @@ import JwtDriver from '../../../infra/drivers/JwtDriver'
 import IUseCase from '../../IUseCase'
 import UnauthorizedError from '../../errors/UnauthorizedError'
 
-type Input = {
+type Headers = {
   authorization: string
 }
 
@@ -13,13 +13,13 @@ type Output = {
   }
 }
 
-type IValidateAuthentication = IUseCase<Input, Output>
+type IValidateAuthentication = IUseCase<Headers, Output>
 
 export default class ValidateAuthentication implements IValidateAuthentication {
   constructor(private _tokenDriver: JwtDriver) {}
 
-  async exec(input: Input): Promise<Output> {
-    const { authorization } = input
+  async exec(input: any, headers: Headers): Promise<Output> {
+    const { authorization } = headers
 
     if (!authorization)
       throw new UnauthorizedError('No token provided')

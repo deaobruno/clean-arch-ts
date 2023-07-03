@@ -6,6 +6,7 @@ import IServer from '../http/IServer'
 import BaseMiddleware from '../../adapters/middlewares/BaseMiddleware'
 import NotFoundError from '../../application/errors/NotFoundError'
 import InternalServerError from '../../application/errors/InternalServerError'
+import { error } from 'node:console'
 
 export default class ExpressDriver implements IServer {
   app = express()
@@ -73,6 +74,13 @@ export default class ExpressDriver implements IServer {
     async (req: Request, res: Response, next: NextFunction): Promise<void> => {
       try {
         const result = await middleware.handle(this._getPayload(req), req.headers)
+
+        if (!result)
+          return next()
+
+        if (result instanceof Error)
+          return next(error)
+
         const index = Object.keys(result)[0]
 
         req.body[index] = result[index]
@@ -86,9 +94,11 @@ export default class ExpressDriver implements IServer {
   private _adaptHandler = (route: BaseRoute) =>
     async (req: Request, res: Response, next: NextFunction): Promise<void> => {
       try {
+        delete req.body.user
+
         res
           .status(route.statusCode)
-          .send(await route.handle(this._getPayload(req), req.headers))
+          .send(await route.handle(this._getPayload(req)))
       } catch (error) {
         next(error)
       }

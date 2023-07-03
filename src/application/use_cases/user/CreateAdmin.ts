@@ -4,13 +4,13 @@ import CryptoDriver from '../../../infra/drivers/CryptoDriver'
 import IUseCase from '../../IUseCase'
 import ConflictError from '../../errors/ConflictError'
 
-export type CreateAdminInput = {
+type CreateAdminInput = {
   email: string
   password: string
   confirm_password: string
 }
 
-export class CreateAdmin implements IUseCase<CreateAdminInput, User> {
+export default class CreateAdmin implements IUseCase<CreateAdminInput, User> {
   constructor(private _userRepository: IUserRepository, private _cryptoDriver: CryptoDriver) {}
 
   async exec(input: CreateAdminInput): Promise<User> {

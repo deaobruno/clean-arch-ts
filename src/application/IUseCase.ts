@@ -1,3 +1,3 @@
 export default interface IUseCase<T, U> {
-  exec(input: T, headers?: any): Promise<U>
+  exec(payload: T, headers?: any): U | Promise<U>
 }

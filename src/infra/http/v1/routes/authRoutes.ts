@@ -5,6 +5,10 @@ const basePath = '/auth'
 
 export default (dependencies: any) => {
   const {
+    middlewares: {
+      validateRegisterUserPayloadMiddleware,
+      validateAuthenticateUserPayloadMiddleware,
+    },
     controllers: {
       registerUserController,
       authenticateUserController,
@@ -15,7 +19,7 @@ export default (dependencies: any) => {
   } = dependencies
 
   return [
-    new RegisterUserRoute(`${basePath}/register`, registerUserController, customerPresenter),
-    new AuthenticateUserRoute(basePath, authenticateUserController),
+    new RegisterUserRoute(`${basePath}/register`, registerUserController, customerPresenter, [validateRegisterUserPayloadMiddleware]),
+    new AuthenticateUserRoute(basePath, authenticateUserController, [validateAuthenticateUserPayloadMiddleware]),
   ]
 }
