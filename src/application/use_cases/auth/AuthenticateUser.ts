@@ -21,7 +21,7 @@ export default class AuthenticateUser implements IUseCase<Input, Output> {
   async exec(input: Input): Promise<Output> {
     const { email, password } = input
     const user = await this._userRepository.findOneByEmail(email)
-    
+
     if (!user || user.password !== password)
       throw new UnauthorizedError()
   

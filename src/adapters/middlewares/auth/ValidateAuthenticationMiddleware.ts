@@ -5,4 +5,6 @@ export default class ValidateAuthenticationMiddleware extends BaseMiddleware {
   constructor(useCase: ValidateAuthentication) {
     super(useCase)
   }
+
+  formatInput = (payload: any, headers: any) => headers
 }

@@ -94,8 +94,6 @@ export default class ExpressDriver implements IServer {
   private _adaptHandler = (route: BaseRoute) =>
     async (req: Request, res: Response, next: NextFunction): Promise<void> => {
       try {
-        delete req.body.user
-
         res
           .status(route.statusCode)
           .send(await route.handle(this._getPayload(req)))

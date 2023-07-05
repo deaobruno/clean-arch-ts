@@ -3,7 +3,11 @@ import IUseCase from '../../application/IUseCase'
 export default abstract class BaseMiddleware {
   constructor(protected _useCase: IUseCase<any, any>) {}
 
-  async handle(payload: any, headers?: any): Promise<any> {
-    return this._useCase.exec(payload, headers)
+  protected formatInput(payload: any, headers?: any) {
+    return { ...payload, ...headers }
+  }
+
+  async handle(payload: any, headers: any): Promise<any> {
+    return this._useCase.exec(this.formatInput(payload, headers))
   }
 }
