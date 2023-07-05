@@ -39,12 +39,13 @@ import ValidateAuthorizationMiddleware from '../adapters/middlewares/auth/Valida
 const {
   app: {
     accessTokenSecret,
+    tokenExpirationTime,
   }
 } = config
 // Drivers
 const inMemoryDriver = new InMemoryDriver()
 const cryptoDriver = new CryptoDriver()
-const jwtDriver = new JwtDriver(accessTokenSecret)
+const jwtDriver = new JwtDriver(accessTokenSecret, tokenExpirationTime)
 // Repositories
 const userRepository = new UserRepository(inMemoryDriver)
 // Use Cases

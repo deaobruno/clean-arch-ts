@@ -1,9 +1,7 @@
 import jwt from 'jsonwebtoken'
 
 export default class JwtDriver {
-  private _expirationTime = 3600 // seconds
-
-  constructor(private _accessTokenSecret: string) {}
+  constructor(private _accessTokenSecret: string, private _expirationTime: number) {}
 
   generate(data: string | object): string {
     return jwt.sign(data, this._accessTokenSecret, { expiresIn: this._expirationTime })

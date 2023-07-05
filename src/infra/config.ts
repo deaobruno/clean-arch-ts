@@ -12,5 +12,6 @@ export default {
   },
   app: {
     accessTokenSecret: process.env.ACCESS_TOKEN_SECRET ?? '',
+    tokenExpirationTime: parseInt(process.env.TOKEN_EXPIRATION_TIME ?? ''),
   }
 }
