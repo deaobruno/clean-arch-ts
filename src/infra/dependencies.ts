@@ -35,7 +35,7 @@ import CustomerPresenter from '../adapters/presenters/user/CustomerPresenter'
 import AdminPresenter from '../adapters/presenters/user/AdminPresenter'
 import ValidateAuthorization from '../application/use_cases/auth/ValidateAuthorization'
 import ValidateAuthorizationMiddleware from '../adapters/middlewares/auth/ValidateAuthorizationMiddleware'
-// C:\ProgramData
+
 const {
   app: {
     accessTokenSecret,

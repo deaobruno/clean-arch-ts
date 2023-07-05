@@ -11,9 +11,7 @@ type Output = {
   user: User
 }
 
-type IValidateAuthentication = IUseCase<Input, Output>
-
-export default class ValidateAuthentication implements IValidateAuthentication {
+export default class ValidateAuthentication implements IUseCase<Input, Output> {
   constructor(private _tokenDriver: JwtDriver) {}
 
   async exec(input: Input): Promise<Output> {
