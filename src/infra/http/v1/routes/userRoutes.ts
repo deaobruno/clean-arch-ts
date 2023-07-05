@@ -11,6 +11,7 @@ export default (dependencies: any) => {
   const {
     middlewares: {
       validateAuthenticationMiddleware,
+      validateAuthorizationMiddleware,
       validateCreateAdminPayloadMiddleware,
       validateFindUsersPayloadMiddleware,
       validateFindUserByIdPayloadMiddleware,
@@ -33,11 +34,11 @@ export default (dependencies: any) => {
   } = dependencies
 
   return [
-    new CreateAdminRoute(`${basePath}/create-admin`, createAdminController, adminPresenter, [validateCreateAdminPayloadMiddleware, validateAuthenticationMiddleware]),
-    new FindUsersRoute(basePath, findUsersController, customerPresenter, [validateFindUsersPayloadMiddleware, validateAuthenticationMiddleware]),
+    new CreateAdminRoute(`${basePath}/create-admin`, createAdminController, adminPresenter, [validateCreateAdminPayloadMiddleware, validateAuthenticationMiddleware, validateAuthorizationMiddleware]),
+    new FindUsersRoute(basePath, findUsersController, customerPresenter, [validateFindUsersPayloadMiddleware, validateAuthenticationMiddleware, validateAuthorizationMiddleware]),
     new FindUserByIdRoute(`${basePath}/:userId`, findUserByIdController, customerPresenter, [validateFindUserByIdPayloadMiddleware, validateAuthenticationMiddleware]),
     new UpdateUserRoute(`${basePath}/:userId`, updateUserController, customerPresenter, [validateUpdateUserPayloadMiddleware, validateAuthenticationMiddleware]),
     new UpdateUserPasswordRoute(`${basePath}/:userId/update-password`, updateUserPasswordController, customerPresenter, [validateUpdateUserPasswordPayloadMiddleware, validateAuthenticationMiddleware]),
-    new DeleteUserRoute(`${basePath}/:userId`, deleteUserController, [validateDeleteUserPayloadMiddleware, validateAuthenticationMiddleware]),
+    new DeleteUserRoute(`${basePath}/:userId`, deleteUserController, [validateDeleteUserPayloadMiddleware, validateAuthenticationMiddleware, validateAuthorizationMiddleware]),
   ]
 }

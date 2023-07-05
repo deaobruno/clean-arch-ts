@@ -1,3 +1,4 @@
+import { User } from '../../../domain/User'
 import JwtDriver from '../../../infra/drivers/JwtDriver'
 import IUseCase from '../../IUseCase'
 import UnauthorizedError from '../../errors/UnauthorizedError'
@@ -7,10 +8,7 @@ type Input = {
 }
 
 type Output = {
-  user: {
-    email: string
-    password: string
-  }
+  user: User
 }
 
 type IValidateAuthentication = IUseCase<Input, Output>
@@ -33,9 +31,20 @@ export default class ValidateAuthentication implements IValidateAuthentication {
       throw new UnauthorizedError('Invalid authorization type')
 
     try {
-      return { user: <any>this._tokenDriver.validate(token) }
-    } catch (error) {
-      throw new UnauthorizedError()
+      const { id, email, password, level } = <any>this._tokenDriver.validate(token)
+      const user = User.create({
+        user_id: id,
+        email,
+        password,
+        level
+      })
+
+      return { user }
+    } catch (error: any) {
+      if (error.name === 'TokenExpiredError')
+        throw new UnauthorizedError('Token expired')
+
+      throw new UnauthorizedError('Invalid token')
     }
   }
 }

@@ -33,7 +33,9 @@ import UpdateUserPasswordController from '../adapters/controllers/user/UpdateUse
 import DeleteUserController from '../adapters/controllers/user/DeleteUserController'
 import CustomerPresenter from '../adapters/presenters/user/CustomerPresenter'
 import AdminPresenter from '../adapters/presenters/user/AdminPresenter'
-
+import ValidateAuthorization from '../application/use_cases/auth/ValidateAuthorization'
+import ValidateAuthorizationMiddleware from '../adapters/middlewares/auth/ValidateAuthorizationMiddleware'
+// C:\ProgramData
 const {
   app: {
     accessTokenSecret,
@@ -51,6 +53,7 @@ const validateRegisterPayloadUseCase = new ValidateInput(RegisterUserSchema)
 const authenticateUserUseCase = new AuthenticateUser(userRepository, jwtDriver)
 const validateAuthenticateUserPayloadUseCase = new ValidateInput(AuthenticateUserSchema)
 const validateAuthenticationUseCase = new ValidateAuthentication(jwtDriver)
+const validateAuthorizationUseCase = new ValidateAuthorization()
 const createAdminUseCase = new CreateAdmin(userRepository, cryptoDriver)
 const validateCreateAdminPayloadUseCase = new ValidateInput(CreateAdminSchema)
 const validateFindUsersPayloadUseCase = new ValidateInput(FindUsersSchema)
@@ -65,6 +68,7 @@ const updateUserPasswordUseCase = new UpdateUserPassword(userRepository)
 const deleteUserUseCase = new DeleteUser(userRepository)
 // Middlewares
 const validateAuthenticationMiddleware = new ValidateAuthenticationMiddleware(validateAuthenticationUseCase)
+const validateAuthorizationMiddleware = new ValidateAuthorizationMiddleware(validateAuthorizationUseCase)
 const validateRegisterUserPayloadMiddleware = new ValidateInputMiddleware(validateRegisterPayloadUseCase)
 const validateAuthenticateUserPayloadMiddleware = new ValidateInputMiddleware(validateAuthenticateUserPayloadUseCase)
 const validateCreateAdminPayloadMiddleware = new ValidateInputMiddleware(validateCreateAdminPayloadUseCase)
@@ -86,9 +90,15 @@ const deleteUserController = new DeleteUserController(deleteUserUseCase)
 const customerPresenter = new CustomerPresenter()
 const adminPresenter = new AdminPresenter()
 
+createAdminUseCase.exec({
+  email: 'admin@email.com',
+  password: '12345',
+})
+
 export default {
   middlewares: {
     validateAuthenticationMiddleware,
+    validateAuthorizationMiddleware,
     validateRegisterUserPayloadMiddleware,
     validateAuthenticateUserPayloadMiddleware,
     validateCreateAdminPayloadMiddleware,

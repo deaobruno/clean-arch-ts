@@ -6,7 +6,6 @@ import NotFoundError from '../../errors/NotFoundError'
 type UpdateUserPasswordInput = {
   userId: string
   password: string
-  confirm_password: string
 }
 
 export default class UpdateUserPassword implements IUseCase<UpdateUserPasswordInput, User> {

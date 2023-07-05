@@ -79,7 +79,7 @@ export default class ExpressDriver implements IServer {
           return next()
 
         if (result instanceof Error)
-          return next(error)
+          return next(result)
 
         const index = Object.keys(result)[0]
 

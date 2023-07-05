@@ -3,8 +3,9 @@ import FindUsersController from '../../../../../adapters/controllers/user/FindUs
 import CustomerPresenter from '../../../../../adapters/presenters/user/CustomerPresenter'
 import ValidateAuthenticationMiddleware from '../../../../../adapters/middlewares/auth/ValidateAuthenticationMiddleware'
 import ValidateInputMiddleware from '../../../../../adapters/middlewares/validation/ValidateInputMiddleware'
+import ValidateAuthorizationMiddleware from '../../../../../adapters/middlewares/auth/ValidateAuthorizationMiddleware'
 
-type Middlewares = [ValidateInputMiddleware, ValidateAuthenticationMiddleware]
+type Middlewares = [ValidateInputMiddleware, ValidateAuthenticationMiddleware, ValidateAuthorizationMiddleware]
 
 export default class FindUsersRoute extends BaseRoute {
   method = 'get'
