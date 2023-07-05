@@ -3,7 +3,7 @@ import { expect } from "chai"
 import InMemoryDriver from "../../../../../src/infra/drivers/InMemoryDriver"
 import UserRepository from "../../../../../src/adapters/repositories/UserRepository"
 import { LevelEnum, User } from "../../../../../src/domain/User"
-import { UpdateUserPassword } from '../../../../../src/application/use_cases/user/UpdateUserPassword'
+import UpdateUserPassword from '../../../../../src/application/use_cases/user/UpdateUserPassword'
 
 const inMemoryDriver = new InMemoryDriver()
 const userRepository = new UserRepository(inMemoryDriver)
@@ -35,7 +35,7 @@ describe('/application/use_cases/user/UpdateUserPassword.ts', () => {
   })
 
   it('should fail when trying to update an user password passing wrong ID', async () => {
-    await updateUserPassword.exec({ userId: '', password: '', confirm_password: '' })
+    await updateUserPassword.exec({ userId: '', password: '' })
       .catch(error => {
         expect(error.message).equal('User not found')
       })

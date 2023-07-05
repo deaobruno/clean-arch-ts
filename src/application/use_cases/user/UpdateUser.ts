@@ -4,7 +4,7 @@ import IUseCase from '../../IUseCase'
 import NotFoundError from '../../errors/NotFoundError'
 
 type UpdateUserInput = {
-  user: User
+  user?: User
   userId: string
   email?: string
 }
@@ -21,9 +21,9 @@ export default class UpdateUser implements IUseCase<UpdateUserInput, User> {
       throw new NotFoundError('User not found')
 
     Object.keys(userInput).forEach(key => {
-      user[key] = userInput[key]
+      userById[key] = userInput[key]
     })
 
-    return this._userRepository.save(user)
+    return this._userRepository.save(userById)
   }
 }

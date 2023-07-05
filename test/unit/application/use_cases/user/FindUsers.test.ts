@@ -2,7 +2,7 @@ import { faker } from '@faker-js/faker'
 import UserRepository from "../../../../../src/adapters/repositories/UserRepository"
 import { User } from "../../../../../src/domain/User"
 import InMemoryDriver from "../../../../../src/infra/drivers/InMemoryDriver"
-import { FindUsers } from '../../../../../src/application/use_cases/user/FindUsers'
+import FindUsers from '../../../../../src/application/use_cases/user/FindUsers'
 import { expect } from 'chai'
 import NotFoundError from '../../../../../src/application/errors/NotFoundError'
 
@@ -30,7 +30,7 @@ describe('/application/use_cases/user/FindUsers.ts', () => {
         level: 2
       }))
 
-    const users = await findUsers.exec()
+    const users = await findUsers.exec({})
 
     expect(users[0]).property('user_id')
     expect(users[0]).property('email')
@@ -47,7 +47,7 @@ describe('/application/use_cases/user/FindUsers.ts', () => {
   })
 
   it('should return a NotFoundError when no users are found', async () => {
-    await findUsers.exec()
+    await findUsers.exec({})
       .catch(error => {
         expect(error instanceof NotFoundError).equal(true)
         expect(error.message).equal('Users not found')

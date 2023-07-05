@@ -28,7 +28,7 @@ class CustomMiddleware extends BaseMiddleware {
 
 class CustomController extends BaseController {
   constructor(useCase: IUseCase<any, any>) {
-    super({ useCase })
+    super(useCase)
   }
 }
 

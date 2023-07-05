@@ -1,6 +1,6 @@
 import { faker } from '@faker-js/faker'
 import { expect } from 'chai'
-import { Register } from '../../../../../src/application/use_cases/auth/Register'
+import RegisterUser from '../../../../../src/application/use_cases/auth/RegisterUser'
 import { LevelEnum, User } from '../../../../../src/domain/User'
 import CryptoDriver from '../../../../../src/infra/drivers/CryptoDriver'
 import InMemoryDriver from '../../../../../src/infra/drivers/InMemoryDriver'
@@ -14,9 +14,9 @@ const userRepository = new UserRepository(inMemoryDriver)
 const user_id = faker.datatype.uuid()
 const email = faker.internet.email()
 const password = faker.internet.password()
-const register = new Register(userRepository, cryptoDriver)
+const registerUser = new RegisterUser(userRepository, cryptoDriver)
 
-describe('/application/use_cases/auth/Register.ts', () => {
+describe('/application/use_cases/auth/RegisterUser.ts', () => {
   it('should successfully create a Customer', async () => {
     const userParams = {
       email,
@@ -25,7 +25,7 @@ describe('/application/use_cases/auth/Register.ts', () => {
       level: 2
     }
 
-    const user = await register.exec(userParams)
+    const user = await registerUser.exec(userParams)
 
     expect(typeof user.user_id).equal('string')
     expect(user.email).equal(userParams.email)
@@ -46,7 +46,7 @@ describe('/application/use_cases/auth/Register.ts', () => {
       return User.create({ user_id, ...userParams })
     }
 
-    await register.exec(userParams)
+    await registerUser.exec(userParams)
       .catch((error) => {
         expect(error.message).equal('Email already in use')
       })

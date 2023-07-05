@@ -1,6 +1,6 @@
 import { faker } from '@faker-js/faker'
 import { expect } from 'chai'
-import { CreateAdmin } from '../../../../../src/application/use_cases/user/CreateAdmin'
+import CreateAdmin from '../../../../../src/application/use_cases/user/CreateAdmin'
 import { LevelEnum, User } from '../../../../../src/domain/User'
 import CryptoDriver from '../../../../../src/infra/drivers/CryptoDriver'
 import InMemoryDriver from '../../../../../src/infra/drivers/InMemoryDriver'

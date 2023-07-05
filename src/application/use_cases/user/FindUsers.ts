@@ -4,7 +4,7 @@ import IUseCase from '../../IUseCase'
 import NotFoundError from '../../errors/NotFoundError'
 
 type FindUsersInput = {
-  user: User
+  user?: User
   email?: string
 }
 

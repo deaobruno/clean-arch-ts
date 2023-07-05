@@ -23,7 +23,7 @@ class CustomRoute extends BaseRoute {
 const useCase = {
   exec: (data: any): Promise<void> => Promise.resolve(data)
 }
-const controller = new CustomController({ useCase })
+const controller = new CustomController(useCase)
 const presenter = {
   present(data: any) {
     const { test } = data

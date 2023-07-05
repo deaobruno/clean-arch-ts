@@ -12,7 +12,7 @@ const useCase = {
 
 class CustomController extends BaseController {}
 
-const controller = new CustomController({ useCase })
+const controller = new CustomController(useCase)
 
 const presenter = {
   present: (data: any) => data

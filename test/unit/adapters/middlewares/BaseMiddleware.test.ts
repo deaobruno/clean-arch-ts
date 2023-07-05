@@ -13,7 +13,7 @@ describe('/adapters/middlewares/BaseMiddleware.ts', () => {
 
     const middleware = new CustomMiddleware(useCase)
     const data = { teste: 'ok' }
-    const result = await middleware.handle(data)
+    const result = await middleware.handle(data, {})
 
     expect(result).deep.equal(data)
   })

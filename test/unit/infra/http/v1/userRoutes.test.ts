@@ -14,12 +14,12 @@ const dependencies = {
     testMiddleware: new CustomMiddleware(useCase),
   },
   controllers: {
-    createAdminController: new CustomController({ useCase }),
-    findUsersController: new CustomController({ useCase }),
-    findUserByIdController: new CustomController({ useCase }),
-    updateUserController: new CustomController({ useCase }),
-    updateUserPasswordController: new CustomController({ useCase }),
-    deleteUserController: new CustomController({ useCase }),
+    createAdminController: new CustomController(useCase),
+    findUsersController: new CustomController(useCase),
+    findUserByIdController: new CustomController(useCase),
+    updateUserController: new CustomController(useCase),
+    updateUserPasswordController: new CustomController(useCase),
+    deleteUserController: new CustomController(useCase),
   },
   presenters: {
     customerPresenter: {
