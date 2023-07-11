@@ -6,28 +6,38 @@
   "scripts": {
     "build": "rm -rf dist/ && tsc",
     "start": "npm run build && ts-node dist/infra/app.js",
-    "dev": "nodemon src/infra/app.ts",
-    "test": "npm run test:unit",
-    "test:unit": "nyc mocha -r ts-node/register test/unit/**/*.test.ts --recursive --exit"
+    "dev": "cross-env NODE_ENV=development nodemon src/infra/app.ts",
+    "test": "nyc mocha -r ts-node/register test/**/*.test.ts --recursive --exit",
+    "test:unit": "nyc mocha -r ts-node/register test/unit/**/*.test.ts --recursive --exit",
+    "test:integration": "nyc mocha -r ts-node/register test/integration/**/*.test.ts --recursive --exit"
   },
   "keywords": [],
   "author": "Bruno Oliveira",
   "license": "",
   "devDependencies": {
-    "@faker-js/faker": "^7.5.0",
+    "@faker-js/faker": "^8.0.2",
     "@types/chai": "^4.3.4",
+    "@types/dotenv-safe": "^8.1.2",
     "@types/express": "^4.17.17",
+    "@types/jsonwebtoken": "^9.0.2",
     "@types/mocha": "^10.0.1",
     "@types/node": "^18.7.15",
+    "@types/sinon": "^10.0.15",
     "chai": "^4.3.7",
+    "cross-env": "^7.0.3",
+    "faker": "^6.6.6",
     "mocha": "^10.2.0",
     "nodemon": "^2.0.22",
     "nyc": "^15.1.0",
+    "sinon": "^15.2.0",
     "ts-node": "^10.9.1",
     "typescript": "^5.0.4"
   },
   "dependencies": {
+    "axios": "^1.4.0",
     "body-parser": "^1.20.2",
-    "express": "^4.18.2"
+    "dotenv-safe": "^8.2.0",
+    "express": "^4.18.2",
+    "jsonwebtoken": "^9.0.0"
   }
 }

@@ -1,42 +1,84 @@
-import { faker } from "@faker-js/faker"
-import { expect } from "chai"
-import InMemoryDriver from "../../../../../src/infra/drivers/InMemoryDriver"
-import UserRepository from "../../../../../src/adapters/repositories/UserRepository"
-import { LevelEnum, User } from "../../../../../src/domain/User"
-import { UpdateUser } from '../../../../../src/application/use_cases/user/UpdateUser'
+import sinon from 'sinon'
+import { faker } from '@faker-js/faker'
+import { expect } from 'chai'
+import InMemoryDriver from '../../../../../src/infra/drivers/InMemoryDriver'
+import UserRepository from '../../../../../src/adapters/repositories/UserRepository'
+import { User } from '../../../../../src/domain/User'
+import UpdateUser from '../../../../../src/application/use_cases/user/UpdateUser'
+import IRepository from '../../../../../src/domain/repositories/IRepository'
+import IUserRepository from '../../../../../src/domain/repositories/IUserRepository'
+import NotFoundError from '../../../../../src/application/errors/NotFoundError'
+import BaseError from '../../../../../src/application/BaseError'
 
-const inMemoryDriver = new InMemoryDriver()
-const userRepository = new UserRepository(inMemoryDriver)
-const updateUser = new UpdateUser(userRepository)
-const user_id = faker.datatype.uuid()
-const userData = {
-  user_id,
-  email: faker.internet.email(),
-  password: faker.internet.password(),
-  level: LevelEnum.CUSTOMER
-}
+const sandbox = sinon.createSandbox()
+let inMemoryDriver: IRepository<any>
+let userRepository: IUserRepository
+let updateUser: UpdateUser
+let notFoundError: NotFoundError
+let fakeUser: User
+let userId = faker.string.uuid()
+let email: string
+let password: string
 
 describe('/application/use_cases/user/UpdateUser.ts', () => {
-  before(async () => await userRepository.save(User.create(userData)))
+  beforeEach(() => {
+    inMemoryDriver = new InMemoryDriver()
+    userRepository = new UserRepository(inMemoryDriver)
+    updateUser = new UpdateUser(userRepository)
+    notFoundError = sandbox.stub(NotFoundError.prototype)
+    userId = faker.string.uuid()
+    email = faker.internet.email()
+    password = faker.internet.password()
+    fakeUser = {
+      user_id: userId,
+      email,
+      password,
+      level: 2,
+      isRoot: false,
+      isAdmin: false,
+      isCustomer: true,
+    }
+    notFoundError.name = 'NotFoundError'
+    notFoundError.statusCode = 404
+    notFoundError.message = 'User not found'
+  })
+
+  afterEach(() => sandbox.restore())
 
   it('should update an existing user', async () => {
+    sandbox.stub(InMemoryDriver.prototype, 'findOne')
+      .resolves(fakeUser)
+
     const newEmail = faker.internet.email()
+
+    fakeUser.email = newEmail
+
+    sandbox.stub(UserRepository.prototype, 'save')
+      .resolves(fakeUser)
+
     const updateData = {
-      userId: user_id,
+      userId,
       email: newEmail,
     }
-    const result = await updateUser.exec(updateData)
+    const user = <User>await updateUser.exec(updateData)
 
-    expect(result.user_id).equal(user_id)
-    expect(result.email).equal(newEmail)
-    expect(result.password).equal(userData.password)
-    expect(result.level).equal(userData.level)
+    expect(user.user_id).equal(fakeUser.user_id)
+    expect(user.email).equal(newEmail)
+    expect(user.password).equal(fakeUser.password)
+    expect(user.level).equal(fakeUser.level)
+    expect(user.isCustomer).equal(true)
+    expect(user.isAdmin).equal(false)
+    expect(user.isRoot).equal(false)
   })
 
   it('should fail when trying to update an user passing wrong ID', async () => {
-    await updateUser.exec({ userId: '' })
-      .catch(error => {
-        expect(error.message).equal('User not found')
-      })
+    sandbox.stub(InMemoryDriver.prototype, 'findOne')
+      .resolves()
+
+    const error = <BaseError>await updateUser.exec({ userId: '' })
+
+    expect(error instanceof NotFoundError).equal(true)
+    expect(error.message).equal('User not found')
+    expect(error.statusCode).equal(404)
   })
 })

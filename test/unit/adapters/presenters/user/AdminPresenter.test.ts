@@ -8,7 +8,7 @@ const adminPresenter = new AdminPresenter()
 describe('/application/presenters/user/AdminPresenter.ts', () => {
   it('should return an external representation of an admin user object', () => {
     const userData = {
-      user_id: faker.datatype.uuid(),
+      user_id: faker.string.uuid(),
       email: faker.internet.email(),
       password: faker.internet.password(),
       level: LevelEnum.ADMIN

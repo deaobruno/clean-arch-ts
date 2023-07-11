@@ -1,0 +1,17 @@
+import { config } from 'dotenv-safe'
+
+const dotenvConfig = process.env.NODE_ENV === 'development' ?
+  { debug: true } :
+  {}
+
+config(dotenvConfig)
+
+export default {
+  server: {
+    httpPort: process.env.HTTP_PORT ?? 8080,
+  },
+  app: {
+    accessTokenSecret: process.env.ACCESS_TOKEN_SECRET ?? '',
+    tokenExpirationTime: parseInt(process.env.TOKEN_EXPIRATION_TIME ?? ''),
+  },
+}

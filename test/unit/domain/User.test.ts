@@ -2,7 +2,7 @@ import { faker } from '@faker-js/faker'
 import { expect } from 'chai'
 import { LevelEnum, User } from '../../../src/domain/User'
 
-const user_id = faker.datatype.uuid()
+const user_id = faker.string.uuid()
 const email = faker.internet.email()
 const password = faker.internet.password()
 

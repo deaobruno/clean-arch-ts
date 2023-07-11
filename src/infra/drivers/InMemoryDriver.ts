@@ -1,6 +1,6 @@
-import Repository from "../../domain/repositories/IRepository"
+import IRepository from '../../domain/repositories/IRepository'
 
-export default class InMemoryDriver implements Repository<any> {
+export default class InMemoryDriver implements IRepository<any> {
   data: any[] = []
 
   async save(entity: any, filters?: object): Promise<any> {
@@ -8,7 +8,7 @@ export default class InMemoryDriver implements Repository<any> {
 
     if (item) {
       const filterKeys = Object.keys(filters)
-      
+
       this.data = this.data.map((item: any) => {
         let found = true
 
@@ -25,9 +25,9 @@ export default class InMemoryDriver implements Repository<any> {
   async find(filters: object = {}): Promise<any[]> {
     const filterKeys = Object.keys(filters)
     const result: any[] = []
-    
+
     if (filterKeys.length <= 0) return this.data
-    
+
     this.data.forEach((item: any) => {
       let found = true
 

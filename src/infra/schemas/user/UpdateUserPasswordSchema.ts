@@ -8,11 +8,8 @@ export default {
         case 'userId':
           const uuidRegex = /^[0-9a-f]{8}\b-[0-9a-f]{4}\b-[0-9a-f]{4}\b-[0-9a-f]{4}\b-[0-9a-f]{12}$/gi
 
-          if (!userId)
-            error = new Error('User ID is required')
-
-          if (userId && !uuidRegex.test(userId))
-            error = new Error('User ID must be an UUID')
+          if (!uuidRegex.test(userId))
+            error = new Error('Invalid "user_id" format')
 
           break
 
@@ -27,7 +24,7 @@ export default {
             error = new Error('"confirm_password" is required')
 
           break
-      
+
         default:
           error = new Error(`Invalid param: "${key}"`)
       }

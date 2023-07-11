@@ -1,25 +1,27 @@
+import { Server } from 'node:http'
 import express, { NextFunction, Request, Response, Router } from 'express'
-import BaseRoute from '../http/routes/BaseRoute'
-import IServer from '../http/IServer'
-import { Server as HttpServer } from 'http'
 import bodyParser from 'body-parser'
+import BaseRoute from '../http/BaseRoute'
+import IServer from '../http/IServer'
+import BaseMiddleware from '../../adapters/middlewares/BaseMiddleware'
 import NotFoundError from '../../application/errors/NotFoundError'
 import InternalServerError from '../../application/errors/InternalServerError'
-import BaseMiddleware from '../../adapters/middlewares/BaseMiddleware'
 
 export default class ExpressDriver implements IServer {
   app = express()
 
-  httpServer?: HttpServer
+  httpServer?: Server
 
   router = Router()
 
-  constructor(private _httpPort: number) {}
+  constructor(private _httpPort: string | number) {}
 
-  start(routes: BaseRoute[]): void {
+  start(routes: BaseRoute[], prefix?: string): void {
     this.app.use(bodyParser.json())
+
     this.app.use(bodyParser.urlencoded({ extended: false }))
-    this.app.use('/api/v1', this._adaptRoutes(routes))
+
+    this.app.use(prefix ?? '', this._adaptRoutes(routes))
 
     this.app.use((req: Request, res: Response, next: NextFunction) => {
       next(new NotFoundError('Invalid URL'))
@@ -32,14 +34,14 @@ export default class ExpressDriver implements IServer {
         res: Response,
         next: NextFunction
       ) => {
-        console.error(error.stack)
-
-        if (!error.statusCode)
-          error = new InternalServerError(error.message)
-
         const { statusCode, message } = error
 
-        res.status(statusCode).send({ error: message })
+        if (!statusCode)
+          error = new InternalServerError((!message || message === '') ? undefined : message)
+
+        console.error(error.stack)
+
+        res.status(error.statusCode).send({ error: error.message })
       }
     )
 
@@ -70,7 +72,17 @@ export default class ExpressDriver implements IServer {
   private _adaptMiddleware = (middleware: BaseMiddleware) =>
     async (req: Request, res: Response, next: NextFunction): Promise<void> => {
       try {
-        await middleware.handle(this._getPayload(req))
+        const result = await middleware.handle(this._getPayload(req), req.headers)
+
+        if (!result)
+          return next()
+
+        if (result instanceof Error)
+          return next(result)
+
+        const index = Object.keys(result)[0]
+
+        req.body[index] = result[index]
 
         next()
       } catch (error) {
@@ -81,9 +93,14 @@ export default class ExpressDriver implements IServer {
   private _adaptHandler = (route: BaseRoute) =>
     async (req: Request, res: Response, next: NextFunction): Promise<void> => {
       try {
+        const result = await route.handle(this._getPayload(req))
+
+        if (result instanceof Error)
+          return next(result)
+
         res
           .status(route.statusCode)
-          .send(await route.handle(this._getPayload(req)))
+          .send(result)
       } catch (error) {
         next(error)
       }

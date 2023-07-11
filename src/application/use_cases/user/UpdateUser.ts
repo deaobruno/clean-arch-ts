@@ -1,28 +1,32 @@
 import { User } from '../../../domain/User'
 import IUserRepository from '../../../domain/repositories/IUserRepository'
+import BaseError from '../../BaseError'
 import IUseCase from '../../IUseCase'
 import NotFoundError from '../../errors/NotFoundError'
 
-export type UpdateUserInput = {
+type UpdateUserInput = {
+  user?: User
   userId: string
   email?: string
 }
 
-export class UpdateUser implements IUseCase<UpdateUserInput, User> {
+type Output = User | BaseError
+
+export default class UpdateUser implements IUseCase<UpdateUserInput, Output> {
   constructor(private _userRepository: IUserRepository) {}
 
-  async exec(input: UpdateUserInput): Promise<User> {
-    const { userId, ...userInput } = input
-    const user = await this._userRepository.findOne({ user_id: userId })
+  async exec(input: UpdateUserInput): Promise<Output> {
+    const { user, userId, ...userInput } = input
+    const userById = await this._userRepository.findOne({ user_id: userId })
 
     // if (!user || (user && !user.isCustomer))
-    if (!user)
-      throw new NotFoundError('User not found')
+    if (!userById)
+      return new NotFoundError('User not found')
 
     Object.keys(userInput).forEach(key => {
-      user[key] = userInput[key]
+      userById[key] = userInput[key]
     })
 
-    return this._userRepository.save(user)
+    return this._userRepository.save(userById)
   }
 }

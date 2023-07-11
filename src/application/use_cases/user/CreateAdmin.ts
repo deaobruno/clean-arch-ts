@@ -1,27 +1,36 @@
 import { User } from '../../../domain/User'
 import IUserRepository from '../../../domain/repositories/IUserRepository'
 import CryptoDriver from '../../../infra/drivers/CryptoDriver'
+import BaseError from '../../BaseError'
 import IUseCase from '../../IUseCase'
 import ConflictError from '../../errors/ConflictError'
 
-export type CreateAdminInput = {
+type CreateAdminInput = {
   email: string
   password: string
-  confirm_password: string
 }
 
-export class CreateAdmin implements IUseCase<CreateAdminInput, User> {
-  constructor(private _userRepository: IUserRepository, private _cryptoDriver: CryptoDriver) {}
+type Output = User | BaseError
 
-  async exec(input: CreateAdminInput): Promise<User> {
-    const { email } = input
+export default class CreateAdmin implements IUseCase<CreateAdminInput, Output> {
+  constructor(
+    private _userRepository: IUserRepository,
+    private _cryptoDriver: CryptoDriver
+  ) {}
 
+  async exec(input: CreateAdminInput): Promise<Output> {
+    const { email, password } = input
     const userByEmail = await this._userRepository.findOneByEmail(email)
 
-    if (userByEmail instanceof User)
-      throw new ConflictError('Email already in use')
+    if (userByEmail && userByEmail.email === email)
+      return new ConflictError('Email already in use')
 
-    const user = User.create({ user_id: this._cryptoDriver.generateID(), level: 1, ...input })
+    const user = User.create({
+      user_id: this._cryptoDriver.generateID(),
+      email,
+      password: this._cryptoDriver.hashString(password),
+      level: 1,
+    })
 
     await this._userRepository.save(user)
 

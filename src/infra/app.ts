@@ -1,9 +1,16 @@
-import routes from './http/routes'
+import config from './config'
+import routes from './http/v1/routes'
 import ExpressDriver from './drivers/ExpressDriver'
 
-const server = new ExpressDriver(8080)
+const {
+  server: {
+    httpPort
+  }
+} = config
 
-server.start(routes)
+const server = new ExpressDriver(httpPort)
+
+server.start(routes.routes, routes.prefix)
 
 const gracefulShutdown = (signal: string, code: number) => {
   server.stop(() => {
