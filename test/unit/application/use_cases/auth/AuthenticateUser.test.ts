@@ -10,10 +10,12 @@ import { User } from '../../../../../src/domain/User'
 import JwtDriver from '../../../../../src/infra/drivers/JwtDriver'
 import UnauthorizedError from '../../../../../src/application/errors/UnauthorizedError'
 import BaseError from '../../../../../src/application/BaseError'
+import CryptoDriver from '../../../../../src/infra/drivers/CryptoDriver'
 
 const sandbox = sinon.createSandbox()
 let inMemoryDriver: IRepository<any>
 let tokenDriver: JwtDriver
+let cryptoDriver: CryptoDriver
 let userRepository: IUserRepository
 let authenticateUser: AuthenticateUser
 let unauthorizedError: UnauthorizedError
@@ -26,9 +28,13 @@ let fakeUser: User
 describe('/application/use_cases/auth/AuthenticateUser.ts', () => {
   beforeEach(() => {
     inMemoryDriver = new InMemoryDriver()
-    userRepository = new UserRepository(inMemoryDriver)
     tokenDriver = new JwtDriver('token', 60)
-    authenticateUser = new AuthenticateUser(userRepository, tokenDriver)
+    cryptoDriver = {
+      generateID: () => faker.string.uuid(),
+      hashString: (text: string) => 'hash',
+    }
+    userRepository = new UserRepository(inMemoryDriver)
+    authenticateUser = new AuthenticateUser(userRepository, tokenDriver, cryptoDriver)
     unauthorizedError = sandbox.stub(UnauthorizedError.prototype)
     userId = faker.string.uuid()
     email = faker.internet.email()
@@ -36,7 +42,7 @@ describe('/application/use_cases/auth/AuthenticateUser.ts', () => {
     fakeUser = {
       user_id: userId,
       email,
-      password,
+      password: cryptoDriver.hashString(password),
       level: 2,
       isRoot: false,
       isAdmin: false,

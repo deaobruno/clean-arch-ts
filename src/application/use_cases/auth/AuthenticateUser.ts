@@ -1,4 +1,5 @@
 import IUserRepository from '../../../domain/repositories/IUserRepository'
+import CryptoDriver from '../../../infra/drivers/CryptoDriver'
 import JwtDriver from '../../../infra/drivers/JwtDriver'
 import BaseError from '../../BaseError'
 import IUseCase from '../../IUseCase'
@@ -17,13 +18,14 @@ export default class AuthenticateUser implements IUseCase<Input, Output> {
   constructor(
     private _userRepository: IUserRepository,
     private _tokenDriver: JwtDriver,
+    private _cryptoDriver: CryptoDriver,
   ) {}
 
   async exec(input: Input): Promise<Output> {
     const { email, password } = input
     const user = await this._userRepository.findOneByEmail(email)
 
-    if (!user || user.password !== password)
+    if (!user || user.password !== this._cryptoDriver.hashString(password))
       return new UnauthorizedError()
 
     const { user_id, level } = user

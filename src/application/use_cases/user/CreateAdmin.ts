@@ -13,17 +13,24 @@ type CreateAdminInput = {
 type Output = User | BaseError
 
 export default class CreateAdmin implements IUseCase<CreateAdminInput, Output> {
-  constructor(private _userRepository: IUserRepository, private _cryptoDriver: CryptoDriver) {}
+  constructor(
+    private _userRepository: IUserRepository,
+    private _cryptoDriver: CryptoDriver
+  ) {}
 
   async exec(input: CreateAdminInput): Promise<Output> {
     const { email, password } = input
-
     const userByEmail = await this._userRepository.findOneByEmail(email)
 
     if (userByEmail && userByEmail.email === email)
       return new ConflictError('Email already in use')
 
-    const user = User.create({ user_id: this._cryptoDriver.generateID(), email, password, level: 1 })
+    const user = User.create({
+      user_id: this._cryptoDriver.generateID(),
+      email,
+      password: this._cryptoDriver.hashString(password),
+      level: 1,
+    })
 
     await this._userRepository.save(user)
 

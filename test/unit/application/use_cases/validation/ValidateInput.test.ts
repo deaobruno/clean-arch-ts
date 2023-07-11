@@ -1,4 +1,3 @@
-import { faker } from '@faker-js/faker'
 import { expect } from 'chai'
 import ValidateInput from '../../../../../src/application/use_cases/validation/ValidateInput'
 import BadRequestError from '../../../../../src/application/errors/BadRequestError'

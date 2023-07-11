@@ -51,7 +51,7 @@ const userRepository = new UserRepository(inMemoryDriver)
 // Use Cases
 const registerCustomerUseCase = new RegisterCustomer(userRepository, cryptoDriver)
 const validateRegisterPayloadUseCase = new ValidateInput(RegisterCustomerSchema)
-const authenticateUserUseCase = new AuthenticateUser(userRepository, jwtDriver)
+const authenticateUserUseCase = new AuthenticateUser(userRepository, jwtDriver, cryptoDriver)
 const validateAuthenticateUserPayloadUseCase = new ValidateInput(AuthenticateUserSchema)
 const validateAuthenticationUseCase = new ValidateAuthentication(jwtDriver)
 const validateAuthorizationUseCase = new ValidateAuthorization()

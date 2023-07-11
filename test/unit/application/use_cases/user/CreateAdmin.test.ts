@@ -26,7 +26,8 @@ describe('/application/use_cases/user/CreateAdmin.ts', () => {
   beforeEach(() => {
     inMemoryDriver = new InMemoryDriver()
     cryptoDriver = {
-      generateID: () => faker.string.uuid()
+      generateID: () => faker.string.uuid(),
+      hashString: (text: string) => 'hash',
     }
     userRepository = new UserRepository(inMemoryDriver)
     createAdmin = new CreateAdmin(userRepository, cryptoDriver)

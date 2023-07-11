@@ -20,13 +20,18 @@ export default class RegisterCustomer implements IUseCase<RegisterCustomerInput,
   ) {}
 
   async exec(input: RegisterCustomerInput): Promise<Output> {
-    const { email } = input
+    const { email, password } = input
     const userByEmail = await this._userRepository.findOneByEmail(email)
 
     if (userByEmail && userByEmail.email === email)
       return new ConflictError('Email already in use')
 
-    const user = User.create({ user_id: this._cryptoDriver.generateID(), level: 2, ...input })
+    const user = User.create({
+      user_id: this._cryptoDriver.generateID(),
+      email,
+      password: this._cryptoDriver.hashString(password),
+      level: 2,
+    })
 
     await this._userRepository.save(user)
 
