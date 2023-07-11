@@ -7,12 +7,25 @@ import InMemoryDriver from '../../../src/infra/drivers/InMemoryDriver'
 import routes from '../../../src/infra/http/v1/routes'
 import { User } from '../../../src/domain/User'
 
-const user_id = faker.string.uuid()
 const server = new ExpressDriver(3031)
 const url = 'http://localhost:3031/api/v1/users'
+const user_id = faker.string.uuid()
+let Authorization: string
 
 describe('GET /users/:user_id', () => {
-  before(() => server.start(routes.routes, routes.prefix))
+  before(async () => {
+    const authenticatePayload = {
+      email: 'admin@email.com',
+      password: '12345',
+    }
+
+    server.start(routes.routes, routes.prefix)
+
+    const { data: { token } } = await axios.post('http://localhost:3031/api/v1/auth', authenticatePayload)
+
+    Authorization = `Bearer ${token}`
+  })
+
   after(() => server.stop())
 
   it('should get 200 status code and an object with a single user data when trying to find an user by id', async () => {
@@ -23,7 +36,7 @@ describe('GET /users/:user_id', () => {
         password: faker.internet.password(),
         level: 2
       })])
-    const { status, data } = await axios.get(`${url}/${user_id}`)
+    const { status, data } = await axios.get(`${url}/${user_id}`, { headers: { Authorization } })
 
     expect(status).equal(200)
     expect(data.id).equal(user_id)
@@ -41,7 +54,7 @@ describe('GET /users/:user_id', () => {
   })
 
   it('should get 404 status code when user is not found', async () => {
-    await axios.get(`${url}/${faker.string.uuid()}`)
+    await axios.get(`${url}/${faker.string.uuid()}`, { headers: { Authorization } })
       .catch(({ response: { status, data } }) => {
         expect(status).equal(404)
         expect(data.error).equal('User not found')

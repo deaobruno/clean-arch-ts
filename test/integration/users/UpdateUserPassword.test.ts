@@ -10,9 +10,22 @@ import { User } from '../../../src/domain/User'
 const server = new ExpressDriver(3031)
 const user_id = faker.string.uuid()
 const url = `http://localhost:3031/api/v1/users/${user_id}/update-password`
+let Authorization: string
 
 describe('PUT /users/:user_id/update-password', () => {
-  before(() => server.start(routes.routes, routes.prefix))
+  before(async () => {
+    const authenticatePayload = {
+      email: 'admin@email.com',
+      password: '12345',
+    }
+
+    server.start(routes.routes, routes.prefix)
+
+    const { data: { token } } = await axios.post('http://localhost:3031/api/v1/auth', authenticatePayload)
+
+    Authorization = `Bearer ${token}`
+  })
+
   after(() => server.stop())
 
   it('should get 200 when trying to update an existing user', async () => {
@@ -29,7 +42,7 @@ describe('PUT /users/:user_id/update-password', () => {
       password: newPassword,
       confirm_password: newPassword,
     }
-    const { status, data } = await axios.put(`${url}`, payload)
+    const { status, data } = await axios.put(`${url}`, payload, { headers: { Authorization } })
 
     expect(status).equal(200)
     expect(data.id).equal(user.user_id)
@@ -100,7 +113,7 @@ describe('PUT /users/:user_id/update-password', () => {
       confirm_password: newPassword,
     }
 
-    await axios.put(`http://localhost:3031/api/v1/users/${faker.string.uuid()}/update-password`, payload)
+    await axios.put(`http://localhost:3031/api/v1/users/${faker.string.uuid()}/update-password`, payload, { headers: { Authorization } })
       .catch(({ response: { status, data } }) => {
         expect(status).equal(404)
         expect(data.error).equal('User not found')

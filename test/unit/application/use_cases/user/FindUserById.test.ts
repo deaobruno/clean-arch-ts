@@ -48,7 +48,7 @@ describe('/application/use_cases/user/FindUserById.ts', () => {
   it('should return an user passing an UUID', async () => {
     sandbox.stub(InMemoryDriver.prototype, 'findOne')
       .resolves(fakeUser)
-    
+
     const user = <User>await findUserById.exec({ userId })
 
     expect(user.user_id).equal(userId)

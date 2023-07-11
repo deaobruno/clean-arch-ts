@@ -11,7 +11,7 @@ describe('/infra/drivers/JwtDriver.ts', () => {
 
     expect(typeof accessToken).equal('string')
   })
-  
+
   it('should return the data from a JWT token', () => {
     const data = jwtDriver.validate(accessToken)
 

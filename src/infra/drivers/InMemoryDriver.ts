@@ -8,7 +8,7 @@ export default class InMemoryDriver implements IRepository<any> {
 
     if (item) {
       const filterKeys = Object.keys(filters)
-      
+
       this.data = this.data.map((item: any) => {
         let found = true
 
@@ -25,9 +25,9 @@ export default class InMemoryDriver implements IRepository<any> {
   async find(filters: object = {}): Promise<any[]> {
     const filterKeys = Object.keys(filters)
     const result: any[] = []
-    
+
     if (filterKeys.length <= 0) return this.data
-    
+
     this.data.forEach((item: any) => {
       let found = true
 

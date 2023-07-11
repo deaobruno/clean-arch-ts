@@ -122,7 +122,7 @@ describe('/adapters/repositories/UserRepository', () => {
 
     sandbox.stub(InMemoryDriver.prototype, 'find')
       .resolves(fakeUsers)
-    
+
     const customers = await userRepository.findCustomers()
 
     expect(customers.length).equal(3)

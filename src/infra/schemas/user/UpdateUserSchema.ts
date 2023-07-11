@@ -23,7 +23,7 @@ export default {
             error = new Error('Invalid "email" format')
 
           break
-      
+
         default:
           error = new Error(`Invalid param: "${key}"`)
       }

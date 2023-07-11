@@ -12,7 +12,7 @@ export default class JwtDriver {
 
     delete result.exp
     delete result.iat
-  
+
     return result
   }
 }

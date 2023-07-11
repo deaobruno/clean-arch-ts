@@ -9,9 +9,22 @@ import { User } from '../../../src/domain/User'
 
 const server = new ExpressDriver(3031)
 const url = 'http://localhost:3031/api/v1/users'
+let Authorization: string
 
 describe('GET /users', () => {
-  before(() => server.start(routes.routes, routes.prefix))
+  before(async () => {
+    const authenticatePayload = {
+      email: 'admin@email.com',
+      password: '12345',
+    }
+
+    server.start(routes.routes, routes.prefix)
+
+    const { data: { token } } = await axios.post('http://localhost:3031/api/v1/auth', authenticatePayload)
+
+    Authorization = `Bearer ${token}`
+  })
+
   after(() => server.stop())
 
   it('should get 200 status code and an array with users data when trying to find users without filters', async () => {
@@ -37,7 +50,7 @@ describe('GET /users', () => {
     ]
     const findStub = sinon.stub(InMemoryDriver.prototype, 'find')
       .resolves(users)
-    const { status, data } = await axios.get(`${url}`)
+    const { status, data } = await axios.get(`${url}`, { headers: { Authorization } })
 
     expect(status).equal(200)
     expect(data.length).equal(3)
@@ -62,7 +75,7 @@ describe('GET /users', () => {
     ]
     const findStub = sinon.stub(InMemoryDriver.prototype, 'find')
       .resolves(users)
-    const { status, data } = await axios.get(`${url}?email=${users[0].email}`)
+    const { status, data } = await axios.get(`${url}?email=${users[0].email}`, { headers: { Authorization } })
 
     expect(status).equal(200)
     expect(data.length).equal(1)
@@ -97,7 +110,7 @@ describe('GET /users', () => {
   })
 
   it('should get 404 status code when no users are found', async () => {
-    await axios.get(`${url}?email=test@test.com`)
+    await axios.get(`${url}?email=test@test.com`, { headers: { Authorization } })
       .catch(({ response: { status, data } }) => {
         expect(status).equal(404)
         expect(data.error).equal('Users not found')

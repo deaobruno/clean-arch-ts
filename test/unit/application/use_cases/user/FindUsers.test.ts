@@ -62,7 +62,7 @@ describe('/application/use_cases/user/FindUsers.ts', () => {
   it('should return an array with all users when no filter is passed', async () => {
     sandbox.stub(InMemoryDriver.prototype, 'find')
       .resolves(fakeUsers)
-    
+
     const users = <User[]>await findUsers.exec({})
 
     expect(users.length).equal(3)
@@ -92,7 +92,7 @@ describe('/application/use_cases/user/FindUsers.ts', () => {
   it('should return an array with filtered users', async () => {
     sandbox.stub(InMemoryDriver.prototype, 'find')
       .resolves([fakeUsers[0]])
-    
+
     const users = <User[]>await findUsers.exec({ email: fakeUsers[0].email })
 
     expect(users.length).equal(1)

@@ -15,7 +15,7 @@ export default {
             error = new Error('Invalid "email" format')
 
           break
-      
+
         case 'password':
           if (!password)
             error = new Error('"password" is required')
@@ -27,7 +27,7 @@ export default {
             error = new Error('"confirm_password" is required')
 
           break
-      
+
         default:
           error = new Error(`Invalid param: "${key}"`)
       }

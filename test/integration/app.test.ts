@@ -86,7 +86,7 @@ describe('server', () => {
 
   it('should get status 200 when trying to access route with middleware', async () => {
     const { status, data } = await axios.get('http://localhost:3031/middleware?test=test')
-    
+
     expect(status).equal(200)
     expect(data).deep.equal({ test: 'test' })
   })

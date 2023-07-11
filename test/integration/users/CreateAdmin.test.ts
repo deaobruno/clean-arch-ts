@@ -1,27 +1,39 @@
 import axios from 'axios'
-import sinon from 'sinon'
 import { faker } from '@faker-js/faker'
 import { expect } from 'chai'
 import ExpressDriver from '../../../src/infra/drivers/ExpressDriver'
-import InMemoryDriver from '../../../src/infra/drivers/InMemoryDriver'
 import routes from '../../../src/infra/http/v1/routes'
-import { User } from '../../../src/domain/User'
 
 const server = new ExpressDriver(3031)
 const url = 'http://localhost:3031/api/v1/users/create-admin'
+const adminEmail = 'admin@email.com'
+const password = faker.internet.password()
+let Authorization: string
 
 describe('POST /users/create-admin', () => {
-  before(() => server.start(routes.routes, routes.prefix))
+  before(async () => {
+    const authenticatePayload = {
+      email: adminEmail,
+      password: '12345',
+    }
+
+    server.start(routes.routes, routes.prefix)
+
+    const { data: { token } } = await axios.post('http://localhost:3031/api/v1/auth', authenticatePayload)
+
+    Authorization = `Bearer ${token}`
+  })
+
   after(() => server.stop())
 
   it('should get status 201 when successfully registered a new admin', async () => {
     const payload = {
       email: faker.internet.email(),
-      password: '12345',
-      confirm_password: '12345',
+      password,
+      confirm_password: password,
     }
-    const { status, data } = await axios.post(url, payload)
-    
+    const { status, data } = await axios.post(url, payload, { headers: { Authorization } })
+
     expect(status).equal(201)
     expect(typeof data.id).equal('string')
     expect(data.email).equal(payload.email)
@@ -30,8 +42,8 @@ describe('POST /users/create-admin', () => {
   it('should get status 400 when trying to register a admin without "email"', async () => {
     const payload = {
       email: '',
-      password: '12345',
-      confirm_password: '12345',
+      password,
+      confirm_password: password,
     }
 
     await axios.post(url, payload)
@@ -44,8 +56,8 @@ describe('POST /users/create-admin', () => {
   it('should get status 400 when trying to register a admin with invalid "email"', async () => {
     const payload = {
       email: 'test',
-      password: '12345',
-      confirm_password: '12345',
+      password,
+      confirm_password: password,
     }
 
     await axios.post(url, payload)
@@ -59,7 +71,7 @@ describe('POST /users/create-admin', () => {
     const payload = {
       email: faker.internet.email(),
       password: '',
-      confirm_password: '12345',
+      confirm_password: password,
     }
 
     await axios.post(url, payload)
@@ -72,7 +84,7 @@ describe('POST /users/create-admin', () => {
   it('should get status 400 when trying to register a admin without "confirm_password"', async () => {
     const payload = {
       email: faker.internet.email(),
-      password: '12345',
+      password,
       confirm_password: '',
     }
 
@@ -86,8 +98,8 @@ describe('POST /users/create-admin', () => {
   it('should get status 400 when trying to register a admin with different "password" and "confirm_password"', async () => {
     const payload = {
       email: faker.internet.email(),
-      password: '12345',
-      confirm_password: '1234',
+      password,
+      confirm_password: 'test',
     }
 
     await axios.post(url, payload)
@@ -100,8 +112,8 @@ describe('POST /users/create-admin', () => {
   it('should get status 400 when trying to register a admin with invalid param', async () => {
     const payload = {
       email: faker.internet.email(),
-      password: '12345',
-      confirm_password: '12345',
+      password,
+      confirm_password: password,
       test: true,
     }
 
@@ -112,29 +124,17 @@ describe('POST /users/create-admin', () => {
       })
   })
 
-  it('should get status 409 when trying to register a admin with an previously registered email', async () => {
-    const email = faker.internet.email()
-
-    const findStub = sinon.stub(InMemoryDriver.prototype, 'find')
-      .resolves([User.create({
-        user_id: faker.string.uuid(),
-        email,
-        password: faker.internet.password(),
-        level: 2
-      })])
-
+  it('should get status 409 when trying to register an admin with a previously registered email', async () => {
     const payload = {
-      email,
-      password: '12345',
-      confirm_password: '12345',
+      email: adminEmail,
+      password,
+      confirm_password: password,
     }
 
-    await axios.post(url, payload)
+    await axios.post(url, payload, { headers: { Authorization } })
       .catch(({ response: { status, data } }) => {
         expect(status).equal(409)
         expect(data.error).equal('Email already in use')
-
-        findStub.restore()
       })
   })
 })

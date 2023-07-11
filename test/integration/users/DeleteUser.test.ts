@@ -10,9 +10,22 @@ import { User } from '../../../src/domain/User'
 const server = new ExpressDriver(3031)
 const url = 'http://localhost:3031/api/v1/users'
 const user_id = faker.string.uuid()
+let Authorization: string
 
 describe('DELETE /users', () => {
-  before(() => server.start(routes.routes, routes.prefix))
+  before(async () => {
+    const authenticatePayload = {
+      email: 'admin@email.com',
+      password: '12345',
+    }
+
+    server.start(routes.routes, routes.prefix)
+
+    const { data: { token } } = await axios.post('http://localhost:3031/api/v1/auth', authenticatePayload)
+
+    Authorization = `Bearer ${token}`
+  })
+
   after(() => server.stop())
 
   it('should get 204 status code when trying to delete an existing user', async () => {
@@ -23,7 +36,7 @@ describe('DELETE /users', () => {
         password: faker.internet.password(),
         level: 2
       })])
-    const { status } = await axios.delete(`${url}/${user_id}`)
+    const { status } = await axios.delete(`${url}/${user_id}`, { headers: { Authorization } })
 
     expect(status).equal(204)
 
@@ -39,7 +52,7 @@ describe('DELETE /users', () => {
   })
 
   it('should get 404 status code when trying to delete an user with wrong id', async () => {
-    await axios.delete(`${url}/${faker.string.uuid()}`)
+    await axios.delete(`${url}/${faker.string.uuid()}`, { headers: { Authorization } })
       .catch(({ response: { status, data } }) => {
         expect(status).equal(404)
         expect(data.error).equal('User not found')

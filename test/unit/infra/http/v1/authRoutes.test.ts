@@ -9,7 +9,7 @@ const useCase = {
 }
 const dependencies = {
   middlewares: {
-    
+
   },
   controllers: {
     registerController: new CustomController(useCase),
@@ -24,7 +24,7 @@ const dependencies = {
 describe('/infra/http/authRoutes.ts', () => {
   it('should return an array of auth routes', () => {
     const routes = authRotes(dependencies)
-    
+
     routes.forEach(route => {
       expect(route.path.split('/')[1]).equal('auth')
       expect(['get', 'post', 'put', 'delete'].includes(route.method)).equal(true)

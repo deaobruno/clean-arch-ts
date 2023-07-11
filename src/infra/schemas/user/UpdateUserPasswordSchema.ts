@@ -24,7 +24,7 @@ export default {
             error = new Error('"confirm_password" is required')
 
           break
-      
+
         default:
           error = new Error(`Invalid param: "${key}"`)
       }

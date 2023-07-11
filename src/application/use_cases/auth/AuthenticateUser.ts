@@ -25,7 +25,7 @@ export default class AuthenticateUser implements IUseCase<Input, Output> {
 
     if (!user || user.password !== password)
       return new UnauthorizedError()
-  
+
     const { user_id, level } = user
     const userData = {
       id: user_id,

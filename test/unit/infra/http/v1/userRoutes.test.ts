@@ -41,7 +41,7 @@ const dependencies = {
 describe('/infra/http/userRoutes.ts', () => {
   it('should return an array of user routes', () => {
     const routes = userRotes(dependencies)
-    
+
     routes.forEach(route => {
       expect(route.path.split('/')[1]).equal('users')
       expect(['get', 'post', 'put', 'delete'].includes(route.method)).equal(true)
