@@ -1,15 +1,15 @@
-import RegisterUserController from '../../../../../adapters/controllers/auth/RegisterUserController'
+import RegisterCustomerController from '../../../../../adapters/controllers/auth/RegisterCustomerController'
 import ValidateInputMiddleware from '../../../../../adapters/middlewares/validation/ValidateInputMiddleware'
 import CustomerPresenter from '../../../../../adapters/presenters/user/CustomerPresenter'
 import BaseRoute from '../../../BaseRoute'
 
 type Middlewares = [ValidateInputMiddleware]
 
-export default class RegisterUserRoute extends BaseRoute {
+export default class RegisterCustomerRoute extends BaseRoute {
   method = 'post'
   statusCode = 201
 
-  constructor(path: string, controller: RegisterUserController, presenter: CustomerPresenter, middlewares: Middlewares) {
+  constructor(path: string, controller: RegisterCustomerController, presenter: CustomerPresenter, middlewares: Middlewares) {
     super({ path, controller, presenter, middlewares })
   }
 }

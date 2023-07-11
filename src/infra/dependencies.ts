@@ -3,7 +3,7 @@ import InMemoryDriver from './drivers/InMemoryDriver'
 import CryptoDriver from './drivers/CryptoDriver'
 import JwtDriver from './drivers/JwtDriver'
 import UserRepository from '../adapters/repositories/UserRepository'
-import RegisterUserSchema from './schemas/auth/RegisterUserSchema'
+import RegisterCustomerSchema from './schemas/auth/RegisterCustomerSchema'
 import AuthenticateUserSchema from './schemas/auth/AuthenticateUserSchema'
 import CreateAdminSchema from './schemas/user/CreateAdminSchema'
 import FindUsersSchema from './schemas/user/FindUsersSchema'
@@ -12,7 +12,7 @@ import UpdateUserSchema from './schemas/user/UpdateUserSchema'
 import UpdateUserPasswordSchema from './schemas/user/UpdateUserPasswordSchema'
 import DeleteUserSchema from './schemas/user/DeleteUserSchema'
 import ValidateInput from '../application/use_cases/validation/ValidateInput'
-import RegisterUser from '../application/use_cases/auth/RegisterUser'
+import RegisterCustomer from '../application/use_cases/auth/RegisterCustomer'
 import AuthenticateUser from '../application/use_cases/auth/AuthenticateUser'
 import ValidateAuthentication from '../application/use_cases/auth/ValidateAuthentication'
 import CreateAdmin from '../application/use_cases/user/CreateAdmin'
@@ -23,7 +23,7 @@ import UpdateUserPassword from '../application/use_cases/user/UpdateUserPassword
 import DeleteUser from '../application/use_cases/user/DeleteUser'
 import ValidateInputMiddleware from '../adapters/middlewares/validation/ValidateInputMiddleware'
 import ValidateAuthenticationMiddleware from '../adapters/middlewares/auth/ValidateAuthenticationMiddleware'
-import RegisterUserController from '../adapters/controllers/auth/RegisterUserController'
+import RegisterCustomerController from '../adapters/controllers/auth/RegisterCustomerController'
 import AuthenticateUserController from '../adapters/controllers/auth/AuthenticateUserController'
 import CreateAdminController from '../adapters/controllers/user/CreateAdminController'
 import FindUsersController from '../adapters/controllers/user/FindUsersController'
@@ -49,8 +49,8 @@ const jwtDriver = new JwtDriver(accessTokenSecret, tokenExpirationTime)
 // Repositories
 const userRepository = new UserRepository(inMemoryDriver)
 // Use Cases
-const registerUserUseCase = new RegisterUser(userRepository, cryptoDriver)
-const validateRegisterPayloadUseCase = new ValidateInput(RegisterUserSchema)
+const registerCustomerUseCase = new RegisterCustomer(userRepository, cryptoDriver)
+const validateRegisterPayloadUseCase = new ValidateInput(RegisterCustomerSchema)
 const authenticateUserUseCase = new AuthenticateUser(userRepository, jwtDriver)
 const validateAuthenticateUserPayloadUseCase = new ValidateInput(AuthenticateUserSchema)
 const validateAuthenticationUseCase = new ValidateAuthentication(jwtDriver)
@@ -70,7 +70,7 @@ const deleteUserUseCase = new DeleteUser(userRepository)
 // Middlewares
 const validateAuthenticationMiddleware = new ValidateAuthenticationMiddleware(validateAuthenticationUseCase)
 const validateAuthorizationMiddleware = new ValidateAuthorizationMiddleware(validateAuthorizationUseCase)
-const validateRegisterUserPayloadMiddleware = new ValidateInputMiddleware(validateRegisterPayloadUseCase)
+const validateRegisterCustomerPayloadMiddleware = new ValidateInputMiddleware(validateRegisterPayloadUseCase)
 const validateAuthenticateUserPayloadMiddleware = new ValidateInputMiddleware(validateAuthenticateUserPayloadUseCase)
 const validateCreateAdminPayloadMiddleware = new ValidateInputMiddleware(validateCreateAdminPayloadUseCase)
 const validateFindUsersPayloadMiddleware = new ValidateInputMiddleware(validateFindUsersPayloadUseCase)
@@ -79,7 +79,7 @@ const validateUpdateUserPayloadMiddleware = new ValidateInputMiddleware(validate
 const validateUpdateUserPasswordPayloadMiddleware = new ValidateInputMiddleware(validateUpdateUserPasswordPayloadUseCase)
 const validateDeleteUserPayloadMiddleware = new ValidateInputMiddleware(validateDeleteUserPayloadUseCase)
 // Controllers
-const registerUserController = new RegisterUserController(registerUserUseCase)
+const registerCustomerController = new RegisterCustomerController(registerCustomerUseCase)
 const authenticateUserController = new AuthenticateUserController(authenticateUserUseCase)
 const createAdminController = new CreateAdminController(createAdminUseCase)
 const findUsersController = new FindUsersController(findUsersUseCase)
@@ -100,7 +100,7 @@ export default {
   middlewares: {
     validateAuthenticationMiddleware,
     validateAuthorizationMiddleware,
-    validateRegisterUserPayloadMiddleware,
+    validateRegisterCustomerPayloadMiddleware,
     validateAuthenticateUserPayloadMiddleware,
     validateCreateAdminPayloadMiddleware,
     validateFindUsersPayloadMiddleware,
@@ -110,7 +110,7 @@ export default {
     validateDeleteUserPayloadMiddleware,
   },
   controllers: {
-    registerUserController,
+    registerCustomerController,
     authenticateUserController,
     createAdminController,
     findUsersController,

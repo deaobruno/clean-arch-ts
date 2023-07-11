@@ -1,16 +1,16 @@
 import AuthenticateUserRoute from './auth/AuthenticateUserRoute'
-import RegisterUserRoute from './auth/RegisterUserRoute'
+import RegisterCustomerRoute from './auth/RegisterCustomerRoute'
 
 const basePath = '/auth'
 
 export default (dependencies: any) => {
   const {
     middlewares: {
-      validateRegisterUserPayloadMiddleware,
+      validateRegisterCustomerPayloadMiddleware,
       validateAuthenticateUserPayloadMiddleware,
     },
     controllers: {
-      registerUserController,
+      registerCustomerController,
       authenticateUserController,
     },
     presenters: {
@@ -19,7 +19,7 @@ export default (dependencies: any) => {
   } = dependencies
 
   return [
-    new RegisterUserRoute(`${basePath}/register`, registerUserController, customerPresenter, [validateRegisterUserPayloadMiddleware]),
+    new RegisterCustomerRoute(`${basePath}/register`, registerCustomerController, customerPresenter, [validateRegisterCustomerPayloadMiddleware]),
     new AuthenticateUserRoute(basePath, authenticateUserController, [validateAuthenticateUserPayloadMiddleware]),
   ]
 }

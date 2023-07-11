@@ -1,7 +1,7 @@
 import sinon from 'sinon'
 import { faker } from '@faker-js/faker'
 import { expect } from 'chai'
-import RegisterCustomer from '../../../../../src/application/use_cases/auth/RegisterUser'
+import RegisterCustomer from '../../../../../src/application/use_cases/auth/RegisterCustomer'
 import { LevelEnum, User } from '../../../../../src/domain/User'
 import CryptoDriver from '../../../../../src/infra/drivers/CryptoDriver'
 import InMemoryDriver from '../../../../../src/infra/drivers/InMemoryDriver'
@@ -22,7 +22,7 @@ let password: string
 let fakeUser: User
 let userParams: any
 
-describe('/application/use_cases/auth/RegisterUser.ts', () => {
+describe('/application/use_cases/auth/RegisterCustomer.ts', () => {
   beforeEach(() => {
     inMemoryDriver = new InMemoryDriver()
     cryptoDriver = {

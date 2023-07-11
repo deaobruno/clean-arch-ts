@@ -5,7 +5,7 @@ import BaseError from '../../BaseError'
 import IUseCase from '../../IUseCase'
 import ConflictError from '../../errors/ConflictError'
 
-type RegisterUserInput = {
+type RegisterCustomerInput = {
   email: string
   password: string
   confirm_password: string
@@ -13,13 +13,13 @@ type RegisterUserInput = {
 
 type Output = User | BaseError
 
-export default class RegisterUser implements IUseCase<RegisterUserInput, Output> {
+export default class RegisterCustomer implements IUseCase<RegisterCustomerInput, Output> {
   constructor(
     private _userRepository: IUserRepository,
     private _cryptoDriver: CryptoDriver,
   ) {}
 
-  async exec(input: RegisterUserInput): Promise<Output> {
+  async exec(input: RegisterCustomerInput): Promise<Output> {
     const { email } = input
     const userByEmail = await this._userRepository.findOneByEmail(email)
 
