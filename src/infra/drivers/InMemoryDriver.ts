@@ -1,6 +1,6 @@
-import Repository from '../../domain/repositories/IRepository'
+import IRepository from '../../domain/repositories/IRepository'
 
-export default class InMemoryDriver implements Repository<any> {
+export default class InMemoryDriver implements IRepository<any> {
   data: any[] = []
 
   async save(entity: any, filters?: object): Promise<any> {

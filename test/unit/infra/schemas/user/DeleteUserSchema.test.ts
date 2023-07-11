@@ -3,7 +3,7 @@ import { expect } from 'chai'
 import DeleteUserSchema from '../../../../../src/infra/schemas/user/DeleteUserSchema'
 
 const { validate } = DeleteUserSchema
-const userId = faker.datatype.uuid()
+const userId = faker.string.uuid()
 
 describe('/infra/schemas/user/DeleteUserSchema.ts', () => {
   it('should execute without errors', () => {

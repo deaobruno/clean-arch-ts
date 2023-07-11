@@ -1,15 +1,14 @@
 import { faker } from '@faker-js/faker'
 import { expect } from 'chai'
-import RegisterUserSchema from '../../../../../src/infra/schemas/auth/RegisterUserSchema'
+import AuthenticateUserSchema from '../../../../../src/infra/schemas/auth/AuthenticateUserSchema'
 
-const { validate } = RegisterUserSchema
+const { validate } = AuthenticateUserSchema
 
-describe('/infra/schemas/auth/RegisterUserSchema.ts', () => {
+describe('/infra/schemas/auth/AuthenticateUserSchema.ts', () => {
   it('should execute without errors', () => {
     const validation = validate({
       email: faker.internet.email(),
       password: 'test',
-      confirm_password: 'test',
     })
 
     expect(validation).equal(undefined)
@@ -19,7 +18,6 @@ describe('/infra/schemas/auth/RegisterUserSchema.ts', () => {
     const validation = <Error>validate({
       email: '',
       password: 'test',
-      confirm_password: 'test',
     })
 
     expect(validation.message).equal('"email" is required')
@@ -29,7 +27,6 @@ describe('/infra/schemas/auth/RegisterUserSchema.ts', () => {
     const validation = <Error>validate({
       email: 123,
       password: 'test',
-      confirm_password: 'test',
     })
 
     expect(validation.message).equal('Invalid "email" format')
@@ -39,7 +36,6 @@ describe('/infra/schemas/auth/RegisterUserSchema.ts', () => {
     const validation = <Error>validate({
       email: true,
       password: 'test',
-      confirm_password: 'test',
     })
 
     expect(validation.message).equal('Invalid "email" format')
@@ -49,7 +45,6 @@ describe('/infra/schemas/auth/RegisterUserSchema.ts', () => {
     const validation = <Error>validate({
       email: { test: 'test' },
       password: 'test',
-      confirm_password: 'test',
     })
 
     expect(validation.message).equal('Invalid "email" format')
@@ -59,7 +54,6 @@ describe('/infra/schemas/auth/RegisterUserSchema.ts', () => {
     const validation = <Error>validate({
       email: BigInt(9007199254740991n),
       password: 'test',
-      confirm_password: 'test',
     })
 
     expect(validation.message).equal('Invalid "email" format')
@@ -69,7 +63,6 @@ describe('/infra/schemas/auth/RegisterUserSchema.ts', () => {
     const validation = <Error>validate({
       email: 'test',
       password: 'test',
-      confirm_password: 'test',
     })
 
     expect(validation.message).equal('Invalid "email" format')
@@ -79,37 +72,15 @@ describe('/infra/schemas/auth/RegisterUserSchema.ts', () => {
     const validation = <Error>validate({
       email: faker.internet.email(),
       password: '',
-      confirm_password: 'test',
     })
 
     expect(validation.message).equal('"password" is required')
-  })
-
-  it('should fail when missing confirm_password', () => {
-    const validation = <Error>validate({
-      email: faker.internet.email(),
-      password: 'test',
-      confirm_password: '',
-    })
-
-    expect(validation.message).equal('"confirm_password" is required')
-  })
-
-  it('should fail when password and confirm_password are different', () => {
-    const validation = <Error>validate({
-      email: faker.internet.email(),
-      password: 'test',
-      confirm_password: 'tes',
-    })
-
-    expect(validation.message).equal('Passwords mismatch')
   })
 
   it('should fail when passing invalid param', () => {
     const validation = <Error>validate({
       email: faker.internet.email(),
       password: 'test',
-      confirm_password: 'test',
       test: 'test'
     })
 

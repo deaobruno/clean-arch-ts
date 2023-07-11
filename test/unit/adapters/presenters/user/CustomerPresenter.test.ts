@@ -8,7 +8,7 @@ const customerPresenter = new CustomerPresenter()
 describe('/application/presenters/user/CustomerPresenter.ts', () => {
   it('should return an external representation of a customer user object', () => {
     const userData = {
-      user_id: faker.datatype.uuid(),
+      user_id: faker.string.uuid(),
       email: faker.internet.email(),
       password: faker.internet.password(),
       level: LevelEnum.CUSTOMER

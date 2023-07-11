@@ -17,19 +17,19 @@ describe('GET /users', () => {
   it('should get 200 status code and an array with users data when trying to find users without filters', async () => {
     const users = [
       User.create({
-        user_id: faker.datatype.uuid(),
+        user_id: faker.string.uuid(),
         email: faker.internet.email(),
         password: faker.internet.password(),
         level: 2
       }),
       User.create({
-        user_id: faker.datatype.uuid(),
+        user_id: faker.string.uuid(),
         email: faker.internet.email(),
         password: faker.internet.password(),
         level: 2
       }),
       User.create({
-        user_id: faker.datatype.uuid(),
+        user_id: faker.string.uuid(),
         email: faker.internet.email(),
         password: faker.internet.password(),
         level: 2
@@ -54,7 +54,7 @@ describe('GET /users', () => {
   it('should get 200 status code and an array with users data when trying to find users with filters', async () => {
     const users = [
       User.create({
-        user_id: faker.datatype.uuid(),
+        user_id: faker.string.uuid(),
         email: faker.internet.email(),
         password: faker.internet.password(),
         level: 2

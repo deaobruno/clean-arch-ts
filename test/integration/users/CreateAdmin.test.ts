@@ -117,7 +117,7 @@ describe('POST /users/create-admin', () => {
 
     const findStub = sinon.stub(InMemoryDriver.prototype, 'find')
       .resolves([User.create({
-        user_id: faker.datatype.uuid(),
+        user_id: faker.string.uuid(),
         email,
         password: faker.internet.password(),
         level: 2

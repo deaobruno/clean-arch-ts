@@ -7,7 +7,7 @@ import InMemoryDriver from '../../../src/infra/drivers/InMemoryDriver'
 import routes from '../../../src/infra/http/v1/routes'
 import { User } from '../../../src/domain/User'
 
-const user_id = faker.datatype.uuid()
+const user_id = faker.string.uuid()
 const server = new ExpressDriver(3031)
 const url = 'http://localhost:3031/api/v1/users'
 
@@ -41,7 +41,7 @@ describe('GET /users/:user_id', () => {
   })
 
   it('should get 404 status code when user is not found', async () => {
-    await axios.get(`${url}/${faker.datatype.uuid()}`)
+    await axios.get(`${url}/${faker.string.uuid()}`)
       .catch(({ response: { status, data } }) => {
         expect(status).equal(404)
         expect(data.error).equal('User not found')

@@ -3,7 +3,7 @@ import { expect } from 'chai'
 import UpdateUserPasswordSchema from '../../../../../src/infra/schemas/user/UpdateUserPasswordSchema'
 
 const { validate } = UpdateUserPasswordSchema
-const userId = faker.datatype.uuid()
+const userId = faker.string.uuid()
 const password = faker.internet.password()
 
 describe('/infra/schemas/user/UpdateUserPasswordSchema.ts', () => {

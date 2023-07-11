@@ -1,5 +1,6 @@
 import IUserRepository from '../../../domain/repositories/IUserRepository'
 import JwtDriver from '../../../infra/drivers/JwtDriver'
+import BaseError from '../../BaseError'
 import IUseCase from '../../IUseCase'
 import UnauthorizedError from '../../errors/UnauthorizedError'
 
@@ -10,7 +11,7 @@ type Input = {
 
 type Output = {
   token: string
-}
+} | BaseError
 
 export default class AuthenticateUser implements IUseCase<Input, Output> {
   constructor(
@@ -23,7 +24,7 @@ export default class AuthenticateUser implements IUseCase<Input, Output> {
     const user = await this._userRepository.findOneByEmail(email)
 
     if (!user || user.password !== password)
-      throw new UnauthorizedError()
+      return new UnauthorizedError()
   
     const { user_id, level } = user
     const userData = {

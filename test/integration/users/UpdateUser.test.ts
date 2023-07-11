@@ -9,7 +9,7 @@ import { User } from '../../../src/domain/User'
 
 const server = new ExpressDriver(3031)
 const url = 'http://localhost:3031/api/v1/users'
-const user_id = faker.datatype.uuid()
+const user_id = faker.string.uuid()
 
 describe('PUT /users/:user_id', () => {
   before(() => server.start(routes.routes, routes.prefix))
@@ -88,7 +88,7 @@ describe('PUT /users/:user_id', () => {
   it('should get 404 status code when user is not found', async () => {
     const payload = {}
 
-    await axios.put(`${url}/${faker.datatype.uuid()}`, payload)
+    await axios.put(`${url}/${faker.string.uuid()}`, payload)
       .catch(({ response: { status, data } }) => {
         expect(status).equal(404)
         expect(data.error).equal('User not found')

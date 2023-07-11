@@ -15,7 +15,7 @@
   "author": "Bruno Oliveira",
   "license": "",
   "devDependencies": {
-    "@faker-js/faker": "^7.5.0",
+    "@faker-js/faker": "^8.0.2",
     "@types/chai": "^4.3.4",
     "@types/dotenv-safe": "^8.1.2",
     "@types/express": "^4.17.17",
@@ -25,6 +25,7 @@
     "@types/sinon": "^10.0.15",
     "chai": "^4.3.7",
     "cross-env": "^7.0.3",
+    "faker": "^6.6.6",
     "mocha": "^10.2.0",
     "nodemon": "^2.0.22",
     "nyc": "^15.1.0",

@@ -29,7 +29,7 @@ export default abstract class BaseRoute {
   handle = async (payload: any): Promise<any> => {
     const data = await this._controller.handle(payload)
 
-    if (!this._presenter)
+    if (data instanceof Error || !this._presenter)
       return data
 
     return Array.isArray(data)

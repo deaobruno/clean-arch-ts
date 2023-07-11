@@ -1,7 +1,7 @@
 import sinon from 'sinon'
 import { faker } from '@faker-js/faker'
 import { expect } from 'chai'
-import CreateAdmin from '../../../../../src/application/use_cases/user/CreateAdmin'
+import RegisterCustomer from '../../../../../src/application/use_cases/auth/RegisterUser'
 import { LevelEnum, User } from '../../../../../src/domain/User'
 import CryptoDriver from '../../../../../src/infra/drivers/CryptoDriver'
 import InMemoryDriver from '../../../../../src/infra/drivers/InMemoryDriver'
@@ -15,21 +15,21 @@ const sandbox = sinon.createSandbox()
 let inMemoryDriver: IRepository<any>
 let cryptoDriver: CryptoDriver
 let userRepository: IUserRepository
-let createAdmin: CreateAdmin
+let registerCustomer: RegisterCustomer
 let conflictError: ConflictError
 let email: string
 let password: string
 let fakeUser: User
 let userParams: any
 
-describe('/application/use_cases/user/CreateAdmin.ts', () => {
+describe('/application/use_cases/auth/RegisterUser.ts', () => {
   beforeEach(() => {
     inMemoryDriver = new InMemoryDriver()
     cryptoDriver = {
       generateID: () => faker.string.uuid()
     }
     userRepository = new UserRepository(inMemoryDriver)
-    createAdmin = new CreateAdmin(userRepository, cryptoDriver)
+    registerCustomer = new RegisterCustomer(userRepository, cryptoDriver)
     conflictError = sandbox.stub(ConflictError.prototype)
     email = faker.internet.email()
     password = faker.internet.password()
@@ -37,16 +37,16 @@ describe('/application/use_cases/user/CreateAdmin.ts', () => {
       user_id: faker.string.uuid(),
       email,
       password,
-      level: 1,
+      level: 2,
       isRoot: false,
-      isAdmin: true,
-      isCustomer: false,
+      isAdmin: false,
+      isCustomer: true,
     }
     userParams = {
       email,
       password,
       confirm_password: password,
-      level: 1
+      level: 2
     }
     conflictError.name = 'ConflictError'
     conflictError.statusCode = 409
@@ -63,14 +63,14 @@ describe('/application/use_cases/user/CreateAdmin.ts', () => {
     sandbox.stub(User, 'create')
       .returns(fakeUser)
 
-    const user = <User>await createAdmin.exec(userParams)
+    const user = <User>await registerCustomer.exec(userParams)
 
     expect(user.user_id).equal(fakeUser.user_id)
     expect(user.email).equal(userParams.email)
     expect(user.password).equal(userParams.password)
-    expect(user.level).equal(LevelEnum.ADMIN)
-    expect(user.isCustomer).equal(false)
-    expect(user.isAdmin).equal(true)
+    expect(user.level).equal(LevelEnum.CUSTOMER)
+    expect(user.isCustomer).equal(true)
+    expect(user.isAdmin).equal(false)
     expect(user.isRoot).equal(false)
   })
 
@@ -82,7 +82,7 @@ describe('/application/use_cases/user/CreateAdmin.ts', () => {
     sandbox.stub(User, 'create')
       .returns(fakeUser)
 
-    const error = <BaseError>await createAdmin.exec(userParams)
+    const error = <BaseError>await registerCustomer.exec(userParams)
 
     expect(error instanceof ConflictError).equal(true)
     expect(error.message).equal('Email already in use')

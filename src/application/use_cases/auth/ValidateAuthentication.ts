@@ -1,5 +1,6 @@
 import { User } from '../../../domain/User'
 import JwtDriver from '../../../infra/drivers/JwtDriver'
+import BaseError from '../../BaseError'
 import IUseCase from '../../IUseCase'
 import UnauthorizedError from '../../errors/UnauthorizedError'
 
@@ -9,24 +10,24 @@ type Input = {
 
 type Output = {
   user: User
-}
+} | BaseError
 
 export default class ValidateAuthentication implements IUseCase<Input, Output> {
   constructor(private _tokenDriver: JwtDriver) {}
 
-  async exec(input: Input): Promise<Output> {
+  exec(input: Input): Output {
     const { authorization } = input
 
     if (!authorization)
-      throw new UnauthorizedError('No token provided')
+      return new UnauthorizedError('No token provided')
 
     const [type, token] = authorization.split(' ')
 
-    if (!token)
-      throw new UnauthorizedError('No token provided')
-
     if (type !== 'Bearer')
-      throw new UnauthorizedError('Invalid authorization type')
+      return new UnauthorizedError('Invalid authentication type')
+
+    if (!token)
+      return new UnauthorizedError('No token provided')
 
     try {
       const { id, email, password, level } = <any>this._tokenDriver.validate(token)
@@ -40,9 +41,9 @@ export default class ValidateAuthentication implements IUseCase<Input, Output> {
       return { user }
     } catch (error: any) {
       if (error.name === 'TokenExpiredError')
-        throw new UnauthorizedError('Token expired')
+        return new UnauthorizedError('Token expired')
 
-      throw new UnauthorizedError('Invalid token')
+      return new UnauthorizedError('Invalid token')
     }
   }
 }

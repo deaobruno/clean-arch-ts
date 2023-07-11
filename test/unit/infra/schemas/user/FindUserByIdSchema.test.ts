@@ -3,7 +3,7 @@ import { expect } from 'chai'
 import FindUserByIdSchema from '../../../../../src/infra/schemas/user/FindUserByIdSchema'
 
 const { validate } = FindUserByIdSchema
-const userId = faker.datatype.uuid()
+const userId = faker.string.uuid()
 
 describe('/infra/schemas/user/FindUserByIdSchema.ts', () => {
   it('should execute without errors', () => {

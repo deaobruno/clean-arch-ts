@@ -11,7 +11,14 @@ const useCase = {
 }
 const dependencies = {
   middlewares: {
-    testMiddleware: new CustomMiddleware(useCase),
+    validateAuthenticationMiddleware: new CustomMiddleware(useCase),
+    validateAuthorizationMiddleware: new CustomMiddleware(useCase),
+    validateCreateAdminPayloadMiddleware: new CustomMiddleware(useCase),
+    validateFindUsersPayloadMiddleware: new CustomMiddleware(useCase),
+    validateFindUserByIdPayloadMiddleware: new CustomMiddleware(useCase),
+    validateUpdateUserPayloadMiddleware: new CustomMiddleware(useCase),
+    validateUpdateUserPasswordPayloadMiddleware: new CustomMiddleware(useCase),
+    validateDeleteUserPayloadMiddleware: new CustomMiddleware(useCase),
   },
   controllers: {
     createAdminController: new CustomController(useCase),
@@ -33,7 +40,9 @@ const dependencies = {
 
 describe('/infra/http/userRoutes.ts', () => {
   it('should return an array of user routes', () => {
-    userRotes(dependencies).forEach(route => {
+    const routes = userRotes(dependencies)
+    
+    routes.forEach(route => {
       expect(route.path.split('/')[1]).equal('users')
       expect(['get', 'post', 'put', 'delete'].includes(route.method)).equal(true)
       expect([200, 201, 204].includes(route.statusCode)).equal(true)

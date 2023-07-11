@@ -3,7 +3,7 @@ import { expect } from 'chai'
 import UpdateUserSchema from '../../../../../src/infra/schemas/user/UpdateUserSchema'
 
 const { validate } = UpdateUserSchema
-const userId = faker.datatype.uuid()
+const userId = faker.string.uuid()
 const email = faker.internet.email()
 
 describe('/infra/schemas/user/UpdateUserSchema.ts', () => {

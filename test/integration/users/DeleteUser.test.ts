@@ -9,7 +9,7 @@ import { User } from '../../../src/domain/User'
 
 const server = new ExpressDriver(3031)
 const url = 'http://localhost:3031/api/v1/users'
-const user_id = faker.datatype.uuid()
+const user_id = faker.string.uuid()
 
 describe('DELETE /users', () => {
   before(() => server.start(routes.routes, routes.prefix))
@@ -39,7 +39,7 @@ describe('DELETE /users', () => {
   })
 
   it('should get 404 status code when trying to delete an user with wrong id', async () => {
-    await axios.delete(`${url}/${faker.datatype.uuid()}`)
+    await axios.delete(`${url}/${faker.string.uuid()}`)
       .catch(({ response: { status, data } }) => {
         expect(status).equal(404)
         expect(data.error).equal('User not found')

@@ -8,7 +8,7 @@ import routes from '../../../src/infra/http/v1/routes'
 import { User } from '../../../src/domain/User'
 
 const server = new ExpressDriver(3031)
-const user_id = faker.datatype.uuid()
+const user_id = faker.string.uuid()
 const url = `http://localhost:3031/api/v1/users/${user_id}/update-password`
 
 describe('PUT /users/:user_id/update-password', () => {
@@ -100,7 +100,7 @@ describe('PUT /users/:user_id/update-password', () => {
       confirm_password: newPassword,
     }
 
-    await axios.put(`http://localhost:3031/api/v1/users/${faker.datatype.uuid()}/update-password`, payload)
+    await axios.put(`http://localhost:3031/api/v1/users/${faker.string.uuid()}/update-password`, payload)
       .catch(({ response: { status, data } }) => {
         expect(status).equal(404)
         expect(data.error).equal('User not found')

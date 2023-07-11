@@ -8,6 +8,11 @@ export default class JwtDriver {
   }
 
   validate(token: string) {
-    return jwt.verify(token, this._accessTokenSecret)
+    const result = <any>jwt.verify(token, this._accessTokenSecret)
+
+    delete result.exp
+    delete result.iat
+  
+    return result
   }
 }
