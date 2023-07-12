@@ -6,7 +6,7 @@ import routes from '../../../src/infra/http/v1/routes'
 
 const server = new ExpressDriver(3031)
 const registerUrl = 'http://localhost:3031/api/v1/auth/register'
-const url = 'http://localhost:3031/api/v1/auth'
+const url = 'http://localhost:3031/api/v1/auth/login'
 const email = faker.internet.email()
 const password = faker.internet.password()
 
@@ -33,7 +33,8 @@ describe('POST /auth', () => {
     const { status, data } = await axios.post(url, payload)
 
     expect(status).equal(200)
-    expect(typeof data.token).equal('string')
+    expect(typeof data.accessToken).equal('string')
+    expect(typeof data.refreshToken).equal('string')
   })
 
   it('should get status 400 when trying to authenticate an user without "email"', async () => {

@@ -21,9 +21,9 @@ describe('GET /users/:user_id', () => {
 
     server.start(routes.routes, routes.prefix)
 
-    const { data: { token } } = await axios.post('http://localhost:3031/api/v1/auth', authenticatePayload)
+    const { data: { accessToken } } = await axios.post('http://localhost:3031/api/v1/auth/login', authenticatePayload)
 
-    Authorization = `Bearer ${token}`
+    Authorization = `Bearer ${accessToken}`
   })
 
   after(() => server.stop())
