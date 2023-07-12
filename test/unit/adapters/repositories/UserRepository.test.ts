@@ -20,6 +20,31 @@ describe('/adapters/repositories/UserRepository', () => {
 
   afterEach(() => sandbox.restore())
 
+  it('should save an User entity', async () => {
+    const fakeUser = {
+      user_id: faker.string.uuid(),
+      email: faker.internet.email(),
+      password: faker.internet.password(),
+      level: 2,
+      isRoot: false,
+      isAdmin: false,
+      isCustomer: true,
+    }
+
+    sandbox.stub(InMemoryDriver.prototype, 'save')
+      .resolves(fakeUser)
+
+    const user = await userRepository.save(fakeUser)
+
+    expect(user.user_id).equal(fakeUser.user_id)
+    expect(user.email).equal(fakeUser.email)
+    expect(user.password).equal(fakeUser.password)
+    expect(user.level).equal(fakeUser.level)
+    expect(user.isCustomer).equal(fakeUser.isCustomer)
+    expect(user.isAdmin).equal(fakeUser.isAdmin)
+    expect(user.isRoot).equal(fakeUser.isRoot)
+  })
+
   it('should return an array of admin Users', async () => {
     fakeUsers = [
       {

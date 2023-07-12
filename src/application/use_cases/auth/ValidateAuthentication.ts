@@ -30,7 +30,7 @@ export default class ValidateAuthentication implements IUseCase<Input, Output> {
       return new UnauthorizedError('No token provided')
 
     try {
-      const { id, email, password, level } = <any>this._tokenDriver.validate(token)
+      const { id, email, password, level } = <any>this._tokenDriver.validateAccessToken(token)
       const user = User.create({
         user_id: id,
         email,

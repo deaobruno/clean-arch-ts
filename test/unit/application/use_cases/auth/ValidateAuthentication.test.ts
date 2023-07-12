@@ -19,7 +19,7 @@ let fakeUser: User
 
 describe('/application/use_cases/auth/ValidateAuthentication.ts', () => {
   beforeEach(() => {
-    tokenDriver = new JwtDriver('token', 60)
+    tokenDriver = new JwtDriver('access-token-key', 300, 'refresh-token-key', 900)
     validateAuthentication = new ValidateAuthentication(tokenDriver)
     unauthorizedError = sandbox.stub(UnauthorizedError.prototype)
     userId = faker.string.uuid()
@@ -48,7 +48,7 @@ describe('/application/use_cases/auth/ValidateAuthentication.ts', () => {
   afterEach(() => sandbox.restore())
 
   it('should return authenticated user entity', async () => {
-    sandbox.stub(JwtDriver.prototype, 'validate')
+    sandbox.stub(JwtDriver.prototype, 'validateAccessToken')
       .returns(userData)
     sandbox.stub(User, 'create')
       .returns(fakeUser)
@@ -93,7 +93,7 @@ describe('/application/use_cases/auth/ValidateAuthentication.ts', () => {
   })
 
   it('should return an UnauthorizedError when token is expired', async () => {
-    sandbox.stub(JwtDriver.prototype, 'validate')
+    sandbox.stub(JwtDriver.prototype, 'validateAccessToken')
       .throws({ name: 'TokenExpiredError' })
 
     const authorization = 'Bearer token'
@@ -105,7 +105,7 @@ describe('/application/use_cases/auth/ValidateAuthentication.ts', () => {
   })
 
   it('should return an UnauthorizedError when token is invalid', async () => {
-    sandbox.stub(JwtDriver.prototype, 'validate')
+    sandbox.stub(JwtDriver.prototype, 'validateAccessToken')
       .throws({ name: 'test' })
 
     const authorization = 'Bearer token'

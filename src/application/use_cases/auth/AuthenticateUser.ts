@@ -1,3 +1,5 @@
+import RefreshToken from '../../../domain/RefreshToken'
+import IRefreshTokenRepository from '../../../domain/repositories/IRefreshTokenRepository'
 import IUserRepository from '../../../domain/repositories/IUserRepository'
 import CryptoDriver from '../../../infra/drivers/CryptoDriver'
 import JwtDriver from '../../../infra/drivers/JwtDriver'
@@ -11,12 +13,14 @@ type Input = {
 }
 
 type Output = {
-  token: string
+  accessToken: string
+  refreshToken: string
 } | BaseError
 
 export default class AuthenticateUser implements IUseCase<Input, Output> {
   constructor(
     private _userRepository: IUserRepository,
+    private _refreshTokenRepository: IRefreshTokenRepository,
     private _tokenDriver: JwtDriver,
     private _cryptoDriver: CryptoDriver,
   ) {}
@@ -36,8 +40,15 @@ export default class AuthenticateUser implements IUseCase<Input, Output> {
       level,
     }
 
+    const accessToken = this._tokenDriver.generateAccessToken(userData)
+    const refreshToken = this._tokenDriver.generateRefreshToken(userData)
+    const refreshTokenEntity = RefreshToken.create({ token: refreshToken })
+
+    await this._refreshTokenRepository.save(refreshTokenEntity)
+
     return {
-      token: this._tokenDriver.generate(userData)
+      accessToken,
+      refreshToken,
     }
   }
 }
