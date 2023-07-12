@@ -42,8 +42,9 @@ export default class AuthenticateUser implements IUseCase<Input, Output> {
 
     const accessToken = this._tokenDriver.generateAccessToken(userData)
     const refreshToken = this._tokenDriver.generateRefreshToken(userData)
-    const refreshTokenEntity = RefreshToken.create({ token: refreshToken })
+    const refreshTokenEntity = RefreshToken.create({ user_id, token: refreshToken })
 
+    await this._refreshTokenRepository.delete({ user_id })
     await this._refreshTokenRepository.save(refreshTokenEntity)
 
     return {

@@ -1,4 +1,5 @@
 import { User } from '../../../domain/User'
+import IRefreshTokenRepository from '../../../domain/repositories/IRefreshTokenRepository'
 import IUserRepository from '../../../domain/repositories/IUserRepository'
 import BaseError from '../../BaseError'
 import IUseCase from '../../IUseCase'
@@ -13,11 +14,14 @@ type UpdateUserInput = {
 type Output = User | BaseError
 
 export default class UpdateUser implements IUseCase<UpdateUserInput, Output> {
-  constructor(private _userRepository: IUserRepository) {}
+  constructor(
+    private _userRepository: IUserRepository,
+    private _refreshTokenRepository: IRefreshTokenRepository,
+  ) {}
 
   async exec(input: UpdateUserInput): Promise<Output> {
-    const { user, userId, ...userInput } = input
-    const userById = await this._userRepository.findOne({ user_id: userId })
+    const { user, userId: user_id, ...userInput } = input
+    const userById = await this._userRepository.findOne({ user_id })
 
     // if (!user || (user && !user.isCustomer))
     if (!userById)
@@ -26,6 +30,8 @@ export default class UpdateUser implements IUseCase<UpdateUserInput, Output> {
     Object.keys(userInput).forEach(key => {
       userById[key] = userInput[key]
     })
+
+    await this._refreshTokenRepository.delete({ user_id })
 
     return this._userRepository.save(userById)
   }

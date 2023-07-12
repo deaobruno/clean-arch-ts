@@ -1,4 +1,5 @@
 import { User } from '../../../domain/User'
+import IRefreshTokenRepository from '../../../domain/repositories/IRefreshTokenRepository'
 import JwtDriver from '../../../infra/drivers/JwtDriver'
 import BaseError from '../../BaseError'
 import IUseCase from '../../IUseCase'
@@ -13,9 +14,12 @@ type Output = {
 } | BaseError
 
 export default class ValidateAuthentication implements IUseCase<Input, Output> {
-  constructor(private _tokenDriver: JwtDriver) {}
+  constructor(
+    private _tokenDriver: JwtDriver,
+    private _refreshTokenRepository: IRefreshTokenRepository,
+  ) {}
 
-  exec(input: Input): Output {
+  async exec(input: Input): Promise<Output> {
     const { authorization } = input
 
     if (!authorization)
@@ -29,21 +33,30 @@ export default class ValidateAuthentication implements IUseCase<Input, Output> {
     if (!token)
       return new UnauthorizedError('No token provided')
 
-    try {
-      const { id, email, password, level } = <any>this._tokenDriver.validateAccessToken(token)
-      const user = User.create({
-        user_id: id,
-        email,
-        password,
-        level
-      })
+    let userData
 
-      return { user }
+    try {
+      userData = <any>this._tokenDriver.validateAccessToken(token)
     } catch (error: any) {
       if (error.name === 'TokenExpiredError')
         return new UnauthorizedError('Token expired')
 
       return new UnauthorizedError('Invalid token')
     }
+
+    const { id: user_id, email, password, level } = userData
+    const refreshToken = await this._refreshTokenRepository.findOne({ user_id })
+
+    if (!refreshToken)
+      return new UnauthorizedError('Not authenticated user')
+
+    const user = User.create({
+      user_id,
+      email,
+      password,
+      level
+    })
+
+    return { user }
   }
 }

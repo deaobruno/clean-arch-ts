@@ -15,7 +15,7 @@ type Output = User | BaseError
 export default class CreateAdmin implements IUseCase<CreateAdminInput, Output> {
   constructor(
     private _userRepository: IUserRepository,
-    private _cryptoDriver: CryptoDriver
+    private _cryptoDriver: CryptoDriver,
   ) {}
 
   async exec(input: CreateAdminInput): Promise<Output> {
