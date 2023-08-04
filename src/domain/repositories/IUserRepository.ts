@@ -1,5 +1,5 @@
 import { User } from '../User'
-import IRepository from './IRepository'
+import IRepository from '../../infra/drivers/db/IDbDriver'
 
 export default interface IUserRepository extends IRepository<User> {
   findCustomers(): Promise<User[]>

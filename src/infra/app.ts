@@ -1,6 +1,6 @@
 import config from './config'
 import routes from './http/v1/routes'
-import ExpressDriver from './drivers/ExpressDriver'
+import ExpressDriver from './drivers/server/ExpressDriver'
 
 const {
   server: {

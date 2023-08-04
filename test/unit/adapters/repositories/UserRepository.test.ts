@@ -2,13 +2,13 @@ import sinon from 'sinon'
 import { faker } from '@faker-js/faker'
 import { expect } from 'chai'
 import UserRepository from '../../../../src/adapters/repositories/UserRepository'
-import InMemoryDriver from '../../../../src/infra/drivers/InMemoryDriver'
+import InMemoryDriver from '../../../../src/infra/drivers/db/InMemoryDriver'
 import { User } from '../../../../src/domain/User'
-import IRepository from '../../../../src/domain/repositories/IRepository'
+import IDbDriver from '../../../../src/infra/drivers/db/IDbDriver'
 import IUserRepository from '../../../../src/domain/repositories/IUserRepository'
 
 const sandbox = sinon.createSandbox()
-let inMemoryDriver: IRepository<any>
+let inMemoryDriver: IDbDriver<any>
 let userRepository: IUserRepository
 let fakeUsers: User[]
 

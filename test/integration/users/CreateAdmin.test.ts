@@ -1,7 +1,7 @@
 import axios from 'axios'
 import { faker } from '@faker-js/faker'
 import { expect } from 'chai'
-import ExpressDriver from '../../../src/infra/drivers/ExpressDriver'
+import ExpressDriver from '../../../src/infra/drivers/server/ExpressDriver'
 import routes from '../../../src/infra/http/v1/routes'
 
 const server = new ExpressDriver(3031)

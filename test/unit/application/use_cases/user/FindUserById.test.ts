@@ -1,43 +1,33 @@
 import sinon from 'sinon'
 import { faker } from '@faker-js/faker'
-import UserRepository from '../../../../../src/adapters/repositories/UserRepository'
 import { User } from '../../../../../src/domain/User'
-import InMemoryDriver from '../../../../../src/infra/drivers/InMemoryDriver'
 import FindUserById from '../../../../../src/application/use_cases/user/FindUserById'
 import { expect } from 'chai'
 import NotFoundError from '../../../../../src/application/errors/NotFoundError'
-import IRepository from '../../../../../src/domain/repositories/IRepository'
 import IUserRepository from '../../../../../src/domain/repositories/IUserRepository'
 import BaseError from '../../../../../src/application/BaseError'
+import UserRepositoryMock from '../../../../mocks/repositories/UserRepositoryMock'
 
 const sandbox = sinon.createSandbox()
-let inMemoryDriver: IRepository<any>
-let userRepository: IUserRepository
-let findUserById: FindUserById
+const userRepository: IUserRepository = UserRepositoryMock
+const findUserById: FindUserById = new FindUserById(userRepository)
+const userId = faker.string.uuid()
+const email = faker.internet.email()
+const password = faker.internet.password()
+const fakeUser = {
+  user_id: userId,
+  email,
+  password,
+  level: 2,
+  isRoot: false,
+  isAdmin: false,
+  isCustomer: true,
+}
 let notFoundError: NotFoundError
-let userId: string
-let email: string
-let password: string
-let fakeUser: User
 
 describe('/application/use_cases/user/FindUserById.ts', () => {
   beforeEach(() => {
-    inMemoryDriver = new InMemoryDriver()
-    userRepository = new UserRepository(inMemoryDriver)
-    findUserById = new FindUserById(userRepository)
     notFoundError = sandbox.stub(NotFoundError.prototype)
-    userId = faker.string.uuid()
-    email = faker.internet.email()
-    password = faker.internet.password()
-    fakeUser = {
-      user_id: userId,
-      email,
-      password,
-      level: 2,
-      isRoot: false,
-      isAdmin: false,
-      isCustomer: true,
-    }
     notFoundError.name = 'NotFoundError'
     notFoundError.statusCode = 404
     notFoundError.message = 'User not found'
@@ -46,7 +36,7 @@ describe('/application/use_cases/user/FindUserById.ts', () => {
   afterEach(() => sandbox.restore())
 
   it('should return an user passing an UUID', async () => {
-    sandbox.stub(InMemoryDriver.prototype, 'findOne')
+    sandbox.stub(userRepository, 'findOne')
       .resolves(fakeUser)
 
     const user = <User>await findUserById.exec({ userId })
@@ -61,9 +51,6 @@ describe('/application/use_cases/user/FindUserById.ts', () => {
   })
 
   it('should return a NotFoundError when no user is found', async () => {
-    sandbox.stub(InMemoryDriver.prototype, 'findOne')
-      .resolves()
-
     const error = <BaseError>await findUserById.exec({ userId: '' })
 
     expect(error instanceof NotFoundError).equal(true)

@@ -1,5 +1,5 @@
 import { expect } from 'chai'
-import InMemoryDriver from '../../../../src/infra/drivers/InMemoryDriver'
+import InMemoryDriver from '../../../../src/infra/drivers/db/InMemoryDriver'
 
 class InMemoryCustomRepository {
   constructor(private _driver: InMemoryDriver) {}

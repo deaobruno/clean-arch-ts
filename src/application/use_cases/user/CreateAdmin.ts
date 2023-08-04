@@ -1,6 +1,6 @@
 import { User } from '../../../domain/User'
 import IUserRepository from '../../../domain/repositories/IUserRepository'
-import CryptoDriver from '../../../infra/drivers/CryptoDriver'
+import IHashDriver from '../../../infra/drivers/hash/IHashDriver'
 import BaseError from '../../BaseError'
 import IUseCase from '../../IUseCase'
 import ConflictError from '../../errors/ConflictError'
@@ -15,7 +15,7 @@ type Output = User | BaseError
 export default class CreateAdmin implements IUseCase<CreateAdminInput, Output> {
   constructor(
     private _userRepository: IUserRepository,
-    private _cryptoDriver: CryptoDriver,
+    private _cryptoDriver: IHashDriver,
   ) {}
 
   async exec(input: CreateAdminInput): Promise<Output> {

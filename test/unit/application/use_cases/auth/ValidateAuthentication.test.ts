@@ -3,43 +3,40 @@ import { faker } from '@faker-js/faker'
 import { expect } from 'chai'
 import ValidateAuthentication from '../../../../../src/application/use_cases/auth/ValidateAuthentication'
 import { User } from '../../../../../src/domain/User'
-import JwtDriver from '../../../../../src/infra/drivers/JwtDriver'
 import UnauthorizedError from '../../../../../src/application/errors/UnauthorizedError'
 import BaseError from '../../../../../src/application/BaseError'
+import IRefreshTokenRepository from '../../../../../src/domain/repositories/IRefreshTokenRepository'
+import TokenDriverMock from '../../../../mocks/drivers/TokenDriverMock'
+import ITokenDriver from '../../../../../src/infra/drivers/token/ITokenDriver'
+import RefreshTokenRepositoryMock from '../../../../mocks/repositories/RefreshTokenRepositoryMock'
 
 const sandbox = sinon.createSandbox()
-let tokenDriver: JwtDriver
-let validateAuthentication: ValidateAuthentication
+const tokenDriver: ITokenDriver = TokenDriverMock
+const refreshTokenRepository: IRefreshTokenRepository = RefreshTokenRepositoryMock
+const validateAuthentication = new ValidateAuthentication(tokenDriver, refreshTokenRepository)
+const userId = faker.string.uuid()
+const email = faker.internet.email()
+const password = faker.internet.password()
+const userData = {
+  id: userId,
+  email,
+  password,
+  level: 2,
+}
+const fakeUser = {
+  user_id: userId,
+  email,
+  password,
+  level: 2,
+  isRoot: false,
+  isAdmin: false,
+  isCustomer: true,
+}
 let unauthorizedError: UnauthorizedError
-let userData: any
-let userId: string
-let email: string
-let password: string
-let fakeUser: User
 
 describe('/application/use_cases/auth/ValidateAuthentication.ts', () => {
   beforeEach(() => {
-    tokenDriver = new JwtDriver('access-token-key', 300, 'refresh-token-key', 900)
-    validateAuthentication = new ValidateAuthentication(tokenDriver)
     unauthorizedError = sandbox.stub(UnauthorizedError.prototype)
-    userId = faker.string.uuid()
-    email = faker.internet.email()
-    password = faker.internet.password()
-    fakeUser = {
-      user_id: userId,
-      email,
-      password,
-      level: 2,
-      isRoot: false,
-      isAdmin: false,
-      isCustomer: true,
-    }
-    userData = {
-      id: userId,
-      email,
-      password,
-      level: 2,
-    }
     unauthorizedError.name = 'UnauthorizedError'
     unauthorizedError.statusCode = 401
     unauthorizedError.message = 'Unauthorized'
@@ -48,13 +45,15 @@ describe('/application/use_cases/auth/ValidateAuthentication.ts', () => {
   afterEach(() => sandbox.restore())
 
   it('should return authenticated user entity', async () => {
-    sandbox.stub(JwtDriver.prototype, 'validateAccessToken')
+    sandbox.stub(tokenDriver, 'validateAccessToken')
       .returns(userData)
+    sandbox.stub(refreshTokenRepository, 'findOne')
+      .resolves({ user_id: userId, token: 'token' })
     sandbox.stub(User, 'create')
       .returns(fakeUser)
 
     const authorization = 'Bearer token'
-    const { user } = <any>validateAuthentication.exec({ authorization })
+    const { user } = <any>await validateAuthentication.exec({ authorization })
 
     expect(user.user_id).equal(userData.id)
     expect(user.email).equal(userData.email)
@@ -67,7 +66,7 @@ describe('/application/use_cases/auth/ValidateAuthentication.ts', () => {
 
   it('should return an UnauthorizedError when authentication data is empty', async () => {
     const authorization = ''
-    const error = <BaseError>validateAuthentication.exec({ authorization })
+    const error = <BaseError>await validateAuthentication.exec({ authorization })
 
     expect(error instanceof UnauthorizedError).equal(true)
     expect(error.message).equal('No token provided')
@@ -76,7 +75,7 @@ describe('/application/use_cases/auth/ValidateAuthentication.ts', () => {
 
   it('should return an UnauthorizedError when authentication method is not Bearer Token', async () => {
     const authorization = 'test token'
-    const error = <BaseError>validateAuthentication.exec({ authorization })
+    const error = <BaseError>await validateAuthentication.exec({ authorization })
 
     expect(error instanceof UnauthorizedError).equal(true)
     expect(error.message).equal('Invalid authentication type')
@@ -85,7 +84,7 @@ describe('/application/use_cases/auth/ValidateAuthentication.ts', () => {
 
   it('should return an UnauthorizedError when authentication token is empty', async () => {
     const authorization = 'Bearer'
-    const error = <BaseError>validateAuthentication.exec({ authorization })
+    const error = <BaseError>await validateAuthentication.exec({ authorization })
 
     expect(error instanceof UnauthorizedError).equal(true)
     expect(error.message).equal('No token provided')
@@ -93,11 +92,11 @@ describe('/application/use_cases/auth/ValidateAuthentication.ts', () => {
   })
 
   it('should return an UnauthorizedError when token is expired', async () => {
-    sandbox.stub(JwtDriver.prototype, 'validateAccessToken')
+    sandbox.stub(tokenDriver, 'validateAccessToken')
       .throws({ name: 'TokenExpiredError' })
 
     const authorization = 'Bearer token'
-    const error = <BaseError>validateAuthentication.exec({ authorization })
+    const error = <BaseError>await validateAuthentication.exec({ authorization })
 
     expect(error instanceof UnauthorizedError).equal(true)
     expect(error.message).equal('Token expired')
@@ -105,14 +104,28 @@ describe('/application/use_cases/auth/ValidateAuthentication.ts', () => {
   })
 
   it('should return an UnauthorizedError when token is invalid', async () => {
-    sandbox.stub(JwtDriver.prototype, 'validateAccessToken')
-      .throws({ name: 'test' })
+    sandbox.stub(tokenDriver, 'validateAccessToken')
+      .throws({})
 
     const authorization = 'Bearer token'
-    const error = <BaseError>validateAuthentication.exec({ authorization })
+    const error = <BaseError>await validateAuthentication.exec({ authorization })
 
     expect(error instanceof UnauthorizedError).equal(true)
     expect(error.message).equal('Invalid token')
+    expect(error.statusCode).equal(401)
+  })
+
+  it('should return an UnauthorizedError when no refresh token is found for user', async () => {
+    sandbox.stub(tokenDriver, 'validateAccessToken')
+      .returns(userData)
+    sandbox.stub(refreshTokenRepository, 'findOne')
+      .resolves()
+
+    const authorization = 'Bearer token'
+    const error = <BaseError>await validateAuthentication.exec({ authorization })
+
+    expect(error instanceof UnauthorizedError).equal(true)
+    expect(error.message).equal('Not authenticated user')
     expect(error.statusCode).equal(401)
   })
 })

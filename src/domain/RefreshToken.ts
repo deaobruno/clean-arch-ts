@@ -19,10 +19,10 @@ export default class RefreshToken {
     const uuidRegex = /^[0-9a-f]{8}\b-[0-9a-f]{4}\b-[0-9a-f]{4}\b-[0-9a-f]{4}\b-[0-9a-f]{12}$/gi
 
     if (!user_id)
-      throw new Error('User: "user_id" required')
+      throw new Error('RefreshToken: "user_id" required')
 
     if (!user_id || (user_id && !uuidRegex.test(user_id)))
-      throw new Error('User: Invalid "user_id"')
+      throw new Error('RefreshToken: Invalid "user_id"')
 
     if (!token)
       throw new Error('RefreshToken: "token" required')

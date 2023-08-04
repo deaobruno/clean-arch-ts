@@ -1,6 +1,6 @@
 import { User } from '../../../domain/User'
 import IRefreshTokenRepository from '../../../domain/repositories/IRefreshTokenRepository'
-import JwtDriver from '../../../infra/drivers/JwtDriver'
+import ITokenDriver from '../../../infra/drivers/token/ITokenDriver'
 import BaseError from '../../BaseError'
 import IUseCase from '../../IUseCase'
 import UnauthorizedError from '../../errors/UnauthorizedError'
@@ -15,7 +15,7 @@ type Output = {
 
 export default class ValidateAuthentication implements IUseCase<Input, Output> {
   constructor(
-    private _tokenDriver: JwtDriver,
+    private _tokenDriver: ITokenDriver,
     private _refreshTokenRepository: IRefreshTokenRepository,
   ) {}
 

@@ -1,4 +1,4 @@
-import IRepository from '../../domain/repositories/IRepository'
+import IRepository from '../../infra/drivers/db/IDbDriver'
 import IRefreshTokenRepository from '../../domain/repositories/IRefreshTokenRepository'
 import RefreshToken from '../../domain/RefreshToken'
 

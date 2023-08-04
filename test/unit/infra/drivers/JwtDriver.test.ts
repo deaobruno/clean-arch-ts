@@ -1,5 +1,5 @@
 import { expect } from 'chai'
-import JwtDriver from '../../../../src/infra/drivers/JwtDriver'
+import JwtDriver from '../../../../src/infra/drivers/token/JwtDriver'
 
 const jwtDriver = new JwtDriver('access-token-key', 300, 'refresh-token-key', 900)
 const tokenData = { test: true }

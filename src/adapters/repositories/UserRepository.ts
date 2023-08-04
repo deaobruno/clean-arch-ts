@@ -1,5 +1,5 @@
 import { User } from '../../domain/User'
-import IRepository from '../../domain/repositories/IRepository'
+import IRepository from '../../infra/drivers/db/IDbDriver'
 import IUserRepository from '../../domain/repositories/IUserRepository'
 
 export default class UserRepository implements IUserRepository {
