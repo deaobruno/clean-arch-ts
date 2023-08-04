@@ -1,6 +1,7 @@
 import jwt from 'jsonwebtoken'
+import ITokenDriver from './ITokenDriver'
 
-export default class JwtDriver {
+export default class JwtDriver implements ITokenDriver {
   constructor(
     private _accessTokenSecret: string,
     private _accessTokenExpirationTime: number,

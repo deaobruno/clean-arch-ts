@@ -1,8 +1,8 @@
 import RefreshToken from '../../../domain/RefreshToken'
 import IRefreshTokenRepository from '../../../domain/repositories/IRefreshTokenRepository'
 import IUserRepository from '../../../domain/repositories/IUserRepository'
-import CryptoDriver from '../../../infra/drivers/CryptoDriver'
-import JwtDriver from '../../../infra/drivers/JwtDriver'
+import CryptoDriver from '../../../infra/drivers/hash/CryptoDriver'
+import ITokenDriver from '../../../infra/drivers/token/ITokenDriver'
 import BaseError from '../../BaseError'
 import IUseCase from '../../IUseCase'
 import UnauthorizedError from '../../errors/UnauthorizedError'
@@ -21,7 +21,7 @@ export default class AuthenticateUser implements IUseCase<Input, Output> {
   constructor(
     private _userRepository: IUserRepository,
     private _refreshTokenRepository: IRefreshTokenRepository,
-    private _tokenDriver: JwtDriver,
+    private _tokenDriver: ITokenDriver,
     private _cryptoDriver: CryptoDriver,
   ) {}
 
@@ -39,11 +39,11 @@ export default class AuthenticateUser implements IUseCase<Input, Output> {
       password,
       level,
     }
-
     const accessToken = this._tokenDriver.generateAccessToken(userData)
     const refreshToken = this._tokenDriver.generateRefreshToken(userData)
-    const refreshTokenEntity = RefreshToken.create({ token: refreshToken })
+    const refreshTokenEntity = RefreshToken.create({ user_id, token: refreshToken })
 
+    await this._refreshTokenRepository.delete({ user_id })
     await this._refreshTokenRepository.save(refreshTokenEntity)
 
     return {

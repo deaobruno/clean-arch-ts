@@ -1,5 +1,6 @@
+import RefreshToken from '../../../domain/RefreshToken'
 import IRefreshTokenRepository from '../../../domain/repositories/IRefreshTokenRepository'
-import JwtDriver from '../../../infra/drivers/JwtDriver'
+import ITokenDriver from '../../../infra/drivers/token/ITokenDriver'
 import BaseError from '../../BaseError'
 import IUseCase from '../../IUseCase'
 import UnauthorizedError from '../../errors/UnauthorizedError'
@@ -10,11 +11,12 @@ type Input = {
 
 type Output = {
   accessToken: string
+  refreshToken: string
 } | BaseError
 
 export default class RefreshAccessToken implements IUseCase<Input, Output> {
   constructor(
-    private _tokenDriver: JwtDriver,
+    private _tokenDriver: ITokenDriver,
     private _refreshTokenRepository: IRefreshTokenRepository,
   ) {}
 
@@ -27,7 +29,7 @@ export default class RefreshAccessToken implements IUseCase<Input, Output> {
       return new UnauthorizedError('Refresh token not found')
 
     try {
-      userData = <any>this._tokenDriver.validateRefreshToken(token)
+      userData = this._tokenDriver.validateRefreshToken(token)
     } catch (error: any) {
       if (error.name === 'TokenExpiredError')
         return new UnauthorizedError('Refresh token expired')
@@ -35,6 +37,19 @@ export default class RefreshAccessToken implements IUseCase<Input, Output> {
       return new UnauthorizedError('Invalid refresh token')
     }
 
-    return { accessToken: this._tokenDriver.generateAccessToken(userData) }
+    const { user_id } = previousToken
+
+    await this._refreshTokenRepository.delete({ user_id })
+
+    const accessToken = this._tokenDriver.generateAccessToken(userData)
+    const refreshToken = this._tokenDriver.generateRefreshToken(userData)
+    const refreshTokenEntity = RefreshToken.create({ user_id, token: refreshToken })
+
+    await this._refreshTokenRepository.save(refreshTokenEntity)
+
+    return {
+      accessToken,
+      refreshToken,
+    }
   }
 }

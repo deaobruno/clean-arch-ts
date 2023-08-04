@@ -1,5 +1,4 @@
-export default interface IRepository<T> {
-  collection?: string
+export default interface IDbDriver<T> {
   save(data: T, filters?: object): Promise<T>
   find(filters?: object): Promise<T[]>
   findOne(filters: object): Promise<T | undefined>

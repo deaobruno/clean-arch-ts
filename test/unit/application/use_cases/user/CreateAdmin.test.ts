@@ -3,52 +3,39 @@ import { faker } from '@faker-js/faker'
 import { expect } from 'chai'
 import CreateAdmin from '../../../../../src/application/use_cases/user/CreateAdmin'
 import { LevelEnum, User } from '../../../../../src/domain/User'
-import CryptoDriver from '../../../../../src/infra/drivers/CryptoDriver'
-import InMemoryDriver from '../../../../../src/infra/drivers/InMemoryDriver'
-import UserRepository from '../../../../../src/adapters/repositories/UserRepository'
 import ConflictError from '../../../../../src/application/errors/ConflictError'
-import IRepository from '../../../../../src/domain/repositories/IRepository'
 import IUserRepository from '../../../../../src/domain/repositories/IUserRepository'
 import BaseError from '../../../../../src/application/BaseError'
+import IHashDriver from '../../../../../src/infra/drivers/hash/IHashDriver'
+import HashDriverMock from '../../../../mocks/drivers/HashDriverMock'
+import UserRepositoryMock from '../../../../mocks/repositories/UserRepositoryMock'
 
 const sandbox = sinon.createSandbox()
-let inMemoryDriver: IRepository<any>
-let cryptoDriver: CryptoDriver
-let userRepository: IUserRepository
-let createAdmin: CreateAdmin
+const cryptoDriver: IHashDriver = HashDriverMock
+const userRepository: IUserRepository = UserRepositoryMock
+const createAdmin = new CreateAdmin(userRepository, cryptoDriver)
+const email = faker.internet.email()
+const password = faker.internet.password()
+const fakeUser = {
+  user_id: faker.string.uuid(),
+  email,
+  password,
+  level: 1,
+  isRoot: false,
+  isAdmin: true,
+  isCustomer: false,
+}
+let userParams = {
+  email,
+  password,
+  confirm_password: password,
+  level: 1
+}
 let conflictError: ConflictError
-let email: string
-let password: string
-let fakeUser: User
-let userParams: any
 
 describe('/application/use_cases/user/CreateAdmin.ts', () => {
   beforeEach(() => {
-    inMemoryDriver = new InMemoryDriver()
-    cryptoDriver = {
-      generateID: () => faker.string.uuid(),
-      hashString: (text: string) => 'hash',
-    }
-    userRepository = new UserRepository(inMemoryDriver)
-    createAdmin = new CreateAdmin(userRepository, cryptoDriver)
     conflictError = sandbox.stub(ConflictError.prototype)
-    email = faker.internet.email()
-    password = faker.internet.password()
-    fakeUser = {
-      user_id: faker.string.uuid(),
-      email,
-      password,
-      level: 1,
-      isRoot: false,
-      isAdmin: true,
-      isCustomer: false,
-    }
-    userParams = {
-      email,
-      password,
-      confirm_password: password,
-      level: 1
-    }
     conflictError.name = 'ConflictError'
     conflictError.statusCode = 409
     conflictError.message = 'Email already in use'
@@ -57,9 +44,7 @@ describe('/application/use_cases/user/CreateAdmin.ts', () => {
   afterEach(() => sandbox.restore())
 
   it('should successfully create an Admin User', async () => {
-    sandbox.stub(UserRepository.prototype, 'findOneByEmail')
-      .resolves()
-    sandbox.stub(UserRepository.prototype, 'save')
+    sandbox.stub(userRepository, 'save')
       .resolves(fakeUser)
     sandbox.stub(User, 'create')
       .returns(fakeUser)
@@ -76,9 +61,9 @@ describe('/application/use_cases/user/CreateAdmin.ts', () => {
   })
 
   it('should fail when trying to create an Admin User with repeated email', async () => {
-    sandbox.stub(UserRepository.prototype, 'findOneByEmail')
+    sandbox.stub(userRepository, 'findOneByEmail')
       .resolves(fakeUser)
-    sandbox.stub(UserRepository.prototype, 'save')
+    sandbox.stub(userRepository, 'save')
       .resolves()
     sandbox.stub(User, 'create')
       .returns(fakeUser)

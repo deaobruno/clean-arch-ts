@@ -3,52 +3,39 @@ import { faker } from '@faker-js/faker'
 import { expect } from 'chai'
 import RegisterCustomer from '../../../../../src/application/use_cases/auth/RegisterCustomer'
 import { LevelEnum, User } from '../../../../../src/domain/User'
-import CryptoDriver from '../../../../../src/infra/drivers/CryptoDriver'
-import InMemoryDriver from '../../../../../src/infra/drivers/InMemoryDriver'
-import UserRepository from '../../../../../src/adapters/repositories/UserRepository'
+import CryptoDriver from '../../../../../src/infra/drivers/hash/CryptoDriver'
 import ConflictError from '../../../../../src/application/errors/ConflictError'
-import IRepository from '../../../../../src/domain/repositories/IRepository'
 import IUserRepository from '../../../../../src/domain/repositories/IUserRepository'
 import BaseError from '../../../../../src/application/BaseError'
+import UserRepositoryMock from '../../../../mocks/repositories/UserRepositoryMock'
+import HashDriverMock from '../../../../mocks/drivers/HashDriverMock'
 
 const sandbox = sinon.createSandbox()
-let inMemoryDriver: IRepository<any>
-let cryptoDriver: CryptoDriver
-let userRepository: IUserRepository
-let registerCustomer: RegisterCustomer
+const cryptoDriver: CryptoDriver = HashDriverMock
+const userRepository: IUserRepository = UserRepositoryMock
+const registerCustomer = new RegisterCustomer(userRepository, cryptoDriver)
+const email = faker.internet.email()
+const password = faker.internet.password()
+const fakeUser: User = {
+  user_id: faker.string.uuid(),
+  email,
+  password,
+  level: 2,
+  isRoot: false,
+  isAdmin: false,
+  isCustomer: true,
+}
+const userParams = {
+  email,
+  password,
+  confirm_password: password,
+  level: 2,
+}
 let conflictError: ConflictError
-let email: string
-let password: string
-let fakeUser: User
-let userParams: any
 
 describe('/application/use_cases/auth/RegisterCustomer.ts', () => {
   beforeEach(() => {
-    inMemoryDriver = new InMemoryDriver()
-    cryptoDriver = {
-      generateID: () => faker.string.uuid(),
-      hashString: (text: string) => 'hash',
-    }
-    userRepository = new UserRepository(inMemoryDriver)
-    registerCustomer = new RegisterCustomer(userRepository, cryptoDriver)
     conflictError = sandbox.stub(ConflictError.prototype)
-    email = faker.internet.email()
-    password = faker.internet.password()
-    fakeUser = {
-      user_id: faker.string.uuid(),
-      email,
-      password,
-      level: 2,
-      isRoot: false,
-      isAdmin: false,
-      isCustomer: true,
-    }
-    userParams = {
-      email,
-      password,
-      confirm_password: password,
-      level: 2
-    }
     conflictError.name = 'ConflictError'
     conflictError.statusCode = 409
     conflictError.message = 'Email already in use'
@@ -57,9 +44,7 @@ describe('/application/use_cases/auth/RegisterCustomer.ts', () => {
   afterEach(() => sandbox.restore())
 
   it('should successfully create an Admin User', async () => {
-    sandbox.stub(UserRepository.prototype, 'findOneByEmail')
-      .resolves()
-    sandbox.stub(UserRepository.prototype, 'save')
+    sandbox.stub(userRepository, 'save')
       .resolves(fakeUser)
     sandbox.stub(User, 'create')
       .returns(fakeUser)
@@ -76,9 +61,9 @@ describe('/application/use_cases/auth/RegisterCustomer.ts', () => {
   })
 
   it('should fail when trying to create an Admin User with repeated email', async () => {
-    sandbox.stub(UserRepository.prototype, 'findOneByEmail')
+    sandbox.stub(userRepository, 'findOneByEmail')
       .resolves(fakeUser)
-    sandbox.stub(UserRepository.prototype, 'save')
+    sandbox.stub(userRepository, 'save')
       .resolves()
     sandbox.stub(User, 'create')
       .returns(fakeUser)

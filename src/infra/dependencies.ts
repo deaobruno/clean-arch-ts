@@ -1,7 +1,7 @@
 import config from './config'
-import InMemoryDriver from './drivers/InMemoryDriver'
-import CryptoDriver from './drivers/CryptoDriver'
-import JwtDriver from './drivers/JwtDriver'
+import InMemoryDriver from './drivers/db/InMemoryDriver'
+import CryptoDriver from './drivers/hash/CryptoDriver'
+import JwtDriver from './drivers/token/JwtDriver'
 import UserRepository from '../adapters/repositories/UserRepository'
 import RegisterCustomerSchema from './schemas/auth/RegisterCustomerSchema'
 import AuthenticateUserSchema from './schemas/auth/AuthenticateUserSchema'
@@ -39,6 +39,9 @@ import ValidateAuthorizationMiddleware from '../adapters/middlewares/auth/Valida
 import RefreshTokenRepository from '../adapters/repositories/RefreshTokenRepository'
 import RefreshAccessTokenController from '../adapters/controllers/auth/RefreshAccessTokenController'
 import RefreshAccessToken from '../application/use_cases/auth/RefreshAccessToken'
+import LogoutSchema from './schemas/auth/LogoutSchema'
+import DeleteRefreshToken from '../application/use_cases/auth/DeleteRefreshToken'
+import LogoutController from '../adapters/controllers/auth/LogoutController'
 
 const {
   app: {
@@ -58,6 +61,7 @@ const refreshTokenRepository = new RefreshTokenRepository(new InMemoryDriver())
 const validateRegisterPayloadUseCase = new ValidateInput(RegisterCustomerSchema)
 const validateAuthenticateUserPayloadUseCase = new ValidateInput(AuthenticateUserSchema)
 const validateRefreshAccessTokenPayloadUseCase = new ValidateInput(RefreshAccessTokenSchema)
+const validateLogoutPayloadUseCase = new ValidateInput(LogoutSchema)
 const validateCreateAdminPayloadUseCase = new ValidateInput(CreateAdminSchema)
 const validateFindUsersPayloadUseCase = new ValidateInput(FindUsersSchema)
 const validateFindUserByIdPayloadUseCase = new ValidateInput(FindUserByIdSchema)
@@ -67,20 +71,22 @@ const validateDeleteUserPayloadUseCase = new ValidateInput(DeleteUserSchema)
 const registerCustomerUseCase = new RegisterCustomer(userRepository, cryptoDriver)
 const authenticateUserUseCase = new AuthenticateUser(userRepository, refreshTokenRepository, jwtDriver, cryptoDriver)
 const refreshAccessTokenUseCase = new RefreshAccessToken(jwtDriver, refreshTokenRepository)
-const validateAuthenticationUseCase = new ValidateAuthentication(jwtDriver)
+const deleteRefreshTokenUseCase = new DeleteRefreshToken(refreshTokenRepository)
+const validateAuthenticationUseCase = new ValidateAuthentication(jwtDriver, refreshTokenRepository)
 const validateAuthorizationUseCase = new ValidateAuthorization()
 const createAdminUseCase = new CreateAdmin(userRepository, cryptoDriver)
 const findUsersUseCase = new FindUsers(userRepository)
 const findUserByIdUseCase = new FindUserById(userRepository)
-const updateUserUseCase = new UpdateUser(userRepository)
-const updateUserPasswordUseCase = new UpdateUserPassword(userRepository)
-const deleteUserUseCase = new DeleteUser(userRepository)
+const updateUserUseCase = new UpdateUser(userRepository, refreshTokenRepository)
+const updateUserPasswordUseCase = new UpdateUserPassword(cryptoDriver, userRepository, refreshTokenRepository)
+const deleteUserUseCase = new DeleteUser(userRepository, refreshTokenRepository)
 // Middlewares
 const validateAuthenticationMiddleware = new ValidateAuthenticationMiddleware(validateAuthenticationUseCase)
 const validateAuthorizationMiddleware = new ValidateAuthorizationMiddleware(validateAuthorizationUseCase)
 const validateRegisterCustomerPayloadMiddleware = new ValidateInputMiddleware(validateRegisterPayloadUseCase)
 const validateAuthenticateUserPayloadMiddleware = new ValidateInputMiddleware(validateAuthenticateUserPayloadUseCase)
 const validateRefreshAccessTokenPayloadMiddleware = new ValidateInputMiddleware(validateRefreshAccessTokenPayloadUseCase)
+const validateLogoutPayloadMiddleware = new ValidateInputMiddleware(validateLogoutPayloadUseCase)
 const validateCreateAdminPayloadMiddleware = new ValidateInputMiddleware(validateCreateAdminPayloadUseCase)
 const validateFindUsersPayloadMiddleware = new ValidateInputMiddleware(validateFindUsersPayloadUseCase)
 const validateFindUserByIdPayloadMiddleware = new ValidateInputMiddleware(validateFindUserByIdPayloadUseCase)
@@ -91,6 +97,7 @@ const validateDeleteUserPayloadMiddleware = new ValidateInputMiddleware(validate
 const registerCustomerController = new RegisterCustomerController(registerCustomerUseCase)
 const authenticateUserController = new AuthenticateUserController(authenticateUserUseCase)
 const refreshAccessTokenController = new RefreshAccessTokenController(refreshAccessTokenUseCase)
+const logoutController = new LogoutController(deleteRefreshTokenUseCase)
 const createAdminController = new CreateAdminController(createAdminUseCase)
 const findUsersController = new FindUsersController(findUsersUseCase)
 const findUserByIdController = new FindUserByIdController(findUserByIdUseCase)
@@ -113,6 +120,7 @@ export default {
     validateRegisterCustomerPayloadMiddleware,
     validateAuthenticateUserPayloadMiddleware,
     validateRefreshAccessTokenPayloadMiddleware,
+    validateLogoutPayloadMiddleware,
     validateCreateAdminPayloadMiddleware,
     validateFindUsersPayloadMiddleware,
     validateFindUserByIdPayloadMiddleware,
@@ -124,6 +132,7 @@ export default {
     registerCustomerController,
     authenticateUserController,
     refreshAccessTokenController,
+    logoutController,
     createAdminController,
     findUsersController,
     findUserByIdController,

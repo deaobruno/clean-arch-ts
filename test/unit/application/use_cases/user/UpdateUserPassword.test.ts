@@ -1,43 +1,39 @@
 import sinon from 'sinon'
-import { faker } from "@faker-js/faker"
-import { expect } from "chai"
-import InMemoryDriver from "../../../../../src/infra/drivers/InMemoryDriver"
-import UserRepository from "../../../../../src/adapters/repositories/UserRepository"
-import { User } from "../../../../../src/domain/User"
+import { faker } from '@faker-js/faker'
+import { expect } from 'chai'
+import { User } from '../../../../../src/domain/User'
 import UpdateUserPassword from '../../../../../src/application/use_cases/user/UpdateUserPassword'
-import IRepository from '../../../../../src/domain/repositories/IRepository'
 import IUserRepository from '../../../../../src/domain/repositories/IUserRepository'
 import NotFoundError from '../../../../../src/application/errors/NotFoundError'
 import BaseError from '../../../../../src/application/BaseError'
+import IRefreshTokenRepository from '../../../../../src/domain/repositories/IRefreshTokenRepository'
+import UserRepositoryMock from '../../../../mocks/repositories/UserRepositoryMock'
+import RefreshTokenRepositoryMock from '../../../../mocks/repositories/RefreshTokenRepositoryMock'
+import IHashDriver from '../../../../../src/infra/drivers/hash/IHashDriver'
+import HashDriverMock from '../../../../mocks/drivers/HashDriverMock'
 
 const sandbox = sinon.createSandbox()
-let inMemoryDriver: IRepository<any>
-let userRepository: IUserRepository
-let updateUserPassword: UpdateUserPassword
+const cryptoDriver: IHashDriver = HashDriverMock
+const userRepository: IUserRepository = UserRepositoryMock
+const refreshTokenRepository: IRefreshTokenRepository = RefreshTokenRepositoryMock
+const updateUserPassword: UpdateUserPassword = new UpdateUserPassword(cryptoDriver, userRepository, refreshTokenRepository)
+const userId = faker.string.uuid()
+const email = faker.internet.email()
+const password = faker.internet.password()
+const fakeUser = {
+  user_id: userId,
+  email,
+  password,
+  level: 2,
+  isRoot: false,
+  isAdmin: false,
+  isCustomer: true,
+}
 let notFoundError: NotFoundError
-let fakeUser: User
-let userId = faker.string.uuid()
-let email: string
-let password: string
 
 describe('/application/use_cases/user/UpdateUserPassword.ts', () => {
   beforeEach(() => {
-    inMemoryDriver = new InMemoryDriver()
-    userRepository = new UserRepository(inMemoryDriver)
-    updateUserPassword = new UpdateUserPassword(userRepository)
     notFoundError = sandbox.stub(NotFoundError.prototype)
-    userId = faker.string.uuid()
-    email = faker.internet.email()
-    password = faker.internet.password()
-    fakeUser = {
-      user_id: userId,
-      email,
-      password,
-      level: 2,
-      isRoot: false,
-      isAdmin: false,
-      isCustomer: true,
-    }
     notFoundError.name = 'NotFoundError'
     notFoundError.statusCode = 404
     notFoundError.message = 'User not found'
@@ -46,26 +42,27 @@ describe('/application/use_cases/user/UpdateUserPassword.ts', () => {
   afterEach(() => sandbox.restore())
 
   it('should update the password of an existing user', async () => {
-    sandbox.stub(InMemoryDriver.prototype, 'findOne')
+    sandbox.stub(userRepository, 'findOne')
       .resolves(fakeUser)
 
     const newPassword = faker.internet.password()
+
+    fakeUser.password = cryptoDriver.hashString(newPassword)
+
+    sandbox.stub(userRepository, 'save')
+      .resolves(fakeUser)
+
     const updateData = {
       userId,
       password: newPassword,
       confirm_password: newPassword,
     }
 
-    fakeUser.password = newPassword
-
-    sandbox.stub(UserRepository.prototype, 'save')
-      .resolves(fakeUser)
-
     const user = <User>await updateUserPassword.exec(updateData)
 
     expect(user.user_id).equal(fakeUser.user_id)
     expect(user.email).equal(fakeUser.email)
-    expect(user.password).equal(newPassword)
+    expect(user.password).equal(fakeUser.password)
     expect(user.level).equal(fakeUser.level)
     expect(user.isCustomer).equal(true)
     expect(user.isAdmin).equal(false)
@@ -73,9 +70,6 @@ describe('/application/use_cases/user/UpdateUserPassword.ts', () => {
   })
 
   it('should fail when trying to update an user password passing wrong ID', async () => {
-    sandbox.stub(InMemoryDriver.prototype, 'findOne')
-      .resolves()
-
     const error = <BaseError>await updateUserPassword.exec({ userId: '', password: '' })
 
     expect(error instanceof NotFoundError).equal(true)

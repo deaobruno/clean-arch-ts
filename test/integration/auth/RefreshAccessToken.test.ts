@@ -1,10 +1,10 @@
 import sinon from 'sinon'
 import axios from 'axios'
 import { expect } from 'chai'
-import ExpressDriver from '../../../src/infra/drivers/ExpressDriver'
+import ExpressDriver from '../../../src/infra/drivers/server/ExpressDriver'
 import routes from '../../../src/infra/http/v1/routes'
-import InMemoryDriver from '../../../src/infra/drivers/InMemoryDriver'
-import JwtDriver from '../../../src/infra/drivers/JwtDriver'
+import InMemoryDriver from '../../../src/infra/drivers/db/InMemoryDriver'
+import JwtDriver from '../../../src/infra/drivers/token/JwtDriver'
 
 const sandbox = sinon.createSandbox()
 const server = new ExpressDriver(3031)
@@ -45,7 +45,7 @@ describe('GET /users', () => {
     await axios.post(url, { refreshToken: token }, { headers: { Authorization } })
       .catch(({ response: { status, data } }) => {
         expect(status).equal(401)
-        expect(data.error).equal('Refresh token not found')
+        expect(data.error).equal('Not authenticated user')
     })
   })
 

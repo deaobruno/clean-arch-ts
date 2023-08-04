@@ -1,5 +1,5 @@
 import { expect } from 'chai'
-import CryptoDriver from '../../../../src/infra/drivers/CryptoDriver'
+import CryptoDriver from '../../../../src/infra/drivers/hash/CryptoDriver'
 
 const cryptoDriver = new CryptoDriver()
 

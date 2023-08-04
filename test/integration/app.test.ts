@@ -1,6 +1,6 @@
 import axios from 'axios'
 import { expect } from 'chai'
-import ExpressDriver from '../../src/infra/drivers/ExpressDriver'
+import ExpressDriver from '../../src/infra/drivers/server/ExpressDriver'
 import httpRoutes from '../../src/infra/http/v1/routes'
 import BaseRoute from '../../src/infra/http/BaseRoute'
 import BaseController from '../../src/adapters/controllers/BaseController'

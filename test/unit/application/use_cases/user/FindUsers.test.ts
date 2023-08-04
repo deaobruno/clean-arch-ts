@@ -1,57 +1,50 @@
 import sinon from 'sinon'
 import { faker } from '@faker-js/faker'
-import UserRepository from '../../../../../src/adapters/repositories/UserRepository'
 import { User } from '../../../../../src/domain/User'
-import InMemoryDriver from '../../../../../src/infra/drivers/InMemoryDriver'
 import FindUsers from '../../../../../src/application/use_cases/user/FindUsers'
 import { expect } from 'chai'
 import NotFoundError from '../../../../../src/application/errors/NotFoundError'
-import IRepository from '../../../../../src/domain/repositories/IRepository'
 import IUserRepository from '../../../../../src/domain/repositories/IUserRepository'
 import BaseError from '../../../../../src/application/BaseError'
+import UserRepositoryMock from '../../../../mocks/repositories/UserRepositoryMock'
 
 const sandbox = sinon.createSandbox()
-let inMemoryDriver: IRepository<any>
-let userRepository: IUserRepository
-let findUsers: FindUsers
+const userRepository: IUserRepository = UserRepositoryMock
+const findUsers: FindUsers = new FindUsers(userRepository)
+const fakeUsers = [
+  {
+    user_id: faker.string.uuid(),
+    email: faker.internet.email(),
+    password: faker.internet.password(),
+    level: 2,
+    isRoot: false,
+    isAdmin: false,
+    isCustomer: true,
+  },
+  {
+    user_id: faker.string.uuid(),
+    email: faker.internet.email(),
+    password: faker.internet.password(),
+    level: 2,
+    isRoot: false,
+    isAdmin: false,
+    isCustomer: true,
+  },
+  {
+    user_id: faker.string.uuid(),
+    email: faker.internet.email(),
+    password: faker.internet.password(),
+    level: 2,
+    isRoot: false,
+    isAdmin: false,
+    isCustomer: true,
+  },
+]
 let notFoundError: NotFoundError
-let fakeUsers: User[]
 
 describe('/application/use_cases/user/FindUsers.ts', () => {
   beforeEach(() => {
-    inMemoryDriver = new InMemoryDriver()
-    userRepository = new UserRepository(inMemoryDriver)
-    findUsers = new FindUsers(userRepository)
     notFoundError = sandbox.stub(NotFoundError.prototype)
-    fakeUsers = [
-      {
-        user_id: faker.string.uuid(),
-        email: faker.internet.email(),
-        password: faker.internet.password(),
-        level: 2,
-        isRoot: false,
-        isAdmin: false,
-        isCustomer: true,
-      },
-      {
-        user_id: faker.string.uuid(),
-        email: faker.internet.email(),
-        password: faker.internet.password(),
-        level: 2,
-        isRoot: false,
-        isAdmin: false,
-        isCustomer: true,
-      },
-      {
-        user_id: faker.string.uuid(),
-        email: faker.internet.email(),
-        password: faker.internet.password(),
-        level: 2,
-        isRoot: false,
-        isAdmin: false,
-        isCustomer: true,
-      },
-    ]
     notFoundError.name = 'NotFoundError'
     notFoundError.statusCode = 404
     notFoundError.message = 'Users not found'
@@ -60,7 +53,7 @@ describe('/application/use_cases/user/FindUsers.ts', () => {
   afterEach(() => sandbox.restore())
 
   it('should return an array with all users when no filter is passed', async () => {
-    sandbox.stub(InMemoryDriver.prototype, 'find')
+    sandbox.stub(userRepository, 'find')
       .resolves(fakeUsers)
 
     const users = <User[]>await findUsers.exec({})
@@ -90,7 +83,7 @@ describe('/application/use_cases/user/FindUsers.ts', () => {
   })
 
   it('should return an array with filtered users', async () => {
-    sandbox.stub(InMemoryDriver.prototype, 'find')
+    sandbox.stub(userRepository, 'find')
       .resolves([fakeUsers[0]])
 
     const users = <User[]>await findUsers.exec({ email: fakeUsers[0].email })
@@ -106,9 +99,6 @@ describe('/application/use_cases/user/FindUsers.ts', () => {
   })
 
   it('should return a NotFoundError when no users are found', async () => {
-    sandbox.stub(InMemoryDriver.prototype, 'find')
-      .resolves()
-
     const error = <BaseError>await findUsers.exec({})
 
     expect(error instanceof NotFoundError).equal(true)
@@ -117,9 +107,6 @@ describe('/application/use_cases/user/FindUsers.ts', () => {
   })
 
   it('should return a NotFoundError when no users are found', async () => {
-    sandbox.stub(InMemoryDriver.prototype, 'find')
-      .resolves([])
-
     const error = <BaseError>await findUsers.exec({})
 
     expect(error instanceof NotFoundError).equal(true)
