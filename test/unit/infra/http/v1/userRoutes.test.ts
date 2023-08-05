@@ -1,5 +1,5 @@
 import { expect } from 'chai'
-import userRotes from '../../../../../src/infra/http/v1/routes/userRoutes'
+import userRotes from '../../../../../src/infra/http/v1/userRoutes'
 import BaseController from '../../../../../src/adapters/controllers/BaseController'
 import BaseMiddleware from '../../../../../src/adapters/middlewares/BaseMiddleware'
 

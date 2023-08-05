@@ -1,4 +1,4 @@
-import BaseError from '../BaseError'
+import BaseError from './BaseError'
 
 export default class ConflictError extends BaseError {
   statusCode = 409

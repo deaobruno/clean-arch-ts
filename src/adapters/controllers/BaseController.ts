@@ -1,4 +1,4 @@
-import IUseCase from '../../application/IUseCase'
+import IUseCase from '../../application/useCases/IUseCase'
 
 export default abstract class BaseController {
   constructor(protected _useCase: IUseCase<any, any>) {}

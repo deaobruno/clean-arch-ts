@@ -1,4 +1,4 @@
-import BaseRoute from '../../../BaseRoute'
+import BaseRoute from '../BaseRoute'
 import FindUsersController from '../../../../../adapters/controllers/user/FindUsersController'
 import CustomerPresenter from '../../../../../adapters/presenters/user/CustomerPresenter'
 import ValidateAuthenticationMiddleware from '../../../../../adapters/middlewares/auth/ValidateAuthenticationMiddleware'

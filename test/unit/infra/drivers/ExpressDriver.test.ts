@@ -1,6 +1,6 @@
 import { expect } from 'chai'
 import ExpressDriver from '../../../../src/infra/drivers/server/ExpressDriver'
-import BaseRoute from '../../../../src/infra/http/BaseRoute'
+import BaseRoute from '../../../../src/infra/http/v1/routes/BaseRoute'
 import BaseController from '../../../../src/adapters/controllers/BaseController'
 import BaseMiddleware from '../../../../src/adapters/middlewares/BaseMiddleware'
 

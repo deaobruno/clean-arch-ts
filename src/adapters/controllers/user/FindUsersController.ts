@@ -1,5 +1,5 @@
 import BaseController from '../BaseController'
-import FindUsers from '../../../application/use_cases/user/FindUsers'
+import FindUsers from '../../../application/useCases/user/FindUsers'
 
 export default class FindUsersController extends BaseController {
   constructor(useCase: FindUsers) {

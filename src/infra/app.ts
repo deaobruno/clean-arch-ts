@@ -1,14 +1,5 @@
-import config from './config'
+import server from './server'
 import routes from './http/v1/routes'
-import ExpressDriver from './drivers/server/ExpressDriver'
-
-const {
-  server: {
-    httpPort
-  }
-} = config
-
-const server = new ExpressDriver(httpPort)
 
 server.start(routes.routes, routes.prefix)
 

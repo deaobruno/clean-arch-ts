@@ -1,6 +1,6 @@
 import { expect } from 'chai'
 import BaseController from '../../../../src/adapters/controllers/BaseController'
-import IUseCase from '../../../../src/application/IUseCase'
+import IUseCase from '../../../../src/application/useCases/IUseCase'
 
 class CustomController extends BaseController {
   constructor(useCase: IUseCase<any, any>) {

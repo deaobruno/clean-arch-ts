@@ -1,4 +1,4 @@
-import ValidateInput from '../../../application/use_cases/validation/ValidateInput'
+import ValidateInput from '../../../application/useCases/validation/ValidateInput'
 import BaseMiddleware from '../BaseMiddleware'
 
 export default class ValidateInputMiddleware extends BaseMiddleware {

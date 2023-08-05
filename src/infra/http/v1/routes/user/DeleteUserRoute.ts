@@ -1,4 +1,4 @@
-import BaseRoute from '../../../BaseRoute'
+import BaseRoute from '../BaseRoute'
 import DeleteUserController from '../../../../../adapters/controllers/user/DeleteUserController'
 import ValidateAuthenticationMiddleware from '../../../../../adapters/middlewares/auth/ValidateAuthenticationMiddleware'
 import ValidateInputMiddleware from '../../../../../adapters/middlewares/validation/ValidateInputMiddleware'
