@@ -1,7 +1,7 @@
 import sinon from 'sinon'
 import { faker } from '@faker-js/faker'
 import { expect } from 'chai'
-import CreateAdmin from '../../../../../src/application/use_cases/user/CreateAdmin'
+import CreateAdmin from '../../../../../src/application/useCases/user/CreateAdmin'
 import { LevelEnum, User } from '../../../../../src/domain/User'
 import ConflictError from '../../../../../src/application/errors/ConflictError'
 import IUserRepository from '../../../../../src/domain/repositories/IUserRepository'
@@ -33,7 +33,7 @@ let userParams = {
 }
 let conflictError: ConflictError
 
-describe('/application/use_cases/user/CreateAdmin.ts', () => {
+describe('/application/useCases/user/CreateAdmin.ts', () => {
   beforeEach(() => {
     conflictError = sandbox.stub(ConflictError.prototype)
     conflictError.name = 'ConflictError'

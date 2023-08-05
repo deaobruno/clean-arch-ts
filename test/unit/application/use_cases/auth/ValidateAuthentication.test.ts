@@ -1,7 +1,7 @@
 import sinon from 'sinon'
 import { faker } from '@faker-js/faker'
 import { expect } from 'chai'
-import ValidateAuthentication from '../../../../../src/application/use_cases/auth/ValidateAuthentication'
+import ValidateAuthentication from '../../../../../src/application/useCases/auth/ValidateAuthentication'
 import { User } from '../../../../../src/domain/User'
 import UnauthorizedError from '../../../../../src/application/errors/UnauthorizedError'
 import BaseError from '../../../../../src/application/errors/BaseError'
@@ -34,7 +34,7 @@ const fakeUser = {
 }
 let unauthorizedError: UnauthorizedError
 
-describe('/application/use_cases/auth/ValidateAuthentication.ts', () => {
+describe('/application/useCases/auth/ValidateAuthentication.ts', () => {
   beforeEach(() => {
     unauthorizedError = sandbox.stub(UnauthorizedError.prototype)
     unauthorizedError.name = 'UnauthorizedError'

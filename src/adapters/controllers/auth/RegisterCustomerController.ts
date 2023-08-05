@@ -1,5 +1,5 @@
 import BaseController from '../BaseController'
-import RegisterCustomer from '../../../application/use_cases/auth/RegisterCustomer'
+import RegisterCustomer from '../../../application/useCases/auth/RegisterCustomer'
 
 export default class RegisterCustomerController extends BaseController {
   constructor(useCase: RegisterCustomer) {

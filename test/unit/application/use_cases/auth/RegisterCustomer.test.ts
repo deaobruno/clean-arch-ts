@@ -1,7 +1,7 @@
 import sinon from 'sinon'
 import { faker } from '@faker-js/faker'
 import { expect } from 'chai'
-import RegisterCustomer from '../../../../../src/application/use_cases/auth/RegisterCustomer'
+import RegisterCustomer from '../../../../../src/application/useCases/auth/RegisterCustomer'
 import { LevelEnum, User } from '../../../../../src/domain/User'
 import CryptoDriver from '../../../../../src/infra/drivers/hash/CryptoDriver'
 import ConflictError from '../../../../../src/application/errors/ConflictError'
@@ -33,7 +33,7 @@ const userParams = {
 }
 let conflictError: ConflictError
 
-describe('/application/use_cases/auth/RegisterCustomer.ts', () => {
+describe('/application/useCases/auth/RegisterCustomer.ts', () => {
   beforeEach(() => {
     conflictError = sandbox.stub(ConflictError.prototype)
     conflictError.name = 'ConflictError'

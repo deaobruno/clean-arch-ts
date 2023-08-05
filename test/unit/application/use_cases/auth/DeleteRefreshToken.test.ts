@@ -5,14 +5,14 @@ import IRefreshTokenRepository from '../../../../../src/domain/repositories/IRef
 import RefreshTokenRepositoryMock from '../../../../mocks/repositories/RefreshTokenRepositoryMock'
 import BaseError from '../../../../../src/application/errors/BaseError'
 import NotFoundError from '../../../../../src/application/errors/NotFoundError'
-import DeleteRefreshToken from '../../../../../src/application/use_cases/auth/DeleteRefreshToken'
+import DeleteRefreshToken from '../../../../../src/application/useCases/auth/DeleteRefreshToken'
 
 const sandbox = sinon.createSandbox()
 const refreshTokenRepository: IRefreshTokenRepository = RefreshTokenRepositoryMock
 const deleteRefreshToken = new DeleteRefreshToken(refreshTokenRepository)
 let notFoundError: BaseError
 
-describe('/application/use_cases/auth/DeleteRefreshToken.ts', () => {
+describe('/application/useCases/auth/DeleteRefreshToken.ts', () => {
   before(() => {
     notFoundError = sandbox.stub(NotFoundError.prototype)
     notFoundError.name = 'NotFoundError'

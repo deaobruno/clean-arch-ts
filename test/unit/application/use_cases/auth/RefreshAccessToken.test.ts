@@ -1,7 +1,7 @@
 import sinon from 'sinon'
 import { faker } from '@faker-js/faker'
 import { expect } from 'chai'
-import RefreshAccessToken from '../../../../../src/application/use_cases/auth/RefreshAccessToken'
+import RefreshAccessToken from '../../../../../src/application/useCases/auth/RefreshAccessToken'
 import UnauthorizedError from '../../../../../src/application/errors/UnauthorizedError'
 import BaseError from '../../../../../src/application/errors/BaseError'
 import TokenDriverMock from '../../../../mocks/drivers/TokenDriverMock'
@@ -22,7 +22,7 @@ const userData = {
 const refreshAccessToken = new RefreshAccessToken(tokenDriver, refreshTokenRepository)
 let unauthorizedError: BaseError
 
-describe('/application/use_cases/auth/RefreshAccessToken.ts', () => {
+describe('/application/useCases/auth/RefreshAccessToken.ts', () => {
   before(() => {
     unauthorizedError = sandbox.stub(UnauthorizedError.prototype)
     unauthorizedError.name = 'UnauthorizedError'

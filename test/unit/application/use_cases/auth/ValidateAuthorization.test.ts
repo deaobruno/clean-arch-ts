@@ -1,12 +1,12 @@
 import { faker } from '@faker-js/faker'
 import { expect } from 'chai'
-import ValidateAuthorization from '../../../../../src/application/use_cases/auth/ValidateAuthorization'
+import ValidateAuthorization from '../../../../../src/application/useCases/auth/ValidateAuthorization'
 import ForbiddenError from '../../../../../src/application/errors/ForbiddenError'
 import BaseError from '../../../../../src/application/errors/BaseError'
 
 const validateAuthorization = new ValidateAuthorization()
 
-describe('/application/use_cases/auth/ValidateAuthorization.ts', () => {
+describe('/application/useCases/auth/ValidateAuthorization.ts', () => {
   it('should return void when user is root', () => {
     const user = {
       user_id: faker.string.uuid(),

@@ -1,7 +1,7 @@
 import sinon from 'sinon'
 import { faker } from '@faker-js/faker'
 import { expect } from 'chai'
-import DeleteUser from '../../../../../src/application/use_cases/user/DeleteUser'
+import DeleteUser from '../../../../../src/application/useCases/user/DeleteUser'
 import IUserRepository from '../../../../../src/domain/repositories/IUserRepository'
 import NotFoundError from '../../../../../src/application/errors/NotFoundError'
 import BaseError from '../../../../../src/application/errors/BaseError'
@@ -27,7 +27,7 @@ const fakeUser = {
 }
 let notFoundError: NotFoundError
 
-describe('/application/use_cases/user/DeleteUser.ts', () => {
+describe('/application/useCases/user/DeleteUser.ts', () => {
   beforeEach(() => {
     notFoundError = sandbox.stub(NotFoundError.prototype)
     notFoundError.name = 'NotFoundError'

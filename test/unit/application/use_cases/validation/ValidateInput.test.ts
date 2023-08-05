@@ -1,5 +1,5 @@
 import { expect } from 'chai'
-import ValidateInput from '../../../../../src/application/use_cases/validation/ValidateInput'
+import ValidateInput from '../../../../../src/application/useCases/validation/ValidateInput'
 import BadRequestError from '../../../../../src/application/errors/BadRequestError'
 
 const schema = {
@@ -13,7 +13,7 @@ const schema = {
 }
 const validateInput = new ValidateInput(schema)
 
-describe('/application/use_cases/validation/ValidateInput.ts', () => {
+describe('/application/useCases/validation/ValidateInput.ts', () => {
   it('should return void when input is valid', () => {
     expect(validateInput.exec({ test: 'test' })).equal(undefined)
   })

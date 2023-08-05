@@ -1,4 +1,4 @@
-import ValidateAuthentication from '../../../application/use_cases/auth/ValidateAuthentication'
+import ValidateAuthentication from '../../../application/useCases/auth/ValidateAuthentication'
 import BaseMiddleware from '../BaseMiddleware'
 
 export default class ValidateAuthenticationMiddleware extends BaseMiddleware {
