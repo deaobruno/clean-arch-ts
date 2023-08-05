@@ -1,8 +1,8 @@
 import { User } from '../../../domain/User'
 import IRefreshTokenRepository from '../../../domain/repositories/IRefreshTokenRepository'
 import ITokenDriver from '../../../infra/drivers/token/ITokenDriver'
-import BaseError from '../../BaseError'
-import IUseCase from '../../IUseCase'
+import BaseError from '../../errors/BaseError'
+import IUseCase from '../IUseCase'
 import UnauthorizedError from '../../errors/UnauthorizedError'
 
 type Input = {

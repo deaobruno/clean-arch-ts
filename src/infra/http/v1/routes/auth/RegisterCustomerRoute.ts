@@ -1,7 +1,7 @@
 import RegisterCustomerController from '../../../../../adapters/controllers/auth/RegisterCustomerController'
 import ValidateInputMiddleware from '../../../../../adapters/middlewares/validation/ValidateInputMiddleware'
 import CustomerPresenter from '../../../../../adapters/presenters/user/CustomerPresenter'
-import BaseRoute from '../../../BaseRoute'
+import BaseRoute from '../BaseRoute'
 
 type Middlewares = [ValidateInputMiddleware]
 

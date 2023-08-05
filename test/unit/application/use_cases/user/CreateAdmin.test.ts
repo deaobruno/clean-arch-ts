@@ -5,7 +5,7 @@ import CreateAdmin from '../../../../../src/application/use_cases/user/CreateAdm
 import { LevelEnum, User } from '../../../../../src/domain/User'
 import ConflictError from '../../../../../src/application/errors/ConflictError'
 import IUserRepository from '../../../../../src/domain/repositories/IUserRepository'
-import BaseError from '../../../../../src/application/BaseError'
+import BaseError from '../../../../../src/application/errors/BaseError'
 import IHashDriver from '../../../../../src/infra/drivers/hash/IHashDriver'
 import HashDriverMock from '../../../../mocks/drivers/HashDriverMock'
 import UserRepositoryMock from '../../../../mocks/repositories/UserRepositoryMock'

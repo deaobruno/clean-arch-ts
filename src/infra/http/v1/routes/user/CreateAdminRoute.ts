@@ -1,4 +1,4 @@
-import BaseRoute from '../../../BaseRoute'
+import BaseRoute from '../BaseRoute'
 import CreateAdminController from '../../../../../adapters/controllers/user/CreateAdminController'
 import AdminPresenter from '../../../../../adapters/presenters/user/AdminPresenter'
 import ValidateAuthenticationMiddleware from '../../../../../adapters/middlewares/auth/ValidateAuthenticationMiddleware'

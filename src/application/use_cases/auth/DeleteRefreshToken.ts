@@ -1,6 +1,6 @@
 import IRefreshTokenRepository from '../../../domain/repositories/IRefreshTokenRepository'
-import BaseError from '../../BaseError'
-import IUseCase from '../../IUseCase'
+import BaseError from '../../errors/BaseError'
+import IUseCase from '../IUseCase'
 import NotFoundError from '../../errors/NotFoundError'
 
 type Input = {

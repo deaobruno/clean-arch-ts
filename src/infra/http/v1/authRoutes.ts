@@ -1,7 +1,7 @@
-import AuthenticateUserRoute from './auth/AuthenticateUserRoute'
-import RegisterCustomerRoute from './auth/RegisterCustomerRoute'
-import RefreshAccessTokenRoute from './auth/RefreshAccessTokenRoute'
-import LogoutRoute from './auth/LogoutRoute'
+import AuthenticateUserRoute from './routes/auth/AuthenticateUserRoute'
+import RegisterCustomerRoute from './routes/auth/RegisterCustomerRoute'
+import RefreshAccessTokenRoute from './routes/auth/RefreshAccessTokenRoute'
+import LogoutRoute from './routes/auth/LogoutRoute'
 
 const basePath = '/auth'
 

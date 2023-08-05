@@ -2,7 +2,7 @@ import { faker } from '@faker-js/faker'
 import { expect } from 'chai'
 import ValidateAuthorization from '../../../../../src/application/use_cases/auth/ValidateAuthorization'
 import ForbiddenError from '../../../../../src/application/errors/ForbiddenError'
-import BaseError from '../../../../../src/application/BaseError'
+import BaseError from '../../../../../src/application/errors/BaseError'
 
 const validateAuthorization = new ValidateAuthorization()
 

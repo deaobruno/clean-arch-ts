@@ -1,6 +1,6 @@
 import { User } from '../../../domain/User'
-import BaseError from '../../BaseError'
-import IUseCase from '../../IUseCase'
+import BaseError from '../../errors/BaseError'
+import IUseCase from '../IUseCase'
 import ForbiddenError from '../../errors/ForbiddenError'
 
 type Input = {

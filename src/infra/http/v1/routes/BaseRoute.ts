@@ -1,6 +1,6 @@
-import BaseController from '../../adapters/controllers/BaseController'
-import BaseMiddleware from '../../adapters/middlewares/BaseMiddleware'
-import IPresenter from '../../adapters/presenters/IPresenter'
+import BaseController from '../../../../adapters/controllers/BaseController'
+import BaseMiddleware from '../../../../adapters/middlewares/BaseMiddleware'
+import IPresenter from '../../../../adapters/presenters/IPresenter'
 
 type RouteConfig = {
   path: string,

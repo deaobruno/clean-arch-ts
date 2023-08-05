@@ -3,7 +3,7 @@ import { faker } from '@faker-js/faker'
 import { expect } from 'chai'
 import IRefreshTokenRepository from '../../../../../src/domain/repositories/IRefreshTokenRepository'
 import RefreshTokenRepositoryMock from '../../../../mocks/repositories/RefreshTokenRepositoryMock'
-import BaseError from '../../../../../src/application/BaseError'
+import BaseError from '../../../../../src/application/errors/BaseError'
 import NotFoundError from '../../../../../src/application/errors/NotFoundError'
 import DeleteRefreshToken from '../../../../../src/application/use_cases/auth/DeleteRefreshToken'
 

@@ -2,9 +2,9 @@ import axios from 'axios'
 import { expect } from 'chai'
 import ExpressDriver from '../../src/infra/drivers/server/ExpressDriver'
 import httpRoutes from '../../src/infra/http/v1/routes'
-import BaseRoute from '../../src/infra/http/BaseRoute'
+import BaseRoute from '../../src/infra/http/v1/routes/BaseRoute'
 import BaseController from '../../src/adapters/controllers/BaseController'
-import IUseCase from '../../src/application/IUseCase'
+import IUseCase from '../../src/application/use_cases/IUseCase'
 import BaseMiddleware from '../../src/adapters/middlewares/BaseMiddleware'
 
 const { routes } = httpRoutes

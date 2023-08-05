@@ -3,8 +3,8 @@ import IRefreshTokenRepository from '../../../domain/repositories/IRefreshTokenR
 import IUserRepository from '../../../domain/repositories/IUserRepository'
 import CryptoDriver from '../../../infra/drivers/hash/CryptoDriver'
 import ITokenDriver from '../../../infra/drivers/token/ITokenDriver'
-import BaseError from '../../BaseError'
-import IUseCase from '../../IUseCase'
+import BaseError from '../../errors/BaseError'
+import IUseCase from '../IUseCase'
 import UnauthorizedError from '../../errors/UnauthorizedError'
 
 type Input = {

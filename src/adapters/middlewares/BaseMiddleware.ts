@@ -1,4 +1,4 @@
-import IUseCase from '../../application/IUseCase'
+import IUseCase from '../../application/use_cases/IUseCase'
 
 export default abstract class BaseMiddleware {
   constructor(protected _useCase: IUseCase<any, any>) {}

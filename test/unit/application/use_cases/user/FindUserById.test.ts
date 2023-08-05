@@ -5,7 +5,7 @@ import FindUserById from '../../../../../src/application/use_cases/user/FindUser
 import { expect } from 'chai'
 import NotFoundError from '../../../../../src/application/errors/NotFoundError'
 import IUserRepository from '../../../../../src/domain/repositories/IUserRepository'
-import BaseError from '../../../../../src/application/BaseError'
+import BaseError from '../../../../../src/application/errors/BaseError'
 import UserRepositoryMock from '../../../../mocks/repositories/UserRepositoryMock'
 
 const sandbox = sinon.createSandbox()

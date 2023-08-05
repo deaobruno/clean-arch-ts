@@ -1,7 +1,7 @@
 import { Server } from 'node:http'
 import express, { NextFunction, Request, Response, Router } from 'express'
 import bodyParser from 'body-parser'
-import BaseRoute from '../../http/BaseRoute'
+import BaseRoute from '../../http/v1/routes/BaseRoute'
 import IServerDriver from './IServerDriver'
 import BaseMiddleware from '../../../adapters/middlewares/BaseMiddleware'
 import NotFoundError from '../../../application/errors/NotFoundError'

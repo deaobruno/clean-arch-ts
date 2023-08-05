@@ -1,8 +1,8 @@
 import { User } from '../../../domain/User'
 import IUserRepository from '../../../domain/repositories/IUserRepository'
 import CryptoDriver from '../../../infra/drivers/hash/CryptoDriver'
-import BaseError from '../../BaseError'
-import IUseCase from '../../IUseCase'
+import BaseError from '../../errors/BaseError'
+import IUseCase from '../IUseCase'
 import ConflictError from '../../errors/ConflictError'
 
 type RegisterCustomerInput = {
