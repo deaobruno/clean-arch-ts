@@ -3,13 +3,13 @@ import sinon from 'sinon'
 import { faker } from '@faker-js/faker'
 import { expect } from 'chai'
 import ExpressDriver from '../../../src/infra/drivers/server/ExpressDriver'
-import InMemoryDriver from '../../../src/infra/drivers/db/InMemoryDriver'
 import routes from '../../../src/infra/http/v1/routes'
 import { User } from '../../../src/domain/User'
+import UserRepository from '../../../src/adapters/repositories/UserRepository'
 
 const server = new ExpressDriver(3031)
-const user_id = faker.string.uuid()
-const url = `http://localhost:3031/api/v1/users/${user_id}/update-password`
+const userId = faker.string.uuid()
+const url = `http://localhost:3031/api/v1/users/${userId}/update-password`
 let Authorization: string
 
 describe('PUT /users/:user_id/update-password', () => {
@@ -30,13 +30,13 @@ describe('PUT /users/:user_id/update-password', () => {
 
   it('should get 200 when trying to update an existing user', async () => {
     const user = User.create({
-      user_id,
+      userId,
       email: faker.internet.email(),
       password: faker.internet.password(),
       level: 2
     })
-    const findStub = sinon.stub(InMemoryDriver.prototype, 'find')
-      .resolves([user])
+    const findStub = sinon.stub(UserRepository.prototype, 'findOne')
+      .resolves(user)
     const newPassword = faker.internet.password()
     const payload = {
       password: newPassword,
@@ -45,7 +45,7 @@ describe('PUT /users/:user_id/update-password', () => {
     const { status, data } = await axios.put(`${url}`, payload, { headers: { Authorization } })
 
     expect(status).equal(200)
-    expect(data.id).equal(user.user_id)
+    expect(data.id).equal(user.userId)
     expect(data.email).equal(user.email)
 
     findStub.restore()

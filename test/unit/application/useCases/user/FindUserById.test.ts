@@ -15,7 +15,7 @@ const userId = faker.string.uuid()
 const email = faker.internet.email()
 const password = faker.internet.password()
 const fakeUser = {
-  user_id: userId,
+  userId,
   email,
   password,
   level: 2,
@@ -41,7 +41,7 @@ describe('/application/useCases/user/FindUserById.ts', () => {
 
     const user = <User>await findUserById.exec({ userId })
 
-    expect(user.user_id).equal(userId)
+    expect(user.userId).equal(userId)
     expect(user.email).equal(fakeUser.email)
     expect(user.password).equal(fakeUser.password)
     expect(user.level).equal(fakeUser.level)

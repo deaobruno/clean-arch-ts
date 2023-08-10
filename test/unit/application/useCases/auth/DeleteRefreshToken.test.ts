@@ -23,8 +23,8 @@ describe('/application/useCases/auth/DeleteRefreshToken.ts', () => {
   afterEach(() => sandbox.restore())
 
   it('should delete a refresh token', async () => {
-    sandbox.stub(refreshTokenRepository, 'findOne')
-      .resolves({ user_id: faker.string.uuid(), token: 'token' })
+    sandbox.stub(refreshTokenRepository, 'findOneByToken')
+      .resolves({ userId: faker.string.uuid(), token: 'token' })
 
     expect(await deleteRefreshToken.exec({ refreshToken: 'token' })).equal(undefined)
   })

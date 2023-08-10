@@ -18,7 +18,7 @@ const userId = faker.string.uuid()
 const email = faker.internet.email()
 const password = faker.internet.password()
 const fakeUser = {
-  user_id: userId,
+  userId,
   email,
   password,
   level: 2,
@@ -55,7 +55,7 @@ describe('/application/useCases/user/UpdateUser.ts', () => {
     }
     const user = <User>await updateUser.exec(updateData)
 
-    expect(user.user_id).equal(fakeUser.user_id)
+    expect(user.userId).equal(fakeUser.userId)
     expect(user.email).equal(newEmail)
     expect(user.password).equal(fakeUser.password)
     expect(user.level).equal(fakeUser.level)

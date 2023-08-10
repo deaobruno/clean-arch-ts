@@ -3,26 +3,28 @@ import { faker } from '@faker-js/faker'
 import { expect } from 'chai'
 import UserRepository from '../../../../src/adapters/repositories/UserRepository'
 import InMemoryDriver from '../../../../src/infra/drivers/db/InMemoryDriver'
-import { User } from '../../../../src/domain/User'
 import IDbDriver from '../../../../src/infra/drivers/db/IDbDriver'
 import IUserRepository from '../../../../src/domain/repositories/IUserRepository'
+import { DbUser, UserMapper } from '../../../../src/domain/mappers/UserMapper'
 
 const sandbox = sinon.createSandbox()
-let inMemoryDriver: IDbDriver<any>
+let inMemoryDriver: IDbDriver
+let userMapper: UserMapper
 let userRepository: IUserRepository
-let fakeUsers: User[]
+let fakeUsers: DbUser[]
 
 describe('/adapters/repositories/UserRepository', () => {
   beforeEach(() => {
     inMemoryDriver = new InMemoryDriver()
-    userRepository = new UserRepository(inMemoryDriver)
+    userMapper = new UserMapper()
+    userRepository = new UserRepository(inMemoryDriver, userMapper)
   })
 
   afterEach(() => sandbox.restore())
 
   it('should save an User entity', async () => {
     const fakeUser = {
-      user_id: faker.string.uuid(),
+      userId: faker.string.uuid(),
       email: faker.internet.email(),
       password: faker.internet.password(),
       level: 2,
@@ -36,7 +38,7 @@ describe('/adapters/repositories/UserRepository', () => {
 
     const user = await userRepository.save(fakeUser)
 
-    expect(user.user_id).equal(fakeUser.user_id)
+    expect(user.userId).equal(fakeUser.userId)
     expect(user.email).equal(fakeUser.email)
     expect(user.password).equal(fakeUser.password)
     expect(user.level).equal(fakeUser.level)
@@ -52,27 +54,18 @@ describe('/adapters/repositories/UserRepository', () => {
         email: faker.internet.email(),
         password: faker.internet.password(),
         level: 1,
-        isRoot: false,
-        isAdmin: true,
-        isCustomer: false,
       },
       {
         user_id: faker.string.uuid(),
         email: faker.internet.email(),
         password: faker.internet.password(),
         level: 1,
-        isRoot: false,
-        isAdmin: true,
-        isCustomer: false,
       },
       {
         user_id: faker.string.uuid(),
         email: faker.internet.email(),
         password: faker.internet.password(),
         level: 1,
-        isRoot: false,
-        isAdmin: true,
-        isCustomer: false,
       },
     ]
 
@@ -82,21 +75,21 @@ describe('/adapters/repositories/UserRepository', () => {
     const admins = await userRepository.findAdmins()
 
     expect(admins.length).equal(3)
-    expect(admins[0].user_id).equal(fakeUsers[0].user_id)
+    expect(admins[0].userId).equal(fakeUsers[0].user_id)
     expect(admins[0].email).equal(fakeUsers[0].email)
     expect(admins[0].password).equal(fakeUsers[0].password)
     expect(admins[0].level).equal(1)
     expect(admins[0].isCustomer).equal(false)
     expect(admins[0].isAdmin).equal(true)
     expect(admins[0].isRoot).equal(false)
-    expect(admins[1].user_id).equal(fakeUsers[1].user_id)
+    expect(admins[1].userId).equal(fakeUsers[1].user_id)
     expect(admins[1].email).equal(fakeUsers[1].email)
     expect(admins[1].password).equal(fakeUsers[1].password)
     expect(admins[1].level).equal(1)
     expect(admins[1].isCustomer).equal(false)
     expect(admins[1].isAdmin).equal(true)
     expect(admins[1].isRoot).equal(false)
-    expect(admins[2].user_id).equal(fakeUsers[2].user_id)
+    expect(admins[2].userId).equal(fakeUsers[2].user_id)
     expect(admins[2].email).equal(fakeUsers[2].email)
     expect(admins[2].password).equal(fakeUsers[2].password)
     expect(admins[2].level).equal(1)
@@ -121,27 +114,18 @@ describe('/adapters/repositories/UserRepository', () => {
         email: faker.internet.email(),
         password: faker.internet.password(),
         level: 2,
-        isRoot: false,
-        isAdmin: false,
-        isCustomer: true,
       },
       {
         user_id: faker.string.uuid(),
         email: faker.internet.email(),
         password: faker.internet.password(),
         level: 2,
-        isRoot: false,
-        isAdmin: false,
-        isCustomer: true,
       },
       {
         user_id: faker.string.uuid(),
         email: faker.internet.email(),
         password: faker.internet.password(),
         level: 2,
-        isRoot: false,
-        isAdmin: false,
-        isCustomer: true,
       },
     ]
 
@@ -151,21 +135,21 @@ describe('/adapters/repositories/UserRepository', () => {
     const customers = await userRepository.findCustomers()
 
     expect(customers.length).equal(3)
-    expect(customers[0].user_id).equal(fakeUsers[0].user_id)
+    expect(customers[0].userId).equal(fakeUsers[0].user_id)
     expect(customers[0].email).equal(fakeUsers[0].email)
     expect(customers[0].password).equal(fakeUsers[0].password)
     expect(customers[0].level).equal(2)
     expect(customers[0].isCustomer).equal(true)
     expect(customers[0].isAdmin).equal(false)
     expect(customers[0].isRoot).equal(false)
-    expect(customers[1].user_id).equal(fakeUsers[1].user_id)
+    expect(customers[1].userId).equal(fakeUsers[1].user_id)
     expect(customers[1].email).equal(fakeUsers[1].email)
     expect(customers[1].password).equal(fakeUsers[1].password)
     expect(customers[1].level).equal(2)
     expect(customers[1].isCustomer).equal(true)
     expect(customers[1].isAdmin).equal(false)
     expect(customers[1].isRoot).equal(false)
-    expect(customers[2].user_id).equal(fakeUsers[2].user_id)
+    expect(customers[2].userId).equal(fakeUsers[2].user_id)
     expect(customers[2].email).equal(fakeUsers[2].email)
     expect(customers[2].password).equal(fakeUsers[2].password)
     expect(customers[2].level).equal(2)
@@ -190,9 +174,6 @@ describe('/adapters/repositories/UserRepository', () => {
         email: faker.internet.email(),
         password: faker.internet.password(),
         level: 2,
-        isRoot: false,
-        isAdmin: false,
-        isCustomer: true,
       },
     ]
 
@@ -201,7 +182,7 @@ describe('/adapters/repositories/UserRepository', () => {
 
     const user = <any>await userRepository.findOneByEmail(fakeUsers[0].email)
 
-    expect(user.user_id).equal(fakeUsers[0].user_id)
+    expect(user.userId).equal(fakeUsers[0].user_id)
     expect(user.email).equal(fakeUsers[0].email)
     expect(user.password).equal(fakeUsers[0].password)
     expect(user.level).equal(fakeUsers[0].level)

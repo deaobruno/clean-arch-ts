@@ -27,7 +27,7 @@ export default class RegisterCustomer implements IUseCase<RegisterCustomerInput,
       return new ConflictError('Email already in use')
 
     const user = User.create({
-      user_id: this._cryptoDriver.generateID(),
+      userId: this._cryptoDriver.generateID(),
       email,
       password: this._cryptoDriver.hashString(password),
       level: 2,

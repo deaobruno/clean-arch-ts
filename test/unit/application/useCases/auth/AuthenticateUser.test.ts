@@ -12,7 +12,7 @@ import RefreshTokenRepositoryMock from '../../../../mocks/repositories/RefreshTo
 import BaseError from '../../../../../src/application/errors/BaseError'
 import UnauthorizedError from '../../../../../src/application/errors/UnauthorizedError'
 import AuthenticateUser from '../../../../../src/application/useCases/auth/AuthenticateUser'
-import RefreshToken from '../../../../../src/domain/RefreshToken'
+import { RefreshToken } from '../../../../../src/domain/RefreshToken'
 
 const sandbox = sinon.createSandbox()
 const tokenDriver: ITokenDriver = TokenDriverMock
@@ -29,7 +29,7 @@ const userData = {
   level: 2,
 }
 const fakeUser = {
-  user_id: userId,
+  userId,
   email,
   password: 'hash',
   level: 2,
@@ -54,7 +54,7 @@ describe('/application/useCases/auth/AuthenticateUser.ts', () => {
     sandbox.stub(UserRepositoryMock, 'findOneByEmail')
       .resolves(fakeUser)
     sandbox.stub(RefreshToken, 'create')
-      .returns({ user_id: faker.string.uuid(), token: 'token' })
+      .returns({ userId: faker.string.uuid(), token: 'token' })
 
     const { accessToken, refreshToken } = <any>await authenticateUser.exec(userData)
 

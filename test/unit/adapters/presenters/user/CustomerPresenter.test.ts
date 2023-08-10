@@ -8,7 +8,7 @@ const customerPresenter = new CustomerPresenter()
 describe('/application/presenters/user/CustomerPresenter.ts', () => {
   it('should return an external representation of a customer user object', () => {
     const userData = {
-      user_id: faker.string.uuid(),
+      userId: faker.string.uuid(),
       email: faker.internet.email(),
       password: faker.internet.password(),
       level: LevelEnum.CUSTOMER
@@ -16,7 +16,7 @@ describe('/application/presenters/user/CustomerPresenter.ts', () => {
     const user = User.create(userData)
     const customer = customerPresenter.present(user)
 
-    expect(customer.id).equal(userData.user_id)
+    expect(customer.id).equal(userData.userId)
     expect(customer.email).equal(userData.email)
   })
 })

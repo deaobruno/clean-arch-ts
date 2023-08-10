@@ -1,6 +1,6 @@
-export default interface IDbDriver<T> {
-  save(data: T, filters?: object): Promise<T>
-  find(filters?: object): Promise<T[]>
-  findOne(filters: object): Promise<T | undefined>
+export default interface IDbDriver {
+  save(data: any, filters?: object): Promise<any>
+  find(filters?: object): Promise<any[]>
+  findOne(filters: object): Promise<any | undefined>
   delete(filters: object): Promise<void>
 }

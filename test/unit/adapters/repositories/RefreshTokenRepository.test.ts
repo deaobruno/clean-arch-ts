@@ -5,21 +5,24 @@ import RefreshTokenRepository from '../../../../src/adapters/repositories/Refres
 import InMemoryDriver from '../../../../src/infra/drivers/db/InMemoryDriver'
 import IRepository from '../../../../src/infra/drivers/db/IDbDriver'
 import IRefreshTokenRepository from '../../../../src/domain/repositories/IRefreshTokenRepository'
+import { RefreshTokenMapper } from '../../../../src/domain/mappers/RefreshTokenMapper'
 
 const sandbox = sinon.createSandbox()
-let inMemoryDriver: IRepository<any>
+let inMemoryDriver: IRepository
+let refreshTokenMapper: RefreshTokenMapper
 let refreshTokenRepository: IRefreshTokenRepository
 
 describe('/adapters/repositories/UserRepository', () => {
   beforeEach(() => {
     inMemoryDriver = new InMemoryDriver()
-    refreshTokenRepository = new RefreshTokenRepository(inMemoryDriver)
+    refreshTokenMapper = new RefreshTokenMapper()
+    refreshTokenRepository = new RefreshTokenRepository(inMemoryDriver, refreshTokenMapper)
   })
 
   afterEach(() => sandbox.restore())
 
   it('should save an User entity', async () => {
-    const fakeRefreshToken = { user_id: faker.string.uuid(), token: 'refresh-token' }
+    const fakeRefreshToken = { userId: faker.string.uuid(), token: 'refresh-token' }
 
     sandbox.stub(InMemoryDriver.prototype, 'save')
       .resolves(fakeRefreshToken)

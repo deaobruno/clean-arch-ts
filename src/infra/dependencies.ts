@@ -42,6 +42,8 @@ import RefreshAccessToken from '../application/useCases/auth/RefreshAccessToken'
 import LogoutSchema from './schemas/auth/LogoutSchema'
 import DeleteRefreshToken from '../application/useCases/auth/DeleteRefreshToken'
 import LogoutController from '../adapters/controllers/auth/LogoutController'
+import { UserMapper } from '../domain/mappers/UserMapper'
+import { RefreshTokenMapper } from '../domain/mappers/RefreshTokenMapper'
 
 const {
   app: {
@@ -54,9 +56,12 @@ const {
 // Drivers
 const cryptoDriver = new CryptoDriver()
 const jwtDriver = new JwtDriver(accessTokenSecret, accessTokenExpirationTime, refreshTokenSecret, refreshTokenExpirationTime)
+// Mappers
+const userMapper = new UserMapper()
+const refreshTokenMapper = new RefreshTokenMapper()
 // Repositories
-const userRepository = new UserRepository(new InMemoryDriver())
-const refreshTokenRepository = new RefreshTokenRepository(new InMemoryDriver())
+const userRepository = new UserRepository(new InMemoryDriver(), userMapper)
+const refreshTokenRepository = new RefreshTokenRepository(new InMemoryDriver(), refreshTokenMapper)
 // Use Cases
 const validateRegisterPayloadUseCase = new ValidateInput(RegisterCustomerSchema)
 const validateAuthenticateUserPayloadUseCase = new ValidateInput(AuthenticateUserSchema)

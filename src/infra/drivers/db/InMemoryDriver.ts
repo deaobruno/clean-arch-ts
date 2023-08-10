@@ -1,9 +1,9 @@
 import IDbDriver from './IDbDriver'
 
-export default class InMemoryDriver implements IDbDriver<any> {
+export default class InMemoryDriver implements IDbDriver {
   data: any[] = []
 
-  async save(entity: any, filters?: object): Promise<any> {
+  async save(data: any, filters?: object): Promise<any> {
     const item = filters && await this.findOne(filters)
 
     if (item) {
@@ -14,19 +14,20 @@ export default class InMemoryDriver implements IDbDriver<any> {
 
         filterKeys.forEach(paramKey => found = (item[paramKey] === filters[paramKey]) ? true : false)
 
-        return found ? entity : item
+        return found ? data : item
       })
     } else
-      this.data.push(entity)
+      this.data.push(data)
 
-    return entity
+    return data
   }
 
   async find(filters: object = {}): Promise<any[]> {
     const filterKeys = Object.keys(filters)
     const result: any[] = []
 
-    if (filterKeys.length <= 0) return this.data
+    if (filterKeys.length <= 0)
+      return this.data
 
     this.data.forEach((item: any) => {
       let found = true

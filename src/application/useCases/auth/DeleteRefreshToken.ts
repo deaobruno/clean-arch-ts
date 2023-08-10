@@ -13,7 +13,7 @@ export default class DeleteRefreshToken implements IUseCase<Input, Output> {
   constructor(private _refreshTokenRepository: IRefreshTokenRepository) {}
 
   async exec(payload: Input): Promise<Output> {
-    const refreshToken = await this._refreshTokenRepository.findOne({ token: payload.refreshToken })
+    const refreshToken = await this._refreshTokenRepository.findOneByToken(payload.refreshToken)
 
     if (!refreshToken)
       return new NotFoundError('Refresh token not found')

@@ -13,7 +13,7 @@ const userRepository: IUserRepository = UserRepositoryMock
 const findUsers: FindUsers = new FindUsers(userRepository)
 const fakeUsers = [
   {
-    user_id: faker.string.uuid(),
+    userId: faker.string.uuid(),
     email: faker.internet.email(),
     password: faker.internet.password(),
     level: 2,
@@ -22,7 +22,7 @@ const fakeUsers = [
     isCustomer: true,
   },
   {
-    user_id: faker.string.uuid(),
+    userId: faker.string.uuid(),
     email: faker.internet.email(),
     password: faker.internet.password(),
     level: 2,
@@ -31,7 +31,7 @@ const fakeUsers = [
     isCustomer: true,
   },
   {
-    user_id: faker.string.uuid(),
+    userId: faker.string.uuid(),
     email: faker.internet.email(),
     password: faker.internet.password(),
     level: 2,
@@ -59,21 +59,21 @@ describe('/application/useCases/user/FindUsers.ts', () => {
     const users = <User[]>await findUsers.exec({})
 
     expect(users.length).equal(3)
-    expect(users[0].user_id).equal(fakeUsers[0].user_id)
+    expect(users[0].userId).equal(fakeUsers[0].userId)
     expect(users[0].email).equal(fakeUsers[0].email)
     expect(users[0].password).equal(fakeUsers[0].password)
     expect(users[0].level).equal(fakeUsers[0].level)
     expect(users[0].isCustomer).equal(true)
     expect(users[0].isAdmin).equal(false)
     expect(users[0].isRoot).equal(false)
-    expect(users[1].user_id).equal(fakeUsers[1].user_id)
+    expect(users[1].userId).equal(fakeUsers[1].userId)
     expect(users[1].email).equal(fakeUsers[1].email)
     expect(users[1].password).equal(fakeUsers[1].password)
     expect(users[1].level).equal(fakeUsers[1].level)
     expect(users[1].isCustomer).equal(true)
     expect(users[1].isAdmin).equal(false)
     expect(users[1].isRoot).equal(false)
-    expect(users[2].user_id).equal(fakeUsers[2].user_id)
+    expect(users[2].userId).equal(fakeUsers[2].userId)
     expect(users[2].email).equal(fakeUsers[2].email)
     expect(users[2].password).equal(fakeUsers[2].password)
     expect(users[2].level).equal(fakeUsers[2].level)
@@ -89,7 +89,7 @@ describe('/application/useCases/user/FindUsers.ts', () => {
     const users = <User[]>await findUsers.exec({ email: fakeUsers[0].email })
 
     expect(users.length).equal(1)
-    expect(users[0].user_id).equal(fakeUsers[0].user_id)
+    expect(users[0].userId).equal(fakeUsers[0].userId)
     expect(users[0].email).equal(fakeUsers[0].email)
     expect(users[0].password).equal(fakeUsers[0].password)
     expect(users[0].level).equal(fakeUsers[0].level)

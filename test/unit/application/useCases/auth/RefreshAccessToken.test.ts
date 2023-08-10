@@ -33,8 +33,8 @@ describe('/application/useCases/auth/RefreshAccessToken.ts', () => {
   afterEach(() => sandbox.restore())
 
   it('should return a JWT access token', async () => {
-    sandbox.stub(refreshTokenRepository, 'findOne')
-      .resolves({ user_id: userId, token: 'refresh-token' })
+    sandbox.stub(refreshTokenRepository, 'findOneByToken')
+      .resolves({ userId, token: 'refresh-token' })
     sandbox.stub(tokenDriver, 'validateRefreshToken')
       .returns(userData)
 
@@ -55,8 +55,8 @@ describe('/application/useCases/auth/RefreshAccessToken.ts', () => {
   })
 
   it('should fail when refresh token is expired', async () => {
-    sandbox.stub(refreshTokenRepository, 'findOne')
-      .resolves({ user_id: userId, token: 'refresh-token' })
+    sandbox.stub(refreshTokenRepository, 'findOneByToken')
+      .resolves({ userId, token: 'refresh-token' })
     sandbox.stub(tokenDriver, 'validateRefreshToken')
       .throws({ name: 'TokenExpiredError' })
 
@@ -68,8 +68,8 @@ describe('/application/useCases/auth/RefreshAccessToken.ts', () => {
   })
 
   it('should fail when refresh token is invalid', async () => {
-    sandbox.stub(refreshTokenRepository, 'findOne')
-      .resolves({ user_id: userId, token: 'refresh-token' })
+    sandbox.stub(refreshTokenRepository, 'findOneByToken')
+      .resolves({ userId, token: 'refresh-token' })
     sandbox.stub(tokenDriver, 'validateRefreshToken')
       .throws({})
 

@@ -17,7 +17,7 @@ const userId = faker.string.uuid()
 const email = faker.internet.email()
 const password = faker.internet.password()
 const fakeUser = {
-  user_id: faker.string.uuid(),
+  userId: faker.string.uuid(),
   email,
   password,
   level: 2,

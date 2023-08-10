@@ -1,4 +1,4 @@
-import RefreshToken from '../../../domain/RefreshToken'
+import { RefreshToken } from '../../../domain/RefreshToken'
 import IRefreshTokenRepository from '../../../domain/repositories/IRefreshTokenRepository'
 import IUserRepository from '../../../domain/repositories/IUserRepository'
 import CryptoDriver from '../../../infra/drivers/hash/CryptoDriver'
@@ -32,18 +32,18 @@ export default class AuthenticateUser implements IUseCase<Input, Output> {
     if (!user || user.password !== this._cryptoDriver.hashString(password))
       return new UnauthorizedError()
 
-    const { user_id, level } = user
+    const { userId, level } = user
     const userData = {
-      id: user_id,
+      id: userId,
       email,
       password,
       level,
     }
     const accessToken = this._tokenDriver.generateAccessToken(userData)
     const refreshToken = this._tokenDriver.generateRefreshToken(userData)
-    const refreshTokenEntity = RefreshToken.create({ user_id, token: refreshToken })
+    const refreshTokenEntity = RefreshToken.create({ userId, token: refreshToken })
 
-    await this._refreshTokenRepository.delete({ user_id })
+    await this._refreshTokenRepository.delete({ user_id: userId })
     await this._refreshTokenRepository.save(refreshTokenEntity)
 
     return {

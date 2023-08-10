@@ -1,28 +1,28 @@
-type RefreshTokenParams = {
-  user_id: string
+export type RefreshTokenParams = {
+  userId: string
   token: string
 }
 
-export default class RefreshToken {
-  readonly user_id: string
+export class RefreshToken {
+  readonly userId: string
   readonly token: string
 
   private constructor(params: RefreshTokenParams) {
-    const { user_id, token } = params
+    const { userId, token } = params
 
-    this.user_id = user_id
+    this.userId = userId
     this.token = token
   }
 
   static create(params: RefreshTokenParams) {
-    const { user_id, token } = params
+    const { userId, token } = params
     const uuidRegex = /^[0-9a-f]{8}\b-[0-9a-f]{4}\b-[0-9a-f]{4}\b-[0-9a-f]{4}\b-[0-9a-f]{12}$/gi
 
-    if (!user_id)
-      throw new Error('RefreshToken: "user_id" required')
+    if (!userId)
+      throw new Error('RefreshToken: "userId" required')
 
-    if (!user_id || (user_id && !uuidRegex.test(user_id)))
-      throw new Error('RefreshToken: Invalid "user_id"')
+    if (!userId || (userId && !uuidRegex.test(userId)))
+      throw new Error('RefreshToken: Invalid "userId"')
 
     if (!token)
       throw new Error('RefreshToken: "token" required')

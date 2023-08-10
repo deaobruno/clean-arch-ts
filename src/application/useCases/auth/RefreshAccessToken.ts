@@ -1,4 +1,4 @@
-import RefreshToken from '../../../domain/RefreshToken'
+import { RefreshToken } from '../../../domain/RefreshToken'
 import IRefreshTokenRepository from '../../../domain/repositories/IRefreshTokenRepository'
 import ITokenDriver from '../../../infra/drivers/token/ITokenDriver'
 import BaseError from '../../errors/BaseError'
@@ -22,7 +22,7 @@ export default class RefreshAccessToken implements IUseCase<Input, Output> {
 
   async exec(payload: Input) {
     const { refreshToken: token } = payload
-    const previousToken = await this._refreshTokenRepository.findOne({ token })
+    const previousToken = await this._refreshTokenRepository.findOneByToken(token)
     let userData
 
     if (!previousToken)
@@ -37,13 +37,13 @@ export default class RefreshAccessToken implements IUseCase<Input, Output> {
       return new UnauthorizedError('Invalid refresh token')
     }
 
-    const { user_id } = previousToken
+    const { userId } = previousToken
 
-    await this._refreshTokenRepository.delete({ user_id })
+    await this._refreshTokenRepository.delete({ user_id: userId })
 
     const accessToken = this._tokenDriver.generateAccessToken(userData)
     const refreshToken = this._tokenDriver.generateRefreshToken(userData)
-    const refreshTokenEntity = RefreshToken.create({ user_id, token: refreshToken })
+    const refreshTokenEntity = RefreshToken.create({ userId, token: refreshToken })
 
     await this._refreshTokenRepository.save(refreshTokenEntity)
 
