@@ -8,7 +8,7 @@ import BaseError from '../../../../../src/application/errors/BaseError'
 import IRefreshTokenRepository from '../../../../../src/domain/repositories/IRefreshTokenRepository'
 import TokenDriverMock from '../../../../mocks/drivers/TokenDriverMock'
 import ITokenDriver from '../../../../../src/infra/drivers/token/ITokenDriver'
-import RefreshTokenRepositoryMock from '../../../../mocks/repositories/RefreshTokenRepositoryMock'
+import RefreshTokenRepositoryMock from '../../../../mocks/repositories/inMemory/InMemoryRefreshTokenRepositoryMock'
 
 const sandbox = sinon.createSandbox()
 const tokenDriver: ITokenDriver = TokenDriverMock

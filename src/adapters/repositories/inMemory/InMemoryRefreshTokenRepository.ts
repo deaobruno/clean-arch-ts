@@ -1,9 +1,9 @@
-import IRepository from '../../infra/drivers/db/IDbDriver'
-import IRefreshTokenRepository from '../../domain/repositories/IRefreshTokenRepository'
-import { RefreshToken, RefreshTokenParams } from '../../domain/RefreshToken'
-import { RefreshTokenMapper } from '../../domain/mappers/RefreshTokenMapper'
+import IRepository from '../../../infra/drivers/db/IDbDriver'
+import IRefreshTokenRepository from '../../../domain/repositories/IRefreshTokenRepository'
+import { RefreshToken, RefreshTokenParams } from '../../../domain/RefreshToken'
+import { RefreshTokenMapper } from '../../../domain/mappers/RefreshTokenMapper'
 
-export default class RefreshTokenRepository implements IRefreshTokenRepository {
+export default class InMemoryRefreshTokenRepository implements IRefreshTokenRepository {
   constructor(
     private _dbDriver: IRepository,
     private _mapper: RefreshTokenMapper,

@@ -2,7 +2,7 @@ import config from './config'
 import InMemoryDriver from './drivers/db/InMemoryDriver'
 import CryptoDriver from './drivers/hash/CryptoDriver'
 import JwtDriver from './drivers/token/JwtDriver'
-import UserRepository from '../adapters/repositories/UserRepository'
+import InMemoryUserRepository from '../adapters/repositories/inMemory/InMemoryUserRepository'
 import RegisterCustomerSchema from './schemas/auth/RegisterCustomerSchema'
 import AuthenticateUserSchema from './schemas/auth/AuthenticateUserSchema'
 import RefreshAccessTokenSchema from './schemas/auth/RefreshAccessTokenSchema'
@@ -36,7 +36,7 @@ import CustomerPresenter from '../adapters/presenters/user/CustomerPresenter'
 import AdminPresenter from '../adapters/presenters/user/AdminPresenter'
 import ValidateAuthorization from '../application/useCases/auth/ValidateAuthorization'
 import ValidateAuthorizationMiddleware from '../adapters/middlewares/auth/ValidateAuthorizationMiddleware'
-import RefreshTokenRepository from '../adapters/repositories/RefreshTokenRepository'
+import InMemoryRefreshTokenRepository from '../adapters/repositories/inMemory/InMemoryRefreshTokenRepository'
 import RefreshAccessTokenController from '../adapters/controllers/auth/RefreshAccessTokenController'
 import RefreshAccessToken from '../application/useCases/auth/RefreshAccessToken'
 import LogoutSchema from './schemas/auth/LogoutSchema'
@@ -60,8 +60,8 @@ const jwtDriver = new JwtDriver(accessTokenSecret, accessTokenExpirationTime, re
 const userMapper = new UserMapper()
 const refreshTokenMapper = new RefreshTokenMapper()
 // Repositories
-const userRepository = new UserRepository(new InMemoryDriver(), userMapper)
-const refreshTokenRepository = new RefreshTokenRepository(new InMemoryDriver(), refreshTokenMapper)
+const inMemoryUserRepository = new InMemoryUserRepository(new InMemoryDriver(), userMapper)
+const inMemoryRefreshTokenRepository = new InMemoryRefreshTokenRepository(new InMemoryDriver(), refreshTokenMapper)
 // Use Cases
 const validateRegisterPayloadUseCase = new ValidateInput(RegisterCustomerSchema)
 const validateAuthenticateUserPayloadUseCase = new ValidateInput(AuthenticateUserSchema)
@@ -73,18 +73,18 @@ const validateFindUserByIdPayloadUseCase = new ValidateInput(FindUserByIdSchema)
 const validateUpdateUserPayloadUseCase = new ValidateInput(UpdateUserSchema)
 const validateUpdateUserPasswordPayloadUseCase = new ValidateInput(UpdateUserPasswordSchema)
 const validateDeleteUserPayloadUseCase = new ValidateInput(DeleteUserSchema)
-const registerCustomerUseCase = new RegisterCustomer(userRepository, cryptoDriver)
-const authenticateUserUseCase = new AuthenticateUser(userRepository, refreshTokenRepository, jwtDriver, cryptoDriver)
-const refreshAccessTokenUseCase = new RefreshAccessToken(jwtDriver, refreshTokenRepository)
-const deleteRefreshTokenUseCase = new DeleteRefreshToken(refreshTokenRepository)
-const validateAuthenticationUseCase = new ValidateAuthentication(jwtDriver, refreshTokenRepository)
+const registerCustomerUseCase = new RegisterCustomer(inMemoryUserRepository, cryptoDriver)
+const authenticateUserUseCase = new AuthenticateUser(inMemoryUserRepository, inMemoryRefreshTokenRepository, jwtDriver, cryptoDriver)
+const refreshAccessTokenUseCase = new RefreshAccessToken(jwtDriver, inMemoryRefreshTokenRepository)
+const deleteRefreshTokenUseCase = new DeleteRefreshToken(inMemoryRefreshTokenRepository)
+const validateAuthenticationUseCase = new ValidateAuthentication(jwtDriver, inMemoryRefreshTokenRepository)
 const validateAuthorizationUseCase = new ValidateAuthorization()
-const createAdminUseCase = new CreateAdmin(userRepository, cryptoDriver)
-const findUsersUseCase = new FindUsers(userRepository)
-const findUserByIdUseCase = new FindUserById(userRepository)
-const updateUserUseCase = new UpdateUser(userRepository, refreshTokenRepository)
-const updateUserPasswordUseCase = new UpdateUserPassword(cryptoDriver, userRepository, refreshTokenRepository)
-const deleteUserUseCase = new DeleteUser(userRepository, refreshTokenRepository)
+const createAdminUseCase = new CreateAdmin(inMemoryUserRepository, cryptoDriver)
+const findUsersUseCase = new FindUsers(inMemoryUserRepository)
+const findUserByIdUseCase = new FindUserById(inMemoryUserRepository)
+const updateUserUseCase = new UpdateUser(inMemoryUserRepository, inMemoryRefreshTokenRepository)
+const updateUserPasswordUseCase = new UpdateUserPassword(cryptoDriver, inMemoryUserRepository, inMemoryRefreshTokenRepository)
+const deleteUserUseCase = new DeleteUser(inMemoryUserRepository, inMemoryRefreshTokenRepository)
 // Middlewares
 const validateAuthenticationMiddleware = new ValidateAuthenticationMiddleware(validateAuthenticationUseCase)
 const validateAuthorizationMiddleware = new ValidateAuthorizationMiddleware(validateAuthorizationUseCase)

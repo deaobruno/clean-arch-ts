@@ -5,7 +5,7 @@ import { expect } from 'chai'
 import ExpressDriver from '../../../src/infra/drivers/server/ExpressDriver'
 import routes from '../../../src/infra/http/v1/routes'
 import { User } from '../../../src/domain/User'
-import UserRepository from '../../../src/adapters/repositories/UserRepository'
+import UserRepository from '../../../src/adapters/repositories/inMemory/InMemoryUserRepository'
 
 const server = new ExpressDriver(3031)
 const url = 'http://localhost:3031/api/v1/users'

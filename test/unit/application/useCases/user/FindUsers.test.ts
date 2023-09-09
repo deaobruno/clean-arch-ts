@@ -6,7 +6,7 @@ import { expect } from 'chai'
 import NotFoundError from '../../../../../src/application/errors/NotFoundError'
 import IUserRepository from '../../../../../src/domain/repositories/IUserRepository'
 import BaseError from '../../../../../src/application/errors/BaseError'
-import UserRepositoryMock from '../../../../mocks/repositories/UserRepositoryMock'
+import UserRepositoryMock from '../../../../mocks/repositories/inMemory/InMemoryUserRepositoryMock'
 
 const sandbox = sinon.createSandbox()
 const userRepository: IUserRepository = UserRepositoryMock

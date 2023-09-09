@@ -7,7 +7,7 @@ import CryptoDriver from '../../../../../src/infra/drivers/hash/CryptoDriver'
 import ConflictError from '../../../../../src/application/errors/ConflictError'
 import IUserRepository from '../../../../../src/domain/repositories/IUserRepository'
 import BaseError from '../../../../../src/application/errors/BaseError'
-import UserRepositoryMock from '../../../../mocks/repositories/UserRepositoryMock'
+import UserRepositoryMock from '../../../../mocks/repositories/inMemory/InMemoryUserRepositoryMock'
 import HashDriverMock from '../../../../mocks/drivers/HashDriverMock'
 
 const sandbox = sinon.createSandbox()

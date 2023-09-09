@@ -1,4 +1,4 @@
-import { User } from '../../../domain/User'
+import { LevelEnum, User } from '../../../domain/User'
 import IUserRepository from '../../../domain/repositories/IUserRepository'
 import CryptoDriver from '../../../infra/drivers/hash/CryptoDriver'
 import BaseError from '../../errors/BaseError'
@@ -8,7 +8,6 @@ import ConflictError from '../../errors/ConflictError'
 type RegisterCustomerInput = {
   email: string
   password: string
-  confirm_password: string
 }
 
 type Output = User | BaseError
@@ -30,7 +29,7 @@ export default class RegisterCustomer implements IUseCase<RegisterCustomerInput,
       userId: this._cryptoDriver.generateID(),
       email,
       password: this._cryptoDriver.hashString(password),
-      level: 2,
+      level: LevelEnum.CUSTOMER,
     })
 
     await this._userRepository.save(user)

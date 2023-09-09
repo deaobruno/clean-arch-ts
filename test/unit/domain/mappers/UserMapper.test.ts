@@ -52,5 +52,7 @@ describe('/src/domain/mappers/UserMapper.ts', () => {
     expect(user.email).equal(userDbData.email)
     expect(user.password).equal(userDbData.password)
     expect(user.level).equal(userDbData.level)
+
+    sinon.restore()
   })
 })

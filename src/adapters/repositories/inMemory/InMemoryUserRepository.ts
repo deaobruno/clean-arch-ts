@@ -1,9 +1,9 @@
-import { User, UserParams } from '../../domain/User'
-import IRepository from '../../infra/drivers/db/IDbDriver'
-import IUserRepository from '../../domain/repositories/IUserRepository'
-import { UserMapper } from '../../domain/mappers/UserMapper'
+import { User, UserParams } from '../../../domain/User'
+import IRepository from '../../../infra/drivers/db/IDbDriver'
+import IUserRepository from '../../../domain/repositories/IUserRepository'
+import { UserMapper } from '../../../domain/mappers/UserMapper'
 
-export default class UserRepository implements IUserRepository {
+export default class InMemoryUserRepository implements IUserRepository {
   constructor(
     private _dbDriver: IRepository,
     private _mapper: UserMapper,

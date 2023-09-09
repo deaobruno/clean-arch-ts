@@ -7,8 +7,8 @@ import IUserRepository from '../../../../../src/domain/repositories/IUserReposit
 import NotFoundError from '../../../../../src/application/errors/NotFoundError'
 import BaseError from '../../../../../src/application/errors/BaseError'
 import IRefreshTokenRepository from '../../../../../src/domain/repositories/IRefreshTokenRepository'
-import UserRepositoryMock from '../../../../mocks/repositories/UserRepositoryMock'
-import RefreshTokenRepositoryMock from '../../../../mocks/repositories/RefreshTokenRepositoryMock'
+import UserRepositoryMock from '../../../../mocks/repositories/inMemory/InMemoryUserRepositoryMock'
+import RefreshTokenRepositoryMock from '../../../../mocks/repositories/inMemory/InMemoryRefreshTokenRepositoryMock'
 import IHashDriver from '../../../../../src/infra/drivers/hash/IHashDriver'
 import HashDriverMock from '../../../../mocks/drivers/HashDriverMock'
 

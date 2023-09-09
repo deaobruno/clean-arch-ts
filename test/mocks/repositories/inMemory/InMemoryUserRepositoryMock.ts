@@ -1,4 +1,4 @@
-import { User } from '../../../src/domain/User'
+import { User } from '../../../../src/domain/User'
 
 export default {
   save(user: User): Promise<User> {

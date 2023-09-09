@@ -6,7 +6,7 @@ import { RefreshToken } from '../../../../src/domain/RefreshToken'
 
 const refreshTokenMapper = new RefreshTokenMapper()
 
-describe.only('/src/domain/mappers/RefreshTokenMapper.ts', () => {
+describe('/src/domain/mappers/RefreshTokenMapper.ts', () => {
   it('should map a refreshToken entity to refreshToken db data', () => {
     const refreshTokenData = {
       userId: faker.string.uuid(),
@@ -37,5 +37,7 @@ describe.only('/src/domain/mappers/RefreshTokenMapper.ts', () => {
 
     expect(user.userId).equal(refreshTokenDbData.user_id)
     expect(user.token).equal(refreshTokenDbData.token)
+
+    sinon.restore()
   })
 })

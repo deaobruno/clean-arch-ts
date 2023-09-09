@@ -8,7 +8,7 @@ import IUserRepository from '../../../../../src/domain/repositories/IUserReposit
 import BaseError from '../../../../../src/application/errors/BaseError'
 import IHashDriver from '../../../../../src/infra/drivers/hash/IHashDriver'
 import HashDriverMock from '../../../../mocks/drivers/HashDriverMock'
-import UserRepositoryMock from '../../../../mocks/repositories/UserRepositoryMock'
+import UserRepositoryMock from '../../../../mocks/repositories/inMemory/InMemoryUserRepositoryMock'
 
 const sandbox = sinon.createSandbox()
 const cryptoDriver: IHashDriver = HashDriverMock

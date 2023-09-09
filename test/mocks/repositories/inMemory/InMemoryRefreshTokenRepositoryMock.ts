@@ -1,4 +1,4 @@
-import { RefreshToken } from '../../../src/domain/RefreshToken'
+import { RefreshToken } from '../../../../src/domain/RefreshToken'
 
 export default {
   save(token: RefreshToken): Promise<RefreshToken> {

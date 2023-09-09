@@ -5,7 +5,7 @@ import RefreshAccessToken from '../../../../../src/application/useCases/auth/Ref
 import UnauthorizedError from '../../../../../src/application/errors/UnauthorizedError'
 import BaseError from '../../../../../src/application/errors/BaseError'
 import TokenDriverMock from '../../../../mocks/drivers/TokenDriverMock'
-import RefreshTokenRepositoryMock from '../../../../mocks/repositories/RefreshTokenRepositoryMock'
+import RefreshTokenRepositoryMock from '../../../../mocks/repositories/inMemory/InMemoryRefreshTokenRepositoryMock'
 import ITokenDriver from '../../../../../src/infra/drivers/token/ITokenDriver'
 import IRefreshTokenRepository from '../../../../../src/domain/repositories/IRefreshTokenRepository'
 
