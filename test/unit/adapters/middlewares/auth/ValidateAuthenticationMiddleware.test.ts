@@ -1,7 +1,6 @@
 import sinon from 'sinon'
 import { faker } from '@faker-js/faker'
 import { expect } from 'chai'
-import config from '../../../../../src/infra/config'
 import JwtDriver from '../../../../../src/infra/drivers/token/JwtDriver'
 import InMemoryDriver from '../../../../../src/infra/drivers/db/InMemoryDriver'
 import InMemoryRefreshTokenRepository from '../../../../../src/adapters/repositories/inMemory/InMemoryRefreshTokenRepository'
@@ -12,13 +11,7 @@ import { LevelEnum } from '../../../../../src/domain/User'
 
 describe('/src/adapters/middlewares/auth/ValidateAuthenticationMiddleware.ts', () => {
   it('should return a User entity when passing a Bearer token in authorization header', async () => {
-    const {
-      accessTokenSecret,
-      accessTokenExpirationTime,
-      refreshTokenSecret,
-      refreshTokenExpirationTime
-    } = config.app
-    const jwtDriver = new JwtDriver(accessTokenSecret, accessTokenExpirationTime, refreshTokenSecret, refreshTokenExpirationTime)
+    const jwtDriver = new JwtDriver('access-token-secret', 300, 'refresh-token-secret', 900)
     const dbDriver = new InMemoryDriver()
     const refreshTokenMapper = new RefreshTokenMapper()
     const refreshTokenRepository = new InMemoryRefreshTokenRepository(dbDriver, refreshTokenMapper)

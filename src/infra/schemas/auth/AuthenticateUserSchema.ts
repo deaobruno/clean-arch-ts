@@ -1,23 +1,24 @@
 export default {
   validate(payload: any): void | Error {
     const { email, password } = payload
-    let error
     const emailRegex = /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/gi
 
     if (!email)
-      error = new Error('"email" is required')
+      return Error('"email" is required')
 
     if (email && !emailRegex.test(email))
-      error = new Error('Invalid "email" format')
+      return Error('Invalid "email" format')
 
     if (!password)
-      error = new Error('"password" is required')
+      return Error('"password" is required')
 
-    Object.keys(payload).forEach(key => {
-      if (!['email', 'password'].includes(key))
-        error = new Error(`Invalid param: "${key}"`)
-    })
-
-    return error
+    const invalidParams = Object
+      .keys(payload)
+      .filter(key => !['email', 'password'].includes(key))
+      .map(key => `"${ key }"`)
+      .join(', ')
+    
+    if (invalidParams)
+      return Error(`Invalid param(s): ${ invalidParams }`)
   }
 }

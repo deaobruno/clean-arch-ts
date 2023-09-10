@@ -113,6 +113,6 @@ describe('/infra/schemas/auth/RegisterCustomerSchema.ts', () => {
       test: 'test'
     })
 
-    expect(validation.message).equal('Invalid param: "test"')
+    expect(validation.message).equal('Invalid param(s): "test"')
   })
 })

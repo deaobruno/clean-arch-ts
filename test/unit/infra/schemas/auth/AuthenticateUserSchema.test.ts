@@ -84,6 +84,6 @@ describe('/infra/schemas/auth/AuthenticateUserSchema.ts', () => {
       test: 'test'
     })
 
-    expect(validation.message).equal('Invalid param: "test"')
+    expect(validation.message).equal('Invalid param(s): "test"')
   })
 })

@@ -4,7 +4,7 @@ import userRoutes from './userRoutes'
 
 const routes: BaseRoute[] = []
 
-export default (dependencies: any) => {
+export default (dependencies?: any) => {
   authRoutes(dependencies).forEach(route => routes.push(route));
   userRoutes(dependencies).forEach(route => routes.push(route));
 
