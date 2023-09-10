@@ -2,10 +2,9 @@ import BaseRoute from '../BaseRoute'
 import CreateAdminController from '../../../../../adapters/controllers/user/CreateAdminController'
 import AdminPresenter from '../../../../../adapters/presenters/user/AdminPresenter'
 import ValidateAuthenticationMiddleware from '../../../../../adapters/middlewares/auth/ValidateAuthenticationMiddleware'
-import ValidateInputMiddleware from '../../../../../adapters/middlewares/validation/ValidateInputMiddleware'
 import ValidateAuthorizationMiddleware from '../../../../../adapters/middlewares/auth/ValidateAuthorizationMiddleware'
 
-type Middlewares = [ValidateInputMiddleware, ValidateAuthenticationMiddleware, ValidateAuthorizationMiddleware]
+type Middlewares = [ValidateAuthenticationMiddleware, ValidateAuthorizationMiddleware]
 
 export default class CreateAdminRoute extends BaseRoute {
   method = 'post'

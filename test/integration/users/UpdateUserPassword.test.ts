@@ -58,7 +58,7 @@ describe('PUT /users/:user_id/update-password', () => {
       confirm_password: newPassword,
     }
 
-    await axios.put(`http://localhost:3031/api/v1/users/test/update-password`, payload)
+    await axios.put(`http://localhost:3031/api/v1/users/test/update-password`, payload, { headers: { Authorization } })
       .catch(({ response: { status, data } }) => {
         expect(status).equal(400)
         expect(data.error).equal('Invalid "user_id" format')
@@ -71,7 +71,7 @@ describe('PUT /users/:user_id/update-password', () => {
       confirm_password: faker.internet.password(),
     }
 
-    await axios.put(`${url}`, payload)
+    await axios.put(`${url}`, payload, { headers: { Authorization } })
       .catch(({ response: { status, data } }) => {
         expect(status).equal(400)
         expect(data.error).equal('"password" is required')
@@ -84,7 +84,7 @@ describe('PUT /users/:user_id/update-password', () => {
       confirm_password: '',
     }
 
-    await axios.put(`${url}`, payload)
+    await axios.put(`${url}`, payload, { headers: { Authorization } })
       .catch(({ response: { status, data } }) => {
         expect(status).equal(400)
         expect(data.error).equal('"confirm_password" is required')
@@ -99,7 +99,7 @@ describe('PUT /users/:user_id/update-password', () => {
       test: 'test',
     }
 
-    await axios.put(`${url}`, payload)
+    await axios.put(`${url}`, payload, { headers: { Authorization } })
       .catch(({ response: { status, data } }) => {
         expect(status).equal(400)
         expect(data.error).equal(`Invalid param: "test"`)

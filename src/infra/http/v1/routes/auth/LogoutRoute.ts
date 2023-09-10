@@ -1,9 +1,8 @@
 import LogoutController from '../../../../../adapters/controllers/auth/LogoutController'
 import ValidateAuthenticationMiddleware from '../../../../../adapters/middlewares/auth/ValidateAuthenticationMiddleware'
-import ValidateInputMiddleware from '../../../../../adapters/middlewares/validation/ValidateInputMiddleware'
 import BaseRoute from '../BaseRoute'
 
-type Middlewares = [ValidateInputMiddleware, ValidateAuthenticationMiddleware]
+type Middlewares = [ValidateAuthenticationMiddleware]
 
 export default class LogoutRoute extends BaseRoute {
   method = 'delete'

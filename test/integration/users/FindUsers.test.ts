@@ -86,7 +86,7 @@ describe('GET /users', () => {
   })
 
   it('should get 400 status code when trying to find users passing empty "email" as filter', async () => {
-    await axios.get(`${url}?email=`)
+    await axios.get(`${url}?email=`, { headers: { Authorization } })
       .catch(({ response: { status, data } }) => {
         expect(status).equal(400)
         expect(data.error).equal('"email" is required')
@@ -94,7 +94,7 @@ describe('GET /users', () => {
   })
 
   it('should get 400 status code when trying to find users passing invalid "email" as filter', async () => {
-    await axios.get(`${url}?email=test`)
+    await axios.get(`${url}?email=test`, { headers: { Authorization } })
       .catch(({ response: { status, data } }) => {
         expect(status).equal(400)
         expect(data.error).equal('Invalid "email" format')
@@ -102,7 +102,7 @@ describe('GET /users', () => {
   })
 
   it('should get 400 status code when trying to find users passing invalid param as filter', async () => {
-    await axios.get(`${url}?test=test`)
+    await axios.get(`${url}?test=test`, { headers: { Authorization } })
       .catch(({ response: { status, data } }) => {
         expect(status).equal(400)
         expect(data.error).equal(`Invalid param: "test"`)

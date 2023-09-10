@@ -46,7 +46,7 @@ describe('GET /users/:user_id', () => {
   })
 
   it('should get 400 status code when trying to find an user passing invalid id', async () => {
-    await axios.get(`${url}/test`)
+    await axios.get(`${url}/test`, { headers: { Authorization } })
       .catch(({ response: { status, data } }) => {
         expect(status).equal(400)
         expect(data.error).equal('Invalid "user_id" format')

@@ -44,7 +44,7 @@ describe('DELETE /users', () => {
   })
 
   it('should get 400 status code when trying to delete an user passing invalid id', async () => {
-    await axios.delete(`${url}/test`)
+    await axios.delete(`${url}/test`, { headers: { Authorization } })
       .catch(({ response: { status, data } }) => {
         expect(status).equal(400)
         expect(data.error).equal('Invalid "user_id" format')

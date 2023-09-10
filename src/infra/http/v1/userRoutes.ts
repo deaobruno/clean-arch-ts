@@ -34,11 +34,11 @@ export default (dependencies: any) => {
   } = dependencies
 
   return [
-    new CreateAdminRoute(`${basePath}/create-admin`, createAdminController, adminPresenter, [validateCreateAdminPayloadMiddleware, validateAuthenticationMiddleware, validateAuthorizationMiddleware]),
-    new FindUsersRoute(basePath, findUsersController, customerPresenter, [validateFindUsersPayloadMiddleware, validateAuthenticationMiddleware, validateAuthorizationMiddleware]),
-    new FindUserByIdRoute(`${basePath}/:userId`, findUserByIdController, customerPresenter, [validateFindUserByIdPayloadMiddleware, validateAuthenticationMiddleware]),
-    new UpdateUserRoute(`${basePath}/:userId`, updateUserController, customerPresenter, [validateUpdateUserPayloadMiddleware, validateAuthenticationMiddleware]),
-    new UpdateUserPasswordRoute(`${basePath}/:userId/update-password`, updateUserPasswordController, customerPresenter, [validateUpdateUserPasswordPayloadMiddleware, validateAuthenticationMiddleware]),
-    new DeleteUserRoute(`${basePath}/:userId`, deleteUserController, [validateDeleteUserPayloadMiddleware, validateAuthenticationMiddleware, validateAuthorizationMiddleware]),
+    new CreateAdminRoute(`${basePath}/create-admin`, createAdminController, adminPresenter, [validateAuthenticationMiddleware, validateAuthorizationMiddleware]),
+    new FindUsersRoute(basePath, findUsersController, customerPresenter, [validateAuthenticationMiddleware, validateAuthorizationMiddleware]),
+    new FindUserByIdRoute(`${basePath}/:userId`, findUserByIdController, customerPresenter, [validateAuthenticationMiddleware]),
+    new UpdateUserRoute(`${basePath}/:userId`, updateUserController, customerPresenter, [validateAuthenticationMiddleware]),
+    new UpdateUserPasswordRoute(`${basePath}/:userId/update-password`, updateUserPasswordController, customerPresenter, [validateAuthenticationMiddleware]),
+    new DeleteUserRoute(`${basePath}/:userId`, deleteUserController, [validateAuthenticationMiddleware, validateAuthorizationMiddleware]),
   ]
 }

@@ -55,7 +55,7 @@ describe('PUT /users/:user_id', () => {
       email: faker.internet.email()
     }
 
-    await axios.put(`${url}/test`, payload)
+    await axios.put(`${url}/test`, payload, { headers: { Authorization } })
       .catch(({ response: { status, data } }) => {
         expect(status).equal(400)
         expect(data.error).equal('Invalid "user_id" format')
@@ -67,7 +67,7 @@ describe('PUT /users/:user_id', () => {
       email: ''
     }
 
-    await axios.put(`${url}/${userId}`, payload)
+    await axios.put(`${url}/${userId}`, payload, { headers: { Authorization } })
       .catch(({ response: { status, data } }) => {
         expect(status).equal(400)
         expect(data.error).equal('"email" is required')
@@ -79,7 +79,7 @@ describe('PUT /users/:user_id', () => {
       email: 'test'
     }
 
-    await axios.put(`${url}/${userId}`, payload)
+    await axios.put(`${url}/${userId}`, payload, { headers: { Authorization } })
       .catch(({ response: { status, data } }) => {
         expect(status).equal(400)
         expect(data.error).equal('Invalid "email" format')
@@ -91,7 +91,7 @@ describe('PUT /users/:user_id', () => {
       test: 'test'
     }
 
-    await axios.put(`${url}/${userId}`, payload)
+    await axios.put(`${url}/${userId}`, payload, { headers: { Authorization } })
       .catch(({ response: { status, data } }) => {
         expect(status).equal(400)
         expect(data.error).equal(`Invalid param: "test"`)
