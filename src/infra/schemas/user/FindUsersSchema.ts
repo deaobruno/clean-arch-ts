@@ -1,26 +1,21 @@
 export default {
   validate(payload: any): void | Error {
-    let error
+    const { email } = payload
+    const emailRegex = /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/gi
 
-    Object.keys(payload).forEach(key => {
-      switch (key) {
-        case 'email':
-          const { email } = payload
-          const emailRegex = /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/gi
+    if (email === '')
+      return Error('"email" is required')
 
-          if (!email)
-            error = new Error('"email" is required')
+    if (email && !emailRegex.test(email))
+      return Error('Invalid "email" format')
 
-          if (email && !emailRegex.test(email))
-            error = new Error('Invalid "email" format')
-
-          break
-
-        default:
-          error = new Error(`Invalid param: "${key}"`)
-      }
-    })
-
-    return error
+    const invalidParams = Object
+      .keys(payload)
+      .filter(key => !['userId', 'email'].includes(key))
+      .map(key => `"${ key }"`)
+      .join(', ')
+    
+    if (invalidParams)
+      return Error(`Invalid param(s): ${ invalidParams }`)
   }
 }

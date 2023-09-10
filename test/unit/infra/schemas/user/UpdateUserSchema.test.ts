@@ -127,9 +127,10 @@ describe('/infra/schemas/user/UpdateUserSchema.ts', () => {
   it('should fail when passing invalid param', () => {
     const validation = <Error>validate({
       userId,
+      email,
       test: 'test'
     })
 
-    expect(validation.message).equal('Invalid param: "test"')
+    expect(validation.message).equal('Invalid param(s): "test"')
   })
 })

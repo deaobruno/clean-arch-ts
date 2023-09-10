@@ -114,6 +114,6 @@ describe('/infra/schemas/user/CreateAdminSchema.ts', () => {
       test: 'test'
     })
 
-    expect(validation.message).equal('Invalid param: "test"')
+    expect(validation.message).equal('Invalid param(s): "test"')
   })
 })

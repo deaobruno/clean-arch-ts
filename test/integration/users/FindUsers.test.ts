@@ -3,10 +3,13 @@ import sinon from 'sinon'
 import { faker } from '@faker-js/faker'
 import { expect } from 'chai'
 import ExpressDriver from '../../../src/infra/drivers/server/ExpressDriver'
-import routes from '../../../src/infra/http/v1/routes'
 import { User } from '../../../src/domain/User'
 import UserRepository from '../../../src/adapters/repositories/inMemory/InMemoryUserRepository'
+import httpRoutes from '../../../src/infra/http/v1/routes'
+import config from '../../../src/config'
+import dependencies from '../../../src/dependencies'
 
+const routes = httpRoutes(dependencies(config.app))
 const server = new ExpressDriver(3031)
 const url = 'http://localhost:3031/api/v1/users'
 let Authorization: string
@@ -18,7 +21,7 @@ describe('GET /users', () => {
       password: '12345',
     }
 
-    server.start(routes.routes, routes.prefix)
+    server.start(routes, '/api/v1')
 
     const { data: { accessToken } } = await axios.post('http://localhost:3031/api/v1/auth/login', authenticatePayload)
 
@@ -105,7 +108,7 @@ describe('GET /users', () => {
     await axios.get(`${url}?test=test`, { headers: { Authorization } })
       .catch(({ response: { status, data } }) => {
         expect(status).equal(400)
-        expect(data.error).equal(`Invalid param: "test"`)
+        expect(data.error).equal(`Invalid param(s): "test"`)
     })
   })
 

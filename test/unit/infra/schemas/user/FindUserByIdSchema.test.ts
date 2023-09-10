@@ -47,4 +47,13 @@ describe('/infra/schemas/user/FindUserByIdSchema.ts', () => {
 
     expect(validation.message).equal('Invalid "user_id" format')
   })
+
+  it('should fail when passing invalid param', () => {
+    const validation = <Error>validate({
+      userId,
+      test: 'test'
+    })
+
+    expect(validation.message).equal('Invalid param(s): "test"')
+  })
 })

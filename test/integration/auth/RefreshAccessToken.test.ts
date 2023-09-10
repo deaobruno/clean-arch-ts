@@ -2,11 +2,14 @@ import sinon from 'sinon'
 import axios from 'axios'
 import { expect } from 'chai'
 import ExpressDriver from '../../../src/infra/drivers/server/ExpressDriver'
-import routes from '../../../src/infra/http/v1/routes'
+import httpRoutes from '../../../src/infra/http/v1/routes'
 import InMemoryDriver from '../../../src/infra/drivers/db/InMemoryDriver'
 import JwtDriver from '../../../src/infra/drivers/token/JwtDriver'
+import dependencies from '../../../src/dependencies'
+import config from '../../../src/config'
 
 const sandbox = sinon.createSandbox()
+const routes = httpRoutes(dependencies(config.app))
 const server = new ExpressDriver(3031)
 const url = 'http://localhost:3031/api/v1/auth/refresh-token'
 let Authorization: string
@@ -19,7 +22,7 @@ describe('POST /auth/refresh-token', () => {
       password: '12345',
     }
 
-    server.start(routes.routes, routes.prefix)
+    server.start(routes, '/api/v1')
 
     const { data: { accessToken, refreshToken } } = await axios.post('http://localhost:3031/api/v1/auth/login', authenticatePayload)
 

@@ -60,7 +60,7 @@ export default class ExpressDriver implements IServerDriver {
   }
 
   private _adaptRoute = (route: BaseRoute): Router => {
-    let handlers = []
+    let handlers: any[] = []
 
     route.middlewares?.forEach(middleware => handlers.push(this._adaptMiddleware(middleware)))
 

@@ -1,11 +1,17 @@
 export default {
   validate(payload: any): void | Error {
     const { refreshToken } = payload
-    let error
 
     if (!refreshToken)
-      error = new Error('"refreshToken" is required')
+      return Error('"refreshToken" is required')
 
-    return error
+    const invalidParams = Object
+      .keys(payload)
+      .filter(key => !['refreshToken'].includes(key))
+      .map(key => `"${ key }"`)
+      .join(', ')
+    
+    if (invalidParams)
+      return Error(`Invalid param(s): ${ invalidParams }`)
   }
 }

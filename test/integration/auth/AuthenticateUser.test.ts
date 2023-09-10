@@ -2,8 +2,11 @@ import axios from 'axios'
 import { faker } from '@faker-js/faker'
 import { expect } from 'chai'
 import ExpressDriver from '../../../src/infra/drivers/server/ExpressDriver'
-import routes from '../../../src/infra/http/v1/routes'
+import httpRoutes from '../../../src/infra/http/v1/routes'
+import dependencies from '../../../src/dependencies'
+import config from '../../../src/config'
 
+const routes = httpRoutes(dependencies(config.app))
 const server = new ExpressDriver(3031)
 const registerUrl = 'http://localhost:3031/api/v1/auth/register'
 const url = 'http://localhost:3031/api/v1/auth/login'
@@ -18,7 +21,7 @@ describe('POST /auth', () => {
       confirm_password: password,
     }
 
-    server.start(routes.routes, routes.prefix)
+    server.start(routes, '/api/v1')
 
     await axios.post(registerUrl, payload)
   })
@@ -86,7 +89,7 @@ describe('POST /auth', () => {
     await axios.post(url, payload)
       .catch(({ response: { status, data } }) => {
         expect(status).equal(400)
-        expect(data.error).equal('Invalid param: "test"')
+        expect(data.error).equal('Invalid param(s): "test"')
       })
   })
 
