@@ -1,5 +1,7 @@
 import axios from 'axios'
 import { expect } from 'chai'
+import config from '../../src/config'
+import dependencies from '../../src/dependencies'
 import ExpressDriver from '../../src/infra/drivers/server/ExpressDriver'
 import httpRoutes from '../../src/infra/http/v1/routes'
 import BaseRoute from '../../src/infra/http/v1/routes/BaseRoute'
@@ -7,7 +9,7 @@ import BaseController from '../../src/adapters/controllers/BaseController'
 import IUseCase from '../../src/application/useCases/IUseCase'
 import BaseMiddleware from '../../src/adapters/middlewares/BaseMiddleware'
 
-const { routes } = httpRoutes
+const routes = httpRoutes(dependencies(config.app))
 const server = new ExpressDriver(3031)
 
 const customUseCase = {

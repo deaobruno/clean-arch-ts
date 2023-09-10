@@ -66,6 +66,6 @@ describe('/infra/schemas/user/FindUsersSchema.ts', () => {
       test: 'test'
     })
 
-    expect(validation.message).equal('Invalid param: "test"')
+    expect(validation.message).equal('Invalid param(s): "test"')
   })
 })

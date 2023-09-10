@@ -7,7 +7,7 @@ export default {
     if (!uuidRegex.test(userId))
       return Error('Invalid "user_id" format')
 
-    if (!email)
+    if (email === '')
       return Error('"email" is required')
 
     if (email && !emailRegex.test(email))
