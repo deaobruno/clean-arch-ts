@@ -8,7 +8,7 @@ import IUserRepository from '../../../../../src/domain/repositories/IUserReposit
 import BaseError from '../../../../../src/application/errors/BaseError'
 import IHashDriver from '../../../../../src/infra/drivers/hash/IHashDriver'
 import HashDriverMock from '../../../../mocks/drivers/HashDriverMock'
-import UserRepositoryMock from '../../../../mocks/repositories/UserRepositoryMock'
+import UserRepositoryMock from '../../../../mocks/repositories/inMemory/InMemoryUserRepositoryMock'
 
 const sandbox = sinon.createSandbox()
 const cryptoDriver: IHashDriver = HashDriverMock
@@ -17,7 +17,7 @@ const createAdmin = new CreateAdmin(userRepository, cryptoDriver)
 const email = faker.internet.email()
 const password = faker.internet.password()
 const fakeUser = {
-  user_id: faker.string.uuid(),
+  userId: faker.string.uuid(),
   email,
   password,
   level: 1,
@@ -51,7 +51,7 @@ describe('/application/useCases/user/CreateAdmin.ts', () => {
 
     const user = <User>await createAdmin.exec(userParams)
 
-    expect(user.user_id).equal(fakeUser.user_id)
+    expect(user.userId).equal(fakeUser.userId)
     expect(user.email).equal(userParams.email)
     expect(user.password).equal(userParams.password)
     expect(user.level).equal(LevelEnum.ADMIN)

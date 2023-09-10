@@ -39,70 +39,70 @@ describe('POST /users/create-admin', () => {
     expect(data.email).equal(payload.email)
   })
 
-  it('should get status 400 when trying to register a admin without "email"', async () => {
+  it('should get status 400 when trying to register an admin without "email"', async () => {
     const payload = {
       email: '',
       password,
       confirm_password: password,
     }
 
-    await axios.post(url, payload)
+    await axios.post(url, payload, { headers: { Authorization } })
       .catch(({ response: { status, data } }) => {
         expect(status).equal(400)
         expect(data.error).equal('"email" is required')
       })
   })
 
-  it('should get status 400 when trying to register a admin with invalid "email"', async () => {
+  it('should get status 400 when trying to register an admin with invalid "email"', async () => {
     const payload = {
       email: 'test',
       password,
       confirm_password: password,
     }
 
-    await axios.post(url, payload)
+    await axios.post(url, payload, { headers: { Authorization } })
       .catch(({ response: { status, data } }) => {
         expect(status).equal(400)
         expect(data.error).equal('Invalid "email" format')
       })
   })
 
-  it('should get status 400 when trying to register a admin without "password"', async () => {
+  it('should get status 400 when trying to register an admin without "password"', async () => {
     const payload = {
       email: faker.internet.email(),
       password: '',
       confirm_password: password,
     }
 
-    await axios.post(url, payload)
+    await axios.post(url, payload, { headers: { Authorization } })
       .catch(({ response: { status, data } }) => {
         expect(status).equal(400)
         expect(data.error).equal('"password" is required')
       })
   })
 
-  it('should get status 400 when trying to register a admin without "confirm_password"', async () => {
+  it('should get status 400 when trying to register an admin without "confirm_password"', async () => {
     const payload = {
       email: faker.internet.email(),
       password,
       confirm_password: '',
     }
 
-    await axios.post(url, payload)
+    await axios.post(url, payload, { headers: { Authorization } })
       .catch(({ response: { status, data } }) => {
         expect(status).equal(400)
         expect(data.error).equal('"confirm_password" is required')
       })
   })
 
-  it('should get status 400 when trying to register a admin with different "password" and "confirm_password"', async () => {
+  it('should get status 400 when trying to register an admin with different "password" and "confirm_password"', async () => {
     const payload = {
       email: faker.internet.email(),
       password,
       confirm_password: 'test',
     }
 
-    await axios.post(url, payload)
+    await axios.post(url, payload, { headers: { Authorization } })
       .catch(({ response: { status, data } }) => {
         expect(status).equal(400)
         expect(data.error).equal('Passwords mismatch')
@@ -117,7 +117,7 @@ describe('POST /users/create-admin', () => {
       test: true,
     }
 
-    await axios.post(url, payload)
+    await axios.post(url, payload, { headers: { Authorization } })
       .catch(({ response: { status, data } }) => {
         expect(status).equal(400)
         expect(data.error).equal('Invalid param: "test"')

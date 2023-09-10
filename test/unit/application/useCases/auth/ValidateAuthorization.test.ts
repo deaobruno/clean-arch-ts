@@ -9,7 +9,7 @@ const validateAuthorization = new ValidateAuthorization()
 describe('/application/useCases/auth/ValidateAuthorization.ts', () => {
   it('should return void when user is root', () => {
     const user = {
-      user_id: faker.string.uuid(),
+      userId: faker.string.uuid(),
       email: faker.internet.email(),
       password: faker.internet.password(),
       level: 0,
@@ -23,7 +23,7 @@ describe('/application/useCases/auth/ValidateAuthorization.ts', () => {
 
   it('should return void when user is admin', () => {
     const user = {
-      user_id: faker.string.uuid(),
+      userId: faker.string.uuid(),
       email: faker.internet.email(),
       password: faker.internet.password(),
       level: 1,
@@ -37,7 +37,7 @@ describe('/application/useCases/auth/ValidateAuthorization.ts', () => {
 
   it('should return a ForbiddenError when user is customer', () => {
     const user = {
-      user_id: faker.string.uuid(),
+      userId: faker.string.uuid(),
       email: faker.internet.email(),
       password: faker.internet.password(),
       level: 2,

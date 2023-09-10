@@ -12,7 +12,7 @@ const url = 'http://localhost:3031/api/v1/auth/refresh-token'
 let Authorization: string
 let token: string
 
-describe('GET /users', () => {
+describe('POST /auth/refresh-token', () => {
   before(async () => {
     const authenticatePayload = {
       email: 'admin@email.com',

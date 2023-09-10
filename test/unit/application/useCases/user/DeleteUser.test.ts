@@ -6,8 +6,8 @@ import IUserRepository from '../../../../../src/domain/repositories/IUserReposit
 import NotFoundError from '../../../../../src/application/errors/NotFoundError'
 import BaseError from '../../../../../src/application/errors/BaseError'
 import IRefreshTokenRepository from '../../../../../src/domain/repositories/IRefreshTokenRepository'
-import UserRepositoryMock from '../../../../mocks/repositories/UserRepositoryMock'
-import RefreshTokenRepositoryMock from '../../../../mocks/repositories/RefreshTokenRepositoryMock'
+import UserRepositoryMock from '../../../../mocks/repositories/inMemory/InMemoryUserRepositoryMock'
+import RefreshTokenRepositoryMock from '../../../../mocks/repositories/inMemory/InMemoryRefreshTokenRepositoryMock'
 
 const sandbox = sinon.createSandbox()
 const userRepository: IUserRepository = UserRepositoryMock
@@ -17,7 +17,7 @@ const userId = faker.string.uuid()
 const email = faker.internet.email()
 const password = faker.internet.password()
 const fakeUser = {
-  user_id: faker.string.uuid(),
+  userId: faker.string.uuid(),
   email,
   password,
   level: 2,

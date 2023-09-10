@@ -2,7 +2,7 @@ import sinon from 'sinon'
 import { faker } from '@faker-js/faker'
 import { expect } from 'chai'
 import IRefreshTokenRepository from '../../../../../src/domain/repositories/IRefreshTokenRepository'
-import RefreshTokenRepositoryMock from '../../../../mocks/repositories/RefreshTokenRepositoryMock'
+import RefreshTokenRepositoryMock from '../../../../mocks/repositories/inMemory/InMemoryRefreshTokenRepositoryMock'
 import BaseError from '../../../../../src/application/errors/BaseError'
 import NotFoundError from '../../../../../src/application/errors/NotFoundError'
 import DeleteRefreshToken from '../../../../../src/application/useCases/auth/DeleteRefreshToken'
@@ -23,8 +23,8 @@ describe('/application/useCases/auth/DeleteRefreshToken.ts', () => {
   afterEach(() => sandbox.restore())
 
   it('should delete a refresh token', async () => {
-    sandbox.stub(refreshTokenRepository, 'findOne')
-      .resolves({ user_id: faker.string.uuid(), token: 'token' })
+    sandbox.stub(refreshTokenRepository, 'findOneByToken')
+      .resolves({ userId: faker.string.uuid(), token: 'token' })
 
     expect(await deleteRefreshToken.exec({ refreshToken: 'token' })).equal(undefined)
   })

@@ -84,6 +84,14 @@ describe('server', () => {
     })
   })
 
+  it('should get status 500 when trying to access route with error', async () => {
+    await axios.get('http://localhost:3031/error')
+      .catch(({ response: { status, data } }) => {
+        expect(status).equal(500)
+        expect(data.error).equal('Internal Server Error')
+    })
+  })
+
   it('should get status 200 when trying to access route with middleware', async () => {
     const { status, data } = await axios.get('http://localhost:3031/middleware?test=test')
 

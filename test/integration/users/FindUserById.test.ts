@@ -3,13 +3,13 @@ import sinon from 'sinon'
 import { faker } from '@faker-js/faker'
 import { expect } from 'chai'
 import ExpressDriver from '../../../src/infra/drivers/server/ExpressDriver'
-import InMemoryDriver from '../../../src/infra/drivers/db/InMemoryDriver'
 import routes from '../../../src/infra/http/v1/routes'
 import { User } from '../../../src/domain/User'
+import UserRepository from '../../../src/adapters/repositories/inMemory/InMemoryUserRepository'
 
 const server = new ExpressDriver(3031)
 const url = 'http://localhost:3031/api/v1/users'
-const user_id = faker.string.uuid()
+const userId = faker.string.uuid()
 let Authorization: string
 
 describe('GET /users/:user_id', () => {
@@ -29,24 +29,24 @@ describe('GET /users/:user_id', () => {
   after(() => server.stop())
 
   it('should get 200 status code and an object with a single user data when trying to find an user by id', async () => {
-    const findStub = sinon.stub(InMemoryDriver.prototype, 'find')
-      .resolves([User.create({
-        user_id,
+    const findStub = sinon.stub(UserRepository.prototype, 'findOne')
+      .resolves(User.create({
+        userId,
         email: faker.internet.email(),
         password: faker.internet.password(),
         level: 2
-      })])
-    const { status, data } = await axios.get(`${url}/${user_id}`, { headers: { Authorization } })
+      }))
+    const { status, data } = await axios.get(`${url}/${userId}`, { headers: { Authorization } })
 
     expect(status).equal(200)
-    expect(data.id).equal(user_id)
+    expect(data.id).equal(userId)
     expect(typeof data.email).equal('string')
 
     findStub.restore()
   })
 
   it('should get 400 status code when trying to find an user passing invalid id', async () => {
-    await axios.get(`${url}/test`)
+    await axios.get(`${url}/test`, { headers: { Authorization } })
       .catch(({ response: { status, data } }) => {
         expect(status).equal(400)
         expect(data.error).equal('Invalid "user_id" format')

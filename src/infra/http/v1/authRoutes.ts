@@ -8,10 +8,6 @@ const basePath = '/auth'
 export default (dependencies: any) => {
   const {
     middlewares: {
-      validateRegisterCustomerPayloadMiddleware,
-      validateAuthenticateUserPayloadMiddleware,
-      validateRefreshAccessTokenPayloadMiddleware,
-      validateLogoutPayloadMiddleware,
       validateAuthenticationMiddleware,
     },
     controllers: {
@@ -26,9 +22,9 @@ export default (dependencies: any) => {
   } = dependencies
 
   return [
-    new RegisterCustomerRoute(`${basePath}/register`, registerCustomerController, customerPresenter, [validateRegisterCustomerPayloadMiddleware]),
-    new AuthenticateUserRoute(`${basePath}/login`, authenticateUserController, [validateAuthenticateUserPayloadMiddleware]),
-    new RefreshAccessTokenRoute(`${basePath}/refresh-token`, refreshAccessTokenController, [validateRefreshAccessTokenPayloadMiddleware, validateAuthenticationMiddleware]),
-    new LogoutRoute(`${basePath}/logout`, logoutController, [validateLogoutPayloadMiddleware, validateAuthenticationMiddleware]),
+    new RegisterCustomerRoute(`${basePath}/register`, registerCustomerController, customerPresenter),
+    new AuthenticateUserRoute(`${basePath}/login`, authenticateUserController),
+    new RefreshAccessTokenRoute(`${basePath}/refresh-token`, refreshAccessTokenController, [validateAuthenticationMiddleware]),
+    new LogoutRoute(`${basePath}/logout`, logoutController, [validateAuthenticationMiddleware]),
   ]
 }

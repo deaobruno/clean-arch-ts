@@ -8,7 +8,7 @@ import BaseError from '../../../../../src/application/errors/BaseError'
 import IRefreshTokenRepository from '../../../../../src/domain/repositories/IRefreshTokenRepository'
 import TokenDriverMock from '../../../../mocks/drivers/TokenDriverMock'
 import ITokenDriver from '../../../../../src/infra/drivers/token/ITokenDriver'
-import RefreshTokenRepositoryMock from '../../../../mocks/repositories/RefreshTokenRepositoryMock'
+import RefreshTokenRepositoryMock from '../../../../mocks/repositories/inMemory/InMemoryRefreshTokenRepositoryMock'
 
 const sandbox = sinon.createSandbox()
 const tokenDriver: ITokenDriver = TokenDriverMock
@@ -24,7 +24,7 @@ const userData = {
   level: 2,
 }
 const fakeUser = {
-  user_id: userId,
+  userId,
   email,
   password,
   level: 2,
@@ -47,15 +47,15 @@ describe('/application/useCases/auth/ValidateAuthentication.ts', () => {
   it('should return authenticated user entity', async () => {
     sandbox.stub(tokenDriver, 'validateAccessToken')
       .returns(userData)
-    sandbox.stub(refreshTokenRepository, 'findOne')
-      .resolves({ user_id: userId, token: 'token' })
+    sandbox.stub(refreshTokenRepository, 'findOneByUserId')
+      .resolves({ userId: userId, token: 'token' })
     sandbox.stub(User, 'create')
       .returns(fakeUser)
 
     const authorization = 'Bearer token'
     const { user } = <any>await validateAuthentication.exec({ authorization })
 
-    expect(user.user_id).equal(userData.id)
+    expect(user.userId).equal(userData.id)
     expect(user.email).equal(userData.email)
     expect(user.password).equal(userData.password)
     expect(user.level).equal(userData.level)
@@ -118,7 +118,7 @@ describe('/application/useCases/auth/ValidateAuthentication.ts', () => {
   it('should return an UnauthorizedError when no refresh token is found for user', async () => {
     sandbox.stub(tokenDriver, 'validateAccessToken')
       .returns(userData)
-    sandbox.stub(refreshTokenRepository, 'findOne')
+    sandbox.stub(refreshTokenRepository, 'findOneByUserId')
       .resolves()
 
     const authorization = 'Bearer token'

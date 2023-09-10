@@ -7,8 +7,8 @@ import IUserRepository from '../../../../../src/domain/repositories/IUserReposit
 import NotFoundError from '../../../../../src/application/errors/NotFoundError'
 import BaseError from '../../../../../src/application/errors/BaseError'
 import IRefreshTokenRepository from '../../../../../src/domain/repositories/IRefreshTokenRepository'
-import UserRepositoryMock from '../../../../mocks/repositories/UserRepositoryMock'
-import RefreshTokenRepositoryMock from '../../../../mocks/repositories/RefreshTokenRepositoryMock'
+import UserRepositoryMock from '../../../../mocks/repositories/inMemory/InMemoryUserRepositoryMock'
+import RefreshTokenRepositoryMock from '../../../../mocks/repositories/inMemory/InMemoryRefreshTokenRepositoryMock'
 import IHashDriver from '../../../../../src/infra/drivers/hash/IHashDriver'
 import HashDriverMock from '../../../../mocks/drivers/HashDriverMock'
 
@@ -21,7 +21,7 @@ const userId = faker.string.uuid()
 const email = faker.internet.email()
 const password = faker.internet.password()
 const fakeUser = {
-  user_id: userId,
+  userId,
   email,
   password,
   level: 2,
@@ -60,7 +60,7 @@ describe('/application/useCases/user/UpdateUserPassword.ts', () => {
 
     const user = <User>await updateUserPassword.exec(updateData)
 
-    expect(user.user_id).equal(fakeUser.user_id)
+    expect(user.userId).equal(fakeUser.userId)
     expect(user.email).equal(fakeUser.email)
     expect(user.password).equal(fakeUser.password)
     expect(user.level).equal(fakeUser.level)
