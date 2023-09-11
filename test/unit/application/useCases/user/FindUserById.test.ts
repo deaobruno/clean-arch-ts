@@ -39,7 +39,7 @@ describe('/application/useCases/user/FindUserById.ts', () => {
     sandbox.stub(userRepository, 'findOne')
       .resolves(fakeUser)
 
-    const user = <User>await findUserById.exec({ userId })
+    const user = <User>await findUserById.exec({ user_id: userId })
 
     expect(user.userId).equal(userId)
     expect(user.email).equal(fakeUser.email)
@@ -51,7 +51,7 @@ describe('/application/useCases/user/FindUserById.ts', () => {
   })
 
   it('should return a NotFoundError when no user is found', async () => {
-    const error = <BaseError>await findUserById.exec({ userId: '' })
+    const error = <BaseError>await findUserById.exec({ user_id: '' })
 
     expect(error instanceof NotFoundError).equal(true)
     expect(error.message).equal('User not found')

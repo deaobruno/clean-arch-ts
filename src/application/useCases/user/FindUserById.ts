@@ -5,7 +5,7 @@ import IUseCase from '../IUseCase'
 import NotFoundError from '../../errors/NotFoundError'
 
 type Input = {
-  userId: string
+  user_id: string
 }
 
 type Output = User | BaseError
@@ -14,8 +14,8 @@ export default class FindUserById implements IUseCase<Input, Output> {
   constructor(private _userRepository: IUserRepository) {}
 
   async exec(input: Input): Promise<Output> {
-    const { userId } = input
-    const user = await this._userRepository.findOne({ user_id: userId })
+    const { user_id } = input
+    const user = await this._userRepository.findOne({ user_id })
 
     // if (!user || (user && !user.isCustomer))
     if (!user)

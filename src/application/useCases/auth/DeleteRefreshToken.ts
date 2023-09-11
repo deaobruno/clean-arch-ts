@@ -4,7 +4,7 @@ import IUseCase from '../IUseCase'
 import NotFoundError from '../../errors/NotFoundError'
 
 type Input = {
-  refreshToken: string
+  refresh_token: string
 }
 
 type Output = void | BaseError
@@ -13,7 +13,7 @@ export default class DeleteRefreshToken implements IUseCase<Input, Output> {
   constructor(private _refreshTokenRepository: IRefreshTokenRepository) {}
 
   async exec(payload: Input): Promise<Output> {
-    const refreshToken = await this._refreshTokenRepository.findOneByToken(payload.refreshToken)
+    const refreshToken = await this._refreshTokenRepository.findOneByToken(payload.refresh_token)
 
     if (!refreshToken)
       return new NotFoundError('Refresh token not found')

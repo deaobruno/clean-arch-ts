@@ -35,7 +35,7 @@ describe('POST /auth/refresh-token', () => {
   after(() => server.stop())
 
   it('should get 200 status code when trying to refresh an access token', async () => {
-    const { status, data: { accessToken } } = await axios.post(url, { refreshToken: token }, { headers: { Authorization }})
+    const { status, data: { accessToken } } = await axios.post(url, { refresh_token: token }, { headers: { Authorization }})
 
     expect(status).equal(200)
     expect(typeof accessToken).equal('string')
@@ -45,7 +45,7 @@ describe('POST /auth/refresh-token', () => {
     sandbox.stub(InMemoryDriver.prototype, 'findOne')
       .resolves()
 
-    await axios.post(url, { refreshToken: token }, { headers: { Authorization } })
+    await axios.post(url, { refresh_token: token }, { headers: { Authorization } })
       .catch(({ response: { status, data } }) => {
         expect(status).equal(401)
         expect(data.error).equal('Not authenticated user')
@@ -56,7 +56,7 @@ describe('POST /auth/refresh-token', () => {
     sandbox.stub(JwtDriver.prototype, 'validateRefreshToken')
       .throws({ name: 'TokenExpiredError' })
 
-    await axios.post(url, { refreshToken: token }, { headers: { Authorization } })
+    await axios.post(url, { refresh_token: token }, { headers: { Authorization } })
       .catch(({ response: { status, data } }) => {
         expect(status).equal(401)
         expect(data.error).equal('Refresh token expired')
@@ -67,7 +67,7 @@ describe('POST /auth/refresh-token', () => {
     sandbox.stub(JwtDriver.prototype, 'validateRefreshToken')
       .throws({})
 
-    await axios.post(url, { refreshToken: token }, { headers: { Authorization } })
+    await axios.post(url, { refresh_token: token }, { headers: { Authorization } })
       .catch(({ response: { status, data } }) => {
         expect(status).equal(401)
         expect(data.error).equal('Invalid refresh token')

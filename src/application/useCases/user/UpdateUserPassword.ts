@@ -7,7 +7,7 @@ import IUseCase from '../IUseCase'
 import NotFoundError from '../../errors/NotFoundError'
 
 type UpdateUserPasswordInput = {
-  userId: string
+  user_id: string
   password: string
 }
 
@@ -21,7 +21,7 @@ export default class UpdateUserPassword implements IUseCase<UpdateUserPasswordIn
   ) {}
 
   async exec(input: UpdateUserPasswordInput): Promise<Output> {
-    const { userId: user_id, password } = input
+    const { user_id, password } = input
     const user = await this._userRepository.findOne({ user_id })
 
     // if (!user || (user && !user.isCustomer))

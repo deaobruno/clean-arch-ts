@@ -1,13 +1,13 @@
 export default {
   validate(payload: any): void | Error {
-    const { refreshToken } = payload
+    const { refresh_token } = payload
 
-    if (!refreshToken)
-      return Error('"refreshToken" is required')
+    if (!refresh_token)
+      return Error('"refresh_token" is required')
 
     const invalidParams = Object
       .keys(payload)
-      .filter(key => !['refreshToken'].includes(key))
+      .filter(key => !['refresh_token'].includes(key))
       .map(key => `"${ key }"`)
       .join(', ')
     

@@ -41,7 +41,7 @@ describe('DELETE /auth/logout', () => {
         token: refreshToken,
       })
 
-    const { status } = await axios.delete(url, { headers: { Authorization }, data: { refreshToken } })
+    const { status } = await axios.delete(url, { headers: { Authorization }, data: { refresh_token: refreshToken } })
 
     expect(status).equal(204)
   })
@@ -50,7 +50,7 @@ describe('DELETE /auth/logout', () => {
     sinon.stub(InMemoryRefreshTokenRepository.prototype, 'findOneByToken')
       .resolves()
 
-    await axios.delete(url, { headers: { Authorization }, data: { refreshToken: 'test' } })
+    await axios.delete(url, { headers: { Authorization }, data: { refresh_token: 'test' } })
       .catch(({ response: { status, data } }) => {
         expect(status).equal(404)
         expect(data.error).equal('Refresh token not found')

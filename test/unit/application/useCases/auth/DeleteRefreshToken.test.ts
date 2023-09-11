@@ -26,11 +26,11 @@ describe('/application/useCases/auth/DeleteRefreshToken.ts', () => {
     sandbox.stub(refreshTokenRepository, 'findOneByToken')
       .resolves({ userId: faker.string.uuid(), token: 'token' })
 
-    expect(await deleteRefreshToken.exec({ refreshToken: 'token' })).equal(undefined)
+    expect(await deleteRefreshToken.exec({ refresh_token: 'token' })).equal(undefined)
   })
 
   it('should fail when refresh token is not found', async () => {
-    const error = <BaseError>await deleteRefreshToken.exec({ refreshToken: 'token' })
+    const error = <BaseError>await deleteRefreshToken.exec({ refresh_token: 'token' })
 
     expect(error instanceof NotFoundError).equal(true)
     expect(error.message).equal('Refresh token not found')

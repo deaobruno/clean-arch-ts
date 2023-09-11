@@ -41,13 +41,13 @@ describe('/application/useCases/user/DeleteUser.ts', () => {
     sandbox.stub(userRepository, 'findOne')
       .resolves(fakeUser)
 
-    const result = await deleteUser.exec({ userId })
+    const result = await deleteUser.exec({ user_id: userId })
 
     expect(result).equal(undefined)
   })
 
   it('should fail when trying to update an user password passing wrong ID', async () => {
-    const error = <BaseError>await deleteUser.exec({ userId: '' })
+    const error = <BaseError>await deleteUser.exec({ user_id: '' })
 
     expect(error instanceof NotFoundError).equal(true)
     expect(error.message).equal('User not found')

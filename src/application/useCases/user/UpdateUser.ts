@@ -7,7 +7,7 @@ import NotFoundError from '../../errors/NotFoundError'
 
 type UpdateUserInput = {
   user?: User
-  userId: string
+  user_id: string
   email?: string
 }
 
@@ -20,7 +20,7 @@ export default class UpdateUser implements IUseCase<UpdateUserInput, Output> {
   ) {}
 
   async exec(input: UpdateUserInput): Promise<Output> {
-    const { user, userId: user_id, ...userInput } = input
+    const { user, user_id, ...userInput } = input
     const userById = await this._userRepository.findOne({ user_id })
 
     // if (!user || (user && !user.isCustomer))

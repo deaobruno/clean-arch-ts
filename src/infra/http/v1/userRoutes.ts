@@ -26,9 +26,9 @@ export default (dependencies: any) => {
   return [
     new CreateAdminRoute(`${basePath}/create-admin`, createAdminController, adminPresenter),
     new FindUsersRoute(basePath, findUsersController, adminPresenter),
-    new FindUserByIdRoute(`${basePath}/:userId`, findUserByIdController, customerPresenter),
-    new UpdateUserRoute(`${basePath}/:userId`, updateUserController, customerPresenter),
-    new UpdateUserPasswordRoute(`${basePath}/:userId/update-password`, updateUserPasswordController, customerPresenter),
-    new DeleteUserRoute(`${basePath}/:userId`, deleteUserController),
+    new FindUserByIdRoute(`${basePath}/:user_id`, findUserByIdController, customerPresenter),
+    new UpdateUserRoute(`${basePath}/:user_id`, updateUserController, customerPresenter),
+    new UpdateUserPasswordRoute(`${basePath}/:user_id/update-password`, updateUserPasswordController, customerPresenter),
+    new DeleteUserRoute(`${basePath}/:user_id`, deleteUserController),
   ]
 }

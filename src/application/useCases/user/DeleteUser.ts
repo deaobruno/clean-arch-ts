@@ -5,7 +5,7 @@ import IUseCase from '../IUseCase'
 import NotFoundError from '../../errors/NotFoundError'
 
 type Input = {
-  userId: string
+  user_id: string
 }
 
 type Output = void | BaseError
@@ -17,7 +17,7 @@ export default class DeleteUser implements IUseCase<Input, Output> {
   ) {}
 
   async exec(input: Input): Promise<Output> {
-    const { userId: user_id } = input
+    const { user_id } = input
 
     if (!await this._userRepository.findOne({ user_id }))
       return new NotFoundError('User not found')

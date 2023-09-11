@@ -38,7 +38,7 @@ describe('/application/useCases/auth/RefreshAccessToken.ts', () => {
     sandbox.stub(tokenDriver, 'validateRefreshToken')
       .returns(userData)
 
-    const { accessToken } = <any>await refreshAccessToken.exec({ refreshToken: 'refresh-token' })
+    const { accessToken } = <any>await refreshAccessToken.exec({ refresh_token: 'refresh-token' })
 
     expect(typeof accessToken).equal('string')
   })
@@ -47,7 +47,7 @@ describe('/application/useCases/auth/RefreshAccessToken.ts', () => {
     sandbox.stub(tokenDriver, 'validateRefreshToken')
       .returns(userData)
 
-    const error = <BaseError>await refreshAccessToken.exec({ refreshToken: 'refresh-token' })
+    const error = <BaseError>await refreshAccessToken.exec({ refresh_token: 'refresh-token' })
 
     expect(error instanceof UnauthorizedError).equal(true)
     expect(error.message).equal('Refresh token not found')
@@ -60,7 +60,7 @@ describe('/application/useCases/auth/RefreshAccessToken.ts', () => {
     sandbox.stub(tokenDriver, 'validateRefreshToken')
       .throws({ name: 'TokenExpiredError' })
 
-    const error = <BaseError>await refreshAccessToken.exec({ refreshToken: 'refresh-token' })
+    const error = <BaseError>await refreshAccessToken.exec({ refresh_token: 'refresh-token' })
 
     expect(error instanceof UnauthorizedError).equal(true)
     expect(error.message).equal('Refresh token expired')
@@ -73,7 +73,7 @@ describe('/application/useCases/auth/RefreshAccessToken.ts', () => {
     sandbox.stub(tokenDriver, 'validateRefreshToken')
       .throws({})
 
-    const error = <BaseError>await refreshAccessToken.exec({ refreshToken: 'refresh-token' })
+    const error = <BaseError>await refreshAccessToken.exec({ refresh_token: 'refresh-token' })
 
     expect(error instanceof UnauthorizedError).equal(true)
     expect(error.message).equal('Invalid refresh token')

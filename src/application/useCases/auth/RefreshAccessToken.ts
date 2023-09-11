@@ -6,7 +6,7 @@ import IUseCase from '../IUseCase'
 import UnauthorizedError from '../../errors/UnauthorizedError'
 
 type Input = {
-  refreshToken: string
+  refresh_token: string
 }
 
 type Output = {
@@ -21,15 +21,15 @@ export default class RefreshAccessToken implements IUseCase<Input, Output> {
   ) {}
 
   async exec(payload: Input) {
-    const { refreshToken: token } = payload
-    const previousToken = await this._refreshTokenRepository.findOneByToken(token)
+    const { refresh_token } = payload
+    const previousToken = await this._refreshTokenRepository.findOneByToken(refresh_token)
     let userData
 
     if (!previousToken)
       return new UnauthorizedError('Refresh token not found')
 
     try {
-      userData = this._tokenDriver.validateRefreshToken(token)
+      userData = this._tokenDriver.validateRefreshToken(refresh_token)
     } catch (error: any) {
       if (error.name === 'TokenExpiredError')
         return new UnauthorizedError('Refresh token expired')

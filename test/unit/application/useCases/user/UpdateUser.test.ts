@@ -50,7 +50,7 @@ describe('/application/useCases/user/UpdateUser.ts', () => {
       .resolves(fakeUser)
 
     const updateData = {
-      userId,
+      user_id: userId,
       email: newEmail,
     }
     const user = <User>await updateUser.exec(updateData)
@@ -65,7 +65,7 @@ describe('/application/useCases/user/UpdateUser.ts', () => {
   })
 
   it('should fail when trying to update an user passing wrong ID', async () => {
-    const error = <BaseError>await updateUser.exec({ userId: '' })
+    const error = <BaseError>await updateUser.exec({ user_id: '' })
 
     expect(error instanceof NotFoundError).equal(true)
     expect(error.message).equal('User not found')
