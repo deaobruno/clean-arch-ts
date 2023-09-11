@@ -20,7 +20,6 @@ import FindUserById from './application/useCases/user/FindUserById'
 import UpdateUser from './application/useCases/user/UpdateUser'
 import UpdateUserPassword from './application/useCases/user/UpdateUserPassword'
 import DeleteUser from './application/useCases/user/DeleteUser'
-import ValidateAuthenticationMiddleware from './adapters/middlewares/auth/ValidateAuthenticationMiddleware'
 import RegisterCustomerController from './adapters/controllers/auth/RegisterCustomerController'
 import AuthenticateUserController from './adapters/controllers/auth/AuthenticateUserController'
 import CreateAdminController from './adapters/controllers/user/CreateAdminController'
@@ -32,7 +31,6 @@ import DeleteUserController from './adapters/controllers/user/DeleteUserControll
 import CustomerPresenter from './adapters/presenters/user/CustomerPresenter'
 import AdminPresenter from './adapters/presenters/user/AdminPresenter'
 import ValidateAuthorization from './application/useCases/auth/ValidateAuthorization'
-import ValidateAuthorizationMiddleware from './adapters/middlewares/auth/ValidateAuthorizationMiddleware'
 import InMemoryRefreshTokenRepository from './adapters/repositories/inMemory/InMemoryRefreshTokenRepository'
 import RefreshAccessTokenController from './adapters/controllers/auth/RefreshAccessTokenController'
 import RefreshAccessToken from './application/useCases/auth/RefreshAccessToken'
@@ -71,20 +69,58 @@ export default (config: any) => {
   const updateUserUseCase = new UpdateUser(inMemoryUserRepository, inMemoryRefreshTokenRepository)
   const updateUserPasswordUseCase = new UpdateUserPassword(cryptoDriver, inMemoryUserRepository, inMemoryRefreshTokenRepository)
   const deleteUserUseCase = new DeleteUser(inMemoryUserRepository, inMemoryRefreshTokenRepository)
-  // Middlewares
-  const validateAuthenticationMiddleware = new ValidateAuthenticationMiddleware(validateAuthenticationUseCase)
-  const validateAuthorizationMiddleware = new ValidateAuthorizationMiddleware(validateAuthorizationUseCase)
   // Controllers
-  const registerCustomerController = new RegisterCustomerController(registerCustomerUseCase, RegisterCustomerSchema)
-  const authenticateUserController = new AuthenticateUserController(authenticateUserUseCase, AuthenticateUserSchema)
-  const refreshAccessTokenController = new RefreshAccessTokenController(refreshAccessTokenUseCase, RefreshAccessTokenSchema)
-  const logoutController = new LogoutController(deleteRefreshTokenUseCase, LogoutSchema)
-  const createAdminController = new CreateAdminController(createAdminUseCase, CreateAdminSchema)
-  const findUsersController = new FindUsersController(findUsersUseCase, FindUsersSchema)
-  const findUserByIdController = new FindUserByIdController(findUserByIdUseCase, FindUserByIdSchema)
-  const updateUserController = new UpdateUserController(updateUserUseCase, UpdateUserSchema)
-  const updateUserPasswordController = new UpdateUserPasswordController(updateUserPasswordUseCase, UpdateUserPasswordSchema)
-  const deleteUserController = new DeleteUserController(deleteUserUseCase, DeleteUserSchema)
+  const registerCustomerController = new RegisterCustomerController({
+    useCase: registerCustomerUseCase,
+    schema: RegisterCustomerSchema,
+  })
+  const authenticateUserController = new AuthenticateUserController({
+    useCase: authenticateUserUseCase, 
+    schema: AuthenticateUserSchema,
+  })
+  const refreshAccessTokenController = new RefreshAccessTokenController({
+    useCase: refreshAccessTokenUseCase, 
+    schema: RefreshAccessTokenSchema,
+    validateAuthenticationUseCase,
+  })
+  const logoutController = new LogoutController({
+    useCase: deleteRefreshTokenUseCase, 
+    schema: LogoutSchema,
+    validateAuthenticationUseCase,
+  })
+  const createAdminController = new CreateAdminController({
+    useCase: createAdminUseCase, 
+    schema: CreateAdminSchema,
+    validateAuthenticationUseCase,
+    validateAuthorizationUseCase,
+  })
+  const findUsersController = new FindUsersController({
+    useCase: findUsersUseCase, 
+    schema: FindUsersSchema,
+    validateAuthenticationUseCase,
+    validateAuthorizationUseCase,
+  })
+  const findUserByIdController = new FindUserByIdController({
+    useCase: findUserByIdUseCase, 
+    schema: FindUserByIdSchema,
+    validateAuthenticationUseCase,
+  })
+  const updateUserController = new UpdateUserController({
+    useCase: updateUserUseCase, 
+    schema: UpdateUserSchema,
+    validateAuthenticationUseCase,
+  })
+  const updateUserPasswordController = new UpdateUserPasswordController({
+    useCase: updateUserPasswordUseCase, 
+    schema: UpdateUserPasswordSchema,
+    validateAuthenticationUseCase,
+  })
+  const deleteUserController = new DeleteUserController({
+    useCase: deleteUserUseCase, 
+    schema: DeleteUserSchema,
+    validateAuthenticationUseCase,
+    validateAuthorizationUseCase,
+  })
   // Presenters
   const customerPresenter = new CustomerPresenter()
   const adminPresenter = new AdminPresenter()
@@ -95,10 +131,6 @@ export default (config: any) => {
   })
 
   return {
-    middlewares: {
-      validateAuthenticationMiddleware,
-      validateAuthorizationMiddleware,
-    },
     controllers: {
       registerCustomerController,
       authenticateUserController,

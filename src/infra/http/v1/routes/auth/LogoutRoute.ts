@@ -1,14 +1,11 @@
-import LogoutController from '../../../../../adapters/controllers/auth/LogoutController'
-import ValidateAuthenticationMiddleware from '../../../../../adapters/middlewares/auth/ValidateAuthenticationMiddleware'
 import BaseRoute from '../BaseRoute'
-
-type Middlewares = [ValidateAuthenticationMiddleware]
+import LogoutController from '../../../../../adapters/controllers/auth/LogoutController'
 
 export default class LogoutRoute extends BaseRoute {
   method = 'delete'
   statusCode = 204
 
-  constructor(path: string, controller: LogoutController, middlewares: Middlewares) {
-    super({ path, controller, middlewares })
+  constructor(path: string, controller: LogoutController) {
+    super({ path, controller })
   }
 }

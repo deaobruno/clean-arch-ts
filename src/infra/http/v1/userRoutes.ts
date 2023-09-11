@@ -9,16 +9,6 @@ const basePath = '/users'
 
 export default (dependencies: any) => {
   const {
-    middlewares: {
-      validateAuthenticationMiddleware,
-      validateAuthorizationMiddleware,
-      validateCreateAdminPayloadMiddleware,
-      validateFindUsersPayloadMiddleware,
-      validateFindUserByIdPayloadMiddleware,
-      validateUpdateUserPayloadMiddleware,
-      validateUpdateUserPasswordPayloadMiddleware,
-      validateDeleteUserPayloadMiddleware,
-    },
     controllers: {
       createAdminController,
       findUsersController,
@@ -34,11 +24,11 @@ export default (dependencies: any) => {
   } = dependencies
 
   return [
-    new CreateAdminRoute(`${basePath}/create-admin`, createAdminController, adminPresenter, [validateAuthenticationMiddleware, validateAuthorizationMiddleware]),
-    new FindUsersRoute(basePath, findUsersController, customerPresenter, [validateAuthenticationMiddleware, validateAuthorizationMiddleware]),
-    new FindUserByIdRoute(`${basePath}/:userId`, findUserByIdController, customerPresenter, [validateAuthenticationMiddleware]),
-    new UpdateUserRoute(`${basePath}/:userId`, updateUserController, customerPresenter, [validateAuthenticationMiddleware]),
-    new UpdateUserPasswordRoute(`${basePath}/:userId/update-password`, updateUserPasswordController, customerPresenter, [validateAuthenticationMiddleware]),
-    new DeleteUserRoute(`${basePath}/:userId`, deleteUserController, [validateAuthenticationMiddleware, validateAuthorizationMiddleware]),
+    new CreateAdminRoute(`${basePath}/create-admin`, createAdminController, adminPresenter),
+    new FindUsersRoute(basePath, findUsersController, adminPresenter),
+    new FindUserByIdRoute(`${basePath}/:userId`, findUserByIdController, customerPresenter),
+    new UpdateUserRoute(`${basePath}/:userId`, updateUserController, customerPresenter),
+    new UpdateUserPasswordRoute(`${basePath}/:userId/update-password`, updateUserPasswordController, customerPresenter),
+    new DeleteUserRoute(`${basePath}/:userId`, deleteUserController),
   ]
 }
