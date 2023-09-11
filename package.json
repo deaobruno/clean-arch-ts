@@ -5,7 +5,7 @@
   "main": "src/app.js",
   "scripts": {
     "build": "rm -rf dist/ && tsc",
-    "start": "npm run build && ts-node dist/app.js",
+    "start": "npm run build && node dist/app.js",
     "dev": "cross-env NODE_ENV=development nodemon --exec 'node --inspect=0.0.0.0:9229 -r ts-node/register src/app.ts'",
     "test": "nyc mocha -r ts-node/register test/**/*.test.ts --recursive --exit",
     "test:unit": "nyc mocha -r ts-node/register test/unit/**/*.test.ts --recursive --exit",

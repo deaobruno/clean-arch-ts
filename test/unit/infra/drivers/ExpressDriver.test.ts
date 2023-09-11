@@ -2,7 +2,6 @@ import { expect } from 'chai'
 import ExpressDriver from '../../../../src/infra/drivers/server/ExpressDriver'
 import BaseRoute from '../../../../src/infra/http/v1/routes/BaseRoute'
 import BaseController from '../../../../src/adapters/controllers/BaseController'
-import BaseMiddleware from '../../../../src/adapters/middlewares/BaseMiddleware'
 
 const server = new ExpressDriver(3031)
 
@@ -12,22 +11,18 @@ const useCase = {
 
 class CustomController extends BaseController {}
 
-const controller = new CustomController(useCase)
+const controller = new CustomController({ useCase })
 
 const presenter = {
   present: (data: any) => data
 }
-
-class CustomMiddleware extends BaseMiddleware {}
-
-const middleware = new CustomMiddleware(useCase)
 
 class Route extends BaseRoute {
   method
   statusCode
 
   constructor(method: string, path: string, statusCode: number) {
-    super({ path, controller, presenter, middlewares: [middleware] })
+    super({ path, controller, presenter })
 
     this.method = method
     this.statusCode = statusCode

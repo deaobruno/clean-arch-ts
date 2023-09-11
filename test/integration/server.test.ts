@@ -7,7 +7,7 @@ import httpRoutes from '../../src/infra/http/v1/routes'
 import BaseRoute from '../../src/infra/http/v1/routes/BaseRoute'
 import BaseController from '../../src/adapters/controllers/BaseController'
 import IUseCase from '../../src/application/useCases/IUseCase'
-import BaseMiddleware from '../../src/adapters/middlewares/BaseMiddleware'
+import ControllerConfig from '../../src/adapters/controllers/ControllerConfig'
 
 const routes = httpRoutes(dependencies(config.app))
 const server = new ExpressDriver(3031)
@@ -22,15 +22,9 @@ const errorUseCase = {
   }
 }
 
-class CustomMiddleware extends BaseMiddleware {
-  constructor(useCase: IUseCase<any, any>) {
-    super(useCase)
-  }
-}
-
 class CustomController extends BaseController {
-  constructor(useCase: IUseCase<any, any>) {
-    super(useCase)
+  constructor(config: ControllerConfig<IUseCase<any, any>>) {
+    super(config)
   }
 }
 
@@ -38,23 +32,21 @@ class CustomRoute extends BaseRoute {
   method = 'get'
   statusCode = 200
 
-  constructor(path: string, controller: CustomController, middlewares?: BaseMiddleware[]) {
-    super({ path, controller, middlewares })
+  constructor(path: string, controller: CustomController) {
+    super({ path, controller })
   }
 }
 
 describe('server', () => {
   before(() => {
-    const errorRoute = new CustomRoute('/error', new CustomController(errorUseCase))
+    const errorRoute = new CustomRoute('/error', new CustomController({ useCase: errorUseCase }))
     const middlewareRoute = new CustomRoute(
       '/middleware',
-      new CustomController(customUseCase),
-      [new CustomMiddleware(customUseCase)]
+      new CustomController({ useCase: customUseCase }),
     )
     const errorMiddlewareRoute = new CustomRoute(
       '/error-middleware',
-      new CustomController(customUseCase),
-      [new CustomMiddleware(errorUseCase)]
+      new CustomController({ useCase: customUseCase }),
     )
 
     routes.push(errorRoute)

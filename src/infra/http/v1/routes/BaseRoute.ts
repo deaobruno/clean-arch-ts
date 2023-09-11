@@ -1,12 +1,10 @@
 import BaseController from '../../../../adapters/controllers/BaseController'
-import BaseMiddleware from '../../../../adapters/middlewares/BaseMiddleware'
 import IPresenter from '../../../../adapters/presenters/IPresenter'
 
 type RouteConfig = {
-  path: string,
-  controller: BaseController,
-  presenter?: IPresenter,
-  middlewares?: BaseMiddleware[]
+  path: string
+  controller: BaseController
+  presenter?: IPresenter
 }
 
 export default abstract class BaseRoute {
@@ -15,19 +13,17 @@ export default abstract class BaseRoute {
   readonly path: string
   private _controller: BaseController
   private _presenter?: IPresenter
-  readonly middlewares?: BaseMiddleware[]
 
   constructor(routeConfig: RouteConfig) {
-    const { path, controller, presenter, middlewares } = routeConfig
+    const { path, controller, presenter } = routeConfig
 
     this.path = path
     this._controller = controller
     this._presenter = presenter
-    this.middlewares = middlewares
   }
 
-  handle = async (payload: any): Promise<any> => {
-    const data = await this._controller.handle(payload)
+  handle = async (headers: any, payload: any): Promise<any> => {
+    const data = await this._controller.handle(headers, payload)
 
     if (data instanceof Error || !this._presenter)
       return data

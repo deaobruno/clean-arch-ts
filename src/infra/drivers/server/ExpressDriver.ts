@@ -3,25 +3,22 @@ import express, { NextFunction, Request, Response, Router } from 'express'
 import bodyParser from 'body-parser'
 import BaseRoute from '../../http/v1/routes/BaseRoute'
 import IServerDriver from './IServerDriver'
-import BaseMiddleware from '../../../adapters/middlewares/BaseMiddleware'
 import NotFoundError from '../../../application/errors/NotFoundError'
 import InternalServerError from '../../../application/errors/InternalServerError'
 
 export default class ExpressDriver implements IServerDriver {
   app = express()
-
   httpServer?: Server
-
   router = Router()
 
   constructor(private _httpPort: string | number) {}
 
-  start(routes: BaseRoute[], prefix?: string): void {
+  start(routes: BaseRoute[], prefix: string = ''): void {
     this.app.use(bodyParser.json())
 
     this.app.use(bodyParser.urlencoded({ extended: false }))
 
-    this.app.use(prefix ?? '', this._adaptRoutes(routes))
+    this.app.use(prefix, this._adaptRoutes(routes))
 
     this.app.use((req: Request, res: Response, next: NextFunction) => {
       next(new NotFoundError('Invalid URL'))
@@ -62,38 +59,15 @@ export default class ExpressDriver implements IServerDriver {
   private _adaptRoute = (route: BaseRoute): Router => {
     let handlers: any[] = []
 
-    route.middlewares?.forEach(middleware => handlers.push(this._adaptMiddleware(middleware)))
-
     handlers.push(this._adaptHandler(route))
 
     return this.router[route.method](route.path, handlers)
   }
 
-  private _adaptMiddleware = (middleware: BaseMiddleware) =>
-    async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-      try {
-        const result = await middleware.handle(this._getPayload(req), req.headers)
-
-        if (!result)
-          return next()
-
-        if (result instanceof Error)
-          return next(result)
-
-        const index = Object.keys(result)[0]
-
-        req.body[index] = result[index]
-
-        next()
-      } catch (error) {
-        next(error)
-      }
-    }
-
   private _adaptHandler = (route: BaseRoute) =>
     async (req: Request, res: Response, next: NextFunction): Promise<void> => {
       try {
-        const result = await route.handle(this._getPayload(req))
+        const result = await route.handle(req.headers, this._getPayload(req))
 
         if (result instanceof Error)
           return next(result)

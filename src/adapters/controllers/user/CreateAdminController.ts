@@ -1,9 +1,10 @@
-import BaseController from '../BaseController'
+import AuthorizedController from '../AuthorizedController'
 import CreateAdmin from '../../../application/useCases/user/CreateAdmin'
 import CreateAdminSchema from '../../../infra/schemas/user/CreateAdminSchema'
+import ControllerConfig from '../ControllerConfig'
 
-export default class CreateAdminController extends BaseController {
-  constructor(useCase: CreateAdmin, schema: typeof CreateAdminSchema) {
-    super(useCase, schema)
+export default class CreateAdminController extends AuthorizedController {
+  constructor(config: ControllerConfig<CreateAdmin, typeof CreateAdminSchema>) {
+    super(config)
   }
 }

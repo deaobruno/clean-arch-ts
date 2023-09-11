@@ -7,9 +7,6 @@ const basePath = '/auth'
 
 export default (dependencies: any) => {
   const {
-    middlewares: {
-      validateAuthenticationMiddleware,
-    },
     controllers: {
       registerCustomerController,
       authenticateUserController,
@@ -24,7 +21,7 @@ export default (dependencies: any) => {
   return [
     new RegisterCustomerRoute(`${basePath}/register`, registerCustomerController, customerPresenter),
     new AuthenticateUserRoute(`${basePath}/login`, authenticateUserController),
-    new RefreshAccessTokenRoute(`${basePath}/refresh-token`, refreshAccessTokenController, [validateAuthenticationMiddleware]),
-    new LogoutRoute(`${basePath}/logout`, logoutController, [validateAuthenticationMiddleware]),
+    new RefreshAccessTokenRoute(`${basePath}/refresh-token`, refreshAccessTokenController),
+    new LogoutRoute(`${basePath}/logout`, logoutController),
   ]
 }

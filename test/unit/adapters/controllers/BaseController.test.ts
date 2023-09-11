@@ -1,24 +1,30 @@
+import sinon from 'sinon'
 import { expect } from 'chai'
 import BaseController from '../../../../src/adapters/controllers/BaseController'
 import IUseCase from '../../../../src/application/useCases/IUseCase'
 import ISchema from '../../../../src/infra/schemas/ISchema'
 import BadRequestError from '../../../../src/application/errors/BadRequestError'
+import ControllerConfig from '../../../../src/adapters/controllers/ControllerConfig'
 
 class CustomController extends BaseController {
-  constructor(useCase: IUseCase<any, any>, schema?: ISchema) {
-    super(useCase, schema)
+  constructor(config: ControllerConfig<IUseCase<any, any>, ISchema>) {
+    super(config)
   }
 }
 
+const sandbox = sinon.createSandbox()
+
 describe('/adapters/controllers/BaseController.ts', () => {
+  afterEach(() => sandbox.restore())
+
   it('should return successfully without data', async () => {
     const useCase = {
       exec: async (data: any) => {
         return
       }
     }
-    const customerController = new CustomController(useCase)
-    const result = await customerController.handle({ headers: {}, body: {}, query: {}, params: {} })
+    const customController = new CustomController({ useCase })
+    const result = await customController.handle({}, {})
 
     expect(result).equal(undefined)
   })
@@ -30,8 +36,8 @@ describe('/adapters/controllers/BaseController.ts', () => {
         return data
       }
     }
-    const customerController = new CustomController(useCase)
-    const result = await customerController.handle(body)
+    const customController = new CustomController({ useCase })
+    const result = await customController.handle({}, body)
 
     expect(result).deep.equal(body)
   })
@@ -44,8 +50,8 @@ describe('/adapters/controllers/BaseController.ts', () => {
         return data
       }
     }
-    const customerController = new CustomController(useCase)
-    const result = await customerController.handle({ ...body, ...params })
+    const customController = new CustomController({ useCase })
+    const result = await customController.handle({}, { ...body, ...params })
 
     expect(result).deep.equal({ ...body, ...params })
   })
@@ -60,8 +66,8 @@ describe('/adapters/controllers/BaseController.ts', () => {
     const schema = {
       validate: () => undefined
     }
-    const customerController = new CustomController(useCase, schema)
-    const result = await customerController.handle(body)
+    const customController = new CustomController({ useCase, schema })
+    const result = await customController.handle({}, body)
 
     expect(result).deep.equal(body)
   })
@@ -76,11 +82,13 @@ describe('/adapters/controllers/BaseController.ts', () => {
     const schema = {
       validate: () => new Error('Error')
     }
-    const customerController = new CustomController(useCase, schema)
-    const error = await customerController.handle(body)
+    const customController = new CustomController({ useCase, schema })
+    const error = await customController.handle({}, body)
 
     expect(error instanceof BadRequestError).equal(true)
     expect(error.message).equal('Error')
     expect(error.statusCode).equal(400)
   })
+
+  
 })

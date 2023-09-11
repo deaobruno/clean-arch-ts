@@ -12,7 +12,7 @@ const dependencies = {
 
   },
   controllers: {
-    registerController: new CustomController(useCase),
+    registerController: new CustomController({ useCase }),
   },
   presenters: {
     customerPresenter: {
