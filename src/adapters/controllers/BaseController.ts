@@ -14,12 +14,6 @@ export default abstract class BaseController {
   private _schema?: ISchema
 
   constructor(config: ControllerConfig) {
-    if (this.authenticate && !this._validateAuthenticationUseCase)
-      throw Error(`[${ this.constructor.name }] Authentication use case is required`)
-
-    if (this.authorize && !this._validateAuthorizationUseCase)
-      throw Error(`[${ this.constructor.name }] Authorization use case is required`)
-
     this._useCase = config.useCase
     this._validateAuthenticationUseCase = config.validateAuthenticationUseCase
     this._validateAuthorizationUseCase = config.validateAuthorizationUseCase

@@ -1,32 +1,20 @@
 import { expect } from 'chai'
 import userRotes from '../../../../../src/infra/http/v1/userRoutes'
 import BaseController from '../../../../../src/adapters/controllers/BaseController'
-import BaseMiddleware from '../../../../../src/adapters/middlewares/BaseMiddleware'
 
 class CustomController extends BaseController {}
-class CustomMiddleware extends BaseMiddleware {}
 
 const useCase = {
   exec: (data: any): Promise<void> => Promise.resolve(data)
 }
 const dependencies = {
-  middlewares: {
-    validateAuthenticationMiddleware: new CustomMiddleware(useCase),
-    validateAuthorizationMiddleware: new CustomMiddleware(useCase),
-    validateCreateAdminPayloadMiddleware: new CustomMiddleware(useCase),
-    validateFindUsersPayloadMiddleware: new CustomMiddleware(useCase),
-    validateFindUserByIdPayloadMiddleware: new CustomMiddleware(useCase),
-    validateUpdateUserPayloadMiddleware: new CustomMiddleware(useCase),
-    validateUpdateUserPasswordPayloadMiddleware: new CustomMiddleware(useCase),
-    validateDeleteUserPayloadMiddleware: new CustomMiddleware(useCase),
-  },
   controllers: {
-    createAdminController: new CustomController(useCase),
-    findUsersController: new CustomController(useCase),
-    findUserByIdController: new CustomController(useCase),
-    updateUserController: new CustomController(useCase),
-    updateUserPasswordController: new CustomController(useCase),
-    deleteUserController: new CustomController(useCase),
+    createAdminController: new CustomController({ useCase }),
+    findUsersController: new CustomController({ useCase }),
+    findUserByIdController: new CustomController({ useCase }),
+    updateUserController: new CustomController({ useCase }),
+    updateUserPasswordController: new CustomController({ useCase }),
+    deleteUserController: new CustomController({ useCase }),
   },
   presenters: {
     customerPresenter: {

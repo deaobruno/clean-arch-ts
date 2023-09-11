@@ -1,11 +1,9 @@
-import BaseController from '../BaseController'
+import AuthenticatedController from '../AuthenticatedController'
 import FindUserById from '../../../application/useCases/user/FindUserById'
 import FindUserByIdSchema from '../../../infra/schemas/user/FindUserByIdSchema'
 import ControllerConfig from '../ControllerConfig'
 
-export default class FindUserByIdController extends BaseController {
-  authenticate = true
-
+export default class FindUserByIdController extends AuthenticatedController {
   constructor(config: ControllerConfig<FindUserById, typeof FindUserByIdSchema>) {
     super(config)
   }
