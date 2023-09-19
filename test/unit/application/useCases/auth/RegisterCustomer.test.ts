@@ -20,7 +20,7 @@ const fakeUser: User = {
   userId: faker.string.uuid(),
   email,
   password,
-  level: 2,
+  level: LevelEnum.CUSTOMER,
   isRoot: false,
   isAdmin: false,
   isCustomer: true,
@@ -29,7 +29,7 @@ const userParams = {
   email,
   password,
   confirm_password: password,
-  level: 2,
+  level: LevelEnum.CUSTOMER,
 }
 let conflictError: ConflictError
 

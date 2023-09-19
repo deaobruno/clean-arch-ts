@@ -20,12 +20,12 @@ export default class JwtDriver implements ITokenDriver {
     return result
   }
 
-  generateAccessToken(data: string | object): string {
-    return this._generateToken(data, this._accessTokenSecret, this._accessTokenExpirationTime)
+  generateAccessToken(data: string | object, expiresIn = this._accessTokenExpirationTime): string {
+    return this._generateToken(data, this._accessTokenSecret, expiresIn)
   }
 
-  generateRefreshToken(data: string | object): string {
-    return this._generateToken(data, this._refreshTokenSecret, this._refreshTokenExpirationTime)
+  generateRefreshToken(data: string | object, expiresIn = this._refreshTokenExpirationTime): string {
+    return this._generateToken(data, this._refreshTokenSecret, expiresIn)
   }
 
   validateAccessToken(token: string) {

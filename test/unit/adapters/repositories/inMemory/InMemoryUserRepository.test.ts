@@ -1,11 +1,12 @@
 import sinon from 'sinon'
 import { faker } from '@faker-js/faker'
 import { expect } from 'chai'
+import config from '../../../../../src/config'
 import UserRepository from '../../../../../src/adapters/repositories/inMemory/InMemoryUserRepository'
 import InMemoryDriver from '../../../../../src/infra/drivers/db/InMemoryDriver'
 import IDbDriver from '../../../../../src/infra/drivers/db/IDbDriver'
 import IUserRepository from '../../../../../src/domain/repositories/IUserRepository'
-import { DbUser, UserMapper } from '../../../../../src/domain/mappers/UserMapper'
+import { UserMapper } from '../../../../../src/domain/mappers/UserMapper'
 import { LevelEnum, User } from '../../../../../src/domain/User'
 
 const sandbox = sinon.createSandbox()
@@ -15,9 +16,9 @@ let userRepository: IUserRepository
 
 describe('/adapters/repositories/inMemory/InMemoryUserRepository', () => {
   beforeEach(() => {
-    inMemoryDriver = new InMemoryDriver()
+    inMemoryDriver = InMemoryDriver.getInstance()
     userMapper = new UserMapper()
-    userRepository = new UserRepository(inMemoryDriver, userMapper)
+    userRepository = new UserRepository(config.db.usersSource, inMemoryDriver, userMapper)
   })
 
   afterEach(() => sandbox.restore())
@@ -238,13 +239,13 @@ describe('/adapters/repositories/inMemory/InMemoryUserRepository', () => {
 
     const user = await userRepository.findOne({ user_id: dbUser.user_id })
 
-    expect(user.userId).equal(dbUser.user_id)
-    expect(user.email).equal(dbUser.email)
-    expect(user.password).equal(dbUser.password)
-    expect(user.level).equal(dbUser.level)
-    expect(user.isRoot).equal(false)
-    expect(user.isAdmin).equal(false)
-    expect(user.isCustomer).equal(true)
+    expect(user?.userId).equal(dbUser.user_id)
+    expect(user?.email).equal(dbUser.email)
+    expect(user?.password).equal(dbUser.password)
+    expect(user?.level).equal(dbUser.level)
+    expect(user?.isRoot).equal(false)
+    expect(user?.isAdmin).equal(false)
+    expect(user?.isCustomer).equal(true)
   })
 
   it('should return undefined when no User is found', async () => {

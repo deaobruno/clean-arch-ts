@@ -1,6 +1,7 @@
 import sinon from 'sinon'
 import { faker } from '@faker-js/faker'
 import { expect } from 'chai'
+import config from '../../../../../src/config'
 import RefreshTokenRepository from '../../../../../src/adapters/repositories/inMemory/InMemoryRefreshTokenRepository'
 import InMemoryDriver from '../../../../../src/infra/drivers/db/InMemoryDriver'
 import IRepository from '../../../../../src/infra/drivers/db/IDbDriver'
@@ -15,9 +16,9 @@ let refreshTokenRepository: IRefreshTokenRepository
 
 describe('/adapters/repositories/inMemory/InMemoryRefreshTokenRepository', () => {
   beforeEach(() => {
-    inMemoryDriver = new InMemoryDriver()
+    inMemoryDriver = InMemoryDriver.getInstance()
     refreshTokenMapper = new RefreshTokenMapper()
-    refreshTokenRepository = new RefreshTokenRepository(inMemoryDriver, refreshTokenMapper)
+    refreshTokenRepository = new RefreshTokenRepository(config.db.refreshTokensSource, inMemoryDriver, refreshTokenMapper)
   })
 
   afterEach(() => sandbox.restore())
@@ -154,8 +155,8 @@ describe('/adapters/repositories/inMemory/InMemoryRefreshTokenRepository', () =>
 
     const refreshToken = await refreshTokenRepository.findOne({ user_id: userId })
 
-    expect(refreshToken.userId).equal(userId)
-    expect(refreshToken.token).equal(token)
+    expect(refreshToken?.userId).equal(userId)
+    expect(refreshToken?.token).equal(token)
   })
 
   it('should return undefined when no RefreshToken is found', async () => {

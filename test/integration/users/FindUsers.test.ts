@@ -1,91 +1,97 @@
 import axios from 'axios'
-import sinon from 'sinon'
 import { faker } from '@faker-js/faker'
 import { expect } from 'chai'
 import ExpressDriver from '../../../src/infra/drivers/server/ExpressDriver'
-import { User } from '../../../src/domain/User'
-import UserRepository from '../../../src/adapters/repositories/inMemory/InMemoryUserRepository'
+import { LevelEnum } from '../../../src/domain/User'
 import httpRoutes from '../../../src/infra/http/v1/routes'
 import config from '../../../src/config'
 import dependencies from '../../../src/dependencies'
+import InMemoryUserRepository from '../../../src/adapters/repositories/inMemory/InMemoryUserRepository'
+import CryptoDriver from '../../../src/infra/drivers/hash/CryptoDriver'
+import InMemoryDriver from '../../../src/infra/drivers/db/InMemoryDriver'
+import { UserMapper } from '../../../src/domain/mappers/UserMapper'
+import { RefreshTokenMapper } from '../../../src/domain/mappers/RefreshTokenMapper'
+import InMemoryRefreshTokenRepository from '../../../src/adapters/repositories/inMemory/InMemoryRefreshTokenRepository'
 
-const routes = httpRoutes(dependencies(config.app))
+const routes = httpRoutes(dependencies(config))
 const server = new ExpressDriver(3031)
+const dbDriver = InMemoryDriver.getInstance()
+const userMapper = new UserMapper()
+const refreshTokenMapper = new RefreshTokenMapper()
+const userRepository = new InMemoryUserRepository(config.db.usersSource, dbDriver, userMapper)
+const refreshTokenRepository = new InMemoryRefreshTokenRepository(config.db.refreshTokensSource, dbDriver, refreshTokenMapper)
+const hashDriver = new CryptoDriver()
 const url = 'http://localhost:3031/api/v1/users'
+const rootPassword = faker.internet.password()
+const usersData: any[] = [
+  {
+    userId: faker.string.uuid(),
+    email: faker.internet.email(),
+    password: hashDriver.hashString(faker.internet.password()),
+    level: LevelEnum.CUSTOMER,
+  },
+  {
+    userId: faker.string.uuid(),
+    email: faker.internet.email(),
+    password: hashDriver.hashString(faker.internet.password()),
+    level: LevelEnum.CUSTOMER,
+  },
+  {
+    userId: faker.string.uuid(),
+    email: faker.internet.email(),
+    password: hashDriver.hashString(faker.internet.password()),
+    level: LevelEnum.CUSTOMER,
+  },
+  {
+    userId: faker.string.uuid(),
+    email: faker.internet.email(),
+    password: hashDriver.hashString(rootPassword),
+    level: LevelEnum.ROOT,
+  },
+]
 let Authorization: string
 
 describe('GET /users', () => {
   before(async () => {
-    const authenticatePayload = {
-      email: 'admin@email.com',
-      password: '12345',
-    }
+    usersData.forEach(async userData => await userRepository.save(userData))
 
     server.start(routes, '/api/v1')
 
-    const { data: { accessToken } } = await axios.post('http://localhost:3031/api/v1/auth/login', authenticatePayload)
+    const { data: { accessToken } } = await axios.post('http://localhost:3031/api/v1/auth/login', {
+      email: usersData[3].email,
+      password: rootPassword,
+    })
 
-    Authorization = `Bearer ${accessToken}`
+    Authorization = `Bearer ${ accessToken }`
   })
 
-  after(() => server.stop())
+  after(async () => {
+    await userRepository.delete()
+    await refreshTokenRepository.delete()
+
+    server.stop()
+  })
 
   it('should get 200 status code and an array with users data when trying to find users without filters', async () => {
-    const users = [
-      User.create({
-        userId: faker.string.uuid(),
-        email: faker.internet.email(),
-        password: faker.internet.password(),
-        level: 2
-      }),
-      User.create({
-        userId: faker.string.uuid(),
-        email: faker.internet.email(),
-        password: faker.internet.password(),
-        level: 2
-      }),
-      User.create({
-        userId: faker.string.uuid(),
-        email: faker.internet.email(),
-        password: faker.internet.password(),
-        level: 2
-      }),
-    ]
-    const findStub = sinon.stub(UserRepository.prototype, 'find')
-      .resolves(users)
     const { status, data } = await axios.get(`${url}`, { headers: { Authorization } })
 
     expect(status).equal(200)
     expect(data.length).equal(3)
-    expect(data[0].id).equal(users[0].userId)
-    expect(data[0].email).equal(users[0].email)
-    expect(data[1].id).equal(users[1].userId)
-    expect(data[1].email).equal(users[1].email)
-    expect(data[2].id).equal(users[2].userId)
-    expect(data[2].email).equal(users[2].email)
-
-    findStub.restore()
+    expect(typeof data[0].id).equal('string')
+    expect(data[0].email).equal(usersData[0].email)
+    expect(typeof data[1].id).equal('string')
+    expect(data[1].email).equal(usersData[1].email)
+    expect(typeof data[2].id).equal('string')
+    expect(data[2].email).equal(usersData[2].email)
   })
 
   it('should get 200 status code and an array with users data when trying to find users with filters', async () => {
-    const users = [
-      User.create({
-        userId: faker.string.uuid(),
-        email: faker.internet.email(),
-        password: faker.internet.password(),
-        level: 2
-      }),
-    ]
-    const findStub = sinon.stub(UserRepository.prototype, 'find')
-      .resolves(users)
-    const { status, data } = await axios.get(`${url}?email=${users[0].email}`, { headers: { Authorization } })
+    const { status, data } = await axios.get(`${url}?email=${usersData[0].email}`, { headers: { Authorization } })
 
     expect(status).equal(200)
     expect(data.length).equal(1)
-    expect(data[0].id).equal(users[0].userId)
-    expect(data[0].email).equal(users[0].email)
-
-    findStub.restore()
+    expect(typeof data[0].id).equal('string')
+    expect(data[0].email).equal(usersData[0].email)
   })
 
   it('should get 400 status code when trying to find users passing empty "email" as filter', async () => {

@@ -5,7 +5,7 @@ import IUseCase from '../IUseCase'
 import NotFoundError from '../../errors/NotFoundError'
 
 type FindUsersInput = {
-  user?: User
+  user: User
   email?: string
 }
 
@@ -17,8 +17,9 @@ export default class FindUsers implements IUseCase<FindUsersInput, Output> {
   async exec(input: FindUsersInput): Promise<Output> {
     const { user, ...filters } = input
     // input.level = LevelEnum.CUSTOMER
+    let users = await this._userRepository.find(filters)
 
-    const users = await this._userRepository.find(filters)
+    users = users.filter(user => !user.isRoot)
 
     if (!users || users.length <= 0)
       return new NotFoundError('Users not found')

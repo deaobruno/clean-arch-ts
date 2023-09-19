@@ -8,6 +8,7 @@ import BaseError from '../../../../../src/application/errors/BaseError'
 import IRefreshTokenRepository from '../../../../../src/domain/repositories/IRefreshTokenRepository'
 import UserRepositoryMock from '../../../../mocks/repositories/inMemory/InMemoryUserRepositoryMock'
 import RefreshTokenRepositoryMock from '../../../../mocks/repositories/inMemory/InMemoryRefreshTokenRepositoryMock'
+import { LevelEnum } from '../../../../../src/domain/User'
 
 const sandbox = sinon.createSandbox()
 const userRepository: IUserRepository = UserRepositoryMock
@@ -20,7 +21,7 @@ const fakeUser = {
   userId: faker.string.uuid(),
   email,
   password,
-  level: 2,
+  level: LevelEnum.CUSTOMER,
   isRoot: false,
   isAdmin: false,
   isCustomer: true,
@@ -41,13 +42,13 @@ describe('/application/useCases/user/DeleteUser.ts', () => {
     sandbox.stub(userRepository, 'findOne')
       .resolves(fakeUser)
 
-    const result = await deleteUser.exec({ userId })
+    const result = await deleteUser.exec({ user_id: userId })
 
     expect(result).equal(undefined)
   })
 
   it('should fail when trying to update an user password passing wrong ID', async () => {
-    const error = <BaseError>await deleteUser.exec({ userId: '' })
+    const error = <BaseError>await deleteUser.exec({ user_id: '' })
 
     expect(error instanceof NotFoundError).equal(true)
     expect(error.message).equal('User not found')

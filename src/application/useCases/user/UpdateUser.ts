@@ -6,8 +6,8 @@ import IUseCase from '../IUseCase'
 import NotFoundError from '../../errors/NotFoundError'
 
 type UpdateUserInput = {
-  user?: User
-  userId: string
+  user: User
+  user_id: string
   email?: string
 }
 
@@ -20,19 +20,22 @@ export default class UpdateUser implements IUseCase<UpdateUserInput, Output> {
   ) {}
 
   async exec(input: UpdateUserInput): Promise<Output> {
-    const { user, userId: user_id, ...userInput } = input
-    const userById = await this._userRepository.findOne({ user_id })
+    const { user: requestUser, user_id, ...userInput } = input
 
-    // if (!user || (user && !user.isCustomer))
-    if (!userById)
+    if (requestUser.isCustomer && requestUser.userId !== user_id)
+      return new NotFoundError('User not found')
+
+    const user = await this._userRepository.findOne({ user_id })
+
+    if (!user || user.isRoot)
       return new NotFoundError('User not found')
 
     Object.keys(userInput).forEach(key => {
-      userById[key] = userInput[key]
+      user[key] = userInput[key]
     })
 
     await this._refreshTokenRepository.delete({ user_id })
 
-    return this._userRepository.save(userById)
+    return this._userRepository.save(user)
   }
 }

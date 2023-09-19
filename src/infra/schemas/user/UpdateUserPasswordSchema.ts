@@ -1,9 +1,9 @@
 export default {
   validate(payload: any): void | Error {
-    const { userId, password, confirm_password } = payload
+    const { user_id, password, confirm_password } = payload
     const uuidRegex = /^[0-9a-f]{8}\b-[0-9a-f]{4}\b-[0-9a-f]{4}\b-[0-9a-f]{4}\b-[0-9a-f]{12}$/gi
 
-    if (!uuidRegex.test(userId))
+    if (!uuidRegex.test(user_id))
       return Error('Invalid "user_id" format')
 
     if (!password)
@@ -17,7 +17,7 @@ export default {
 
     const invalidParams = Object
       .keys(payload)
-      .filter(key => !['userId', 'password', 'confirm_password'].includes(key))
+      .filter(key => !['user_id', 'password', 'confirm_password'].includes(key))
       .map(key => `"${ key }"`)
       .join(', ')
     

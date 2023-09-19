@@ -1,7 +1,7 @@
 import sinon from 'sinon'
 import { faker } from '@faker-js/faker'
 import { expect } from 'chai'
-import { User } from '../../../../../src/domain/User'
+import { LevelEnum, User } from '../../../../../src/domain/User'
 import UpdateUserPassword from '../../../../../src/application/useCases/user/UpdateUserPassword'
 import IUserRepository from '../../../../../src/domain/repositories/IUserRepository'
 import NotFoundError from '../../../../../src/application/errors/NotFoundError'
@@ -24,7 +24,7 @@ const fakeUser = {
   userId,
   email,
   password,
-  level: 2,
+  level: LevelEnum.CUSTOMER,
   isRoot: false,
   isAdmin: false,
   isCustomer: true,
@@ -53,12 +53,12 @@ describe('/application/useCases/user/UpdateUserPassword.ts', () => {
       .resolves(fakeUser)
 
     const updateData = {
-      userId,
+      user_id: userId,
       password: newPassword,
       confirm_password: newPassword,
     }
 
-    const user = <User>await updateUserPassword.exec(updateData)
+    const user = <User>await updateUserPassword.exec({ user: fakeUser, ...updateData })
 
     expect(user.userId).equal(fakeUser.userId)
     expect(user.email).equal(fakeUser.email)
@@ -69,8 +69,23 @@ describe('/application/useCases/user/UpdateUserPassword.ts', () => {
     expect(user.isRoot).equal(false)
   })
 
-  it('should fail when trying to update an user password passing wrong ID', async () => {
-    const error = <BaseError>await updateUserPassword.exec({ userId: '', password: '' })
+  it('should return a NotFoundError when authenticated user is different from request user', async () => {
+    const error = <BaseError>await updateUserPassword.exec({
+      user: fakeUser,
+      user_id: 'test',
+      password: faker.internet.password(),
+    })
+
+    expect(error instanceof NotFoundError).equal(true)
+    expect(error.message).equal('User not found')
+    expect(error.statusCode).equal(404)
+  })
+
+  it('should return a NotFoundError when trying to update an user password passing wrong ID', async () => {
+    sandbox.stub(userRepository, 'findOne')
+      .resolves()
+
+    const error = <BaseError>await updateUserPassword.exec({ user: fakeUser, user_id: userId, password: '' })
 
     expect(error instanceof NotFoundError).equal(true)
     expect(error.message).equal('User not found')

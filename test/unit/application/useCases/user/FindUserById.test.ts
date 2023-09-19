@@ -1,6 +1,6 @@
 import sinon from 'sinon'
 import { faker } from '@faker-js/faker'
-import { User } from '../../../../../src/domain/User'
+import { LevelEnum, User } from '../../../../../src/domain/User'
 import FindUserById from '../../../../../src/application/useCases/user/FindUserById'
 import { expect } from 'chai'
 import NotFoundError from '../../../../../src/application/errors/NotFoundError'
@@ -18,7 +18,7 @@ const fakeUser = {
   userId,
   email,
   password,
-  level: 2,
+  level: LevelEnum.CUSTOMER,
   isRoot: false,
   isAdmin: false,
   isCustomer: true,
@@ -39,7 +39,7 @@ describe('/application/useCases/user/FindUserById.ts', () => {
     sandbox.stub(userRepository, 'findOne')
       .resolves(fakeUser)
 
-    const user = <User>await findUserById.exec({ userId })
+    const user = <User>await findUserById.exec({ user: fakeUser, user_id: userId })
 
     expect(user.userId).equal(userId)
     expect(user.email).equal(fakeUser.email)
@@ -50,8 +50,19 @@ describe('/application/useCases/user/FindUserById.ts', () => {
     expect(user.isRoot).equal(false)
   })
 
+  it('should return a NotFoundError when authenticated user is different from request user', async () => {
+    const error = <BaseError>await findUserById.exec({ user: fakeUser, user_id: 'test' })
+
+    expect(error instanceof NotFoundError).equal(true)
+    expect(error.message).equal('User not found')
+    expect(error.statusCode).equal(404)
+  })
+
   it('should return a NotFoundError when no user is found', async () => {
-    const error = <BaseError>await findUserById.exec({ userId: '' })
+    sandbox.stub(userRepository, 'findOne')
+      .resolves()
+
+    const error = <BaseError>await findUserById.exec({ user: fakeUser, user_id: userId })
 
     expect(error instanceof NotFoundError).equal(true)
     expect(error.message).equal('User not found')

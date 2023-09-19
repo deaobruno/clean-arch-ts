@@ -1,6 +1,6 @@
 import sinon from 'sinon'
 import { faker } from '@faker-js/faker'
-import { User } from '../../../../../src/domain/User'
+import { LevelEnum, User } from '../../../../../src/domain/User'
 import FindUsers from '../../../../../src/application/useCases/user/FindUsers'
 import { expect } from 'chai'
 import NotFoundError from '../../../../../src/application/errors/NotFoundError'
@@ -16,7 +16,7 @@ const fakeUsers = [
     userId: faker.string.uuid(),
     email: faker.internet.email(),
     password: faker.internet.password(),
-    level: 2,
+    level: LevelEnum.CUSTOMER,
     isRoot: false,
     isAdmin: false,
     isCustomer: true,
@@ -25,7 +25,7 @@ const fakeUsers = [
     userId: faker.string.uuid(),
     email: faker.internet.email(),
     password: faker.internet.password(),
-    level: 2,
+    level: LevelEnum.CUSTOMER,
     isRoot: false,
     isAdmin: false,
     isCustomer: true,
@@ -34,7 +34,7 @@ const fakeUsers = [
     userId: faker.string.uuid(),
     email: faker.internet.email(),
     password: faker.internet.password(),
-    level: 2,
+    level: LevelEnum.CUSTOMER,
     isRoot: false,
     isAdmin: false,
     isCustomer: true,
@@ -56,7 +56,7 @@ describe('/application/useCases/user/FindUsers.ts', () => {
     sandbox.stub(userRepository, 'find')
       .resolves(fakeUsers)
 
-    const users = <User[]>await findUsers.exec({})
+    const users = <User[]>await findUsers.exec({ user: fakeUsers[0] })
 
     expect(users.length).equal(3)
     expect(users[0].userId).equal(fakeUsers[0].userId)
@@ -86,7 +86,7 @@ describe('/application/useCases/user/FindUsers.ts', () => {
     sandbox.stub(userRepository, 'find')
       .resolves([fakeUsers[0]])
 
-    const users = <User[]>await findUsers.exec({ email: fakeUsers[0].email })
+    const users = <User[]>await findUsers.exec({ user: fakeUsers[0], email: fakeUsers[0].email })
 
     expect(users.length).equal(1)
     expect(users[0].userId).equal(fakeUsers[0].userId)
@@ -99,7 +99,7 @@ describe('/application/useCases/user/FindUsers.ts', () => {
   })
 
   it('should return a NotFoundError when no users are found', async () => {
-    const error = <BaseError>await findUsers.exec({})
+    const error = <BaseError>await findUsers.exec({ user: fakeUsers[0] })
 
     expect(error instanceof NotFoundError).equal(true)
     expect(error.message).equal('Users not found')
@@ -107,7 +107,7 @@ describe('/application/useCases/user/FindUsers.ts', () => {
   })
 
   it('should return a NotFoundError when no users are found', async () => {
-    const error = <BaseError>await findUsers.exec({})
+    const error = <BaseError>await findUsers.exec({ user: fakeUsers[0] })
 
     expect(error instanceof NotFoundError).equal(true)
     expect(error.message).equal('Users not found')

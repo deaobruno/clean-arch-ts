@@ -6,7 +6,7 @@ import httpRoutes from '../../../src/infra/http/v1/routes'
 import dependencies from '../../../src/dependencies'
 import config from '../../../src/config'
 
-const routes = httpRoutes(dependencies(config.app))
+const routes = httpRoutes(dependencies(config))
 const server = new ExpressDriver(3031)
 const url = 'http://localhost:3031/api/v1/auth/register'
 

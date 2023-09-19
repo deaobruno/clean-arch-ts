@@ -12,7 +12,7 @@ describe('/domain/User.ts', () => {
       userId,
       email,
       password,
-      level: 0
+      level: LevelEnum.ROOT
     }
     const user = User.create(userParams)
 
@@ -28,7 +28,7 @@ describe('/domain/User.ts', () => {
       userId,
       email,
       password,
-      level: 1
+      level: LevelEnum.ADMIN
     }
     const user = User.create(userParams)
 
@@ -44,7 +44,7 @@ describe('/domain/User.ts', () => {
       userId,
       email,
       password,
-      level: 2
+      level: LevelEnum.CUSTOMER
     }
     const user = User.create(userParams)
 
@@ -60,7 +60,7 @@ describe('/domain/User.ts', () => {
       userId: '',
       email,
       password,
-      level: 1
+      level: LevelEnum.ADMIN
     }
 
     expect(() => User.create(userParams)).throw('User: "userId" required')
@@ -71,7 +71,7 @@ describe('/domain/User.ts', () => {
       userId: 'test',
       email,
       password,
-      level: 1
+      level: LevelEnum.ADMIN
     }
 
     expect(() => User.create(userParams)).throw('User: Invalid "userId"')
@@ -82,7 +82,7 @@ describe('/domain/User.ts', () => {
       userId,
       email: '',
       password,
-      level: 0
+      level: LevelEnum.ROOT
     }
 
     expect(() => User.create(userParams)).throw('User: "email" required')
@@ -93,7 +93,7 @@ describe('/domain/User.ts', () => {
       userId,
       email: 'email',
       password,
-      level: 0
+      level: LevelEnum.ROOT
     }
 
     expect(() => User.create(userParams)).throw('User: Invalid "email"')
@@ -104,7 +104,7 @@ describe('/domain/User.ts', () => {
       userId,
       email,
       password: '',
-      level: 0
+      level: LevelEnum.ROOT
     }
 
     expect(() => User.create(userParams)).throw('User: "password" required')

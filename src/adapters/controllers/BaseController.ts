@@ -1,7 +1,9 @@
 import BadRequestError from '../../application/errors/BadRequestError'
+import InternalServerError from '../../application/errors/InternalServerError'
 import IUseCase from '../../application/useCases/IUseCase'
 import ValidateAuthentication from '../../application/useCases/auth/ValidateAuthentication'
 import ValidateAuthorization from '../../application/useCases/auth/ValidateAuthorization'
+import { User } from '../../domain/User'
 import ISchema from '../../infra/schemas/ISchema'
 import ControllerConfig from './ControllerConfig'
 
@@ -22,16 +24,20 @@ export default abstract class BaseController {
 
   async handle(headers: any, payload: any): Promise<any> {
     const { authorization } = headers
+    let requestUser: User | undefined
 
-    if (this.authenticate) {
-      const authentication = await this._validateAuthenticationUseCase?.exec({ authorization })
+    if (this.authenticate && this._validateAuthenticationUseCase) {
+      const authentication = await this._validateAuthenticationUseCase.exec({ authorization })
 
       if (authentication instanceof Error)
         return authentication
 
-      if (authentication && this.authorize) {
-        const { user } = authentication
-        const authorization = this._validateAuthorizationUseCase?.exec({ user })
+      const { user } = authentication
+
+      requestUser = user
+
+      if (authentication && this.authorize && this._validateAuthorizationUseCase) {
+        const authorization = this._validateAuthorizationUseCase.exec({ user })
 
         if (authorization instanceof Error)
           return authorization
@@ -42,6 +48,9 @@ export default abstract class BaseController {
 
     if (error)
       return new BadRequestError(error.message)
+
+    if (requestUser)
+      payload.user = requestUser
 
     return this._useCase.exec(payload)
   }

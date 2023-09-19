@@ -3,6 +3,7 @@ import { expect } from 'chai'
 import ValidateAuthorization from '../../../../../src/application/useCases/auth/ValidateAuthorization'
 import ForbiddenError from '../../../../../src/application/errors/ForbiddenError'
 import BaseError from '../../../../../src/application/errors/BaseError'
+import { LevelEnum } from '../../../../../src/domain/User'
 
 const validateAuthorization = new ValidateAuthorization()
 
@@ -12,7 +13,7 @@ describe('/application/useCases/auth/ValidateAuthorization.ts', () => {
       userId: faker.string.uuid(),
       email: faker.internet.email(),
       password: faker.internet.password(),
-      level: 0,
+      level: LevelEnum.ROOT,
       isRoot: true,
       isAdmin: false,
       isCustomer: false,
@@ -26,7 +27,7 @@ describe('/application/useCases/auth/ValidateAuthorization.ts', () => {
       userId: faker.string.uuid(),
       email: faker.internet.email(),
       password: faker.internet.password(),
-      level: 1,
+      level: LevelEnum.ADMIN,
       isRoot: false,
       isAdmin: true,
       isCustomer: false,
@@ -40,7 +41,7 @@ describe('/application/useCases/auth/ValidateAuthorization.ts', () => {
       userId: faker.string.uuid(),
       email: faker.internet.email(),
       password: faker.internet.password(),
-      level: 2,
+      level: LevelEnum.CUSTOMER,
       isRoot: false,
       isAdmin: false,
       isCustomer: true,

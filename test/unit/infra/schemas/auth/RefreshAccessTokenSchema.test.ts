@@ -6,7 +6,7 @@ const { validate } = RefreshAccessTokenSchema
 describe('/infra/schemas/auth/RefreshAccessTokenSchema.ts', () => {
   it('should execute without errors', () => {
     const validation = validate({
-      refreshToken: 'test',
+      refresh_token: 'test',
     })
 
     expect(validation).equal(undefined)
@@ -14,15 +14,15 @@ describe('/infra/schemas/auth/RefreshAccessTokenSchema.ts', () => {
 
   it('should fail when refreshToken is empty', () => {
     const validation = <Error>validate({
-      refreshToken: '',
+      refresh_token: '',
     })
 
-    expect(validation.message).equal('"refreshToken" is required')
+    expect(validation.message).equal('"refresh_token" is required')
   })
 
   it('should fail when passing invalid param', () => {
     const validation = <Error>validate({
-      refreshToken: 'test',
+      refresh_token: 'test',
       test: 'test'
     })
 

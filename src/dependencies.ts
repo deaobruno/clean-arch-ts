@@ -39,23 +39,33 @@ import DeleteRefreshToken from './application/useCases/auth/DeleteRefreshToken'
 import LogoutController from './adapters/controllers/auth/LogoutController'
 import { UserMapper } from './domain/mappers/UserMapper'
 import { RefreshTokenMapper } from './domain/mappers/RefreshTokenMapper'
+import CreateRoot from './application/useCases/user/CreateRoot'
 
 export default (config: any) => {
   const {
-    accessTokenSecret,
-    accessTokenExpirationTime,
-    refreshTokenSecret,
-    refreshTokenExpirationTime,
+    app: {
+      rootUserEmail,
+      rootUserPassword,
+      accessTokenSecret,
+      accessTokenExpirationTime,
+      refreshTokenSecret,
+      refreshTokenExpirationTime,
+    },
+    db: {
+      usersSource,
+      refreshTokensSource,
+    },
   } = config
   // Drivers
+  const dbDriver = InMemoryDriver.getInstance()
   const cryptoDriver = new CryptoDriver()
   const jwtDriver = new JwtDriver(accessTokenSecret, accessTokenExpirationTime, refreshTokenSecret, refreshTokenExpirationTime)
   // Mappers
   const userMapper = new UserMapper()
   const refreshTokenMapper = new RefreshTokenMapper()
   // Repositories
-  const inMemoryUserRepository = new InMemoryUserRepository(new InMemoryDriver(), userMapper)
-  const inMemoryRefreshTokenRepository = new InMemoryRefreshTokenRepository(new InMemoryDriver(), refreshTokenMapper)
+  const inMemoryUserRepository = new InMemoryUserRepository(usersSource, dbDriver, userMapper)
+  const inMemoryRefreshTokenRepository = new InMemoryRefreshTokenRepository(refreshTokensSource, dbDriver, refreshTokenMapper)
   // Use Cases
   const registerCustomerUseCase = new RegisterCustomer(inMemoryUserRepository, cryptoDriver)
   const authenticateUserUseCase = new AuthenticateUser(inMemoryUserRepository, inMemoryRefreshTokenRepository, jwtDriver, cryptoDriver)
@@ -63,6 +73,7 @@ export default (config: any) => {
   const deleteRefreshTokenUseCase = new DeleteRefreshToken(inMemoryRefreshTokenRepository)
   const validateAuthenticationUseCase = new ValidateAuthentication(jwtDriver, inMemoryRefreshTokenRepository)
   const validateAuthorizationUseCase = new ValidateAuthorization()
+  const createRootUseCase = new CreateRoot(inMemoryUserRepository, cryptoDriver)
   const createAdminUseCase = new CreateAdmin(inMemoryUserRepository, cryptoDriver)
   const findUsersUseCase = new FindUsers(inMemoryUserRepository)
   const findUserByIdUseCase = new FindUserById(inMemoryUserRepository)
@@ -125,9 +136,9 @@ export default (config: any) => {
   const customerPresenter = new CustomerPresenter()
   const adminPresenter = new AdminPresenter()
   
-  createAdminUseCase.exec({
-    email: 'admin@email.com',
-    password: '12345',
+  createRootUseCase.exec({
+    email: rootUserEmail,
+    password: rootUserPassword,
   })
 
   return {
