@@ -1,12 +1,13 @@
 import IUseCase from '../../application/useCases/IUseCase'
 import ISchema from '../../infra/schemas/ISchema'
+import IPresenter from '../presenters/IPresenter'
 import BaseController from './BaseController'
 import ControllerConfig from './ControllerConfig'
 
-export default class AuthenticatedController extends BaseController {
+export default abstract class AuthenticatedController extends BaseController {
   authenticate = true
 
-  constructor(config: ControllerConfig<IUseCase<any, any>, ISchema>) {
+  constructor(config: ControllerConfig<IUseCase<any, any>, ISchema, IPresenter>) {
     super(config)
     
     if (this.authenticate && !config.validateAuthenticationUseCase)

@@ -1,24 +1,26 @@
 import { Server } from 'node:http'
 import express, { NextFunction, Request, Response, Router } from 'express'
 import bodyParser from 'body-parser'
-import BaseRoute from '../../http/v1/routes/BaseRoute'
 import IServerDriver from './IServerDriver'
 import NotFoundError from '../../../application/errors/NotFoundError'
 import InternalServerError from '../../../application/errors/InternalServerError'
+import BaseController from '../../../adapters/controllers/BaseController'
 
 export default class ExpressDriver implements IServerDriver {
   app = express()
   httpServer?: Server
   router = Router()
 
-  constructor(private _httpPort: string | number) {}
+  constructor() {}
 
-  start(routes: BaseRoute[], prefix: string = ''): void {
+  start(httpPort: string | number, routes: Router[]): void {
     this.app.use(bodyParser.json())
 
     this.app.use(bodyParser.urlencoded({ extended: false }))
 
-    this.app.use(prefix, this._adaptRoutes(routes))
+    routes.forEach(router => {
+      this.app.use(router)
+    })
 
     this.app.use((req: Request, res: Response, next: NextFunction) => {
       next(new NotFoundError('Invalid URL'))
@@ -42,8 +44,8 @@ export default class ExpressDriver implements IServerDriver {
       }
     )
 
-    this.httpServer = this.app.listen(this._httpPort, () => {
-        console.log(`Server started. Listening on port ${this._httpPort}.`)
+    this.httpServer = this.app.listen(httpPort, () => {
+        console.log(`Express HTTP Server started. Listening on port ${httpPort}.`)
       }
     )
   }
@@ -52,28 +54,32 @@ export default class ExpressDriver implements IServerDriver {
     this.httpServer?.close(callback)
   }
 
-  private _adaptRoutes(routes: BaseRoute[]): Router[] {
-    return routes.map(this._adaptRoute)
+  get = (path: string, controller: BaseController): Router => {
+    return this.router.get(path, this._adaptHandler(controller))
   }
 
-  private _adaptRoute = (route: BaseRoute): Router => {
-    let handlers: any[] = []
-
-    handlers.push(this._adaptHandler(route))
-
-    return this.router[route.method](route.path, handlers)
+  post = (path: string, controller: BaseController): Router => {
+    return this.router.post(path, this._adaptHandler(controller))
   }
 
-  private _adaptHandler = (route: BaseRoute) =>
+  put = (path: string, controller: BaseController): Router => {
+    return this.router.put(path, this._adaptHandler(controller))
+  }
+
+  delete = (path: string, controller: BaseController): Router => {
+    return this.router.delete(path, this._adaptHandler(controller))
+  }
+
+  private _adaptHandler = (controller: BaseController) =>
     async (req: Request, res: Response, next: NextFunction): Promise<void> => {
       try {
-        const result = await route.handle(req.headers, this._getPayload(req))
+        const result = await controller.handle(req.headers, this._getPayload(req))
 
         if (result instanceof Error)
           return next(result)
 
         res
-          .status(route.statusCode)
+          .status(controller.statusCode)
           .send(result)
       } catch (error) {
         next(error)

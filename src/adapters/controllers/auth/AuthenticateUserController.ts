@@ -4,6 +4,8 @@ import AuthenticateUserSchema from '../../../infra/schemas/auth/AuthenticateUser
 import ControllerConfig from '../ControllerConfig'
 
 export default class AuthenticateUserController extends BaseController {
+  statusCode = 200
+
   constructor(config: ControllerConfig<AuthenticateUser, typeof AuthenticateUserSchema>) {
     super(config)
   }

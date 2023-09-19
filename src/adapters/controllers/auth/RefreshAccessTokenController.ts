@@ -4,6 +4,8 @@ import RefreshAccessTokenSchema from '../../../infra/schemas/auth/RefreshAccessT
 import ControllerConfig from '../ControllerConfig'
 
 export default class RefreshAccessTokenController extends AuthenticatedController {
+  statusCode = 200
+
   constructor(config: ControllerConfig<RefreshAccessToken, typeof RefreshAccessTokenSchema>) {
     super(config)
   }

@@ -1,10 +1,9 @@
 import axios from 'axios'
 import { faker } from '@faker-js/faker'
 import { expect } from 'chai'
-import ExpressDriver from '../../../src/infra/drivers/server/ExpressDriver'
-import { LevelEnum, User } from '../../../src/domain/User'
+import { LevelEnum } from '../../../src/domain/User'
 import InMemoryUserRepository from '../../../src/adapters/repositories/inMemory/InMemoryUserRepository'
-import httpRoutes from '../../../src/infra/http/v1/routes'
+import routes from '../../../src/infra/http/v1/routes'
 import config from '../../../src/config'
 import dependencies from '../../../src/dependencies'
 import CryptoDriver from '../../../src/infra/drivers/hash/CryptoDriver'
@@ -13,8 +12,12 @@ import { UserMapper } from '../../../src/domain/mappers/UserMapper'
 import { RefreshTokenMapper } from '../../../src/domain/mappers/RefreshTokenMapper'
 import InMemoryRefreshTokenRepository from '../../../src/adapters/repositories/inMemory/InMemoryRefreshTokenRepository'
 
-const routes = httpRoutes(dependencies(config))
-const server = new ExpressDriver(3031)
+const dependenciesContainer = dependencies(config)
+const {
+  drivers: {
+    httpServerDriver,
+  },
+} = dependenciesContainer
 const dbDriver = InMemoryDriver.getInstance()
 const userMapper = new UserMapper()
 const refreshTokenMapper = new RefreshTokenMapper()
@@ -28,7 +31,7 @@ let password: string
 let Authorization: string
 
 describe('PUT /users/:user_id/update-password', () => {
-  before(() => server.start(routes, '/api/v1'))
+  before(() => httpServerDriver.start(3031, routes(dependenciesContainer)))
 
   beforeEach(async () => {
     userId = faker.string.uuid()
@@ -55,7 +58,7 @@ describe('PUT /users/:user_id/update-password', () => {
     await userRepository.delete()
     await refreshTokenRepository.delete()
 
-    server.stop()
+    httpServerDriver.stop()
   })
 
   it('should get 200 when trying to update the password of an existing user', async () => {

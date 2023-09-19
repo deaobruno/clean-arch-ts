@@ -1,8 +1,7 @@
 import axios from 'axios'
 import { faker } from '@faker-js/faker'
 import { expect } from 'chai'
-import ExpressDriver from '../../../src/infra/drivers/server/ExpressDriver'
-import httpRoutes from '../../../src/infra/http/v1/routes'
+import routes from '../../../src/infra/http/v1/routes'
 import config from '../../../src/config'
 import dependencies from '../../../src/dependencies'
 import InMemoryUserRepository from '../../../src/adapters/repositories/inMemory/InMemoryUserRepository'
@@ -13,8 +12,12 @@ import { UserMapper } from '../../../src/domain/mappers/UserMapper'
 import { RefreshTokenMapper } from '../../../src/domain/mappers/RefreshTokenMapper'
 import InMemoryRefreshTokenRepository from '../../../src/adapters/repositories/inMemory/InMemoryRefreshTokenRepository'
 
-const routes = httpRoutes(dependencies(config))
-const server = new ExpressDriver(3031)
+const dependenciesContainer = dependencies(config)
+const {
+  drivers: {
+    httpServerDriver,
+  },
+} = dependenciesContainer
 const dbDriver = InMemoryDriver.getInstance()
 const userMapper = new UserMapper()
 const refreshTokenMapper = new RefreshTokenMapper()
@@ -35,7 +38,7 @@ describe('POST /users/create-admin', () => {
       level: LevelEnum.ADMIN,
     })
 
-    server.start(routes, '/api/v1')
+    httpServerDriver.start(3031, routes(dependenciesContainer))
 
     const { data: { accessToken } } = await axios.post('http://localhost:3031/api/v1/auth/login', {
       email,
@@ -49,7 +52,7 @@ describe('POST /users/create-admin', () => {
     await userRepository.delete()
     await refreshTokenRepository.delete()
 
-    server.stop()
+    httpServerDriver.stop()
   })
 
   it('should get status 201 when successfully registered a new admin', async () => {

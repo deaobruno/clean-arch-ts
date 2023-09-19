@@ -1,27 +1,24 @@
-import AuthenticateUserRoute from './routes/auth/AuthenticateUserRoute'
-import RegisterCustomerRoute from './routes/auth/RegisterCustomerRoute'
-import RefreshAccessTokenRoute from './routes/auth/RefreshAccessTokenRoute'
-import LogoutRoute from './routes/auth/LogoutRoute'
-
-const basePath = '/auth'
-
-export default (dependencies: any) => {
+export default (dependencies: any, prefix?: string) => {
+  const basePath = `${ prefix }/auth`
   const {
+    drivers: {
+      httpServerDriver: {
+        post,
+        delete: del,
+      },
+    },
     controllers: {
       registerCustomerController,
       authenticateUserController,
       refreshAccessTokenController,
       logoutController,
     },
-    presenters: {
-      customerPresenter,
-    }
   } = dependencies
 
   return [
-    new RegisterCustomerRoute(`${basePath}/register`, registerCustomerController, customerPresenter),
-    new AuthenticateUserRoute(`${basePath}/login`, authenticateUserController),
-    new RefreshAccessTokenRoute(`${basePath}/refresh-token`, refreshAccessTokenController),
-    new LogoutRoute(`${basePath}/logout`, logoutController),
+    post(`${ basePath }/register`, registerCustomerController),
+    post(`${ basePath }/login`, authenticateUserController),
+    post(`${ basePath }/refresh-token`, refreshAccessTokenController),
+    del(`${ basePath }/logout`, logoutController),
   ]
 }

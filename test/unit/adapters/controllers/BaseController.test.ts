@@ -7,6 +7,8 @@ import BadRequestError from '../../../../src/application/errors/BadRequestError'
 import ControllerConfig from '../../../../src/adapters/controllers/ControllerConfig'
 
 class CustomController extends BaseController {
+  statusCode = 200
+
   constructor(config: ControllerConfig<IUseCase<any, any>, ISchema>) {
     super(config)
   }
@@ -90,5 +92,38 @@ describe('/adapters/controllers/BaseController.ts', () => {
     expect(error.statusCode).equal(400)
   })
 
-  
+  it('should return a single object formatted by presenter', async () => {
+    const useCase = {
+      exec: async (data: any) => {
+        return data
+      }
+    }
+    const presenter = {
+      present: (data: any) => data 
+    }
+    const controller = new CustomController({ useCase, presenter })
+    const data = { test: 'test', invalid: false }
+
+    expect(await controller.handle({}, data)).deep.equal(data)
+  })
+
+  it('should return an array of objects formatted by presenter', async () => {
+    const useCase = {
+      exec: async (data: any) => {
+        return data
+      }
+    }
+    const presenter = {
+      present: (data: any) => data 
+    }
+    const controller = new CustomController({ useCase, presenter })
+    const data = [
+      { test: 'test', invalid: false },
+      { test: 'test', invalid: false },
+      { test: 'test', invalid: false },
+    ]
+    const result = await controller.handle({}, data)
+
+    expect(result).deep.equal(data)
+  })
 })
