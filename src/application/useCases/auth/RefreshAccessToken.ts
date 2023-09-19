@@ -3,9 +3,11 @@ import IRefreshTokenRepository from '../../../domain/repositories/IRefreshTokenR
 import ITokenDriver from '../../../infra/drivers/token/ITokenDriver'
 import BaseError from '../../errors/BaseError'
 import IUseCase from '../IUseCase'
-import UnauthorizedError from '../../errors/UnauthorizedError'
+import { User } from '../../../domain/User'
+import ForbiddenError from '../../errors/ForbiddenError'
 
 type Input = {
+  user: User
   refresh_token: string
 }
 
@@ -21,23 +23,26 @@ export default class RefreshAccessToken implements IUseCase<Input, Output> {
   ) {}
 
   async exec(payload: Input) {
-    const { refresh_token } = payload
+    const { user, refresh_token } = payload
     const previousToken = await this._refreshTokenRepository.findOneByToken(refresh_token)
     let userData
 
     if (!previousToken)
-      return new UnauthorizedError('Refresh token not found')
+      return new ForbiddenError('Refresh token not found')
+
+    const { userId } = previousToken
+
+    if (user.userId !== userId)
+      return new ForbiddenError('Token does not belong to user')
 
     try {
       userData = this._tokenDriver.validateRefreshToken(refresh_token)
     } catch (error: any) {
       if (error.name === 'TokenExpiredError')
-        return new UnauthorizedError('Refresh token expired')
+        return new ForbiddenError('Refresh token expired')
 
-      return new UnauthorizedError('Invalid refresh token')
+      return new ForbiddenError('Invalid refresh token')
     }
-
-    const { userId } = previousToken
 
     await this._refreshTokenRepository.delete({ user_id: userId })
 

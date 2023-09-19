@@ -8,6 +8,7 @@ import BaseError from '../../../../../src/application/errors/BaseError'
 import IRefreshTokenRepository from '../../../../../src/domain/repositories/IRefreshTokenRepository'
 import UserRepositoryMock from '../../../../mocks/repositories/inMemory/InMemoryUserRepositoryMock'
 import RefreshTokenRepositoryMock from '../../../../mocks/repositories/inMemory/InMemoryRefreshTokenRepositoryMock'
+import { LevelEnum } from '../../../../../src/domain/User'
 
 const sandbox = sinon.createSandbox()
 const userRepository: IUserRepository = UserRepositoryMock
@@ -20,7 +21,7 @@ const fakeUser = {
   userId: faker.string.uuid(),
   email,
   password,
-  level: 2,
+  level: LevelEnum.CUSTOMER,
   isRoot: false,
   isAdmin: false,
   isCustomer: true,

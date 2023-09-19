@@ -13,6 +13,7 @@ import BaseError from '../../../../../src/application/errors/BaseError'
 import UnauthorizedError from '../../../../../src/application/errors/UnauthorizedError'
 import AuthenticateUser from '../../../../../src/application/useCases/auth/AuthenticateUser'
 import { RefreshToken } from '../../../../../src/domain/RefreshToken'
+import { LevelEnum } from '../../../../../src/domain/User'
 
 const sandbox = sinon.createSandbox()
 const tokenDriver: ITokenDriver = TokenDriverMock
@@ -26,13 +27,13 @@ const userData = {
   userId,
   email,
   password,
-  level: 2,
+  level: LevelEnum.CUSTOMER,
 }
 const fakeUser = {
   userId,
   email,
   password: 'hash',
-  level: 2,
+  level: LevelEnum.CUSTOMER,
   isRoot: false,
   isAdmin: false,
   isCustomer: true,

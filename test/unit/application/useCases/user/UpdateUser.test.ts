@@ -1,7 +1,7 @@
 import sinon from 'sinon'
 import { faker } from '@faker-js/faker'
 import { expect } from 'chai'
-import { User } from '../../../../../src/domain/User'
+import { LevelEnum, User } from '../../../../../src/domain/User'
 import UpdateUser from '../../../../../src/application/useCases/user/UpdateUser'
 import IUserRepository from '../../../../../src/domain/repositories/IUserRepository'
 import NotFoundError from '../../../../../src/application/errors/NotFoundError'
@@ -21,7 +21,7 @@ const fakeUser = {
   userId,
   email,
   password,
-  level: 2,
+  level: LevelEnum.CUSTOMER,
   isRoot: false,
   isAdmin: false,
   isCustomer: true,
@@ -53,7 +53,7 @@ describe('/application/useCases/user/UpdateUser.ts', () => {
       user_id: userId,
       email: newEmail,
     }
-    const user = <User>await updateUser.exec(updateData)
+    const user = <User>await updateUser.exec({ user: fakeUser, ...updateData })
 
     expect(user.userId).equal(fakeUser.userId)
     expect(user.email).equal(newEmail)
@@ -65,7 +65,19 @@ describe('/application/useCases/user/UpdateUser.ts', () => {
   })
 
   it('should fail when trying to update an user passing wrong ID', async () => {
-    const error = <BaseError>await updateUser.exec({ user_id: '' })
+    fakeUser.userId = 'test'
+
+    const error = <BaseError>await updateUser.exec({ user: fakeUser, user_id: 'test' })
+
+    expect(error instanceof NotFoundError).equal(true)
+    expect(error.message).equal('User not found')
+    expect(error.statusCode).equal(404)
+  })
+
+  it('should return a NotFoundError when authenticated user is different from found user', async () => {
+    fakeUser.userId = faker.string.uuid()
+
+    const error = <BaseError>await updateUser.exec({ user: fakeUser, user_id: userId })
 
     expect(error instanceof NotFoundError).equal(true)
     expect(error.message).equal('User not found')

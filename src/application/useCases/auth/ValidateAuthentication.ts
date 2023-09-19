@@ -48,7 +48,7 @@ export default class ValidateAuthentication implements IUseCase<Input, Output> {
     const refreshToken = await this._refreshTokenRepository.findOneByUserId(userId)
 
     if (!refreshToken)
-      return new UnauthorizedError('Not authenticated user')
+      return new UnauthorizedError()
 
     const user = User.create({
       userId,

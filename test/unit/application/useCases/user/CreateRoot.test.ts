@@ -1,7 +1,7 @@
 import sinon from 'sinon'
 import { faker } from '@faker-js/faker'
 import { expect } from 'chai'
-import CreateAdmin from '../../../../../src/application/useCases/user/CreateAdmin'
+import CreateRoot from '../../../../../src/application/useCases/user/CreateRoot'
 import { LevelEnum, User } from '../../../../../src/domain/User'
 import ConflictError from '../../../../../src/application/errors/ConflictError'
 import IUserRepository from '../../../../../src/domain/repositories/IUserRepository'
@@ -13,27 +13,27 @@ import UserRepositoryMock from '../../../../mocks/repositories/inMemory/InMemory
 const sandbox = sinon.createSandbox()
 const cryptoDriver: IHashDriver = HashDriverMock
 const userRepository: IUserRepository = UserRepositoryMock
-const createAdmin = new CreateAdmin(userRepository, cryptoDriver)
+const createRoot = new CreateRoot(userRepository, cryptoDriver)
 const email = faker.internet.email()
 const password = faker.internet.password()
 const fakeUser = {
   userId: faker.string.uuid(),
   email,
   password,
-  level: LevelEnum.ADMIN,
-  isRoot: false,
-  isAdmin: true,
+  level: LevelEnum.ROOT,
+  isRoot: true,
+  isAdmin: false,
   isCustomer: false,
 }
 let userParams = {
   email,
   password,
   confirm_password: password,
-  level: LevelEnum.ADMIN
+  level: LevelEnum.ROOT
 }
 let conflictError: ConflictError
 
-describe('/application/useCases/user/CreateAdmin.ts', () => {
+describe('/application/useCases/user/CreateRoot.ts', () => {
   beforeEach(() => {
     conflictError = sandbox.stub(ConflictError.prototype)
     conflictError.name = 'ConflictError'
@@ -43,24 +43,18 @@ describe('/application/useCases/user/CreateAdmin.ts', () => {
 
   afterEach(() => sandbox.restore())
 
-  it('should successfully create an Admin User', async () => {
+  it('should successfully create a Root User', async () => {
     sandbox.stub(userRepository, 'save')
       .resolves(fakeUser)
     sandbox.stub(User, 'create')
       .returns(fakeUser)
 
-    const user = <User>await createAdmin.exec(userParams)
+    const result = await createRoot.exec(userParams)
 
-    expect(user.userId).equal(fakeUser.userId)
-    expect(user.email).equal(userParams.email)
-    expect(user.password).equal(userParams.password)
-    expect(user.level).equal(LevelEnum.ADMIN)
-    expect(user.isCustomer).equal(false)
-    expect(user.isAdmin).equal(true)
-    expect(user.isRoot).equal(false)
+    expect(result).equal(undefined)
   })
 
-  it('should fail when trying to create an Admin User with repeated email', async () => {
+  it('should return void when Root User already exists', async () => {
     sandbox.stub(userRepository, 'findOneByEmail')
       .resolves(fakeUser)
     sandbox.stub(userRepository, 'save')
@@ -68,10 +62,8 @@ describe('/application/useCases/user/CreateAdmin.ts', () => {
     sandbox.stub(User, 'create')
       .returns(fakeUser)
 
-    const error = <BaseError>await createAdmin.exec(userParams)
+    const result = await createRoot.exec(userParams)
 
-    expect(error instanceof ConflictError).equal(true)
-    expect(error.message).equal('Email already in use')
-    expect(error.statusCode).equal(409)
+    expect(result).equal(undefined)
   })
 })

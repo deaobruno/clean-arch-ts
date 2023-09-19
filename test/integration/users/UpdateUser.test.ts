@@ -1,56 +1,72 @@
 import axios from 'axios'
-import sinon from 'sinon'
 import { faker } from '@faker-js/faker'
 import { expect } from 'chai'
 import ExpressDriver from '../../../src/infra/drivers/server/ExpressDriver'
-import { User } from '../../../src/domain/User'
-import UserRepository from '../../../src/adapters/repositories/inMemory/InMemoryUserRepository'
+import { LevelEnum } from '../../../src/domain/User'
 import httpRoutes from '../../../src/infra/http/v1/routes'
 import config from '../../../src/config'
 import dependencies from '../../../src/dependencies'
+import CryptoDriver from '../../../src/infra/drivers/hash/CryptoDriver'
+import InMemoryUserRepository from '../../../src/adapters/repositories/inMemory/InMemoryUserRepository'
+import InMemoryDriver from '../../../src/infra/drivers/db/InMemoryDriver'
+import { UserMapper } from '../../../src/domain/mappers/UserMapper'
+import { RefreshTokenMapper } from '../../../src/domain/mappers/RefreshTokenMapper'
+import InMemoryRefreshTokenRepository from '../../../src/adapters/repositories/inMemory/InMemoryRefreshTokenRepository'
 
-const routes = httpRoutes(dependencies(config.app))
+const routes = httpRoutes(dependencies(config))
 const server = new ExpressDriver(3031)
+const dbDriver = InMemoryDriver.getInstance()
+const userMapper = new UserMapper()
+const refreshTokenMapper = new RefreshTokenMapper()
+const userRepository = new InMemoryUserRepository(config.db.usersSource, dbDriver, userMapper)
+const refreshTokenRepository = new InMemoryRefreshTokenRepository(config.db.refreshTokensSource, dbDriver, refreshTokenMapper)
+const hashDriver = new CryptoDriver()
 const url = 'http://localhost:3031/api/v1/users'
-const userId = faker.string.uuid()
+let userId: string
+let email: string
 let Authorization: string
 
 describe('PUT /users/:user_id', () => {
-  before(async () => {
-    const authenticatePayload = {
-      email: 'admin@email.com',
-      password: '12345',
-    }
+  before(() => server.start(routes, '/api/v1'))
 
-    server.start(routes, '/api/v1')
+  beforeEach(async () => {
+    const password = faker.internet.password()
 
-    const { data: { accessToken } } = await axios.post('http://localhost:3031/api/v1/auth/login', authenticatePayload)
+    userId = faker.string.uuid()
+    email = faker.internet.email()
 
-    Authorization = `Bearer ${accessToken}`
+    await userRepository.save({
+      userId,
+      email,
+      password: hashDriver.hashString(password),
+      level: LevelEnum.CUSTOMER,
+    })
+
+    const { data: { accessToken } } = await axios.post('http://localhost:3031/api/v1/auth/login', {
+      email,
+      password,
+    })
+
+    Authorization = `Bearer ${ accessToken }`
   })
 
-  after(() => server.stop())
+  after(async () => {
+    await userRepository.delete()
+    await refreshTokenRepository.delete()
+
+    server.stop()
+  })
 
   it('should get 200 when trying to update an existing user', async () => {
-    const user = User.create({
-      userId,
-      email: faker.internet.email(),
-      password: faker.internet.password(),
-      level: 2
-    })
-    const findStub = sinon.stub(UserRepository.prototype, 'findOne')
-      .resolves(user)
     const newEmail = faker.internet.email()
     const payload = {
       email: newEmail
     }
-    const { status, data } = await axios.put(`${url}/${userId}`, payload, { headers: { Authorization } })
+    const { status, data } = await axios.put(`${ url }/${userId}`, payload, { headers: { Authorization } })
 
     expect(status).equal(200)
-    expect(data.id).equal(user.userId)
+    expect(data.id).equal(userId)
     expect(data.email).equal(newEmail)
-
-    findStub.restore()
   })
 
   it('should get 400 status code when trying to update an user passing invalid id', async () => {
@@ -58,7 +74,7 @@ describe('PUT /users/:user_id', () => {
       email: faker.internet.email()
     }
 
-    await axios.put(`${url}/test`, payload, { headers: { Authorization } })
+    await axios.put(`${ url }/test`, payload, { headers: { Authorization } })
       .catch(({ response: { status, data } }) => {
         expect(status).equal(400)
         expect(data.error).equal('Invalid "user_id" format')
@@ -70,7 +86,7 @@ describe('PUT /users/:user_id', () => {
       email: ''
     }
 
-    await axios.put(`${url}/${userId}`, payload, { headers: { Authorization } })
+    await axios.put(`${ url }/${faker.string.uuid()}`, payload, { headers: { Authorization } })
       .catch(({ response: { status, data } }) => {
         expect(status).equal(400)
         expect(data.error).equal('"email" is required')
@@ -82,7 +98,7 @@ describe('PUT /users/:user_id', () => {
       email: 'test'
     }
 
-    await axios.put(`${url}/${userId}`, payload, { headers: { Authorization } })
+    await axios.put(`${ url }/${faker.string.uuid()}`, payload, { headers: { Authorization } })
       .catch(({ response: { status, data } }) => {
         expect(status).equal(400)
         expect(data.error).equal('Invalid "email" format')
@@ -95,7 +111,7 @@ describe('PUT /users/:user_id', () => {
       test: 'test'
     }
 
-    await axios.put(`${url}/${userId}`, payload, { headers: { Authorization } })
+    await axios.put(`${ url }/${faker.string.uuid()}`, payload, { headers: { Authorization } })
       .catch(({ response: { status, data } }) => {
         expect(status).equal(400)
         expect(data.error).equal(`Invalid param(s): "test"`)
@@ -105,7 +121,35 @@ describe('PUT /users/:user_id', () => {
   it('should get 404 status code when user is not found', async () => {
     const payload = {}
 
-    await axios.put(`${url}/${faker.string.uuid()}`, payload, { headers: { Authorization } })
+    await axios.put(`${ url }/${faker.string.uuid()}`, payload, { headers: { Authorization } })
+      .catch(({ response: { status, data } }) => {
+        expect(status).equal(404)
+        expect(data.error).equal('User not found')
+    })
+  })
+
+  it('should get 404 status code when authenticated customer is different from token user', async () => {
+    const userId = faker.string.uuid()
+    const email = faker.internet.email()
+    const password = faker.internet.password()
+
+    await userRepository.save({
+      userId,
+      email,
+      password: hashDriver.hashString(password),
+      level: LevelEnum.ROOT,
+    })
+
+    const { data: { accessToken } } = await axios.post('http://localhost:3031/api/v1/auth/login', {
+      email,
+      password,
+    })
+
+    Authorization = `Bearer ${ accessToken }`
+
+    const payload = {}
+
+    await axios.put(`${ url }/${ userId }`, payload, { headers: { Authorization } })
       .catch(({ response: { status, data } }) => {
         expect(status).equal(404)
         expect(data.error).equal('User not found')

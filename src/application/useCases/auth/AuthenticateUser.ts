@@ -32,12 +32,12 @@ export default class AuthenticateUser implements IUseCase<Input, Output> {
     if (!user || user.password !== this._cryptoDriver.hashString(password))
       return new UnauthorizedError()
 
-    const { userId, level } = user
+    const { userId } = user
     const userData = {
       id: userId,
-      email,
-      password,
-      level,
+      email: user.email,
+      password: user.password,
+      level: user.level,
     }
     const accessToken = this._tokenDriver.generateAccessToken(userData)
     const refreshToken = this._tokenDriver.generateRefreshToken(userData)

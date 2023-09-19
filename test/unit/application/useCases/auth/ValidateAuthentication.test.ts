@@ -2,7 +2,7 @@ import sinon from 'sinon'
 import { faker } from '@faker-js/faker'
 import { expect } from 'chai'
 import ValidateAuthentication from '../../../../../src/application/useCases/auth/ValidateAuthentication'
-import { User } from '../../../../../src/domain/User'
+import { LevelEnum, User } from '../../../../../src/domain/User'
 import UnauthorizedError from '../../../../../src/application/errors/UnauthorizedError'
 import BaseError from '../../../../../src/application/errors/BaseError'
 import IRefreshTokenRepository from '../../../../../src/domain/repositories/IRefreshTokenRepository'
@@ -21,13 +21,13 @@ const userData = {
   id: userId,
   email,
   password,
-  level: 2,
+  level: LevelEnum.CUSTOMER,
 }
 const fakeUser = {
   userId,
   email,
   password,
-  level: 2,
+  level: LevelEnum.CUSTOMER,
   isRoot: false,
   isAdmin: false,
   isCustomer: true,
@@ -125,7 +125,7 @@ describe('/application/useCases/auth/ValidateAuthentication.ts', () => {
     const error = <BaseError>await validateAuthentication.exec({ authorization })
 
     expect(error instanceof UnauthorizedError).equal(true)
-    expect(error.message).equal('Not authenticated user')
+    expect(error.message).equal('Unauthorized')
     expect(error.statusCode).equal(401)
   })
 })

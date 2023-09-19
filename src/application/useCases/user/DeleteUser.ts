@@ -18,8 +18,9 @@ export default class DeleteUser implements IUseCase<Input, Output> {
 
   async exec(input: Input): Promise<Output> {
     const { user_id } = input
+    const user = await this._userRepository.findOne({ user_id })
 
-    if (!await this._userRepository.findOne({ user_id }))
+    if (!user || user.isRoot)
       return new NotFoundError('User not found')
 
     await this._refreshTokenRepository.delete({ user_id })

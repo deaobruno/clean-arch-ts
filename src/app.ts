@@ -6,7 +6,7 @@ import routes from './infra/http/v1/routes'
 import httpServer from './server'
 import config from './config'
 
-const v1Routes = routes(dependencies(config.app))
+const v1Routes = routes(dependencies(config))
 const server = httpServer(config.server)
 const numCPUs = availableParallelism()
 

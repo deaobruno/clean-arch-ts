@@ -9,7 +9,7 @@ import BaseController from '../../src/adapters/controllers/BaseController'
 import IUseCase from '../../src/application/useCases/IUseCase'
 import ControllerConfig from '../../src/adapters/controllers/ControllerConfig'
 
-const routes = httpRoutes(dependencies(config.app))
+const routes = httpRoutes(dependencies(config))
 const server = new ExpressDriver(3031)
 
 const customUseCase = {

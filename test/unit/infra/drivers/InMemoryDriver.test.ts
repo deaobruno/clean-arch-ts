@@ -5,15 +5,15 @@ class InMemoryCustomRepository {
   constructor(private _driver: InMemoryDriver) {}
 
   async save(entity: any) {
-    return this._driver.save(entity, { id: entity.id })
+    return this._driver.save('source', entity, { id: entity.id })
   }
 
-  find = (filters?: object) => (this._driver.find)(filters)
-  findOne = (filters: object) => (this._driver.findOne)(filters)
-  delete = (filters: object) => (this._driver.delete)(filters)
+  find = (filters?: object) => (this._driver.find)('source', filters)
+  findOne = (filters: object) => (this._driver.findOne)('source', filters)
+  delete = (filters = {}) => (this._driver.delete)('source', filters)
 }
 
-const inMemoryDriver = new InMemoryDriver()
+const inMemoryDriver = InMemoryDriver.getInstance()
 const customRepository = new InMemoryCustomRepository(inMemoryDriver)
 
 describe('/infra/drivers/InMemoryDriver.ts', () => {
