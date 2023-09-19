@@ -13,6 +13,8 @@ import { LevelEnum } from '../../../../src/domain/User'
 import ForbiddenError from '../../../../src/application/errors/ForbiddenError'
 
 class CustomController extends AuthorizedController {
+  statusCode = 200
+
   constructor(config: ControllerConfig<IUseCase<any, any>, ISchema>) {
     super(config)
   }

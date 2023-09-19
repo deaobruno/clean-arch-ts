@@ -40,6 +40,7 @@ import LogoutController from './adapters/controllers/auth/LogoutController'
 import { UserMapper } from './domain/mappers/UserMapper'
 import { RefreshTokenMapper } from './domain/mappers/RefreshTokenMapper'
 import CreateRoot from './application/useCases/user/CreateRoot'
+import ExpressDriver from './infra/drivers/server/ExpressDriver'
 
 export default (config: any) => {
   const {
@@ -57,6 +58,7 @@ export default (config: any) => {
     },
   } = config
   // Drivers
+  const httpServerDriver = new ExpressDriver()
   const dbDriver = InMemoryDriver.getInstance()
   const cryptoDriver = new CryptoDriver()
   const jwtDriver = new JwtDriver(accessTokenSecret, accessTokenExpirationTime, refreshTokenSecret, refreshTokenExpirationTime)
@@ -80,10 +82,14 @@ export default (config: any) => {
   const updateUserUseCase = new UpdateUser(inMemoryUserRepository, inMemoryRefreshTokenRepository)
   const updateUserPasswordUseCase = new UpdateUserPassword(cryptoDriver, inMemoryUserRepository, inMemoryRefreshTokenRepository)
   const deleteUserUseCase = new DeleteUser(inMemoryUserRepository, inMemoryRefreshTokenRepository)
+  // Presenters
+  const customerPresenter = new CustomerPresenter()
+  const adminPresenter = new AdminPresenter()
   // Controllers
   const registerCustomerController = new RegisterCustomerController({
     useCase: registerCustomerUseCase,
     schema: RegisterCustomerSchema,
+    presenter: customerPresenter,
   })
   const authenticateUserController = new AuthenticateUserController({
     useCase: authenticateUserUseCase, 
@@ -104,27 +110,32 @@ export default (config: any) => {
     schema: CreateAdminSchema,
     validateAuthenticationUseCase,
     validateAuthorizationUseCase,
+    presenter: adminPresenter,
   })
   const findUsersController = new FindUsersController({
     useCase: findUsersUseCase, 
     schema: FindUsersSchema,
     validateAuthenticationUseCase,
     validateAuthorizationUseCase,
+    presenter: adminPresenter,
   })
   const findUserByIdController = new FindUserByIdController({
     useCase: findUserByIdUseCase, 
     schema: FindUserByIdSchema,
     validateAuthenticationUseCase,
+    presenter: customerPresenter,
   })
   const updateUserController = new UpdateUserController({
     useCase: updateUserUseCase, 
     schema: UpdateUserSchema,
     validateAuthenticationUseCase,
+    presenter: customerPresenter,
   })
   const updateUserPasswordController = new UpdateUserPasswordController({
     useCase: updateUserPasswordUseCase, 
     schema: UpdateUserPasswordSchema,
     validateAuthenticationUseCase,
+    presenter: customerPresenter,
   })
   const deleteUserController = new DeleteUserController({
     useCase: deleteUserUseCase, 
@@ -132,16 +143,16 @@ export default (config: any) => {
     validateAuthenticationUseCase,
     validateAuthorizationUseCase,
   })
-  // Presenters
-  const customerPresenter = new CustomerPresenter()
-  const adminPresenter = new AdminPresenter()
-  
+
   createRootUseCase.exec({
     email: rootUserEmail,
     password: rootUserPassword,
   })
 
   return {
+    drivers: {
+      httpServerDriver,
+    },
     controllers: {
       registerCustomerController,
       authenticateUserController,
@@ -154,9 +165,5 @@ export default (config: any) => {
       updateUserPasswordController,
       deleteUserController,
     },
-    presenters: {
-      customerPresenter,
-      adminPresenter,
-    }
   }
 }

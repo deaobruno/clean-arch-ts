@@ -3,11 +3,14 @@ import process from 'node:process'
 import { availableParallelism } from 'node:os'
 import dependencies from './dependencies'
 import routes from './infra/http/v1/routes'
-import httpServer from './server'
 import config from './config'
 
-const v1Routes = routes(dependencies(config))
-const server = httpServer(config.server)
+const dependenciesContainer = dependencies(config)
+const {
+  drivers: {
+    httpServerDriver,
+  },
+} = dependenciesContainer
 const numCPUs = availableParallelism()
 
 if (cluster.isPrimary) {
@@ -18,11 +21,11 @@ if (cluster.isPrimary) {
 } else {
   console.log(`[${process.pid}] Worker is running`)
 
-  server.start(v1Routes, '/api/v1')
+  httpServerDriver.start(config.server.httpPort, routes(dependenciesContainer))
 }
 
 const gracefulShutdown = (signal: string, code: number) => {
-  server.stop(() => {
+  httpServerDriver.stop(() => {
     console.log('Shutting server down...')
 
     process.exit(code)

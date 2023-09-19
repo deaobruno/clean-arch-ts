@@ -12,6 +12,8 @@ import inMemoryRefreshTokenRepositoryMock from '../../../mocks/repositories/inMe
 import { LevelEnum } from '../../../../src/domain/User'
 
 class CustomController extends AuthenticatedController {
+  statusCode = 200
+
   constructor(config: ControllerConfig<IUseCase<any, any>, ISchema>) {
     super(config)
   }

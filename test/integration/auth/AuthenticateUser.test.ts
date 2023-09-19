@@ -1,8 +1,7 @@
 import axios from 'axios'
 import { faker } from '@faker-js/faker'
 import { expect } from 'chai'
-import ExpressDriver from '../../../src/infra/drivers/server/ExpressDriver'
-import httpRoutes from '../../../src/infra/http/v1/routes'
+import routes from '../../../src/infra/http/v1/routes'
 import dependencies from '../../../src/dependencies'
 import config from '../../../src/config'
 import InMemoryDriver from '../../../src/infra/drivers/db/InMemoryDriver'
@@ -13,8 +12,12 @@ import { LevelEnum } from '../../../src/domain/User'
 import { RefreshTokenMapper } from '../../../src/domain/mappers/RefreshTokenMapper'
 import InMemoryRefreshTokenRepository from '../../../src/adapters/repositories/inMemory/InMemoryRefreshTokenRepository'
 
-const routes = httpRoutes(dependencies(config))
-const server = new ExpressDriver(3031)
+const dependenciesContainer = dependencies(config)
+const {
+  drivers: {
+    httpServerDriver,
+  },
+} = dependenciesContainer
 const hashDriver = new CryptoDriver()
 const dbDriver = InMemoryDriver.getInstance()
 const userMapper = new UserMapper()
@@ -34,14 +37,14 @@ describe('POST /auth', () => {
       level: LevelEnum.CUSTOMER,
     })
 
-    server.start(routes, '/api/v1')
+    httpServerDriver.start(3031, routes(dependenciesContainer))
   })
 
   after(async () => {
     await userRepository.delete()
     await refreshTokenRepository.delete()
 
-    server.stop()
+    httpServerDriver.stop()
   })
 
   it('should get status 200 when successfully authenticated an user', async () => {

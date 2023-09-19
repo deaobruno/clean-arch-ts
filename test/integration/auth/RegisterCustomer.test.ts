@@ -1,19 +1,22 @@
 import axios from 'axios'
 import { faker } from '@faker-js/faker'
 import { expect } from 'chai'
-import ExpressDriver from '../../../src/infra/drivers/server/ExpressDriver'
-import httpRoutes from '../../../src/infra/http/v1/routes'
+import routes from '../../../src/infra/http/v1/routes'
 import dependencies from '../../../src/dependencies'
 import config from '../../../src/config'
 
-const routes = httpRoutes(dependencies(config))
-const server = new ExpressDriver(3031)
+const dependenciesContainer = dependencies(config)
+const {
+  drivers: {
+    httpServerDriver,
+  },
+} = dependenciesContainer
 const url = 'http://localhost:3031/api/v1/auth/register'
 
 describe('POST /auth/register', () => {
-  before(() => server.start(routes, '/api/v1'))
+  before(() => httpServerDriver.start(3031, routes(dependenciesContainer)))
 
-  after(() => server.stop())
+  after(() => httpServerDriver.stop())
 
   it('should get status 201 when successfully registered a new customer', async () => {
     const payload = {

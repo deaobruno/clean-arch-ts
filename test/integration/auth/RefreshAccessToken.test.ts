@@ -2,8 +2,7 @@ import axios from 'axios'
 import jwt from 'jsonwebtoken'
 import { faker } from '@faker-js/faker'
 import { expect } from 'chai'
-import ExpressDriver from '../../../src/infra/drivers/server/ExpressDriver'
-import httpRoutes from '../../../src/infra/http/v1/routes'
+import routes from '../../../src/infra/http/v1/routes'
 import JwtDriver from '../../../src/infra/drivers/token/JwtDriver'
 import dependencies from '../../../src/dependencies'
 import config from '../../../src/config'
@@ -15,8 +14,12 @@ import InMemoryDriver from '../../../src/infra/drivers/db/InMemoryDriver'
 import { UserMapper } from '../../../src/domain/mappers/UserMapper'
 import { RefreshTokenMapper } from '../../../src/domain/mappers/RefreshTokenMapper'
 
-const routes = httpRoutes(dependencies(config))
-const server = new ExpressDriver(3031)
+const dependenciesContainer = dependencies(config)
+const {
+  drivers: {
+    httpServerDriver,
+  },
+} = dependenciesContainer
 const dbDriver = InMemoryDriver.getInstance()
 const userMapper = new UserMapper()
 const refreshTokenMapper = new RefreshTokenMapper()
@@ -46,7 +49,7 @@ describe('POST /auth/refresh-token', () => {
       level: LevelEnum.CUSTOMER,
     })
 
-    server.start(routes, '/api/v1')
+    httpServerDriver.start(3031, routes(dependenciesContainer))
   })
 
   beforeEach(async () => {
@@ -63,7 +66,7 @@ describe('POST /auth/refresh-token', () => {
     await userRepository.delete()
     await refreshTokenRepository.delete()
 
-    server.stop()
+    httpServerDriver.stop()
   })
 
   it('should get 200 status code when trying to refresh an access token', async () => {
