@@ -1,7 +1,7 @@
 import BaseController from '../../../src/adapters/controllers/BaseController'
 
 export default {
-  start(routes: any[], prefix?: string): void {
+  start(): void {
     
   },
   stop(callback?: (error?: Error) => void): void {

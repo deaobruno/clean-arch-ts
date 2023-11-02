@@ -3,21 +3,14 @@ import { faker } from '@faker-js/faker'
 import { expect } from 'chai'
 import { LevelEnum } from '../../../src/domain/User'
 import InMemoryUserRepository from '../../../src/adapters/repositories/inMemory/InMemoryUserRepository'
-import routes from '../../../src/infra/http/v1/routes'
 import config from '../../../src/config'
-import dependencies from '../../../src/dependencies'
 import CryptoDriver from '../../../src/infra/drivers/hash/CryptoDriver'
 import InMemoryDriver from '../../../src/infra/drivers/db/InMemoryDriver'
 import { UserMapper } from '../../../src/domain/mappers/UserMapper'
 import { RefreshTokenMapper } from '../../../src/domain/mappers/RefreshTokenMapper'
 import InMemoryRefreshTokenRepository from '../../../src/adapters/repositories/inMemory/InMemoryRefreshTokenRepository'
+import server from '../../../src/infra/http/v1/server'
 
-const dependenciesContainer = dependencies(config)
-const {
-  drivers: {
-    httpServerDriver,
-  },
-} = dependenciesContainer
 const dbDriver = InMemoryDriver.getInstance()
 const userMapper = new UserMapper()
 const refreshTokenMapper = new RefreshTokenMapper()
@@ -31,7 +24,7 @@ let password: string
 let Authorization: string
 
 describe('PUT /users/:user_id/update-password', () => {
-  before(() => httpServerDriver.start(3031, routes(dependenciesContainer)))
+  before(() => server.start())
 
   beforeEach(async () => {
     userId = faker.string.uuid()
@@ -45,12 +38,12 @@ describe('PUT /users/:user_id/update-password', () => {
       level: LevelEnum.CUSTOMER,
     })
 
-    const { data: { accessToken } } = await axios.post('http://localhost:3031/api/v1/auth/login', {
+    const { data: { accessToken } } = await axios.post('http://localhost:8080/api/v1/auth/login', {
       email,
       password,
     })
 
-    url = `http://localhost:3031/api/v1/users/${ userId }/update-password`
+    url = `http://localhost:8080/api/v1/users/${ userId }/update-password`
     Authorization = `Bearer ${ accessToken }`
   })
 
@@ -58,7 +51,7 @@ describe('PUT /users/:user_id/update-password', () => {
     await userRepository.delete()
     await refreshTokenRepository.delete()
 
-    httpServerDriver.stop()
+    server.stop()
   })
 
   it('should get 200 when trying to update the password of an existing user', async () => {
@@ -138,7 +131,7 @@ describe('PUT /users/:user_id/update-password', () => {
       confirm_password: newPassword,
     }
 
-    await axios.put(`http://localhost:3031/api/v1/users/${ faker.string.uuid() }/update-password`, payload, { headers: { Authorization } })
+    await axios.put(`http://localhost:8080/api/v1/users/${ faker.string.uuid() }/update-password`, payload, { headers: { Authorization } })
       .catch(({ response: { status, data } }) => {
         expect(status).equal(404)
         expect(data.error).equal('User not found')
@@ -161,14 +154,14 @@ describe('PUT /users/:user_id/update-password', () => {
       level: LevelEnum.ROOT,
     })
 
-    const { data: { accessToken } } = await axios.post('http://localhost:3031/api/v1/auth/login', {
+    const { data: { accessToken } } = await axios.post('http://localhost:8080/api/v1/auth/login', {
       email,
       password,
     })
 
     Authorization = `Bearer ${ accessToken }`
 
-    await axios.put(`http://localhost:3031/api/v1/users/${ userId }/update-password`, payload, { headers: { Authorization } })
+    await axios.put(`http://localhost:8080/api/v1/users/${ userId }/update-password`, payload, { headers: { Authorization } })
       .catch(({ response: { status, data } }) => {
         expect(status).equal(404)
         expect(data.error).equal('User not found')

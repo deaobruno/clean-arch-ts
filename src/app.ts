@@ -1,16 +1,8 @@
 import cluster from 'node:cluster'
 import process from 'node:process'
 import { availableParallelism } from 'node:os'
-import dependencies from './dependencies'
-import routes from './infra/http/v1/routes'
-import config from './config'
+import server from './infra/http/v1/server'
 
-const dependenciesContainer = dependencies(config)
-const {
-  drivers: {
-    httpServerDriver,
-  },
-} = dependenciesContainer
 const numCPUs = availableParallelism()
 
 if (cluster.isPrimary) {
@@ -21,11 +13,11 @@ if (cluster.isPrimary) {
 } else {
   console.log(`[${process.pid}] Worker is running`)
 
-  httpServerDriver.start(config.server.httpPort, routes(dependenciesContainer))
+  server.start()
 }
 
 const gracefulShutdown = (signal: string, code: number) => {
-  httpServerDriver.stop(() => {
+  server.stop(() => {
     console.log('Shutting server down...')
 
     process.exit(code)
@@ -33,11 +25,11 @@ const gracefulShutdown = (signal: string, code: number) => {
 }
 
 process.on('uncaughtException', (error, origin) => {
-  console.log(`[${origin}] ${error}`)
+  console.log(`[${ origin }] ${ error }`)
 })
 
 process.on('unhandledRejection', (error) => {
-  console.log(`[unhandledRejection] ${error}`)
+  console.log(`[unhandledRejection] ${ error }`)
 })
 
 process.on('SIGINT', gracefulShutdown)
@@ -45,5 +37,5 @@ process.on('SIGINT', gracefulShutdown)
 process.on('SIGTERM', gracefulShutdown)
 
 process.on('exit', (code: number) => {
-  console.log(`Server shut down with code: ${code}`)
+  console.log(`Server shut down with code: ${ code }`)
 })

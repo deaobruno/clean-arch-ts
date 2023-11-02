@@ -1,9 +1,7 @@
 import axios from 'axios'
 import { faker } from '@faker-js/faker'
 import { expect } from 'chai'
-import routes from '../../../src/infra/http/v1/routes'
 import config from '../../../src/config'
-import dependencies from '../../../src/dependencies'
 import InMemoryUserRepository from '../../../src/adapters/repositories/inMemory/InMemoryUserRepository'
 import CryptoDriver from '../../../src/infra/drivers/hash/CryptoDriver'
 import { LevelEnum } from '../../../src/domain/User'
@@ -11,20 +9,15 @@ import InMemoryDriver from '../../../src/infra/drivers/db/InMemoryDriver'
 import { UserMapper } from '../../../src/domain/mappers/UserMapper'
 import { RefreshTokenMapper } from '../../../src/domain/mappers/RefreshTokenMapper'
 import InMemoryRefreshTokenRepository from '../../../src/adapters/repositories/inMemory/InMemoryRefreshTokenRepository'
+import server from '../../../src/infra/http/v1/server'
 
-const dependenciesContainer = dependencies(config)
-const {
-  drivers: {
-    httpServerDriver,
-  },
-} = dependenciesContainer
 const dbDriver = InMemoryDriver.getInstance()
 const userMapper = new UserMapper()
 const refreshTokenMapper = new RefreshTokenMapper()
 const userRepository = new InMemoryUserRepository(config.db.usersSource, dbDriver, userMapper)
 const refreshTokenRepository = new InMemoryRefreshTokenRepository(config.db.refreshTokensSource, dbDriver, refreshTokenMapper)
 const hashDriver = new CryptoDriver()
-const url = 'http://localhost:3031/api/v1/users/create-admin'
+const url = 'http://localhost:8080/api/v1/users/create-admin'
 const email = faker.internet.email()
 const password = faker.internet.password()
 let Authorization: string
@@ -38,9 +31,9 @@ describe('POST /users/create-admin', () => {
       level: LevelEnum.ADMIN,
     })
 
-    httpServerDriver.start(3031, routes(dependenciesContainer))
+    server.start()
 
-    const { data: { accessToken } } = await axios.post('http://localhost:3031/api/v1/auth/login', {
+    const { data: { accessToken } } = await axios.post('http://localhost:8080/api/v1/auth/login', {
       email,
       password,
     })
@@ -52,7 +45,7 @@ describe('POST /users/create-admin', () => {
     await userRepository.delete()
     await refreshTokenRepository.delete()
 
-    httpServerDriver.stop()
+    server.stop()
   })
 
   it('should get status 201 when successfully registered a new admin', async () => {

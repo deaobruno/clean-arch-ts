@@ -2,9 +2,7 @@ import axios from 'axios'
 import jwt from 'jsonwebtoken'
 import { faker } from '@faker-js/faker'
 import { expect } from 'chai'
-import routes from '../../../src/infra/http/v1/routes'
 import JwtDriver from '../../../src/infra/drivers/token/JwtDriver'
-import dependencies from '../../../src/dependencies'
 import config from '../../../src/config'
 import { LevelEnum } from '../../../src/domain/User'
 import InMemoryRefreshTokenRepository from '../../../src/adapters/repositories/inMemory/InMemoryRefreshTokenRepository'
@@ -13,13 +11,8 @@ import CryptoDriver from '../../../src/infra/drivers/hash/CryptoDriver'
 import InMemoryDriver from '../../../src/infra/drivers/db/InMemoryDriver'
 import { UserMapper } from '../../../src/domain/mappers/UserMapper'
 import { RefreshTokenMapper } from '../../../src/domain/mappers/RefreshTokenMapper'
+import server from '../../../src/infra/http/v1/server'
 
-const dependenciesContainer = dependencies(config)
-const {
-  drivers: {
-    httpServerDriver,
-  },
-} = dependenciesContainer
 const dbDriver = InMemoryDriver.getInstance()
 const userMapper = new UserMapper()
 const refreshTokenMapper = new RefreshTokenMapper()
@@ -33,7 +26,7 @@ const {
   refreshTokenExpirationTime,
 } = config.app
 const jwtDriver = new JwtDriver(accessTokenSecret, accessTokenExpirationTime, refreshTokenSecret, refreshTokenExpirationTime)
-const url = 'http://localhost:3031/api/v1/auth/refresh-token'
+const url = 'http://localhost:8080/api/v1/auth/refresh-token'
 const userId = faker.string.uuid()
 const email = faker.internet.email()
 const password = faker.internet.password()
@@ -49,11 +42,11 @@ describe('POST /auth/refresh-token', () => {
       level: LevelEnum.CUSTOMER,
     })
 
-    httpServerDriver.start(3031, routes(dependenciesContainer))
+    server.start()
   })
 
   beforeEach(async () => {
-    const { data: { accessToken, refreshToken } } = await axios.post('http://localhost:3031/api/v1/auth/login', {
+    const { data: { accessToken, refreshToken } } = await axios.post('http://localhost:8080/api/v1/auth/login', {
       email,
       password,
     })
@@ -66,7 +59,7 @@ describe('POST /auth/refresh-token', () => {
     await userRepository.delete()
     await refreshTokenRepository.delete()
 
-    httpServerDriver.stop()
+    server.stop()
   })
 
   it('should get 200 status code when trying to refresh an access token', async () => {
@@ -102,7 +95,7 @@ describe('POST /auth/refresh-token', () => {
       level: LevelEnum.CUSTOMER
     })
 
-    const { data: { refreshToken } } = await axios.post('http://localhost:3031/api/v1/auth/login', {
+    const { data: { refreshToken } } = await axios.post('http://localhost:8080/api/v1/auth/login', {
       email: newEmail,
       password,
     })

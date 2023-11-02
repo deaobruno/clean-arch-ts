@@ -2,35 +2,28 @@ import axios from 'axios'
 import { faker } from '@faker-js/faker'
 import { expect } from 'chai'
 import { LevelEnum } from '../../../src/domain/User'
-import routes from '../../../src/infra/http/v1/routes'
 import config from '../../../src/config'
-import dependencies from '../../../src/dependencies'
 import CryptoDriver from '../../../src/infra/drivers/hash/CryptoDriver'
 import InMemoryUserRepository from '../../../src/adapters/repositories/inMemory/InMemoryUserRepository'
 import InMemoryDriver from '../../../src/infra/drivers/db/InMemoryDriver'
 import { UserMapper } from '../../../src/domain/mappers/UserMapper'
 import { RefreshTokenMapper } from '../../../src/domain/mappers/RefreshTokenMapper'
 import InMemoryRefreshTokenRepository from '../../../src/adapters/repositories/inMemory/InMemoryRefreshTokenRepository'
+import server from '../../../src/infra/http/v1/server'
 
-const dependenciesContainer = dependencies(config)
-const {
-  drivers: {
-    httpServerDriver,
-  },
-} = dependenciesContainer
 const dbDriver = InMemoryDriver.getInstance()
 const userMapper = new UserMapper()
 const refreshTokenMapper = new RefreshTokenMapper()
 const userRepository = new InMemoryUserRepository(config.db.usersSource, dbDriver, userMapper)
 const refreshTokenRepository = new InMemoryRefreshTokenRepository(config.db.refreshTokensSource, dbDriver, refreshTokenMapper)
 const hashDriver = new CryptoDriver()
-const url = 'http://localhost:3031/api/v1/users'
+const url = 'http://localhost:8080/api/v1/users'
 let userId: string
 let email: string
 let Authorization: string
 
 describe('PUT /users/:user_id', () => {
-  before(() => httpServerDriver.start(3031, routes(dependenciesContainer)))
+  before(() => server.start())
 
   beforeEach(async () => {
     const password = faker.internet.password()
@@ -45,7 +38,7 @@ describe('PUT /users/:user_id', () => {
       level: LevelEnum.CUSTOMER,
     })
 
-    const { data: { accessToken } } = await axios.post('http://localhost:3031/api/v1/auth/login', {
+    const { data: { accessToken } } = await axios.post('http://localhost:8080/api/v1/auth/login', {
       email,
       password,
     })
@@ -57,7 +50,7 @@ describe('PUT /users/:user_id', () => {
     await userRepository.delete()
     await refreshTokenRepository.delete()
 
-    httpServerDriver.stop()
+    server.stop()
   })
 
   it('should get 200 when trying to update an existing user', async () => {
@@ -143,7 +136,7 @@ describe('PUT /users/:user_id', () => {
       level: LevelEnum.ROOT,
     })
 
-    const { data: { accessToken } } = await axios.post('http://localhost:3031/api/v1/auth/login', {
+    const { data: { accessToken } } = await axios.post('http://localhost:8080/api/v1/auth/login', {
       email,
       password,
     })

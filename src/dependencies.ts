@@ -40,7 +40,6 @@ import LogoutController from './adapters/controllers/auth/LogoutController'
 import { UserMapper } from './domain/mappers/UserMapper'
 import { RefreshTokenMapper } from './domain/mappers/RefreshTokenMapper'
 import CreateRoot from './application/useCases/user/CreateRoot'
-import ExpressDriver from './infra/drivers/server/ExpressDriver'
 
 export default (config: any) => {
   const {
@@ -58,7 +57,6 @@ export default (config: any) => {
     },
   } = config
   // Drivers
-  const httpServerDriver = new ExpressDriver()
   const dbDriver = InMemoryDriver.getInstance()
   const cryptoDriver = new CryptoDriver()
   const jwtDriver = new JwtDriver(accessTokenSecret, accessTokenExpirationTime, refreshTokenSecret, refreshTokenExpirationTime)
@@ -150,9 +148,6 @@ export default (config: any) => {
   })
 
   return {
-    drivers: {
-      httpServerDriver,
-    },
     controllers: {
       registerCustomerController,
       authenticateUserController,

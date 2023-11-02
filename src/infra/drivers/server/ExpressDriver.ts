@@ -11,16 +11,12 @@ export default class ExpressDriver implements IServerDriver {
   httpServer?: Server
   router = Router()
 
-  constructor() {}
-
-  start(httpPort: string | number, routes: Router[]): void {
+  constructor(private httpPort: string | number) {
     this.app.use(bodyParser.json())
 
     this.app.use(bodyParser.urlencoded({ extended: false }))
 
-    routes.forEach(router => {
-      this.app.use(router)
-    })
+    this.app.use(this.router)
 
     this.app.use((req: Request, res: Response, next: NextFunction) => {
       next(new NotFoundError('Invalid URL'))
@@ -43,9 +39,11 @@ export default class ExpressDriver implements IServerDriver {
         res.status(error.statusCode).send({ error: error.message })
       }
     )
+  }
 
-    this.httpServer = this.app.listen(httpPort, () => {
-        console.log(`Express HTTP Server started. Listening on port ${httpPort}.`)
+  start(): void {
+    this.httpServer = this.app.listen(this.httpPort, () => {
+        console.log(`Express HTTP Server started. Listening on port ${ this.httpPort }.`)
       }
     )
   }
@@ -54,20 +52,20 @@ export default class ExpressDriver implements IServerDriver {
     this.httpServer?.close(callback)
   }
 
-  get = (path: string, controller: BaseController): Router => {
-    return this.router.get(path, this._adaptHandler(controller))
+  get = (path: string, controller: BaseController): void => {
+    this.router.get(path, this._adaptHandler(controller))
   }
 
-  post = (path: string, controller: BaseController): Router => {
-    return this.router.post(path, this._adaptHandler(controller))
+  post = (path: string, controller: BaseController): void => {
+    this.router.post(path, this._adaptHandler(controller))
   }
 
-  put = (path: string, controller: BaseController): Router => {
-    return this.router.put(path, this._adaptHandler(controller))
+  put = (path: string, controller: BaseController): void => {
+    this.router.put(path, this._adaptHandler(controller))
   }
 
-  delete = (path: string, controller: BaseController): Router => {
-    return this.router.delete(path, this._adaptHandler(controller))
+  delete = (path: string, controller: BaseController): void => {
+    this.router.delete(path, this._adaptHandler(controller))
   }
 
   private _adaptHandler = (controller: BaseController) =>
@@ -88,9 +86,8 @@ export default class ExpressDriver implements IServerDriver {
 
   private _getPayload(req: Request) {
     const { body, query, params } = req
-    const reqData = [body, query, params].filter(
-      (value) => Object.keys(value).length !== 0
-    )
+    const reqData = [body, query, params]
+      .filter(value => Object.keys(value).length !== 0)
     const data = reqData.length > 1
       ? Object.assign(reqData[0], reqData[1], reqData[2])
       : reqData[0]

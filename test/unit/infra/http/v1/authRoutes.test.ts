@@ -1,5 +1,5 @@
 import { expect } from 'chai'
-import authRotes from '../../../../../src/infra/http/v1/authRoutes'
+import authRotes from '../../../../../src/infra/http/v1/routes/authRoutes'
 import BaseController from '../../../../../src/adapters/controllers/BaseController'
 import ServerDriverMock from '../../../../mocks/drivers/ServerDriverMock'
 
@@ -11,9 +11,6 @@ const useCase = {
   exec: (data: any): Promise<void> => Promise.resolve(data)
 }
 const dependencies = {
-  drivers: {
-    httpServerDriver: ServerDriverMock,
-  },
   controllers: {
     registerCustomerController: new CustomController({ useCase }),
     authenticateUserController: new CustomController({ useCase }),
@@ -24,8 +21,8 @@ const dependencies = {
 
 describe('/infra/http/authRoutes.ts', () => {
   it('should return an array of auth routes', () => {
-    const routes = authRotes(dependencies)
+    const routes = authRotes(dependencies, ServerDriverMock)
 
-    expect(routes.length).equal(Object.keys(dependencies.controllers).length)
+    expect(routes).equal(undefined)
   })
 })
