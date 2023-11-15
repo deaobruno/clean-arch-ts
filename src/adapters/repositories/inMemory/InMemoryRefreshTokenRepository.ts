@@ -1,7 +1,7 @@
 import IDbDriver from "../../../infra/drivers/db/IDbDriver";
 import IRefreshTokenRepository from "../../../domain/refreshToken/IRefreshTokenRepository";
 import RefreshToken from "../../../domain/refreshToken/RefreshToken";
-import { RefreshTokenMapper } from "../../../domain/refreshToken/RefreshTokenMapper";
+import RefreshTokenMapper from "../../../domain/refreshToken/RefreshTokenMapper";
 
 export default class InMemoryRefreshTokenRepository
   implements IRefreshTokenRepository
@@ -44,7 +44,7 @@ export default class InMemoryRefreshTokenRepository
     if (refreshToken) return this._mapper.dbToEntity(refreshToken);
   }
 
-  async delete(filters = {}): Promise<void> {
+  async delete(filters?: object): Promise<void> {
     await this._dbDriver.delete(this._source, filters);
   }
 }

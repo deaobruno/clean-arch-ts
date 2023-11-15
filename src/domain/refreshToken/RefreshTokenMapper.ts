@@ -2,7 +2,7 @@ import IMapper from "../IMapper";
 import IDbRefreshToken from "./IDbRefreshToken";
 import RefreshToken from "./RefreshToken";
 
-export class RefreshTokenMapper
+export default class RefreshTokenMapper
   implements IMapper<RefreshToken, IDbRefreshToken>
 {
   entityToDb(refreshToken: RefreshToken): IDbRefreshToken {

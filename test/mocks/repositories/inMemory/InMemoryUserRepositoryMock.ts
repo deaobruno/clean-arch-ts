@@ -1,8 +1,8 @@
-import User from "../../../../src/domain/User";
+import User from "../../../../src/domain/user/User";
 
 export default {
-  save(user: User): Promise<User> {
-    return Promise.resolve(user);
+  create(user: User): Promise<void> {
+    return Promise.resolve(undefined);
   },
   find(filters: any): Promise<User[]> {
     return Promise.resolve([]);
@@ -17,6 +17,9 @@ export default {
     return Promise.resolve(undefined);
   },
   findOneByEmail(): Promise<User | undefined> {
+    return Promise.resolve(undefined);
+  },
+  update(user: User): Promise<void> {
     return Promise.resolve(undefined);
   },
   delete(): Promise<void> {

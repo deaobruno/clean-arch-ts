@@ -1,8 +1,8 @@
 import { faker } from "@faker-js/faker";
 import { expect } from "chai";
-import RefreshToken from "../../../src/domain/RefreshToken";
+import RefreshToken from "../../../../src/domain/refreshToken/RefreshToken";
 
-describe("/domain/RefreshToken.ts", () => {
+describe("/domain/refreshToken/RefreshToken.ts", () => {
   it("should create a root User entity object", () => {
     const refreshToken = RefreshToken.create({
       userId: faker.string.uuid(),

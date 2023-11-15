@@ -1,7 +1,7 @@
 import User from "../../../domain/user/User";
 import IDbDriver from "../../../infra/drivers/db/IDbDriver";
 import IUserRepository from "../../../domain/user/IUserRepository";
-import { UserMapper } from "../../../domain/user/UserMapper";
+import UserMapper from "../../../domain/user/UserMapper";
 import UserRole from "../../../domain/user/UserRole";
 
 export default class InMemoryUserRepository implements IUserRepository {
@@ -59,7 +59,7 @@ export default class InMemoryUserRepository implements IUserRepository {
     });
   }
 
-  async delete(filters = {}): Promise<void> {
+  async delete(filters?: object): Promise<void> {
     await this._dbDriver.delete(this._source, filters);
   }
 }

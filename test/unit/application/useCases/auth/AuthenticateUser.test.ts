@@ -3,8 +3,8 @@ import { faker } from "@faker-js/faker";
 import { expect } from "chai";
 import ITokenDriver from "../../../../../src/infra/drivers/token/ITokenDriver";
 import IHashDriver from "../../../../../src/infra/drivers/hash/IHashDriver";
-import IUserRepository from "../../../../../src/domain/repositories/IUserRepository";
-import IRefreshTokenRepository from "../../../../../src/domain/repositories/IRefreshTokenRepository";
+import IUserRepository from "../../../../../src/domain/user/IUserRepository";
+import IRefreshTokenRepository from "../../../../../src/domain/refreshToken/IRefreshTokenRepository";
 import TokenDriverMock from "../../../../mocks/drivers/TokenDriverMock";
 import HashDriverMock from "../../../../mocks/drivers/HashDriverMock";
 import UserRepositoryMock from "../../../../mocks/repositories/inMemory/InMemoryUserRepositoryMock";
@@ -12,8 +12,8 @@ import RefreshTokenRepositoryMock from "../../../../mocks/repositories/inMemory/
 import BaseError from "../../../../../src/application/errors/BaseError";
 import UnauthorizedError from "../../../../../src/application/errors/UnauthorizedError";
 import AuthenticateUser from "../../../../../src/application/useCases/auth/AuthenticateUser";
-import RefreshToken from "../../../../../src/domain/RefreshToken";
-import { LevelEnum } from "../../../../../src/domain/User";
+import RefreshToken from "../../../../../src/domain/refreshToken/RefreshToken";
+import UserRole from "../../../../../src/domain/user/UserRole";
 
 const sandbox = sinon.createSandbox();
 const tokenDriver: ITokenDriver = TokenDriverMock;
@@ -28,13 +28,13 @@ const userData = {
   userId,
   email,
   password,
-  level: LevelEnum.CUSTOMER,
+  level: UserRole.CUSTOMER,
 };
 const fakeUser = {
   userId,
   email,
   password: "hash",
-  level: LevelEnum.CUSTOMER,
+  level: UserRole.CUSTOMER,
   isRoot: false,
   isAdmin: false,
   isCustomer: true,

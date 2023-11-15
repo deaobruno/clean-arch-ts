@@ -1,8 +1,8 @@
-import RefreshToken from "../../../../src/domain/RefreshToken";
+import RefreshToken from "../../../../src/domain/refreshToken/RefreshToken";
 
 export default {
-  save(token: RefreshToken): Promise<RefreshToken> {
-    return Promise.resolve(token);
+  create(refreshToken: RefreshToken): Promise<void> {
+    return Promise.resolve(undefined);
   },
   find(filters: any): Promise<RefreshToken[]> {
     return Promise.resolve([]);
@@ -14,6 +14,9 @@ export default {
     return Promise.resolve(undefined);
   },
   findOneByToken(): Promise<RefreshToken | undefined> {
+    return Promise.resolve(undefined);
+  },
+  update(refreshToken: RefreshToken): Promise<void> {
     return Promise.resolve(undefined);
   },
   delete(): Promise<void> {

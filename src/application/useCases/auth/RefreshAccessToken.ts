@@ -57,9 +57,6 @@ export default class RefreshAccessToken implements IUseCase<Input, Output> {
       token: refreshToken,
     });
 
-    if (refreshTokenEntity instanceof Error)
-      return new InternalServerError(refreshTokenEntity.message);
-
     await this._refreshTokenRepository.create(refreshTokenEntity);
 
     return {

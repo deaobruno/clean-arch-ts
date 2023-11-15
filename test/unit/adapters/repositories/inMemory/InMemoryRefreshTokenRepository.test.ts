@@ -5,9 +5,9 @@ import config from "../../../../../src/config";
 import RefreshTokenRepository from "../../../../../src/adapters/repositories/inMemory/InMemoryRefreshTokenRepository";
 import InMemoryDriver from "../../../../../src/infra/drivers/db/InMemoryDriver";
 import IDbDriver from "../../../../../src/infra/drivers/db/IDbDriver";
-import IRefreshTokenRepository from "../../../../../src/domain/repositories/IRefreshTokenRepository";
-import { RefreshTokenMapper } from "../../../../../src/domain/mappers/RefreshTokenMapper";
-import RefreshToken from "../../../../../src/domain/RefreshToken";
+import IRefreshTokenRepository from "../../../../../src/domain/refreshToken/IRefreshTokenRepository";
+import RefreshTokenMapper from "../../../../../src/domain/refreshToken/RefreshTokenMapper";
+import RefreshToken from "../../../../../src/domain/refreshToken/RefreshToken";
 
 const sandbox = sinon.createSandbox();
 let inMemoryDriver: IDbDriver;
@@ -40,12 +40,11 @@ describe("/adapters/repositories/inMemory/InMemoryRefreshTokenRepository", () =>
       user_id: userId,
       token,
     });
-    sandbox.stub(inMemoryDriver, "save").resolves(fakeRefreshToken);
+    sandbox.stub(inMemoryDriver, "create").resolves();
 
-    const refreshToken = await refreshTokenRepository.save(fakeRefreshToken);
+    const result = await refreshTokenRepository.create(fakeRefreshToken);
 
-    expect(refreshToken.userId).equal(fakeRefreshToken.userId);
-    expect(refreshToken.token).equal(fakeRefreshToken.token);
+    expect(result).equal(undefined);
   });
 
   it("should return all RefreshTokens from DB when no filter is passed", async () => {

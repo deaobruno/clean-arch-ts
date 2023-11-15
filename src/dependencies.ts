@@ -38,8 +38,8 @@ import RefreshAccessToken from "./application/useCases/auth/RefreshAccessToken";
 import LogoutSchema from "./infra/schemas/auth/LogoutSchema";
 import DeleteRefreshToken from "./application/useCases/auth/DeleteRefreshToken";
 import LogoutController from "./adapters/controllers/auth/LogoutController";
-import { UserMapper } from "./domain/user/UserMapper";
-import { RefreshTokenMapper } from "./domain/refreshToken/RefreshTokenMapper";
+import UserMapper from "./domain/user/UserMapper";
+import RefreshTokenMapper from "./domain/refreshToken/RefreshTokenMapper";
 import CreateRoot from "./application/useCases/user/CreateRoot";
 
 const {

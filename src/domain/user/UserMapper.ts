@@ -2,7 +2,7 @@ import IMapper from "../IMapper";
 import User from "./User";
 import IDbUser from "./IDbUser";
 
-export class UserMapper implements IMapper<User, IDbUser> {
+export default class UserMapper implements IMapper<User, IDbUser> {
   entityToDb(user: User): IDbUser {
     const { userId, email, password, level } = user;
 

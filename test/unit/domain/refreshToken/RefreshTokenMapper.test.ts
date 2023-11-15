@@ -1,12 +1,12 @@
 import sinon from "sinon";
 import { faker } from "@faker-js/faker";
 import { expect } from "chai";
-import { RefreshTokenMapper } from "../../../../src/domain/mappers/RefreshTokenMapper";
-import RefreshToken from "../../../../src/domain/RefreshToken";
+import RefreshTokenMapper from "../../../../src/domain/refreshToken/RefreshTokenMapper";
+import RefreshToken from "../../../../src/domain/refreshToken/RefreshToken";
 
 const refreshTokenMapper = new RefreshTokenMapper();
 
-describe("/src/domain/mappers/RefreshTokenMapper.ts", () => {
+describe("/src/domain/refreshToken/RefreshTokenMapper.ts", () => {
   it("should map a refreshToken entity to refreshToken db data", () => {
     const refreshTokenData = {
       userId: faker.string.uuid(),

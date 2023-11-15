@@ -1,127 +1,120 @@
-import axios from 'axios'
-import { faker } from '@faker-js/faker'
-import { expect } from 'chai'
-import server from '../../../src/infra/http/v1/server'
+import axios from "axios";
+import { faker } from "@faker-js/faker";
+import { expect } from "chai";
+import server from "../../../src/infra/http/v1/server";
 
-const url = 'http://localhost:8080/api/v1/auth/register'
+const url = "http://localhost:8080/api/v1/auth/register";
 
-describe('POST /auth/register', () => {
-  before(() => server.start())
+describe("POST /auth/register", () => {
+  before(() => server.start(8080));
 
-  after(() => server.stop())
+  after(() => server.stop());
 
-  it('should get status 201 when successfully registered a new customer', async () => {
+  it("should get status 201 when successfully registered a new customer", async () => {
     const payload = {
       email: faker.internet.email(),
-      password: '12345',
-      confirm_password: '12345',
-    }
-    const { status, data } = await axios.post(url, payload)
+      password: "12345",
+      confirm_password: "12345",
+    };
+    const { status, data } = await axios.post(url, payload);
 
-    expect(status).equal(201)
-    expect(typeof data.id).equal('string')
-    expect(data.email).equal(payload.email)
-  })
+    expect(status).equal(201);
+    expect(typeof data.id).equal("string");
+    expect(data.email).equal(payload.email);
+  });
 
   it('should get status 400 when trying to register a customer without "email"', async () => {
     const payload = {
-      email: '',
-      password: '12345',
-      confirm_password: '12345',
-    }
+      email: "",
+      password: "12345",
+      confirm_password: "12345",
+    };
 
-    await axios.post(url, payload)
-      .catch(({ response: { status, data } }) => {
-        expect(status).equal(400)
-        expect(data.error).equal('"email" is required')
-      })
-  })
+    await axios.post(url, payload).catch(({ response: { status, data } }) => {
+      expect(status).equal(400);
+      expect(data.error).equal('"email" is required');
+    });
+  });
 
   it('should get status 400 when trying to register a customer with invalid "email"', async () => {
     const payload = {
-      email: 'test',
-      password: '12345',
-      confirm_password: '12345',
-    }
+      email: "test",
+      password: "12345",
+      confirm_password: "12345",
+    };
 
-    await axios.post(url, payload)
-      .catch(({ response: { status, data } }) => {
-        expect(status).equal(400)
-        expect(data.error).equal('Invalid "email" format')
-      })
-  })
+    await axios.post(url, payload).catch(({ response: { status, data } }) => {
+      expect(status).equal(400);
+      expect(data.error).equal('Invalid "email" format');
+    });
+  });
 
   it('should get status 400 when trying to register a customer without "password"', async () => {
     const payload = {
       email: faker.internet.email(),
-      password: '',
-      confirm_password: '12345',
-    }
+      password: "",
+      confirm_password: "12345",
+    };
 
-    await axios.post(url, payload)
-      .catch(({ response: { status, data } }) => {
-        expect(status).equal(400)
-        expect(data.error).equal('"password" is required')
-      })
-  })
+    await axios.post(url, payload).catch(({ response: { status, data } }) => {
+      expect(status).equal(400);
+      expect(data.error).equal('"password" is required');
+    });
+  });
 
   it('should get status 400 when trying to register a customer without "confirm_password"', async () => {
     const payload = {
       email: faker.internet.email(),
-      password: '12345',
-      confirm_password: '',
-    }
+      password: "12345",
+      confirm_password: "",
+    };
 
-    await axios.post(url, payload)
-      .catch(({ response: { status, data } }) => {
-        expect(status).equal(400)
-        expect(data.error).equal('"confirm_password" is required')
-      })
-  })
+    await axios.post(url, payload).catch(({ response: { status, data } }) => {
+      expect(status).equal(400);
+      expect(data.error).equal('"confirm_password" is required');
+    });
+  });
 
   it('should get status 400 when trying to register a customer with different "password" and "confirm_password"', async () => {
     const payload = {
       email: faker.internet.email(),
-      password: '12345',
-      confirm_password: '1234',
-    }
+      password: "12345",
+      confirm_password: "1234",
+    };
 
-    await axios.post(url, payload)
-      .catch(({ response: { status, data } }) => {
-        expect(status).equal(400)
-        expect(data.error).equal('Passwords mismatch')
-      })
-  })
+    await axios.post(url, payload).catch(({ response: { status, data } }) => {
+      expect(status).equal(400);
+      expect(data.error).equal("Passwords mismatch");
+    });
+  });
 
-  it('should get status 400 when trying to register a customer with invalid param', async () => {
+  it("should get status 400 when trying to register a customer with invalid param", async () => {
     const payload = {
       email: faker.internet.email(),
-      password: '12345',
-      confirm_password: '12345',
+      password: "12345",
+      confirm_password: "12345",
       test: true,
-    }
+    };
 
-    await axios.post(url, payload)
-      .catch(({ response: { status, data } }) => {
-        expect(status).equal(400)
-        expect(data.error).equal('Invalid param(s): "test"')
-      })
-  })
+    await axios.post(url, payload).catch(({ response: { status, data } }) => {
+      expect(status).equal(400);
+      expect(data.error).equal('Invalid param(s): "test"');
+    });
+  });
 
-  it('should get status 409 when trying to register a customer with an previously registered email', async () => {
-    const email = faker.internet.email()
+  it("should get status 409 when trying to register a customer with an previously registered email", async () => {
+    const email = faker.internet.email();
     const payload = {
       email,
-      password: '12345',
-      confirm_password: '12345',
-    }
+      password: "12345",
+      confirm_password: "12345",
+    };
 
-    await axios.post(url, payload)
+    await axios.post(url, payload);
 
-    await axios.post(url, payload)
-      .catch(({ response: { status, data } }) => {
-        expect(status).equal(409)
-        expect(data.error).equal('Email already in use')
-      })
-  })
-})
+    await axios.post(url, payload).catch(({ response: { status, data } }) => {
+      expect(status).equal(409);
+      expect(data.error).equal("Email already in use");
+    });
+  });
+});

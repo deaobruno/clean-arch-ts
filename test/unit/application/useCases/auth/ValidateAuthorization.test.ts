@@ -1,55 +1,55 @@
-import { faker } from '@faker-js/faker'
-import { expect } from 'chai'
-import ValidateAuthorization from '../../../../../src/application/useCases/auth/ValidateAuthorization'
-import ForbiddenError from '../../../../../src/application/errors/ForbiddenError'
-import BaseError from '../../../../../src/application/errors/BaseError'
-import { LevelEnum } from '../../../../../src/domain/User'
+import { faker } from "@faker-js/faker";
+import { expect } from "chai";
+import ValidateAuthorization from "../../../../../src/application/useCases/auth/ValidateAuthorization";
+import ForbiddenError from "../../../../../src/application/errors/ForbiddenError";
+import BaseError from "../../../../../src/application/errors/BaseError";
+import UserRole from "../../../../../src/domain/user/UserRole";
 
-const validateAuthorization = new ValidateAuthorization()
+const validateAuthorization = new ValidateAuthorization();
 
-describe('/application/useCases/auth/ValidateAuthorization.ts', () => {
-  it('should return void when user is root', () => {
+describe("/application/useCases/auth/ValidateAuthorization.ts", () => {
+  it("should return void when user is root", () => {
     const user = {
       userId: faker.string.uuid(),
       email: faker.internet.email(),
       password: faker.internet.password(),
-      level: LevelEnum.ROOT,
+      level: UserRole.ROOT,
       isRoot: true,
       isAdmin: false,
       isCustomer: false,
-    }
+    };
 
-    expect(validateAuthorization.exec({ user })).equal(undefined)
-  })
+    expect(validateAuthorization.exec({ user })).equal(undefined);
+  });
 
-  it('should return void when user is admin', () => {
+  it("should return void when user is admin", () => {
     const user = {
       userId: faker.string.uuid(),
       email: faker.internet.email(),
       password: faker.internet.password(),
-      level: LevelEnum.ADMIN,
+      level: UserRole.ADMIN,
       isRoot: false,
       isAdmin: true,
       isCustomer: false,
-    }
+    };
 
-    expect(validateAuthorization.exec({ user })).equal(undefined)
-  })
+    expect(validateAuthorization.exec({ user })).equal(undefined);
+  });
 
-  it('should return a ForbiddenError when user is customer', () => {
+  it("should return a ForbiddenError when user is customer", () => {
     const user = {
       userId: faker.string.uuid(),
       email: faker.internet.email(),
       password: faker.internet.password(),
-      level: LevelEnum.CUSTOMER,
+      level: UserRole.CUSTOMER,
       isRoot: false,
       isAdmin: false,
       isCustomer: true,
-    }
-    const error = <BaseError>validateAuthorization.exec({ user })
+    };
+    const error = <BaseError>validateAuthorization.exec({ user });
 
-    expect(error instanceof ForbiddenError).equal(true)
-    expect(error.message).equal('Forbidden')
-    expect(error.statusCode).equal(403)
-  })
-})
+    expect(error instanceof ForbiddenError).equal(true);
+    expect(error.message).equal("Forbidden");
+    expect(error.statusCode).equal(403);
+  });
+});

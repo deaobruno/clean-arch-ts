@@ -13,6 +13,22 @@ export default class ExpressDriver implements IServerDriver {
 
   constructor() {}
 
+  get = (path: string, controller: BaseController): Router => {
+    return this.router.get(path, this._adaptHandler(controller));
+  };
+
+  post = (path: string, controller: BaseController): Router => {
+    return this.router.post(path, this._adaptHandler(controller));
+  };
+
+  put = (path: string, controller: BaseController): Router => {
+    return this.router.put(path, this._adaptHandler(controller));
+  };
+
+  delete = (path: string, controller: BaseController): Router => {
+    return this.router.delete(path, this._adaptHandler(controller));
+  };
+
   config(routes: Router[]): void {
     this.app.use(bodyParser.json());
 
@@ -56,22 +72,6 @@ export default class ExpressDriver implements IServerDriver {
   stop(callback?: (error?: Error) => void): void {
     this.httpServer?.close(callback);
   }
-
-  get = (path: string, controller: BaseController): Router => {
-    return this.router.get(path, this._adaptHandler(controller));
-  };
-
-  post = (path: string, controller: BaseController): Router => {
-    return this.router.post(path, this._adaptHandler(controller));
-  };
-
-  put = (path: string, controller: BaseController): Router => {
-    return this.router.put(path, this._adaptHandler(controller));
-  };
-
-  delete = (path: string, controller: BaseController): Router => {
-    return this.router.delete(path, this._adaptHandler(controller));
-  };
 
   private _adaptHandler =
     (controller: BaseController) =>
