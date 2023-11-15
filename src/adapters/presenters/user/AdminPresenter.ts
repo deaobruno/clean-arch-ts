@@ -1,18 +1,15 @@
-import { LevelEnum, User } from '../../../domain/User'
-import IPresenter from '../IPresenter'
+import UserRole from "../../../domain/user/UserRole";
+import User from "../../../domain/user/User";
+import IPresenter from "../IPresenter";
 
 export default class AdminPresenter implements IPresenter {
   present(user: User) {
-    const {
-      userId,
-      email,
-      level,
-    } = user
+    const { userId, email, level } = user;
 
     return {
       id: userId,
       email,
-      level: LevelEnum[level],
-    }
+      level: UserRole[level],
+    };
   }
 }

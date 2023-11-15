@@ -1,39 +1,43 @@
-import { LevelEnum, User } from '../../../domain/User'
-import IUserRepository from '../../../domain/repositories/IUserRepository'
-import IHashDriver from '../../../infra/drivers/hash/IHashDriver'
-import BaseError from '../../errors/BaseError'
-import IUseCase from '../IUseCase'
-import ConflictError from '../../errors/ConflictError'
+import User from "../../../domain/user/User";
+import UserRole from "../../../domain/user/UserRole";
+import IUserRepository from "../../../domain/user/IUserRepository";
+import IHashDriver from "../../../infra/drivers/hash/IHashDriver";
+import BaseError from "../../errors/BaseError";
+import IUseCase from "../IUseCase";
+import ConflictError from "../../errors/ConflictError";
+import InternalServerError from "../../errors/InternalServerError";
 
 type CreateAdminInput = {
-  email: string
-  password: string
-}
+  email: string;
+  password: string;
+};
 
-type Output = User | BaseError
+type Output = User | BaseError;
 
 export default class CreateAdmin implements IUseCase<CreateAdminInput, Output> {
   constructor(
     private _userRepository: IUserRepository,
-    private _cryptoDriver: IHashDriver,
+    private _cryptoDriver: IHashDriver
   ) {}
 
   async exec(input: CreateAdminInput): Promise<Output> {
-    const { email, password } = input
-    const userByEmail = await this._userRepository.findOneByEmail(email)
+    const { email, password } = input;
+    const userByEmail = await this._userRepository.findOneByEmail(email);
 
     if (userByEmail && userByEmail.email === email)
-      return new ConflictError('Email already in use')
+      return new ConflictError("Email already in use");
 
     const user = User.create({
       userId: this._cryptoDriver.generateID(),
       email,
       password: this._cryptoDriver.hashString(password),
-      level: LevelEnum.ADMIN,
-    })
+      level: UserRole.ADMIN,
+    });
 
-    await this._userRepository.save(user)
+    if (user instanceof Error) return new InternalServerError(user.message);
 
-    return user
+    await this._userRepository.create(user);
+
+    return user;
   }
 }

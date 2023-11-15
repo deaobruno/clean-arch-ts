@@ -1,43 +1,42 @@
-import sinon from 'sinon'
-import { faker } from '@faker-js/faker'
-import { expect } from 'chai'
-import { RefreshTokenMapper } from '../../../../src/domain/mappers/RefreshTokenMapper'
-import { RefreshToken } from '../../../../src/domain/RefreshToken'
+import sinon from "sinon";
+import { faker } from "@faker-js/faker";
+import { expect } from "chai";
+import { RefreshTokenMapper } from "../../../../src/domain/mappers/RefreshTokenMapper";
+import RefreshToken from "../../../../src/domain/RefreshToken";
 
-const refreshTokenMapper = new RefreshTokenMapper()
+const refreshTokenMapper = new RefreshTokenMapper();
 
-describe('/src/domain/mappers/RefreshTokenMapper.ts', () => {
-  it('should map a refreshToken entity to refreshToken db data', () => {
+describe("/src/domain/mappers/RefreshTokenMapper.ts", () => {
+  it("should map a refreshToken entity to refreshToken db data", () => {
     const refreshTokenData = {
       userId: faker.string.uuid(),
       token: faker.string.alphanumeric(64),
-    }
-    const refreshToken = RefreshToken.create(refreshTokenData)
-    const refreshTokenDbData = refreshTokenMapper.entityToDb(refreshToken)
+    };
+    const refreshToken = RefreshToken.create(refreshTokenData);
+    const refreshTokenDbData = refreshTokenMapper.entityToDb(refreshToken);
 
-    expect(refreshTokenDbData.user_id).equal(refreshToken.userId)
-    expect(refreshTokenDbData.token).equal(refreshToken.token)
-  })
+    expect(refreshTokenDbData.user_id).equal(refreshToken.userId);
+    expect(refreshTokenDbData.token).equal(refreshToken.token);
+  });
 
-  it('should map refreshToken db data to a refreshToken entity', () => {
-    const userId = faker.string.uuid()
-    const token = faker.string.alphanumeric(64)
+  it("should map refreshToken db data to a refreshToken entity", () => {
+    const userId = faker.string.uuid();
+    const token = faker.string.alphanumeric(64);
 
-    sinon.stub(RefreshToken, 'create')
-      .returns({
-        userId,
-        token,
-      })
+    sinon.stub(RefreshToken, "create").returns({
+      userId,
+      token,
+    });
 
     const refreshTokenDbData = {
       user_id: userId,
       token,
-    }
-    const user = refreshTokenMapper.dbToEntity(refreshTokenDbData)
+    };
+    const user = refreshTokenMapper.dbToEntity(refreshTokenDbData);
 
-    expect(user.userId).equal(refreshTokenDbData.user_id)
-    expect(user.token).equal(refreshTokenDbData.token)
+    expect(user.userId).equal(refreshTokenDbData.user_id);
+    expect(user.token).equal(refreshTokenDbData.token);
 
-    sinon.restore()
-  })
-})
+    sinon.restore();
+  });
+});

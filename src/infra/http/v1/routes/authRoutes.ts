@@ -1,22 +1,19 @@
-import IServer from '../../../drivers/server/IServerDriver'
+import IServer from "../../../drivers/server/IServerDriver";
 
-export default (dependencies: any, server: IServer, prefix?: string): void => {
-  const basePath = `${ prefix }/auth`
+export default (dependencies: any, server: IServer, prefix?: string): any[] => {
+  const basePath = `${prefix}/auth`;
   const {
-    controllers: {
-      registerCustomerController,
-      authenticateUserController,
-      refreshAccessTokenController,
-      logoutController,
-    },
-  } = dependencies
-  const {
-    post,
-    delete: del,
-  } = server
+    registerCustomerController,
+    authenticateUserController,
+    refreshAccessTokenController,
+    logoutController,
+  } = dependencies;
+  const { post, delete: del } = server;
 
-  post(`${ basePath }/register`, registerCustomerController)
-  post(`${ basePath }/login`, authenticateUserController)
-  post(`${ basePath }/refresh-token`, refreshAccessTokenController)
-  del(`${ basePath }/logout`, logoutController)
-}
+  return [
+    post(`${basePath}/register`, registerCustomerController),
+    post(`${basePath}/login`, authenticateUserController),
+    post(`${basePath}/refresh-token`, refreshAccessTokenController),
+    del(`${basePath}/logout`, logoutController),
+  ];
+};

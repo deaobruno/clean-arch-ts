@@ -1,11 +1,8 @@
-import config from '../../../config'
-import dependencies from '../../../dependencies'
-import ExpressDriver from '../../drivers/server/ExpressDriver'
-import routes from './routes/routes'
+import ExpressDriver from "../../drivers/server/ExpressDriver";
+import routes from "./routes/routes";
 
-const dependenciesContainer = dependencies(config)
-const server = new ExpressDriver(config.server.httpPort)
+const server = new ExpressDriver();
 
-routes(dependenciesContainer, server)
+server.config(routes(server));
 
-export default server
+export default server;
