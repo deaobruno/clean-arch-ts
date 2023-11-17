@@ -15,7 +15,7 @@ describe("/application/presenters/user/AdminPresenter.ts", () => {
       level: UserRole.ADMIN,
     };
     const user = User.create(userData);
-    const admin = adminPresenter.present(user);
+    const admin = adminPresenter.toJson(user);
 
     expect(admin.id).equal(userData.userId);
     expect(admin.email).equal(userData.email);

@@ -3,7 +3,7 @@ import User from "../../../domain/user/User";
 import IPresenter from "../IPresenter";
 
 export default class AdminPresenter implements IPresenter {
-  present(user: User) {
+  toJson(user: User) {
     const { userId, email, level } = user;
 
     return {

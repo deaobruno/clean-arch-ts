@@ -63,6 +63,6 @@ export default abstract class BaseController {
 
     return Array.isArray(data)
       ? data.map(this._presenter.present)
-      : this._presenter.present(data);
+      : this._presenter.toJson(data);
   }
 }
