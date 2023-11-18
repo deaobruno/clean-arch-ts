@@ -19,7 +19,7 @@ const userData = {
   userId,
   email: faker.internet.email(),
   password: faker.internet.password(),
-  level: UserRole.CUSTOMER,
+  role: UserRole.CUSTOMER,
 };
 const user = {
   ...userData,

@@ -25,7 +25,7 @@ const fakeUser = {
   userId: faker.string.uuid(),
   email,
   password,
-  level: UserRole.CUSTOMER,
+  role: UserRole.CUSTOMER,
   isRoot: false,
   isAdmin: false,
   isCustomer: true,

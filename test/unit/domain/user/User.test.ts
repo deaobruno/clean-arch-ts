@@ -13,14 +13,14 @@ describe("/domain/user/User.ts", () => {
       userId,
       email,
       password,
-      level: UserRole.ROOT,
+      role: UserRole.ROOT,
     };
     const user = User.create(userParams);
 
     expect(user.userId).equal(userParams.userId);
     expect(user.email).equal(userParams.email);
     expect(user.password).equal(userParams.password);
-    expect(user.level).equal(UserRole.ROOT);
+    expect(user.role).equal(UserRole.ROOT);
     expect(user.isRoot).equal(true);
   });
 
@@ -29,14 +29,14 @@ describe("/domain/user/User.ts", () => {
       userId,
       email,
       password,
-      level: UserRole.ADMIN,
+      role: UserRole.ADMIN,
     };
     const user = User.create(userParams);
 
     expect(user.userId).equal(userParams.userId);
     expect(user.email).equal(userParams.email);
     expect(user.password).equal(userParams.password);
-    expect(user.level).equal(UserRole.ADMIN);
+    expect(user.role).equal(UserRole.ADMIN);
     expect(user.isAdmin).equal(true);
   });
 
@@ -45,14 +45,14 @@ describe("/domain/user/User.ts", () => {
       userId,
       email,
       password,
-      level: UserRole.CUSTOMER,
+      role: UserRole.CUSTOMER,
     };
     const user = User.create(userParams);
 
     expect(user.userId).equal(userParams.userId);
     expect(user.email).equal(userParams.email);
     expect(user.password).equal(userParams.password);
-    expect(user.level).equal(UserRole.CUSTOMER);
+    expect(user.role).equal(UserRole.CUSTOMER);
     expect(user.isCustomer).equal(true);
   });
 
@@ -61,7 +61,7 @@ describe("/domain/user/User.ts", () => {
       userId: "",
       email,
       password,
-      level: UserRole.ADMIN,
+      role: UserRole.ADMIN,
     };
 
     expect(() => User.create(userParams)).throw('User: "userId" required');
@@ -72,7 +72,7 @@ describe("/domain/user/User.ts", () => {
       userId: "test",
       email,
       password,
-      level: UserRole.ADMIN,
+      role: UserRole.ADMIN,
     };
 
     expect(() => User.create(userParams)).throw('User: Invalid "userId"');
@@ -83,7 +83,7 @@ describe("/domain/user/User.ts", () => {
       userId,
       email: "",
       password,
-      level: UserRole.ROOT,
+      role: UserRole.ROOT,
     };
 
     expect(() => User.create(userParams)).throw('User: "email" required');
@@ -94,7 +94,7 @@ describe("/domain/user/User.ts", () => {
       userId,
       email: "email",
       password,
-      level: UserRole.ROOT,
+      role: UserRole.ROOT,
     };
 
     expect(() => User.create(userParams)).throw('User: Invalid "email"');
@@ -105,20 +105,20 @@ describe("/domain/user/User.ts", () => {
       userId,
       email,
       password: "",
-      level: UserRole.ROOT,
+      role: UserRole.ROOT,
     };
 
     expect(() => User.create(userParams)).throw('User: "password" required');
   });
 
-  it("should fail when trying to create an User entity with invalid level", () => {
+  it("should fail when trying to create an User entity with invalid role", () => {
     const userParams = {
       userId,
       email,
       password,
-      level: -1,
+      role: -1,
     };
 
-    expect(() => User.create(userParams)).throw('User: Invalid "level"');
+    expect(() => User.create(userParams)).throw('User: Invalid "role"');
   });
 });

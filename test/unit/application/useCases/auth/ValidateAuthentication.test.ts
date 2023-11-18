@@ -26,13 +26,13 @@ const userData = {
   id: userId,
   email,
   password,
-  level: UserRole.CUSTOMER,
+  role: UserRole.CUSTOMER,
 };
 const fakeUser = {
   userId,
   email,
   password,
-  level: UserRole.CUSTOMER,
+  role: UserRole.CUSTOMER,
   isRoot: false,
   isAdmin: false,
   isCustomer: true,
@@ -62,7 +62,7 @@ describe("/application/useCases/auth/ValidateAuthentication.ts", () => {
     expect(user.userId).equal(userData.id);
     expect(user.email).equal(userData.email);
     expect(user.password).equal(userData.password);
-    expect(user.level).equal(userData.level);
+    expect(user.role).equal(userData.role);
     expect(user.isCustomer).equal(true);
     expect(user.isAdmin).equal(false);
     expect(user.isRoot).equal(false);

@@ -21,7 +21,7 @@ const fakeUser: User = {
   userId: faker.string.uuid(),
   email,
   password,
-  level: UserRole.CUSTOMER,
+  role: UserRole.CUSTOMER,
   isRoot: false,
   isAdmin: false,
   isCustomer: true,
@@ -30,7 +30,7 @@ const userParams = {
   email,
   password,
   confirm_password: password,
-  level: UserRole.CUSTOMER,
+  role: UserRole.CUSTOMER,
 };
 let conflictError: ConflictError;
 
@@ -53,7 +53,7 @@ describe("/application/useCases/auth/RegisterCustomer.ts", () => {
     expect(user.userId).equal(fakeUser.userId);
     expect(user.email).equal(userParams.email);
     expect(user.password).equal(userParams.password);
-    expect(user.level).equal(UserRole.CUSTOMER);
+    expect(user.role).equal(UserRole.CUSTOMER);
     expect(user.isCustomer).equal(true);
     expect(user.isAdmin).equal(false);
     expect(user.isRoot).equal(false);

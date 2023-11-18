@@ -62,7 +62,7 @@ export default abstract class BaseController {
     if (data instanceof Error || !this._presenter) return data;
 
     return Array.isArray(data)
-      ? data.map(this._presenter.present)
+      ? data.map(this._presenter.toJson)
       : this._presenter.toJson(data);
   }
 }

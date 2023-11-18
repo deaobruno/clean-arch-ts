@@ -36,7 +36,7 @@ describe("DELETE /users", () => {
       userId: faker.string.uuid(),
       email,
       password: hashDriver.hashString(password),
-      level: UserRole.ADMIN,
+      role: UserRole.ADMIN,
       isRoot: false,
       isAdmin: true,
       isCustomer: false,

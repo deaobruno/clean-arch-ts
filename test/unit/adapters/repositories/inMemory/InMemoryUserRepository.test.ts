@@ -32,12 +32,12 @@ describe("/adapters/repositories/inMemory/InMemoryUserRepository", () => {
     const userId = faker.string.uuid();
     const email = faker.internet.email();
     const password = faker.internet.password();
-    const level = UserRole.CUSTOMER;
+    const role = UserRole.CUSTOMER;
     const fakeUser = {
       userId,
       email,
       password,
-      level,
+      role,
       isRoot: false,
       isAdmin: false,
       isCustomer: true,
@@ -48,13 +48,13 @@ describe("/adapters/repositories/inMemory/InMemoryUserRepository", () => {
       user_id: userId,
       email,
       password,
-      level,
+      role,
     });
     sandbox.stub(inMemoryDriver, "create").resolves({
       user_id: userId,
       email,
       password,
-      level,
+      role,
     });
 
     const result = await userRepository.create(fakeUser);
@@ -68,19 +68,19 @@ describe("/adapters/repositories/inMemory/InMemoryUserRepository", () => {
         user_id: faker.string.uuid(),
         email: faker.internet.email(),
         password: faker.internet.password(),
-        level: UserRole.ROOT,
+        role: UserRole.ROOT,
       },
       {
         user_id: faker.string.uuid(),
         email: faker.internet.email(),
         password: faker.internet.password(),
-        level: UserRole.ADMIN,
+        role: UserRole.ADMIN,
       },
       {
         user_id: faker.string.uuid(),
         email: faker.internet.email(),
         password: faker.internet.password(),
-        level: UserRole.CUSTOMER,
+        role: UserRole.CUSTOMER,
       },
     ];
 
@@ -92,7 +92,7 @@ describe("/adapters/repositories/inMemory/InMemoryUserRepository", () => {
         userId: dbUsers[0].user_id,
         email: dbUsers[0].email,
         password: dbUsers[0].password,
-        level: dbUsers[0].level,
+        role: dbUsers[0].role,
         isRoot: true,
         isAdmin: false,
         isCustomer: false,
@@ -102,7 +102,7 @@ describe("/adapters/repositories/inMemory/InMemoryUserRepository", () => {
         userId: dbUsers[1].user_id,
         email: dbUsers[1].email,
         password: dbUsers[1].password,
-        level: dbUsers[1].level,
+        role: dbUsers[1].role,
         isRoot: false,
         isAdmin: true,
         isCustomer: false,
@@ -112,7 +112,7 @@ describe("/adapters/repositories/inMemory/InMemoryUserRepository", () => {
         userId: dbUsers[2].user_id,
         email: dbUsers[2].email,
         password: dbUsers[2].password,
-        level: dbUsers[2].level,
+        role: dbUsers[2].role,
         isRoot: false,
         isAdmin: false,
         isCustomer: true,
@@ -123,21 +123,21 @@ describe("/adapters/repositories/inMemory/InMemoryUserRepository", () => {
     expect(users[0].userId).equal(dbUsers[0].user_id);
     expect(users[0].email).equal(dbUsers[0].email);
     expect(users[0].password).equal(dbUsers[0].password);
-    expect(users[0].level).equal(dbUsers[0].level);
+    expect(users[0].role).equal(dbUsers[0].role);
     expect(users[0].isRoot).equal(true);
     expect(users[0].isAdmin).equal(false);
     expect(users[0].isCustomer).equal(false);
     expect(users[1].userId).equal(dbUsers[1].user_id);
     expect(users[1].email).equal(dbUsers[1].email);
     expect(users[1].password).equal(dbUsers[1].password);
-    expect(users[1].level).equal(dbUsers[1].level);
+    expect(users[1].role).equal(dbUsers[1].role);
     expect(users[1].isRoot).equal(false);
     expect(users[1].isAdmin).equal(true);
     expect(users[1].isCustomer).equal(false);
     expect(users[2].userId).equal(dbUsers[2].user_id);
     expect(users[2].email).equal(dbUsers[2].email);
     expect(users[2].password).equal(dbUsers[2].password);
-    expect(users[2].level).equal(dbUsers[2].level);
+    expect(users[2].role).equal(dbUsers[2].role);
     expect(users[2].isRoot).equal(false);
     expect(users[2].isAdmin).equal(false);
     expect(users[2].isCustomer).equal(true);
@@ -149,13 +149,13 @@ describe("/adapters/repositories/inMemory/InMemoryUserRepository", () => {
         user_id: faker.string.uuid(),
         email: faker.internet.email(),
         password: faker.internet.password(),
-        level: UserRole.CUSTOMER,
+        role: UserRole.CUSTOMER,
       },
       {
         user_id: faker.string.uuid(),
         email: faker.internet.email(),
         password: faker.internet.password(),
-        level: UserRole.CUSTOMER,
+        role: UserRole.CUSTOMER,
       },
     ];
 
@@ -167,7 +167,7 @@ describe("/adapters/repositories/inMemory/InMemoryUserRepository", () => {
         userId: dbUsers[0].user_id,
         email: dbUsers[0].email,
         password: dbUsers[0].password,
-        level: dbUsers[0].level,
+        role: dbUsers[0].role,
         isRoot: false,
         isAdmin: false,
         isCustomer: true,
@@ -177,7 +177,7 @@ describe("/adapters/repositories/inMemory/InMemoryUserRepository", () => {
         userId: dbUsers[1].user_id,
         email: dbUsers[1].email,
         password: dbUsers[1].password,
-        level: dbUsers[1].level,
+        role: dbUsers[1].role,
         isRoot: false,
         isAdmin: false,
         isCustomer: true,
@@ -188,14 +188,14 @@ describe("/adapters/repositories/inMemory/InMemoryUserRepository", () => {
     expect(users[0].userId).equal(dbUsers[0].user_id);
     expect(users[0].email).equal(dbUsers[0].email);
     expect(users[0].password).equal(dbUsers[0].password);
-    expect(users[0].level).equal(dbUsers[0].level);
+    expect(users[0].role).equal(dbUsers[0].role);
     expect(users[0].isRoot).equal(false);
     expect(users[0].isAdmin).equal(false);
     expect(users[0].isCustomer).equal(true);
     expect(users[1].userId).equal(dbUsers[1].user_id);
     expect(users[1].email).equal(dbUsers[1].email);
     expect(users[1].password).equal(dbUsers[1].password);
-    expect(users[1].level).equal(dbUsers[1].level);
+    expect(users[1].role).equal(dbUsers[1].role);
     expect(users[1].isRoot).equal(false);
     expect(users[1].isAdmin).equal(false);
     expect(users[1].isCustomer).equal(true);
@@ -216,7 +216,7 @@ describe("/adapters/repositories/inMemory/InMemoryUserRepository", () => {
       user_id: faker.string.uuid(),
       email: faker.internet.email(),
       password: faker.internet.password(),
-      level: UserRole.CUSTOMER,
+      role: UserRole.CUSTOMER,
     };
 
     sandbox.stub(inMemoryDriver, "findOne").resolves(dbUser);
@@ -224,7 +224,7 @@ describe("/adapters/repositories/inMemory/InMemoryUserRepository", () => {
       userId: dbUser.user_id,
       email: dbUser.email,
       password: dbUser.password,
-      level: dbUser.level,
+      role: dbUser.role,
       isRoot: false,
       isAdmin: false,
       isCustomer: true,
@@ -235,7 +235,7 @@ describe("/adapters/repositories/inMemory/InMemoryUserRepository", () => {
     expect(user?.userId).equal(dbUser.user_id);
     expect(user?.email).equal(dbUser.email);
     expect(user?.password).equal(dbUser.password);
-    expect(user?.level).equal(dbUser.level);
+    expect(user?.role).equal(dbUser.role);
     expect(user?.isRoot).equal(false);
     expect(user?.isAdmin).equal(false);
     expect(user?.isCustomer).equal(true);
@@ -254,7 +254,7 @@ describe("/adapters/repositories/inMemory/InMemoryUserRepository", () => {
       user_id: faker.string.uuid(),
       email: faker.internet.email(),
       password: faker.internet.password(),
-      level: UserRole.CUSTOMER,
+      role: UserRole.CUSTOMER,
     };
 
     sandbox.stub(inMemoryDriver, "findOne").resolves(dbUser);
@@ -264,7 +264,7 @@ describe("/adapters/repositories/inMemory/InMemoryUserRepository", () => {
     expect(user.userId).equal(dbUser.user_id);
     expect(user.email).equal(dbUser.email);
     expect(user.password).equal(dbUser.password);
-    expect(user.level).equal(dbUser.level);
+    expect(user.role).equal(dbUser.role);
     expect(user.isRoot).equal(false);
     expect(user.isAdmin).equal(false);
     expect(user.isCustomer).equal(true);
@@ -284,19 +284,19 @@ describe("/adapters/repositories/inMemory/InMemoryUserRepository", () => {
         user_id: faker.string.uuid(),
         email: faker.internet.email(),
         password: faker.internet.password(),
-        level: UserRole.ADMIN,
+        role: UserRole.ADMIN,
       },
       {
         user_id: faker.string.uuid(),
         email: faker.internet.email(),
         password: faker.internet.password(),
-        level: UserRole.ADMIN,
+        role: UserRole.ADMIN,
       },
       {
         user_id: faker.string.uuid(),
         email: faker.internet.email(),
         password: faker.internet.password(),
-        level: UserRole.ADMIN,
+        role: UserRole.ADMIN,
       },
     ];
 
@@ -307,7 +307,7 @@ describe("/adapters/repositories/inMemory/InMemoryUserRepository", () => {
         userId: dbUsers[0].user_id,
         email: dbUsers[0].email,
         password: dbUsers[0].password,
-        level: dbUsers[0].level,
+        role: dbUsers[0].role,
         isRoot: false,
         isAdmin: true,
         isCustomer: false,
@@ -317,7 +317,7 @@ describe("/adapters/repositories/inMemory/InMemoryUserRepository", () => {
         userId: dbUsers[1].user_id,
         email: dbUsers[1].email,
         password: dbUsers[1].password,
-        level: dbUsers[1].level,
+        role: dbUsers[1].role,
         isRoot: false,
         isAdmin: true,
         isCustomer: false,
@@ -327,7 +327,7 @@ describe("/adapters/repositories/inMemory/InMemoryUserRepository", () => {
         userId: dbUsers[2].user_id,
         email: dbUsers[2].email,
         password: dbUsers[2].password,
-        level: dbUsers[2].level,
+        role: dbUsers[2].role,
         isRoot: false,
         isAdmin: true,
         isCustomer: false,
@@ -340,21 +340,21 @@ describe("/adapters/repositories/inMemory/InMemoryUserRepository", () => {
     expect(admins[0].userId).equal(dbUsers[0].user_id);
     expect(admins[0].email).equal(dbUsers[0].email);
     expect(admins[0].password).equal(dbUsers[0].password);
-    expect(admins[0].level).equal(1);
+    expect(admins[0].role).equal(1);
     expect(admins[0].isCustomer).equal(false);
     expect(admins[0].isAdmin).equal(true);
     expect(admins[0].isRoot).equal(false);
     expect(admins[1].userId).equal(dbUsers[1].user_id);
     expect(admins[1].email).equal(dbUsers[1].email);
     expect(admins[1].password).equal(dbUsers[1].password);
-    expect(admins[1].level).equal(1);
+    expect(admins[1].role).equal(1);
     expect(admins[1].isCustomer).equal(false);
     expect(admins[1].isAdmin).equal(true);
     expect(admins[1].isRoot).equal(false);
     expect(admins[2].userId).equal(dbUsers[2].user_id);
     expect(admins[2].email).equal(dbUsers[2].email);
     expect(admins[2].password).equal(dbUsers[2].password);
-    expect(admins[2].level).equal(1);
+    expect(admins[2].role).equal(1);
     expect(admins[2].isCustomer).equal(false);
     expect(admins[2].isAdmin).equal(true);
     expect(admins[2].isRoot).equal(false);
@@ -374,19 +374,19 @@ describe("/adapters/repositories/inMemory/InMemoryUserRepository", () => {
         user_id: faker.string.uuid(),
         email: faker.internet.email(),
         password: faker.internet.password(),
-        level: UserRole.CUSTOMER,
+        role: UserRole.CUSTOMER,
       },
       {
         user_id: faker.string.uuid(),
         email: faker.internet.email(),
         password: faker.internet.password(),
-        level: UserRole.CUSTOMER,
+        role: UserRole.CUSTOMER,
       },
       {
         user_id: faker.string.uuid(),
         email: faker.internet.email(),
         password: faker.internet.password(),
-        level: UserRole.CUSTOMER,
+        role: UserRole.CUSTOMER,
       },
     ];
 
@@ -398,21 +398,21 @@ describe("/adapters/repositories/inMemory/InMemoryUserRepository", () => {
     expect(customers[0].userId).equal(dbUsers[0].user_id);
     expect(customers[0].email).equal(dbUsers[0].email);
     expect(customers[0].password).equal(dbUsers[0].password);
-    expect(customers[0].level).equal(2);
+    expect(customers[0].role).equal(2);
     expect(customers[0].isCustomer).equal(true);
     expect(customers[0].isAdmin).equal(false);
     expect(customers[0].isRoot).equal(false);
     expect(customers[1].userId).equal(dbUsers[1].user_id);
     expect(customers[1].email).equal(dbUsers[1].email);
     expect(customers[1].password).equal(dbUsers[1].password);
-    expect(customers[1].level).equal(2);
+    expect(customers[1].role).equal(2);
     expect(customers[1].isCustomer).equal(true);
     expect(customers[1].isAdmin).equal(false);
     expect(customers[1].isRoot).equal(false);
     expect(customers[2].userId).equal(dbUsers[2].user_id);
     expect(customers[2].email).equal(dbUsers[2].email);
     expect(customers[2].password).equal(dbUsers[2].password);
-    expect(customers[2].level).equal(2);
+    expect(customers[2].role).equal(2);
     expect(customers[2].isCustomer).equal(true);
     expect(customers[2].isAdmin).equal(false);
     expect(customers[2].isRoot).equal(false);
@@ -430,12 +430,12 @@ describe("/adapters/repositories/inMemory/InMemoryUserRepository", () => {
     const userId = faker.string.uuid();
     const email = faker.internet.email();
     const password = faker.internet.password();
-    const level = UserRole.CUSTOMER;
+    const role = UserRole.CUSTOMER;
     const fakeUser = {
       userId,
       email,
       password,
-      level,
+      role,
       isRoot: false,
       isAdmin: false,
       isCustomer: true,

@@ -33,7 +33,7 @@ export default class RegisterCustomer
       userId: this._cryptoDriver.generateID(),
       email,
       password: this._cryptoDriver.hashString(password),
-      level: UserRole.CUSTOMER,
+      role: UserRole.CUSTOMER,
     });
 
     if (user instanceof Error) return new InternalServerError(user.message);

@@ -16,7 +16,7 @@ export default class FindUsers implements IUseCase<FindUsersInput, Output> {
 
   async exec(input: FindUsersInput): Promise<Output> {
     const { user, ...filters } = input;
-    // input.level = UserRole.CUSTOMER
+    // input.role = UserRole.CUSTOMER
     let users = await this._userRepository.find(filters);
 
     users = users.filter((user) => !user.isRoot);

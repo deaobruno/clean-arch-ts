@@ -52,7 +52,7 @@ describe("POST /auth/refresh-token", () => {
       userId,
       email,
       password: hashDriver.hashString(password),
-      level: UserRole.CUSTOMER,
+      role: UserRole.CUSTOMER,
       isRoot: false,
       isAdmin: false,
       isCustomer: true,
@@ -119,7 +119,7 @@ describe("POST /auth/refresh-token", () => {
       userId: faker.string.uuid(),
       email: newEmail,
       password: hashDriver.hashString(password),
-      level: UserRole.CUSTOMER,
+      role: UserRole.CUSTOMER,
       isRoot: false,
       isAdmin: false,
       isCustomer: true,
@@ -149,7 +149,7 @@ describe("POST /auth/refresh-token", () => {
       id: userId,
       email,
       password,
-      level: UserRole.CUSTOMER,
+      role: UserRole.CUSTOMER,
     };
     const expiredToken = jwtDriver.generateRefreshToken(userData, -10);
 
@@ -175,7 +175,7 @@ describe("POST /auth/refresh-token", () => {
       id: userId,
       email,
       password,
-      level: UserRole.CUSTOMER,
+      role: UserRole.CUSTOMER,
     };
     const invalidToken = jwt.sign(userData, "invalid-key");
 

@@ -4,12 +4,12 @@ import IPresenter from "../IPresenter";
 
 export default class AdminPresenter implements IPresenter {
   toJson(user: User) {
-    const { userId, email, level } = user;
+    const { userId, email, role } = user;
 
     return {
       id: userId,
       email,
-      level: UserRole[level],
+      role: UserRole[role],
     };
   }
 }

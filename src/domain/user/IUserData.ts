@@ -4,7 +4,7 @@ type IUserData = {
   userId: string;
   email: string;
   password: string;
-  level: UserRole;
+  role: UserRole;
 };
 
 export default IUserData;

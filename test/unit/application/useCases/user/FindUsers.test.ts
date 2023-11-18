@@ -17,7 +17,7 @@ const fakeUsers = [
     userId: faker.string.uuid(),
     email: faker.internet.email(),
     password: faker.internet.password(),
-    level: UserRole.CUSTOMER,
+    role: UserRole.CUSTOMER,
     isRoot: false,
     isAdmin: false,
     isCustomer: true,
@@ -26,7 +26,7 @@ const fakeUsers = [
     userId: faker.string.uuid(),
     email: faker.internet.email(),
     password: faker.internet.password(),
-    level: UserRole.CUSTOMER,
+    role: UserRole.CUSTOMER,
     isRoot: false,
     isAdmin: false,
     isCustomer: true,
@@ -35,7 +35,7 @@ const fakeUsers = [
     userId: faker.string.uuid(),
     email: faker.internet.email(),
     password: faker.internet.password(),
-    level: UserRole.CUSTOMER,
+    role: UserRole.CUSTOMER,
     isRoot: false,
     isAdmin: false,
     isCustomer: true,
@@ -62,21 +62,21 @@ describe("/application/useCases/user/FindUsers.ts", () => {
     expect(users[0].userId).equal(fakeUsers[0].userId);
     expect(users[0].email).equal(fakeUsers[0].email);
     expect(users[0].password).equal(fakeUsers[0].password);
-    expect(users[0].level).equal(fakeUsers[0].level);
+    expect(users[0].role).equal(fakeUsers[0].role);
     expect(users[0].isCustomer).equal(true);
     expect(users[0].isAdmin).equal(false);
     expect(users[0].isRoot).equal(false);
     expect(users[1].userId).equal(fakeUsers[1].userId);
     expect(users[1].email).equal(fakeUsers[1].email);
     expect(users[1].password).equal(fakeUsers[1].password);
-    expect(users[1].level).equal(fakeUsers[1].level);
+    expect(users[1].role).equal(fakeUsers[1].role);
     expect(users[1].isCustomer).equal(true);
     expect(users[1].isAdmin).equal(false);
     expect(users[1].isRoot).equal(false);
     expect(users[2].userId).equal(fakeUsers[2].userId);
     expect(users[2].email).equal(fakeUsers[2].email);
     expect(users[2].password).equal(fakeUsers[2].password);
-    expect(users[2].level).equal(fakeUsers[2].level);
+    expect(users[2].role).equal(fakeUsers[2].role);
     expect(users[2].isCustomer).equal(true);
     expect(users[2].isAdmin).equal(false);
     expect(users[2].isRoot).equal(false);
@@ -93,7 +93,7 @@ describe("/application/useCases/user/FindUsers.ts", () => {
     expect(users[0].userId).equal(fakeUsers[0].userId);
     expect(users[0].email).equal(fakeUsers[0].email);
     expect(users[0].password).equal(fakeUsers[0].password);
-    expect(users[0].level).equal(fakeUsers[0].level);
+    expect(users[0].role).equal(fakeUsers[0].role);
     expect(users[0].isCustomer).equal(true);
     expect(users[0].isAdmin).equal(false);
     expect(users[0].isRoot).equal(false);

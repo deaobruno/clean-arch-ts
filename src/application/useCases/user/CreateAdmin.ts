@@ -31,7 +31,7 @@ export default class CreateAdmin implements IUseCase<CreateAdminInput, Output> {
       userId: this._cryptoDriver.generateID(),
       email,
       password: this._cryptoDriver.hashString(password),
-      level: UserRole.ADMIN,
+      role: UserRole.ADMIN,
     });
 
     if (user instanceof Error) return new InternalServerError(user.message);

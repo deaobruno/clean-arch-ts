@@ -35,7 +35,7 @@ describe("POST /auth", () => {
       userId: faker.string.uuid(),
       email,
       password: hashDriver.hashString(password),
-      level: UserRole.CUSTOMER,
+      role: UserRole.CUSTOMER,
       isRoot: false,
       isAdmin: false,
       isCustomer: true,

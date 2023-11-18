@@ -33,7 +33,7 @@ describe("/adapters/controllers/AuthenticatedController.ts", () => {
         userId: faker.string.uuid(),
         email: faker.internet.email(),
         password: faker.internet.password(),
-        level: UserRole.CUSTOMER,
+        role: UserRole.CUSTOMER,
         isRoot: false,
         isAdmin: false,
         isCustomer: true,

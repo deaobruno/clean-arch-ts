@@ -26,7 +26,7 @@ const fakeUser = {
   userId,
   email,
   password,
-  level: UserRole.CUSTOMER,
+  role: UserRole.CUSTOMER,
   isRoot: false,
   isAdmin: false,
   isCustomer: true,
@@ -61,7 +61,7 @@ describe("/application/useCases/user/UpdateUser.ts", () => {
     expect(user.userId).equal(fakeUser.userId);
     expect(user.email).equal(newEmail);
     expect(user.password).equal(fakeUser.password);
-    expect(user.level).equal(fakeUser.level);
+    expect(user.role).equal(fakeUser.role);
     expect(user.isCustomer).equal(true);
     expect(user.isAdmin).equal(false);
     expect(user.isRoot).equal(false);

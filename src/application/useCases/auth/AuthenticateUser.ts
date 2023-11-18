@@ -39,7 +39,7 @@ export default class AuthenticateUser implements IUseCase<Input, Output> {
       id: userId,
       email: user.email,
       password: user.password,
-      level: user.level,
+      role: user.role,
     };
     const accessToken = this._tokenDriver.generateAccessToken(userData);
     const refreshToken = this._tokenDriver.generateRefreshToken(userData);

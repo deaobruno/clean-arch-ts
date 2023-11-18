@@ -28,7 +28,7 @@ export default class CreateRoot implements IUseCase<CreateRootInput, Output> {
         userId: this._cryptoDriver.generateID(),
         email,
         password: this._cryptoDriver.hashString(password),
-        level: UserRole.ROOT,
+        role: UserRole.ROOT,
       });
 
       if (user instanceof Error) return new InternalServerError(user.message);

@@ -21,7 +21,7 @@ const fakeUser = {
   userId: faker.string.uuid(),
   email,
   password,
-  level: UserRole.ADMIN,
+  role: UserRole.ADMIN,
   isRoot: false,
   isAdmin: true,
   isCustomer: false,
@@ -30,7 +30,7 @@ let userParams = {
   email,
   password,
   confirm_password: password,
-  level: UserRole.ADMIN,
+  role: UserRole.ADMIN,
 };
 let conflictError: ConflictError;
 
@@ -53,7 +53,7 @@ describe("/application/useCases/user/CreateAdmin.ts", () => {
     expect(user.userId).equal(fakeUser.userId);
     expect(user.email).equal(userParams.email);
     expect(user.password).equal(userParams.password);
-    expect(user.level).equal(UserRole.ADMIN);
+    expect(user.role).equal(UserRole.ADMIN);
     expect(user.isCustomer).equal(false);
     expect(user.isAdmin).equal(true);
     expect(user.isRoot).equal(false);

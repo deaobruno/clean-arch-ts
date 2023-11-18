@@ -45,7 +45,7 @@ export default class ValidateAuthentication implements IUseCase<Input, Output> {
       return new UnauthorizedError("Invalid token");
     }
 
-    const { id: userId, email, password, level } = userData;
+    const { id: userId, email, password, role } = userData;
     const refreshToken = await this._refreshTokenRepository.findOneByUserId(
       userId
     );
@@ -56,7 +56,7 @@ export default class ValidateAuthentication implements IUseCase<Input, Output> {
       userId,
       email,
       password,
-      level,
+      role,
     });
 
     if (user instanceof Error) return new InternalServerError(user.message);

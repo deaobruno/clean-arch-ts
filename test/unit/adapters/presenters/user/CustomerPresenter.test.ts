@@ -12,7 +12,7 @@ describe("/application/presenters/user/CustomerPresenter.ts", () => {
       userId: faker.string.uuid(),
       email: faker.internet.email(),
       password: faker.internet.password(),
-      level: UserRole.CUSTOMER,
+      role: UserRole.CUSTOMER,
     };
     const user = User.create(userData);
     const customer = customerPresenter.toJson(user);

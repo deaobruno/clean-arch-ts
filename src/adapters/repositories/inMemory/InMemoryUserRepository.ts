@@ -37,7 +37,7 @@ export default class InMemoryUserRepository implements IUserRepository {
 
   async findAdmins(): Promise<User[]> {
     const users = await this._dbDriver.find(this._source, {
-      level: UserRole.ADMIN,
+      role: UserRole.ADMIN,
     });
 
     return users.map(this._mapper.dbToEntity);
@@ -45,7 +45,7 @@ export default class InMemoryUserRepository implements IUserRepository {
 
   async findCustomers(): Promise<User[]> {
     const users = await this._dbDriver.find(this._source, {
-      level: UserRole.CUSTOMER,
+      role: UserRole.CUSTOMER,
     });
 
     return users.map(this._mapper.dbToEntity);

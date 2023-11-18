@@ -5,31 +5,31 @@ export default class User {
   readonly userId: string;
   public email: string;
   public password: string;
-  readonly level: number;
+  readonly role: number;
 
   private constructor(params: IUserData) {
-    const { userId, email, password, level } = params;
+    const { userId, email, password, role } = params;
 
     this.userId = userId;
     this.email = email;
     this.password = password;
-    this.level = level;
+    this.role = role;
   }
 
   get isRoot(): boolean {
-    return this.level === UserRole.ROOT;
+    return this.role === UserRole.ROOT;
   }
 
   get isAdmin(): boolean {
-    return this.level === UserRole.ADMIN;
+    return this.role === UserRole.ADMIN;
   }
 
   get isCustomer(): boolean {
-    return this.level === UserRole.CUSTOMER;
+    return this.role === UserRole.CUSTOMER;
   }
 
   static create(params: IUserData): User {
-    const { userId, email, password, level } = params;
+    const { userId, email, password, role } = params;
     const uuidRegex =
       /^[0-9a-f]{8}\b-[0-9a-f]{4}\b-[0-9a-f]{4}\b-[0-9a-f]{4}\b-[0-9a-f]{12}$/gi;
     const emailRegex =
@@ -46,8 +46,8 @@ export default class User {
 
     if (!password) throw new Error('User: "password" required');
 
-    if (!Object.values(UserRole).includes(level))
-      throw new Error('User: Invalid "level"');
+    if (!Object.values(UserRole).includes(role))
+      throw new Error('User: Invalid "role"');
 
     return new User(params);
   }

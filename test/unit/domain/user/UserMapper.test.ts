@@ -13,7 +13,7 @@ describe("/src/domain/user/UserMapper.ts", () => {
       userId: faker.string.uuid(),
       email: faker.internet.email(),
       password: faker.internet.password(),
-      level: UserRole.CUSTOMER,
+      role: UserRole.CUSTOMER,
     };
     const user = User.create(userData);
     const userDbData = userMapper.entityToDb(user);
@@ -21,20 +21,20 @@ describe("/src/domain/user/UserMapper.ts", () => {
     expect(userDbData.user_id).equal(user.userId);
     expect(userDbData.email).equal(user.email);
     expect(userDbData.password).equal(user.password);
-    expect(userDbData.level).equal(user.level);
+    expect(userDbData.role).equal(user.role);
   });
 
   it("should map user db data to an user entity", () => {
     const userId = faker.string.uuid();
     const email = faker.internet.email();
     const password = faker.internet.password();
-    const level = UserRole.CUSTOMER;
+    const role = UserRole.CUSTOMER;
 
     sinon.stub(User, "create").returns({
       userId,
       email,
       password,
-      level,
+      role,
       isRoot: false,
       isAdmin: false,
       isCustomer: true,
@@ -44,14 +44,14 @@ describe("/src/domain/user/UserMapper.ts", () => {
       user_id: userId,
       email,
       password,
-      level,
+      role,
     };
     const user = userMapper.dbToEntity(userDbData);
 
     expect(user.userId).equal(userDbData.user_id);
     expect(user.email).equal(userDbData.email);
     expect(user.password).equal(userDbData.password);
-    expect(user.level).equal(userDbData.level);
+    expect(user.role).equal(userDbData.role);
 
     sinon.restore();
   });

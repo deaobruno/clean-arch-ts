@@ -12,13 +12,13 @@ describe("/application/presenters/user/AdminPresenter.ts", () => {
       userId: faker.string.uuid(),
       email: faker.internet.email(),
       password: faker.internet.password(),
-      level: UserRole.ADMIN,
+      role: UserRole.ADMIN,
     };
     const user = User.create(userData);
     const admin = adminPresenter.toJson(user);
 
     expect(admin.id).equal(userData.userId);
     expect(admin.email).equal(userData.email);
-    expect(admin.level).equal(UserRole[userData.level]);
+    expect(admin.role).equal(UserRole[userData.role]);
   });
 });

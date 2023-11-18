@@ -28,13 +28,13 @@ const userData = {
   userId,
   email,
   password,
-  level: UserRole.CUSTOMER,
+  role: UserRole.CUSTOMER,
 };
 const fakeUser = {
   userId,
   email,
   password: "hash",
-  level: UserRole.CUSTOMER,
+  role: UserRole.CUSTOMER,
   isRoot: false,
   isAdmin: false,
   isCustomer: true,
