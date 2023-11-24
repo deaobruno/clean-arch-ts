@@ -5,13 +5,14 @@ import IServerDriver from "./IServerDriver";
 import NotFoundError from "../../../application/errors/NotFoundError";
 import InternalServerError from "../../../application/errors/InternalServerError";
 import BaseController from "../../../adapters/controllers/BaseController";
+import ILoggerDriver from "../logger/ILoggerDriver";
 
 export default class ExpressDriver implements IServerDriver {
   app = express();
   httpServer?: Server;
   router = Router();
 
-  constructor() {}
+  constructor(private _logger: ILoggerDriver) {}
 
   get = (path: string, controller: BaseController): Router => {
     return this.router.get(path, this._adaptHandler(controller));
@@ -34,6 +35,28 @@ export default class ExpressDriver implements IServerDriver {
 
     this.app.use(bodyParser.urlencoded({ extended: false }));
 
+    this.app.use((req: Request, res: Response, next: NextFunction) => {
+      const send = res.send;
+      let data: any;
+
+      res.send = (content) => {
+        data = content;
+
+        return send.call(res, content);
+      };
+
+      res.on("finish", () => {
+        this._logger.info({
+          method: req.method.toLowerCase(),
+          url: req.url,
+          statusCode: res.statusCode.toString(),
+          dateTime: new Date().toISOString(),
+        });
+      });
+
+      next();
+    });
+
     routes.forEach((route) => this.app.use(route));
 
     this.app.use((req: Request, res: Response, next: NextFunction) => {
@@ -54,7 +77,7 @@ export default class ExpressDriver implements IServerDriver {
             !message || message === "" ? undefined : message
           );
 
-        console.error(error.stack);
+        this._logger.error(error.stack);
 
         res.status(error.statusCode).send({ error: error.message });
       }
@@ -63,7 +86,7 @@ export default class ExpressDriver implements IServerDriver {
 
   start(httpPort: string | number): void {
     this.httpServer = this.app.listen(httpPort, () => {
-      console.log(
+      this._logger.info(
         `Express HTTP Server started. Listening on port ${httpPort}.`
       );
     });

@@ -41,6 +41,7 @@ import LogoutController from "./adapters/controllers/auth/LogoutController";
 import UserMapper from "./domain/user/UserMapper";
 import RefreshTokenMapper from "./domain/refreshToken/RefreshTokenMapper";
 import CreateRoot from "./application/useCases/user/CreateRoot";
+import PinoDriver from "./infra/drivers/logger/PinoDriver";
 
 const {
   app: {
@@ -62,6 +63,7 @@ const jwtDriver = new JwtDriver(
   refreshTokenSecret,
   refreshTokenExpirationTime
 );
+const loggerDriver = new PinoDriver();
 // Mappers
 const userMapper = new UserMapper();
 const refreshTokenMapper = new RefreshTokenMapper();
@@ -180,6 +182,7 @@ const deleteUserController = new DeleteUserController({
   validateAuthenticationUseCase,
   validateAuthorizationUseCase,
 });
+// Events
 
 createRootUseCase.exec({
   email: rootUserEmail,
@@ -187,6 +190,7 @@ createRootUseCase.exec({
 });
 
 export default {
+  loggerDriver,
   registerCustomerController,
   authenticateUserController,
   refreshAccessTokenController,

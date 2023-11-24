@@ -34,8 +34,6 @@ export default class CreateAdmin implements IUseCase<CreateAdminInput, Output> {
       role: UserRole.ADMIN,
     });
 
-    if (user instanceof Error) return new InternalServerError(user.message);
-
     await this._userRepository.create(user);
 
     return user;

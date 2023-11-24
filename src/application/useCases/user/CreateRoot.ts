@@ -31,8 +31,6 @@ export default class CreateRoot implements IUseCase<CreateRootInput, Output> {
         role: UserRole.ROOT,
       });
 
-      if (user instanceof Error) return new InternalServerError(user.message);
-
       await this._userRepository.create(user);
     }
   }

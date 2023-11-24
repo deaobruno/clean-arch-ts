@@ -1,7 +1,9 @@
 import ExpressDriver from "../../drivers/server/ExpressDriver";
+import dependencies from "../../../dependencies";
 import routes from "./routes/routes";
 
-const server = new ExpressDriver();
+const { loggerDriver } = dependencies;
+const server = new ExpressDriver(loggerDriver);
 
 server.config(routes(server));
 
