@@ -1,27 +1,27 @@
 import sinon from "sinon";
 import { faker } from "@faker-js/faker";
 import { expect } from "chai";
-import config from "../../../../../src/config";
-import UserRepository from "../../../../../src/adapters/repositories/UserRepository";
-import InMemoryDriver from "../../../../../src/infra/drivers/db/InMemoryDriver";
-import IDbDriver from "../../../../../src/infra/drivers/db/IDbDriver";
-import IUserRepository from "../../../../../src/domain/user/IUserRepository";
-import UserMapper from "../../../../../src/domain/user/UserMapper";
-import UserRole from "../../../../../src/domain/user/UserRole";
-import User from "../../../../../src/domain/user/User";
+import config from "../../../../src/config";
+import UserRepository from "../../../../src/adapters/repositories/UserRepository";
+import IDbDriver from "../../../../src/infra/drivers/db/IDbDriver";
+import IUserRepository from "../../../../src/domain/user/IUserRepository";
+import UserMapper from "../../../../src/domain/user/UserMapper";
+import UserRole from "../../../../src/domain/user/UserRole";
+import User from "../../../../src/domain/user/User";
+import MongoDbDriver from "../../../../src/infra/drivers/db/MongoDbDriver";
 
 const sandbox = sinon.createSandbox();
-let inMemoryDriver: IDbDriver;
+let dbDriver: IDbDriver;
 let userMapper: UserMapper;
 let userRepository: IUserRepository;
 
 describe("/adapters/repositories/UserRepository", () => {
   beforeEach(() => {
-    inMemoryDriver = InMemoryDriver.getInstance();
+    dbDriver = MongoDbDriver.getInstance("test");
     userMapper = new UserMapper();
     userRepository = new UserRepository(
       config.db.usersSource,
-      inMemoryDriver,
+      dbDriver,
       userMapper
     );
   });
@@ -50,12 +50,7 @@ describe("/adapters/repositories/UserRepository", () => {
       password,
       role,
     });
-    sandbox.stub(inMemoryDriver, "create").resolves({
-      user_id: userId,
-      email,
-      password,
-      role,
-    });
+    sandbox.stub(MongoDbDriver.prototype, "create").resolves();
 
     const result = await userRepository.create(fakeUser);
 
@@ -84,7 +79,7 @@ describe("/adapters/repositories/UserRepository", () => {
       },
     ];
 
-    sandbox.stub(inMemoryDriver, "find").resolves(dbUsers);
+    sandbox.stub(MongoDbDriver.prototype, "find").resolves(dbUsers);
     sandbox
       .stub(userMapper, "dbToEntity")
       .withArgs(dbUsers[0])
@@ -159,7 +154,7 @@ describe("/adapters/repositories/UserRepository", () => {
       },
     ];
 
-    sandbox.stub(inMemoryDriver, "find").resolves(dbUsers);
+    sandbox.stub(MongoDbDriver.prototype, "find").resolves(dbUsers);
     sandbox
       .stub(userMapper, "dbToEntity")
       .withArgs(dbUsers[0])
@@ -204,7 +199,7 @@ describe("/adapters/repositories/UserRepository", () => {
   it("should return an empty array when no Users are found", async () => {
     const dbUsers: any[] = [];
 
-    sandbox.stub(inMemoryDriver, "find").resolves(dbUsers);
+    sandbox.stub(MongoDbDriver.prototype, "find").resolves(dbUsers);
 
     const users = await userRepository.find();
 
@@ -219,7 +214,7 @@ describe("/adapters/repositories/UserRepository", () => {
       role: UserRole.CUSTOMER,
     };
 
-    sandbox.stub(inMemoryDriver, "findOne").resolves(dbUser);
+    sandbox.stub(MongoDbDriver.prototype, "findOne").resolves(dbUser);
     sandbox.stub(userMapper, "dbToEntity").returns({
       userId: dbUser.user_id,
       email: dbUser.email,
@@ -242,7 +237,7 @@ describe("/adapters/repositories/UserRepository", () => {
   });
 
   it("should return undefined when no User is found", async () => {
-    sandbox.stub(inMemoryDriver, "findOne").resolves();
+    sandbox.stub(MongoDbDriver.prototype, "findOne").resolves();
 
     const user = await userRepository.findOne({ user_id: "test" });
 
@@ -257,7 +252,7 @@ describe("/adapters/repositories/UserRepository", () => {
       role: UserRole.CUSTOMER,
     };
 
-    sandbox.stub(inMemoryDriver, "findOne").resolves(dbUser);
+    sandbox.stub(MongoDbDriver.prototype, "findOne").resolves(dbUser);
 
     const user = <User>await userRepository.findOneByEmail(dbUser.email);
 
@@ -271,7 +266,7 @@ describe("/adapters/repositories/UserRepository", () => {
   });
 
   it("should return undefined when passing an invalid email as a filter", async () => {
-    sandbox.stub(inMemoryDriver, "findOne").resolves();
+    sandbox.stub(MongoDbDriver.prototype, "findOne").resolves();
 
     const user = await userRepository.findOneByEmail("");
 
@@ -332,7 +327,7 @@ describe("/adapters/repositories/UserRepository", () => {
         isAdmin: true,
         isCustomer: false,
       });
-    sandbox.stub(inMemoryDriver, "find").resolves(dbUsers);
+    sandbox.stub(MongoDbDriver.prototype, "find").resolves(dbUsers);
 
     const admins = await userRepository.findAdmins();
 
@@ -361,7 +356,7 @@ describe("/adapters/repositories/UserRepository", () => {
   });
 
   it("should return an empty array of admin Users", async () => {
-    sandbox.stub(inMemoryDriver, "find").resolves([]);
+    sandbox.stub(MongoDbDriver.prototype, "find").resolves([]);
 
     const admins = await userRepository.findAdmins();
 
@@ -390,7 +385,7 @@ describe("/adapters/repositories/UserRepository", () => {
       },
     ];
 
-    sandbox.stub(inMemoryDriver, "find").resolves(dbUsers);
+    sandbox.stub(MongoDbDriver.prototype, "find").resolves(dbUsers);
 
     const customers = await userRepository.findCustomers();
 
@@ -419,7 +414,7 @@ describe("/adapters/repositories/UserRepository", () => {
   });
 
   it("should return an empty array of customer Users", async () => {
-    sandbox.stub(inMemoryDriver, "find").resolves([]);
+    sandbox.stub(MongoDbDriver.prototype, "find").resolves([]);
 
     const customers = await userRepository.findCustomers();
 
@@ -441,7 +436,7 @@ describe("/adapters/repositories/UserRepository", () => {
       isCustomer: true,
     };
 
-    sandbox.stub(inMemoryDriver, "update").resolves();
+    sandbox.stub(MongoDbDriver.prototype, "update").resolves();
 
     const result = await userRepository.update(fakeUser, { user_id: "test" });
 
@@ -449,7 +444,7 @@ describe("/adapters/repositories/UserRepository", () => {
   });
 
   it("should delete an User from DB", async () => {
-    sandbox.stub(inMemoryDriver, "delete").resolves();
+    sandbox.stub(MongoDbDriver.prototype, "delete").resolves();
 
     const result = await userRepository.delete({ user_id: "test" });
 

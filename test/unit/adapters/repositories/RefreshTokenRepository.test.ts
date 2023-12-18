@@ -1,26 +1,26 @@
 import sinon from "sinon";
 import { faker } from "@faker-js/faker";
 import { expect } from "chai";
-import config from "../../../../../src/config";
-import RefreshTokenRepository from "../../../../../src/adapters/repositories/RefreshTokenRepository";
-import InMemoryDriver from "../../../../../src/infra/drivers/db/InMemoryDriver";
-import IDbDriver from "../../../../../src/infra/drivers/db/IDbDriver";
-import IRefreshTokenRepository from "../../../../../src/domain/refreshToken/IRefreshTokenRepository";
-import RefreshTokenMapper from "../../../../../src/domain/refreshToken/RefreshTokenMapper";
-import RefreshToken from "../../../../../src/domain/refreshToken/RefreshToken";
+import config from "../../../../src/config";
+import RefreshTokenRepository from "../../../../src/adapters/repositories/RefreshTokenRepository";
+import MongoDbDriver from "../../../../src/infra/drivers/db/MongoDbDriver";
+import IDbDriver from "../../../../src/infra/drivers/db/IDbDriver";
+import IRefreshTokenRepository from "../../../../src/domain/refreshToken/IRefreshTokenRepository";
+import RefreshTokenMapper from "../../../../src/domain/refreshToken/RefreshTokenMapper";
+import RefreshToken from "../../../../src/domain/refreshToken/RefreshToken";
 
 const sandbox = sinon.createSandbox();
-let inMemoryDriver: IDbDriver;
+let dbDriver: IDbDriver;
 let refreshTokenMapper: RefreshTokenMapper;
 let refreshTokenRepository: IRefreshTokenRepository;
 
 describe("/adapters/repositories/RefreshTokenRepository", () => {
   beforeEach(() => {
-    inMemoryDriver = InMemoryDriver.getInstance();
+    dbDriver = MongoDbDriver.getInstance("test");
     refreshTokenMapper = new RefreshTokenMapper();
     refreshTokenRepository = new RefreshTokenRepository(
       config.db.refreshTokensSource,
-      inMemoryDriver,
+      dbDriver,
       refreshTokenMapper
     );
   });
@@ -40,7 +40,7 @@ describe("/adapters/repositories/RefreshTokenRepository", () => {
       user_id: userId,
       token,
     });
-    sandbox.stub(inMemoryDriver, "create").resolves();
+    sandbox.stub(MongoDbDriver.prototype, "create").resolves();
 
     const result = await refreshTokenRepository.create(fakeRefreshToken);
 
@@ -63,7 +63,7 @@ describe("/adapters/repositories/RefreshTokenRepository", () => {
       },
     ];
 
-    sandbox.stub(inMemoryDriver, "find").resolves(dbRefreshTokens);
+    sandbox.stub(MongoDbDriver.prototype, "find").resolves(dbRefreshTokens);
     sandbox
       .stub(refreshTokenMapper, "dbToEntity")
       .withArgs(dbRefreshTokens[0])
@@ -105,7 +105,7 @@ describe("/adapters/repositories/RefreshTokenRepository", () => {
       },
     ];
 
-    sandbox.stub(inMemoryDriver, "find").resolves(dbRefreshTokens);
+    sandbox.stub(MongoDbDriver.prototype, "find").resolves(dbRefreshTokens);
     sandbox
       .stub(refreshTokenMapper, "dbToEntity")
       .withArgs(dbRefreshTokens[0])
@@ -132,7 +132,7 @@ describe("/adapters/repositories/RefreshTokenRepository", () => {
   it("should return an empty array when no RefreshTokens are found", async () => {
     const dbRefreshTokens: any[] = [];
 
-    sandbox.stub(inMemoryDriver, "find").resolves(dbRefreshTokens);
+    sandbox.stub(MongoDbDriver.prototype, "find").resolves(dbRefreshTokens);
 
     const refreshTokens = await refreshTokenRepository.find();
 
@@ -143,7 +143,7 @@ describe("/adapters/repositories/RefreshTokenRepository", () => {
     const userId = faker.string.uuid();
     const token = "refresh-token";
 
-    sandbox.stub(inMemoryDriver, "findOne").resolves({
+    sandbox.stub(MongoDbDriver.prototype, "findOne").resolves({
       user_id: userId,
       token,
     });
@@ -161,7 +161,7 @@ describe("/adapters/repositories/RefreshTokenRepository", () => {
   });
 
   it("should return undefined when no RefreshToken is found", async () => {
-    sandbox.stub(inMemoryDriver, "findOne").resolves();
+    sandbox.stub(MongoDbDriver.prototype, "findOne").resolves();
 
     const refreshToken = await refreshTokenRepository.findOne({
       user_id: "test",
@@ -174,7 +174,7 @@ describe("/adapters/repositories/RefreshTokenRepository", () => {
     const userId = faker.string.uuid();
     const token = "refresh-token";
 
-    sandbox.stub(inMemoryDriver, "findOne").resolves({
+    sandbox.stub(MongoDbDriver.prototype, "findOne").resolves({
       user_id: userId,
       token,
     });
@@ -192,7 +192,7 @@ describe("/adapters/repositories/RefreshTokenRepository", () => {
   });
 
   it('should return undefined when no RefreshToken is found passing "userId" as a filter', async () => {
-    sandbox.stub(inMemoryDriver, "findOne").resolves();
+    sandbox.stub(MongoDbDriver.prototype, "findOne").resolves();
 
     const refreshToken = await refreshTokenRepository.findOneByUserId("test");
 
@@ -203,7 +203,7 @@ describe("/adapters/repositories/RefreshTokenRepository", () => {
     const userId = faker.string.uuid();
     const token = "refresh-token";
 
-    sandbox.stub(inMemoryDriver, "findOne").resolves({
+    sandbox.stub(MongoDbDriver.prototype, "findOne").resolves({
       user_id: userId,
       token,
     });
@@ -221,7 +221,7 @@ describe("/adapters/repositories/RefreshTokenRepository", () => {
   });
 
   it('should return undefined when no RefreshToken is found passing "token" as a filter', async () => {
-    sandbox.stub(inMemoryDriver, "findOne").resolves();
+    sandbox.stub(MongoDbDriver.prototype, "findOne").resolves();
 
     const refreshToken = await refreshTokenRepository.findOneByToken("test");
 
@@ -229,7 +229,7 @@ describe("/adapters/repositories/RefreshTokenRepository", () => {
   });
 
   it("should delete a RefreshToken from DB", async () => {
-    sandbox.stub(inMemoryDriver, "delete").resolves();
+    sandbox.stub(MongoDbDriver.prototype, "delete").resolves();
 
     const result = await refreshTokenRepository.delete({ user_id: "test" });
 
