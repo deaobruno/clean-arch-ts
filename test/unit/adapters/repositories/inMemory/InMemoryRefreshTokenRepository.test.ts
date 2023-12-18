@@ -2,7 +2,7 @@ import sinon from "sinon";
 import { faker } from "@faker-js/faker";
 import { expect } from "chai";
 import config from "../../../../../src/config";
-import RefreshTokenRepository from "../../../../../src/adapters/repositories/inMemory/InMemoryRefreshTokenRepository";
+import RefreshTokenRepository from "../../../../../src/adapters/repositories/RefreshTokenRepository";
 import InMemoryDriver from "../../../../../src/infra/drivers/db/InMemoryDriver";
 import IDbDriver from "../../../../../src/infra/drivers/db/IDbDriver";
 import IRefreshTokenRepository from "../../../../../src/domain/refreshToken/IRefreshTokenRepository";
@@ -14,7 +14,7 @@ let inMemoryDriver: IDbDriver;
 let refreshTokenMapper: RefreshTokenMapper;
 let refreshTokenRepository: IRefreshTokenRepository;
 
-describe("/adapters/repositories/inMemory/InMemoryRefreshTokenRepository", () => {
+describe("/adapters/repositories/RefreshTokenRepository", () => {
   beforeEach(() => {
     inMemoryDriver = InMemoryDriver.getInstance();
     refreshTokenMapper = new RefreshTokenMapper();

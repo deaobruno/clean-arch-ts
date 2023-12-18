@@ -2,7 +2,7 @@ import sinon from "sinon";
 import { faker } from "@faker-js/faker";
 import { expect } from "chai";
 import config from "../../../../../src/config";
-import UserRepository from "../../../../../src/adapters/repositories/inMemory/InMemoryUserRepository";
+import UserRepository from "../../../../../src/adapters/repositories/UserRepository";
 import InMemoryDriver from "../../../../../src/infra/drivers/db/InMemoryDriver";
 import IDbDriver from "../../../../../src/infra/drivers/db/IDbDriver";
 import IUserRepository from "../../../../../src/domain/user/IUserRepository";
@@ -15,7 +15,7 @@ let inMemoryDriver: IDbDriver;
 let userMapper: UserMapper;
 let userRepository: IUserRepository;
 
-describe("/adapters/repositories/inMemory/InMemoryUserRepository", () => {
+describe("/adapters/repositories/UserRepository", () => {
   beforeEach(() => {
     inMemoryDriver = InMemoryDriver.getInstance();
     userMapper = new UserMapper();

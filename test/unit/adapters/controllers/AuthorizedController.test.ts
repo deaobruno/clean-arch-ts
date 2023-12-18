@@ -6,11 +6,11 @@ import IUseCase from "../../../../src/application/useCases/IUseCase";
 import ISchema from "../../../../src/infra/schemas/ISchema";
 import ControllerConfig from "../../../../src/adapters/controllers/ControllerConfig";
 import ValidateAuthentication from "../../../../src/application/useCases/auth/ValidateAuthentication";
-import tokenDriverMock from "../../../mocks/drivers/TokenDriverMock";
-import inMemoryRefreshTokenRepositoryMock from "../../../mocks/repositories/inMemory/InMemoryRefreshTokenRepositoryMock";
+import JwtDriver from "../../../../src/infra/drivers/token/JwtDriver";
 import ValidateAuthorization from "../../../../src/application/useCases/auth/ValidateAuthorization";
 import UserRole from "../../../../src/domain/user/UserRole";
 import ForbiddenError from "../../../../src/application/errors/ForbiddenError";
+import RefreshTokenRepository from "../../../../src/adapters/repositories/RefreshTokenRepository";
 
 class CustomController extends AuthorizedController {
   statusCode = 200;
@@ -21,9 +21,12 @@ class CustomController extends AuthorizedController {
 }
 
 const sandbox = sinon.createSandbox();
+const refreshTokenRepository = sandbox.createStubInstance(
+  RefreshTokenRepository
+);
 const validateAuthenticationUseCase = new ValidateAuthentication(
-  tokenDriverMock,
-  inMemoryRefreshTokenRepositoryMock
+  sandbox.createStubInstance(JwtDriver),
+  refreshTokenRepository
 );
 const validateAuthorizationUseCase = new ValidateAuthorization();
 

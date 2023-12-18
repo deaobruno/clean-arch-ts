@@ -5,18 +5,36 @@ import server from "./infra/http/v1/server";
 import config from "./config";
 import dependencies from "./dependencies";
 
-const { loggerDriver } = dependencies;
+const {
+  db: {
+    mongo: { dbUrl },
+  },
+  app: { rootUserEmail, rootUserPassword },
+  server: { httpPort },
+} = config;
+const { dbDriver, loggerDriver, createRootUserEvent } = dependencies;
 const numCPUs = availableParallelism();
+
+(async () => {
+  await dbDriver.connect(dbUrl);
+
+  createRootUserEvent.trigger({
+    email: rootUserEmail,
+    password: rootUserPassword,
+  });
+})();
 
 if (cluster.isPrimary) {
   for (let i = 0; i < numCPUs; i++) cluster.fork();
 } else {
-  server.start(config.server.httpPort);
+  server.start(httpPort);
 }
 
 const gracefulShutdown = (signal: string, code: number) => {
-  server.stop(() => {
+  server.stop(async () => {
     loggerDriver.info("Shutting server down...");
+
+    await dbDriver.disconnect();
 
     process.exit(code);
   });

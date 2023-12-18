@@ -4,7 +4,6 @@ import IUserRepository from "../../../domain/user/IUserRepository";
 import IHashDriver from "../../../infra/drivers/hash/IHashDriver";
 import BaseError from "../../errors/BaseError";
 import IUseCase from "../IUseCase";
-import InternalServerError from "../../errors/InternalServerError";
 
 type CreateRootInput = {
   email: string;

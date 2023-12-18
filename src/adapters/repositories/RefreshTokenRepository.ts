@@ -1,11 +1,9 @@
-import IDbDriver from "../../../infra/drivers/db/IDbDriver";
-import IRefreshTokenRepository from "../../../domain/refreshToken/IRefreshTokenRepository";
-import RefreshToken from "../../../domain/refreshToken/RefreshToken";
-import RefreshTokenMapper from "../../../domain/refreshToken/RefreshTokenMapper";
+import IDbDriver from "../../infra/drivers/db/IDbDriver";
+import IRefreshTokenRepository from "../../domain/refreshToken/IRefreshTokenRepository";
+import RefreshToken from "../../domain/refreshToken/RefreshToken";
+import RefreshTokenMapper from "../../domain/refreshToken/RefreshTokenMapper";
 
-export default class InMemoryRefreshTokenRepository
-  implements IRefreshTokenRepository
-{
+export default class RefreshTokenRepository implements IRefreshTokenRepository {
   constructor(
     private _source: string,
     private _dbDriver: IDbDriver,

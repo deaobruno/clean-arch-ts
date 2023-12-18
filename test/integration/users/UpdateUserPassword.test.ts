@@ -1,73 +1,69 @@
+import sinon from "sinon";
 import axios from "axios";
 import { faker } from "@faker-js/faker";
 import { expect } from "chai";
 import UserRole from "../../../src/domain/user/UserRole";
-import InMemoryUserRepository from "../../../src/adapters/repositories/inMemory/InMemoryUserRepository";
 import config from "../../../src/config";
 import CryptoDriver from "../../../src/infra/drivers/hash/CryptoDriver";
-import InMemoryDriver from "../../../src/infra/drivers/db/InMemoryDriver";
-import UserMapper from "../../../src/domain/user/UserMapper";
-import RefreshTokenMapper from "../../../src/domain/refreshToken/RefreshTokenMapper";
-import InMemoryRefreshTokenRepository from "../../../src/adapters/repositories/inMemory/InMemoryRefreshTokenRepository";
 import server from "../../../src/infra/http/v1/server";
+import MongoDbDriver from "../../../src/infra/drivers/db/MongoDbDriver";
+import JwtDriver from "../../../src/infra/drivers/token/JwtDriver";
 
-const dbDriver = InMemoryDriver.getInstance();
-const userMapper = new UserMapper();
-const refreshTokenMapper = new RefreshTokenMapper();
-const userRepository = new InMemoryUserRepository(
-  config.db.usersSource,
-  dbDriver,
-  userMapper
-);
-const refreshTokenRepository = new InMemoryRefreshTokenRepository(
-  config.db.refreshTokensSource,
-  dbDriver,
-  refreshTokenMapper
-);
+const {
+  db: {
+    mongo: { dbUrl, dbName },
+  },
+} = config;
+const sandbox = sinon.createSandbox();
+const dbDriver = MongoDbDriver.getInstance(dbName);
 const hashDriver = new CryptoDriver();
-let url: string;
-let userId: string;
-let email: string;
-let password: string;
-let Authorization: string;
+const userId = faker.string.uuid();
+const url = `http://localhost:8080/api/v1/users/${userId}/update-password`;
+const email = faker.internet.email();
+const password = faker.internet.password();
+const role = UserRole.CUSTOMER;
+const Authorization = "Bearer token";
+const token = "refresh-token";
 
 describe("PUT /users/:user_id/update-password", () => {
-  before(() => server.start(8080));
+  before(async () => {
+    await dbDriver.connect(dbUrl);
 
-  beforeEach(async () => {
-    userId = faker.string.uuid();
-    email = faker.internet.email();
-    password = faker.internet.password();
-
-    await userRepository.create({
-      userId,
-      email,
-      password: hashDriver.hashString(password),
-      role: UserRole.CUSTOMER,
-      isRoot: false,
-      isAdmin: false,
-      isCustomer: true,
-    });
-
-    const {
-      data: { accessToken },
-    } = await axios.post("http://localhost:8080/api/v1/auth/login", {
-      email,
-      password,
-    });
-
-    url = `http://localhost:8080/api/v1/users/${userId}/update-password`;
-    Authorization = `Bearer ${accessToken}`;
+    server.start(8080);
   });
 
+  afterEach(() => sandbox.restore());
+
   after(async () => {
-    await userRepository.delete();
-    await refreshTokenRepository.delete();
+    await dbDriver.disconnect();
 
     server.stop();
   });
 
   it("should get 200 when trying to update the password of an existing user", async () => {
+    sandbox.stub(JwtDriver.prototype, "validateAccessToken").returns({
+      id: userId,
+      email,
+      password: hashDriver.hashString(password),
+      role,
+    });
+    sandbox
+      .stub(MongoDbDriver.prototype, "findOne")
+      .onFirstCall()
+      .resolves({
+        user_id: userId,
+        token,
+      })
+      .onSecondCall()
+      .resolves({
+        user_id: userId,
+        email,
+        password: hashDriver.hashString(password),
+        role,
+      });
+    sandbox.stub(MongoDbDriver.prototype, "update").resolves();
+    sandbox.stub(MongoDbDriver.prototype, "delete").resolves();
+
     const newPassword = faker.internet.password();
     const payload = {
       password: newPassword,
@@ -77,14 +73,23 @@ describe("PUT /users/:user_id/update-password", () => {
       headers: { Authorization },
     });
 
-    password = newPassword;
-
     expect(status).equal(200);
     expect(data.id).equal(userId);
     expect(data.email).equal(email);
   });
 
   it("should get 400 status code when trying to update an user passing invalid id", async () => {
+    sandbox.stub(JwtDriver.prototype, "validateAccessToken").returns({
+      id: userId,
+      email,
+      password: hashDriver.hashString(password),
+      role,
+    });
+    sandbox.stub(MongoDbDriver.prototype, "findOne").resolves({
+      user_id: userId,
+      token,
+    });
+
     const newPassword = faker.internet.password();
     const payload = {
       password: newPassword,
@@ -92,7 +97,7 @@ describe("PUT /users/:user_id/update-password", () => {
     };
 
     await axios
-      .put(url, payload, { headers: { Authorization } })
+      .put(url.replace(userId, "test"), payload, { headers: { Authorization } })
       .catch(({ response: { status, data } }) => {
         expect(status).equal(400);
         expect(data.error).equal('Invalid "user_id" format');
@@ -100,6 +105,17 @@ describe("PUT /users/:user_id/update-password", () => {
   });
 
   it('should get 400 status code when trying to update an user passing empty "password" as param', async () => {
+    sandbox.stub(JwtDriver.prototype, "validateAccessToken").returns({
+      id: userId,
+      email,
+      password: hashDriver.hashString(password),
+      role,
+    });
+    sandbox.stub(MongoDbDriver.prototype, "findOne").resolves({
+      user_id: userId,
+      token,
+    });
+
     const payload = {
       password: "",
       confirm_password: faker.internet.password(),
@@ -114,6 +130,17 @@ describe("PUT /users/:user_id/update-password", () => {
   });
 
   it('should get 400 status code when trying to update an user passing empty "confirm_password" as param', async () => {
+    sandbox.stub(JwtDriver.prototype, "validateAccessToken").returns({
+      id: userId,
+      email,
+      password: hashDriver.hashString(password),
+      role,
+    });
+    sandbox.stub(MongoDbDriver.prototype, "findOne").resolves({
+      user_id: userId,
+      token,
+    });
+
     const payload = {
       password: faker.internet.password(),
       confirm_password: "",
@@ -128,6 +155,17 @@ describe("PUT /users/:user_id/update-password", () => {
   });
 
   it("should get 400 status code when trying to update an user password passing invalid param", async () => {
+    sandbox.stub(JwtDriver.prototype, "validateAccessToken").returns({
+      id: userId,
+      email,
+      password: hashDriver.hashString(password),
+      role,
+    });
+    sandbox.stub(MongoDbDriver.prototype, "findOne").resolves({
+      user_id: userId,
+      token,
+    });
+
     const newPassword = faker.internet.password();
     const payload = {
       password: newPassword,
@@ -144,6 +182,22 @@ describe("PUT /users/:user_id/update-password", () => {
   });
 
   it("should get 404 status code when user is not found", async () => {
+    sandbox.stub(JwtDriver.prototype, "validateAccessToken").returns({
+      id: userId,
+      email,
+      password: hashDriver.hashString(password),
+      role,
+    });
+    sandbox
+      .stub(MongoDbDriver.prototype, "findOne")
+      .onFirstCall()
+      .resolves({
+        user_id: userId,
+        token,
+      })
+      .onSecondCall()
+      .resolves();
+
     const newPassword = faker.internet.password();
     const payload = {
       password: newPassword,
@@ -151,11 +205,7 @@ describe("PUT /users/:user_id/update-password", () => {
     };
 
     await axios
-      .put(
-        `http://localhost:8080/api/v1/users/${faker.string.uuid()}/update-password`,
-        payload,
-        { headers: { Authorization } }
-      )
+      .put(url, payload, { headers: { Authorization } })
       .catch(({ response: { status, data } }) => {
         expect(status).equal(404);
         expect(data.error).equal("User not found");
@@ -163,39 +213,30 @@ describe("PUT /users/:user_id/update-password", () => {
   });
 
   it("should get 404 status code when authenticated customer is different from token user", async () => {
-    const userId = faker.string.uuid();
-    const email = faker.internet.email();
+    sandbox.stub(JwtDriver.prototype, "validateAccessToken").returns({
+      id: faker.string.uuid(),
+      email: faker.internet.email(),
+      password: hashDriver.hashString(faker.internet.password()),
+      role: UserRole.CUSTOMER,
+    });
+    sandbox
+      .stub(MongoDbDriver.prototype, "findOne")
+      .onFirstCall()
+      .resolves({
+        user_id: userId,
+        token,
+      })
+      .onSecondCall()
+      .resolves();
+
     const newPassword = faker.internet.password();
     const payload = {
       password: newPassword,
       confirm_password: newPassword,
     };
 
-    await userRepository.create({
-      userId,
-      email,
-      password: hashDriver.hashString(password),
-      role: UserRole.ROOT,
-      isRoot: true,
-      isAdmin: false,
-      isCustomer: false,
-    });
-
-    const {
-      data: { accessToken },
-    } = await axios.post("http://localhost:8080/api/v1/auth/login", {
-      email,
-      password,
-    });
-
-    Authorization = `Bearer ${accessToken}`;
-
     await axios
-      .put(
-        `http://localhost:8080/api/v1/users/${userId}/update-password`,
-        payload,
-        { headers: { Authorization } }
-      )
+      .put(url, payload, { headers: { Authorization } })
       .catch(({ response: { status, data } }) => {
         expect(status).equal(404);
         expect(data.error).equal("User not found");

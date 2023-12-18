@@ -5,13 +5,10 @@ import User from "../../../../../src/domain/user/User";
 import FindUsers from "../../../../../src/application/useCases/user/FindUsers";
 import { expect } from "chai";
 import NotFoundError from "../../../../../src/application/errors/NotFoundError";
-import IUserRepository from "../../../../../src/domain/user/IUserRepository";
 import BaseError from "../../../../../src/application/errors/BaseError";
-import UserRepositoryMock from "../../../../mocks/repositories/inMemory/InMemoryUserRepositoryMock";
+import UserRepository from "../../../../../src/adapters/repositories/UserRepository";
 
 const sandbox = sinon.createSandbox();
-const userRepository: IUserRepository = UserRepositoryMock;
-const findUsers: FindUsers = new FindUsers(userRepository);
 const fakeUsers = [
   {
     userId: faker.string.uuid(),
@@ -41,20 +38,15 @@ const fakeUsers = [
     isCustomer: true,
   },
 ];
-let notFoundError: NotFoundError;
 
 describe("/application/useCases/user/FindUsers.ts", () => {
-  beforeEach(() => {
-    notFoundError = sandbox.stub(NotFoundError.prototype);
-    notFoundError.name = "NotFoundError";
-    notFoundError.statusCode = 404;
-    notFoundError.message = "Users not found";
-  });
-
   afterEach(() => sandbox.restore());
 
   it("should return an array with all users when no filter is passed", async () => {
-    sandbox.stub(userRepository, "find").resolves(fakeUsers);
+    const userRepository = sandbox.createStubInstance(UserRepository);
+    const findUsers = new FindUsers(userRepository);
+
+    userRepository.find.resolves(fakeUsers);
 
     const users = <User[]>await findUsers.exec({ user: fakeUsers[0] });
 
@@ -83,7 +75,10 @@ describe("/application/useCases/user/FindUsers.ts", () => {
   });
 
   it("should return an array with filtered users", async () => {
-    sandbox.stub(userRepository, "find").resolves([fakeUsers[0]]);
+    const userRepository = sandbox.createStubInstance(UserRepository);
+    const findUsers = new FindUsers(userRepository);
+
+    userRepository.find.resolves([fakeUsers[0]]);
 
     const users = <User[]>(
       await findUsers.exec({ user: fakeUsers[0], email: fakeUsers[0].email })
@@ -100,6 +95,11 @@ describe("/application/useCases/user/FindUsers.ts", () => {
   });
 
   it("should return a NotFoundError when no users are found", async () => {
+    const userRepository = sandbox.createStubInstance(UserRepository);
+    const findUsers = new FindUsers(userRepository);
+
+    userRepository.find.resolves([]);
+
     const error = <BaseError>await findUsers.exec({ user: fakeUsers[0] });
 
     expect(error instanceof NotFoundError).equal(true);
@@ -108,6 +108,11 @@ describe("/application/useCases/user/FindUsers.ts", () => {
   });
 
   it("should return a NotFoundError when no users are found", async () => {
+    const userRepository = sandbox.createStubInstance(UserRepository);
+    const findUsers = new FindUsers(userRepository);
+
+    userRepository.find.resolves([]);
+
     const error = <BaseError>await findUsers.exec({ user: fakeUsers[0] });
 
     expect(error instanceof NotFoundError).equal(true);

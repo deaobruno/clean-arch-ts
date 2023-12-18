@@ -1,7 +1,8 @@
+import sinon from "sinon";
 import { expect } from "chai";
 import userRotes from "../../../../../src/infra/http/v1/routes/userRoutes";
 import BaseController from "../../../../../src/adapters/controllers/BaseController";
-import ServerDriverMock from "../../../../mocks/drivers/ServerDriverMock";
+import ExpressDriver from "../../../../../src/infra/drivers/server/ExpressDriver";
 
 class CustomController extends BaseController {
   statusCode = 200;
@@ -18,10 +19,16 @@ const dependencies = {
   updateUserPasswordController: new CustomController({ useCase }),
   deleteUserController: new CustomController({ useCase }),
 };
+const server = sinon.createStubInstance(ExpressDriver);
+
+server.get = sinon.stub();
+server.post = sinon.stub();
+server.put = sinon.stub();
+server.delete = sinon.stub();
 
 describe("/infra/http/v1/userRoutes.ts", () => {
   it("should return an array of user routes", () => {
-    const routes = userRotes(dependencies, ServerDriverMock);
+    const routes = userRotes(dependencies, server);
 
     expect(routes.length).equal(6);
   });

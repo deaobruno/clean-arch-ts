@@ -19,6 +19,10 @@ export default {
     ),
   },
   db: {
+    mongo: {
+      dbUrl: process.env.MONGO_DB_URL ?? "",
+      dbName: process.env.MONGO_DB_NAME ?? "",
+    },
     usersSource: process.env.USERS_SOURCE_NAME ?? "",
     refreshTokensSource: process.env.REFRESH_TOKENS_SOURCE_NAME ?? "",
   },

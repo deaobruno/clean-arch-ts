@@ -1,7 +1,7 @@
 import { expect } from "chai";
 import InMemoryDriver from "../../../../src/infra/drivers/db/InMemoryDriver";
 
-class InMemoryCustomRepository {
+class CustomRepository {
   constructor(private _driver: InMemoryDriver) {}
 
   create = (entity: any) => this._driver.create("source", entity);
@@ -13,7 +13,7 @@ class InMemoryCustomRepository {
 }
 
 const inMemoryDriver = InMemoryDriver.getInstance();
-const customRepository = new InMemoryCustomRepository(inMemoryDriver);
+const customRepository = new CustomRepository(inMemoryDriver);
 
 describe("/infra/drivers/InMemoryDriver.ts", () => {
   afterEach(async () => {

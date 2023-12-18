@@ -37,7 +37,7 @@ export default class ValidateAuthentication implements IUseCase<Input, Output> {
     let userData;
 
     try {
-      userData = <any>this._tokenDriver.validateAccessToken(token);
+      userData = this._tokenDriver.validateAccessToken(token);
     } catch (error: any) {
       if (error.name === "TokenExpiredError")
         return new UnauthorizedError("Token expired");

@@ -5,7 +5,6 @@ import BaseError from "../../errors/BaseError";
 import IUseCase from "../IUseCase";
 import User from "../../../domain/user/User";
 import ForbiddenError from "../../errors/ForbiddenError";
-import InternalServerError from "../../errors/InternalServerError";
 
 type Input = {
   user: User;

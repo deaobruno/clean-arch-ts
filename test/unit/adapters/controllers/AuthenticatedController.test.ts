@@ -7,9 +7,9 @@ import ISchema from "../../../../src/infra/schemas/ISchema";
 import BadRequestError from "../../../../src/application/errors/BadRequestError";
 import ControllerConfig from "../../../../src/adapters/controllers/ControllerConfig";
 import ValidateAuthentication from "../../../../src/application/useCases/auth/ValidateAuthentication";
-import tokenDriverMock from "../../../mocks/drivers/TokenDriverMock";
-import inMemoryRefreshTokenRepositoryMock from "../../../mocks/repositories/inMemory/InMemoryRefreshTokenRepositoryMock";
+import JwtDriver from "../../../../src/infra/drivers/token/JwtDriver";
 import UserRole from "../../../../src/domain/user/UserRole";
+import RefreshTokenRepository from "../../../../src/adapters/repositories/RefreshTokenRepository";
 
 class CustomController extends AuthenticatedController {
   statusCode = 200;
@@ -19,16 +19,20 @@ class CustomController extends AuthenticatedController {
   }
 }
 
+const sandbox = sinon.createSandbox();
+const refreshTokenRepository = sandbox.createStubInstance(
+  RefreshTokenRepository
+);
 const validateAuthenticationUseCase = new ValidateAuthentication(
-  tokenDriverMock,
-  inMemoryRefreshTokenRepositoryMock
+  sandbox.createStubInstance(JwtDriver),
+  refreshTokenRepository
 );
 
 describe("/adapters/controllers/AuthenticatedController.ts", () => {
-  afterEach(() => sinon.restore());
+  afterEach(() => sandbox.restore());
 
   it("should return successfully when authenticated", async () => {
-    sinon.stub(validateAuthenticationUseCase, "exec").resolves({
+    sandbox.stub(validateAuthenticationUseCase, "exec").resolves({
       user: {
         userId: faker.string.uuid(),
         email: faker.internet.email(),
@@ -58,7 +62,7 @@ describe("/adapters/controllers/AuthenticatedController.ts", () => {
   });
 
   it("should return error when not authenticated", async () => {
-    sinon
+    sandbox
       .stub(validateAuthenticationUseCase, "exec")
       .resolves(new BadRequestError());
 

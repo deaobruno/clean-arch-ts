@@ -6,6 +6,10 @@ export default class InMemoryDriver implements IDbDriver {
 
   private constructor() {}
 
+  async connect(url: string): Promise<void> {}
+
+  async disconnect(): Promise<void> {}
+
   static getInstance(): InMemoryDriver {
     if (!InMemoryDriver.instance)
       InMemoryDriver.instance = new InMemoryDriver();
@@ -15,6 +19,8 @@ export default class InMemoryDriver implements IDbDriver {
 
   async create(source: string, data: any): Promise<void> {
     if (!this.data[source]) this.data[source] = [];
+
+    data.created_at = new Date().toISOString();
 
     this.data[source].push(data);
   }
@@ -53,6 +59,8 @@ export default class InMemoryDriver implements IDbDriver {
     if (item) {
       const filterKeys = Object.keys(filters);
 
+      item.updated_at = new Date().toISOString();
+
       this.data[source] = this.data[source].map((item: any) => {
         let found = true;
 
@@ -67,7 +75,7 @@ export default class InMemoryDriver implements IDbDriver {
   }
 
   async delete(source: string, filters = {}): Promise<void> {
-    if (this.data[source])
+    if (this.data[source]) {
       this.data[source] = this.data[source].filter((item: any) => {
         let found = true;
 
@@ -77,5 +85,6 @@ export default class InMemoryDriver implements IDbDriver {
 
         if (!found) return item;
       });
+    }
   }
 }

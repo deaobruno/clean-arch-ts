@@ -2,8 +2,11 @@ import axios from "axios";
 import { expect } from "chai";
 import ExpressDriver from "../../../../src/infra/drivers/server/ExpressDriver";
 import BaseController from "../../../../src/adapters/controllers/BaseController";
+import sinon from "sinon";
+import PinoDriver from "../../../../src/infra/drivers/logger/PinoDriver";
 
-const server = new ExpressDriver();
+const loggerDriver = sinon.createStubInstance(PinoDriver);
+const server = new ExpressDriver(loggerDriver);
 const { get, post, put, delete: del } = server;
 
 const useCase = {

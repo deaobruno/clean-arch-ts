@@ -4,25 +4,13 @@ import { expect } from "chai";
 import UserRole from "../../../../../src/domain/user/UserRole";
 import User from "../../../../../src/domain/user/User";
 import UpdateUserPassword from "../../../../../src/application/useCases/user/UpdateUserPassword";
-import IUserRepository from "../../../../../src/domain/user/IUserRepository";
 import NotFoundError from "../../../../../src/application/errors/NotFoundError";
 import BaseError from "../../../../../src/application/errors/BaseError";
-import IRefreshTokenRepository from "../../../../../src/domain/refreshToken/IRefreshTokenRepository";
-import UserRepositoryMock from "../../../../mocks/repositories/inMemory/InMemoryUserRepositoryMock";
-import RefreshTokenRepositoryMock from "../../../../mocks/repositories/inMemory/InMemoryRefreshTokenRepositoryMock";
-import IHashDriver from "../../../../../src/infra/drivers/hash/IHashDriver";
-import HashDriverMock from "../../../../mocks/drivers/HashDriverMock";
+import UserRepository from "../../../../../src/adapters/repositories/UserRepository";
+import RefreshTokenRepository from "../../../../../src/adapters/repositories/RefreshTokenRepository";
+import CryptoDriver from "../../../../../src/infra/drivers/hash/CryptoDriver";
 
 const sandbox = sinon.createSandbox();
-const cryptoDriver: IHashDriver = HashDriverMock;
-const userRepository: IUserRepository = UserRepositoryMock;
-const refreshTokenRepository: IRefreshTokenRepository =
-  RefreshTokenRepositoryMock;
-const updateUserPassword: UpdateUserPassword = new UpdateUserPassword(
-  cryptoDriver,
-  userRepository,
-  refreshTokenRepository
-);
 const userId = faker.string.uuid();
 const email = faker.internet.email();
 const password = faker.internet.password();
@@ -35,26 +23,30 @@ const fakeUser = {
   isAdmin: false,
   isCustomer: true,
 };
-let notFoundError: NotFoundError;
 
 describe("/application/useCases/user/UpdateUserPassword.ts", () => {
-  beforeEach(() => {
-    notFoundError = sandbox.stub(NotFoundError.prototype);
-    notFoundError.name = "NotFoundError";
-    notFoundError.statusCode = 404;
-    notFoundError.message = "User not found";
-  });
-
   afterEach(() => sandbox.restore());
 
   it("should update the password of an existing user", async () => {
-    sandbox.stub(userRepository, "findOne").resolves(fakeUser);
+    const cryptoDriver = sandbox.createStubInstance(CryptoDriver);
+    const userRepository = sandbox.createStubInstance(UserRepository);
+    const refreshTokenRepository = sandbox.createStubInstance(
+      RefreshTokenRepository
+    );
+    const updateUserPassword = new UpdateUserPassword(
+      cryptoDriver,
+      userRepository,
+      refreshTokenRepository
+    );
+
+    userRepository.findOne.resolves(fakeUser);
 
     const newPassword = faker.internet.password();
 
     fakeUser.password = cryptoDriver.hashString(newPassword);
 
-    sandbox.stub(userRepository, "update").resolves();
+    userRepository.update.resolves();
+    refreshTokenRepository.delete.resolves();
 
     const updateData = {
       user_id: userId,
@@ -76,6 +68,17 @@ describe("/application/useCases/user/UpdateUserPassword.ts", () => {
   });
 
   it("should return a NotFoundError when authenticated user is different from request user", async () => {
+    const cryptoDriver = sandbox.createStubInstance(CryptoDriver);
+    const userRepository = sandbox.createStubInstance(UserRepository);
+    const refreshTokenRepository = sandbox.createStubInstance(
+      RefreshTokenRepository
+    );
+    const updateUserPassword = new UpdateUserPassword(
+      cryptoDriver,
+      userRepository,
+      refreshTokenRepository
+    );
+
     const error = <BaseError>await updateUserPassword.exec({
       user: fakeUser,
       user_id: "test",
@@ -88,7 +91,18 @@ describe("/application/useCases/user/UpdateUserPassword.ts", () => {
   });
 
   it("should return a NotFoundError when trying to update an user password passing wrong ID", async () => {
-    sandbox.stub(userRepository, "findOne").resolves();
+    const cryptoDriver = sandbox.createStubInstance(CryptoDriver);
+    const userRepository = sandbox.createStubInstance(UserRepository);
+    const refreshTokenRepository = sandbox.createStubInstance(
+      RefreshTokenRepository
+    );
+    const updateUserPassword = new UpdateUserPassword(
+      cryptoDriver,
+      userRepository,
+      refreshTokenRepository
+    );
+
+    userRepository.findOne.resolves();
 
     const error = <BaseError>await updateUserPassword.exec({
       user: fakeUser,
