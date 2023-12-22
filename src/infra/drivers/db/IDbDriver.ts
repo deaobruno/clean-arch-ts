@@ -16,4 +16,5 @@ export default interface IDbDriver {
     options?: object
   ): Promise<any>;
   delete(source: string, filters?: object, options?: object): Promise<void>;
+  deleteMany(source: string, filters?: object, options?: object): Promise<void>;
 }

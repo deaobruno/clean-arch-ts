@@ -25,5 +25,6 @@ export default {
     },
     usersSource: process.env.USERS_SOURCE_NAME ?? "",
     refreshTokensSource: process.env.REFRESH_TOKENS_SOURCE_NAME ?? "",
+    memoSource: process.env.MEMO_SOURCE_NAME ?? "",
   },
 };

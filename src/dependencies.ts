@@ -11,6 +11,11 @@ import FindUserByIdSchema from "./infra/schemas/user/FindUserByIdSchema";
 import UpdateUserSchema from "./infra/schemas/user/UpdateUserSchema";
 import UpdateUserPasswordSchema from "./infra/schemas/user/UpdateUserPasswordSchema";
 import DeleteUserSchema from "./infra/schemas/user/DeleteUserSchema";
+import CreateMemoSchema from "./infra/schemas/memo/CreateMemoSchema";
+import FindMemoByIdSchema from "./infra/schemas/memo/FindMemoByIdSchema";
+import FindMemosByUserIdSchema from "./infra/schemas/memo/FindMemosByUserIdSchema";
+import UpdateMemoSchema from "./infra/schemas/memo/UpdateMemoSchema";
+import DeleteMemoSchema from "./infra/schemas/memo/DeleteMemoSchema";
 import RegisterCustomer from "./application/useCases/auth/RegisterCustomer";
 import AuthenticateUser from "./application/useCases/auth/AuthenticateUser";
 import ValidateAuthentication from "./application/useCases/auth/ValidateAuthentication";
@@ -30,6 +35,7 @@ import UpdateUserPasswordController from "./adapters/controllers/user/UpdateUser
 import DeleteUserController from "./adapters/controllers/user/DeleteUserController";
 import CustomerPresenter from "./adapters/presenters/user/CustomerPresenter";
 import AdminPresenter from "./adapters/presenters/user/AdminPresenter";
+import MemoPresenter from "./adapters/presenters/memo/MemoPresenter";
 import ValidateAuthorization from "./application/useCases/auth/ValidateAuthorization";
 import RefreshTokenRepository from "./adapters/repositories/RefreshTokenRepository";
 import RefreshAccessTokenController from "./adapters/controllers/auth/RefreshAccessTokenController";
@@ -43,6 +49,18 @@ import CreateRoot from "./application/useCases/user/CreateRoot";
 import PinoDriver from "./infra/drivers/logger/PinoDriver";
 import MongoDbDriver from "./infra/drivers/db/MongoDbDriver";
 import CreateRootUserEvent from "./adapters/events/user/CreateRootUserEvent";
+import MemoMapper from "./domain/memo/MemoMapper";
+import MemoRepository from "./adapters/repositories/MemoRepository";
+import CreateMemo from "./application/useCases/memo/CreateMemo";
+import FindMemoById from "./application/useCases/memo/FindMemoById";
+import FindMemosByUserId from "./application/useCases/memo/FindMemosByUserId";
+import UpdateMemo from "./application/useCases/memo/UpdateMemo";
+import DeleteMemo from "./application/useCases/memo/DeleteMemo";
+import CreateMemoController from "./adapters/controllers/memo/CreateMemoController";
+import FindMemoByIdController from "./adapters/controllers/memo/FindMemoByIdController";
+import FindMemosByUserIdController from "./adapters/controllers/memo/FindMemosByUserIdController";
+import UpdateMemoController from "./adapters/controllers/memo/UpdateMemoController";
+import DeleteMemoController from "./adapters/controllers/memo/DeleteMemoController";
 
 const {
   app: {
@@ -55,6 +73,7 @@ const {
     mongo: { dbName },
     usersSource,
     refreshTokensSource,
+    memoSource,
   },
 } = config;
 // DRIVERS
@@ -70,6 +89,7 @@ const loggerDriver = new PinoDriver();
 // MAPPERS
 const userMapper = new UserMapper();
 const refreshTokenMapper = new RefreshTokenMapper();
+const memoMapper = new MemoMapper();
 // REPOSITORIES
 const userRepository = new UserRepository(usersSource, dbDriver, userMapper);
 const refreshTokenRepository = new RefreshTokenRepository(
@@ -77,6 +97,7 @@ const refreshTokenRepository = new RefreshTokenRepository(
   dbDriver,
   refreshTokenMapper
 );
+const memoRepository = new MemoRepository(memoSource, dbDriver, memoMapper);
 // USE CASES
 const registerCustomerUseCase = new RegisterCustomer(
   userRepository,
@@ -102,24 +123,33 @@ const validateAuthenticationUseCase = new ValidateAuthentication(
 const validateAuthorizationUseCase = new ValidateAuthorization();
 const createRootUseCase = new CreateRoot(userRepository, cryptoDriver);
 const createAdminUseCase = new CreateAdmin(userRepository, cryptoDriver);
-const findUsersUseCase = new FindUsers(userRepository);
-const findUserByIdUseCase = new FindUserById(userRepository);
+const findUsersUseCase = new FindUsers(userRepository, memoRepository);
+const findUserByIdUseCase = new FindUserById(userRepository, memoRepository);
 const updateUserUseCase = new UpdateUser(
   userRepository,
-  refreshTokenRepository
+  refreshTokenRepository,
+  memoRepository
 );
 const updateUserPasswordUseCase = new UpdateUserPassword(
   cryptoDriver,
   userRepository,
-  refreshTokenRepository
+  refreshTokenRepository,
+  memoRepository
 );
 const deleteUserUseCase = new DeleteUser(
   userRepository,
-  refreshTokenRepository
+  refreshTokenRepository,
+  memoRepository
 );
+const createMemoUseCase = new CreateMemo(memoRepository, cryptoDriver);
+const findMemoByIdUseCase = new FindMemoById(memoRepository);
+const findMemosByUserIdUseCase = new FindMemosByUserId(memoRepository);
+const updateMemoUseCase = new UpdateMemo(memoRepository);
+const deleteMemoUseCase = new DeleteMemo(memoRepository);
 // PRESENTERS
-const customerPresenter = new CustomerPresenter();
-const adminPresenter = new AdminPresenter();
+const memoPresenter = new MemoPresenter();
+const customerPresenter = new CustomerPresenter(memoPresenter);
+const adminPresenter = new AdminPresenter(memoPresenter);
 // CONTROLLERS
 const registerCustomerController = new RegisterCustomerController({
   useCase: registerCustomerUseCase,
@@ -178,6 +208,36 @@ const deleteUserController = new DeleteUserController({
   validateAuthenticationUseCase,
   validateAuthorizationUseCase,
 });
+const createMemoController = new CreateMemoController({
+  useCase: createMemoUseCase,
+  schema: CreateMemoSchema,
+  validateAuthenticationUseCase,
+  presenter: memoPresenter,
+});
+const findMemoByIdController = new FindMemoByIdController({
+  useCase: findMemoByIdUseCase,
+  schema: FindMemoByIdSchema,
+  validateAuthenticationUseCase,
+  presenter: memoPresenter,
+});
+const findMemosByUserIdController = new FindMemosByUserIdController({
+  useCase: findMemosByUserIdUseCase,
+  schema: FindMemosByUserIdSchema,
+  validateAuthenticationUseCase,
+  presenter: memoPresenter,
+});
+const updateMemoController = new UpdateMemoController({
+  useCase: updateMemoUseCase,
+  schema: UpdateMemoSchema,
+  validateAuthenticationUseCase,
+  presenter: memoPresenter,
+});
+const deleteMemoController = new DeleteMemoController({
+  useCase: deleteMemoUseCase,
+  schema: DeleteMemoSchema,
+  validateAuthenticationUseCase,
+  validateAuthorizationUseCase,
+});
 // EVENTS
 const createRootUserEvent = new CreateRootUserEvent(createRootUseCase);
 
@@ -194,5 +254,10 @@ export default {
   updateUserController,
   updateUserPasswordController,
   deleteUserController,
+  createMemoController,
+  findMemoByIdController,
+  findMemosByUserIdController,
+  updateMemoController,
+  deleteMemoController,
   createRootUserEvent,
 };

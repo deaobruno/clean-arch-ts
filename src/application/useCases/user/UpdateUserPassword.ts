@@ -5,6 +5,7 @@ import CryptoDriver from "../../../infra/drivers/hash/CryptoDriver";
 import BaseError from "../../errors/BaseError";
 import IUseCase from "../IUseCase";
 import NotFoundError from "../../errors/NotFoundError";
+import IMemoRepository from "../../../domain/memo/IMemoRepository";
 
 type UpdateUserPasswordInput = {
   user: User;
@@ -20,7 +21,8 @@ export default class UpdateUserPassword
   constructor(
     private _cryptoDriver: CryptoDriver,
     private _userRepository: IUserRepository,
-    private _refreshTokenRepository: IRefreshTokenRepository
+    private _refreshTokenRepository: IRefreshTokenRepository,
+    private _memoRepository: IMemoRepository
   ) {}
 
   async exec(input: UpdateUserPasswordInput): Promise<Output> {
@@ -33,11 +35,22 @@ export default class UpdateUserPassword
 
     if (!user || user.isRoot) return new NotFoundError("User not found");
 
-    user.password = this._cryptoDriver.hashString(password);
+    const updatedUser = User.create({
+      userId: user.userId,
+      email: user.email,
+      password: password
+        ? this._cryptoDriver.hashString(password)
+        : user.password,
+      role: user.role,
+    });
 
-    await this._userRepository.update(user);
+    await this._userRepository.update(updatedUser);
     await this._refreshTokenRepository.delete({ user_id });
 
-    return user;
+    const memos = await this._memoRepository.findByUserId(user_id);
+
+    memos.forEach(updatedUser.addMemo);
+
+    return updatedUser;
   }
 }

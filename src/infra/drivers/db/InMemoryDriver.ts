@@ -87,4 +87,10 @@ export default class InMemoryDriver implements IDbDriver {
       });
     }
   }
+
+  async deleteMany(
+    source: string,
+    filters?: object | undefined,
+    options?: object | undefined
+  ): Promise<void> {}
 }

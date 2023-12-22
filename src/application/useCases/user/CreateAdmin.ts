@@ -5,7 +5,6 @@ import IHashDriver from "../../../infra/drivers/hash/IHashDriver";
 import BaseError from "../../errors/BaseError";
 import IUseCase from "../IUseCase";
 import ConflictError from "../../errors/ConflictError";
-import InternalServerError from "../../errors/InternalServerError";
 
 type CreateAdminInput = {
   email: string;

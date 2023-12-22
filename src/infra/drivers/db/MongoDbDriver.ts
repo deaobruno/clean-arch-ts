@@ -96,4 +96,12 @@ export default class MongoDbDriver implements IDbDriver {
   ): Promise<void> {
     await MongoDbDriver.getCollection(source).deleteOne(filters, options);
   }
+
+  async deleteMany(
+    source: string,
+    filters: Filter<Document>,
+    options?: DeleteOptions
+  ): Promise<void> {
+    await MongoDbDriver.getCollection(source).deleteMany(filters, options);
+  }
 }
