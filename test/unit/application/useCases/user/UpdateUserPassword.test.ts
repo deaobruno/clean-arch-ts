@@ -9,20 +9,18 @@ import BaseError from "../../../../../src/application/errors/BaseError";
 import UserRepository from "../../../../../src/adapters/repositories/UserRepository";
 import RefreshTokenRepository from "../../../../../src/adapters/repositories/RefreshTokenRepository";
 import CryptoDriver from "../../../../../src/infra/drivers/hash/CryptoDriver";
+import MemoRepository from "../../../../../src/adapters/repositories/MemoRepository";
 
 const sandbox = sinon.createSandbox();
 const userId = faker.string.uuid();
 const email = faker.internet.email();
 const password = faker.internet.password();
-const fakeUser = {
+const fakeUser = User.create({
   userId,
   email,
   password,
   role: UserRole.CUSTOMER,
-  isRoot: false,
-  isAdmin: false,
-  isCustomer: true,
-};
+});
 
 describe("/application/useCases/user/UpdateUserPassword.ts", () => {
   afterEach(() => sandbox.restore());
@@ -33,13 +31,17 @@ describe("/application/useCases/user/UpdateUserPassword.ts", () => {
     const refreshTokenRepository = sandbox.createStubInstance(
       RefreshTokenRepository
     );
+    const memoRepository = sandbox.createStubInstance(MemoRepository);
     const updateUserPassword = new UpdateUserPassword(
       cryptoDriver,
       userRepository,
-      refreshTokenRepository
+      refreshTokenRepository,
+      memoRepository
     );
 
+    cryptoDriver.hashString.returns("hash");
     userRepository.findOne.resolves(fakeUser);
+    memoRepository.findByUserId.resolves([]);
 
     const newPassword = faker.internet.password();
 
@@ -63,7 +65,6 @@ describe("/application/useCases/user/UpdateUserPassword.ts", () => {
     expect(user.password).equal(fakeUser.password);
     expect(user.role).equal(fakeUser.role);
     expect(user.isCustomer).equal(true);
-    expect(user.isAdmin).equal(false);
     expect(user.isRoot).equal(false);
   });
 
@@ -73,10 +74,12 @@ describe("/application/useCases/user/UpdateUserPassword.ts", () => {
     const refreshTokenRepository = sandbox.createStubInstance(
       RefreshTokenRepository
     );
+    const memoRepository = sandbox.createStubInstance(MemoRepository);
     const updateUserPassword = new UpdateUserPassword(
       cryptoDriver,
       userRepository,
-      refreshTokenRepository
+      refreshTokenRepository,
+      memoRepository
     );
 
     const error = <BaseError>await updateUserPassword.exec({
@@ -96,10 +99,12 @@ describe("/application/useCases/user/UpdateUserPassword.ts", () => {
     const refreshTokenRepository = sandbox.createStubInstance(
       RefreshTokenRepository
     );
+    const memoRepository = sandbox.createStubInstance(MemoRepository);
     const updateUserPassword = new UpdateUserPassword(
       cryptoDriver,
       userRepository,
-      refreshTokenRepository
+      refreshTokenRepository,
+      memoRepository
     );
 
     userRepository.findOne.resolves();

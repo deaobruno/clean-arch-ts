@@ -7,20 +7,19 @@ import BaseError from "../../../../../src/application/errors/BaseError";
 import UserRepository from "../../../../../src/adapters/repositories/UserRepository";
 import RefreshTokenRepository from "../../../../../src/adapters/repositories/RefreshTokenRepository";
 import UserRole from "../../../../../src/domain/user/UserRole";
+import User from "../../../../../src/domain/user/User";
+import MemoRepository from "../../../../../src/adapters/repositories/MemoRepository";
 
 const sandbox = sinon.createSandbox();
 const userId = faker.string.uuid();
 const email = faker.internet.email();
 const password = faker.internet.password();
-const fakeUser = {
+const fakeUser = User.create({
   userId: faker.string.uuid(),
   email,
   password,
   role: UserRole.CUSTOMER,
-  isRoot: false,
-  isAdmin: false,
-  isCustomer: true,
-};
+});
 
 describe("/application/useCases/user/DeleteUser.ts", () => {
   afterEach(() => sandbox.restore());
@@ -30,14 +29,17 @@ describe("/application/useCases/user/DeleteUser.ts", () => {
     const refreshTokenRepository = sandbox.createStubInstance(
       RefreshTokenRepository
     );
+    const memoRepository = sandbox.createStubInstance(MemoRepository);
     const deleteUser: DeleteUser = new DeleteUser(
       userRepository,
-      refreshTokenRepository
+      refreshTokenRepository,
+      memoRepository
     );
 
     userRepository.findOne.resolves(fakeUser);
     userRepository.delete.resolves();
     refreshTokenRepository.delete.resolves();
+    memoRepository.delete.resolves();
 
     const result = await deleteUser.exec({ user_id: userId });
 
@@ -49,9 +51,11 @@ describe("/application/useCases/user/DeleteUser.ts", () => {
     const refreshTokenRepository = sandbox.createStubInstance(
       RefreshTokenRepository
     );
+    const memoRepository = sandbox.createStubInstance(MemoRepository);
     const deleteUser: DeleteUser = new DeleteUser(
       userRepository,
-      refreshTokenRepository
+      refreshTokenRepository,
+      memoRepository
     );
 
     const error = <BaseError>await deleteUser.exec({ user_id: "" });

@@ -4,48 +4,29 @@ import ValidateAuthorization from "../../../../../src/application/useCases/auth/
 import ForbiddenError from "../../../../../src/application/errors/ForbiddenError";
 import BaseError from "../../../../../src/application/errors/BaseError";
 import UserRole from "../../../../../src/domain/user/UserRole";
+import User from "../../../../../src/domain/user/User";
 
 const validateAuthorization = new ValidateAuthorization();
 
 describe("/application/useCases/auth/ValidateAuthorization.ts", () => {
   it("should return void when user is root", () => {
-    const user = {
+    const user = User.create({
       userId: faker.string.uuid(),
       email: faker.internet.email(),
       password: faker.internet.password(),
       role: UserRole.ROOT,
-      isRoot: true,
-      isAdmin: false,
-      isCustomer: false,
-    };
-
-    expect(validateAuthorization.exec({ user })).equal(undefined);
-  });
-
-  it("should return void when user is admin", () => {
-    const user = {
-      userId: faker.string.uuid(),
-      email: faker.internet.email(),
-      password: faker.internet.password(),
-      role: UserRole.ADMIN,
-      isRoot: false,
-      isAdmin: true,
-      isCustomer: false,
-    };
+    });
 
     expect(validateAuthorization.exec({ user })).equal(undefined);
   });
 
   it("should return a ForbiddenError when user is customer", () => {
-    const user = {
+    const user = User.create({
       userId: faker.string.uuid(),
       email: faker.internet.email(),
       password: faker.internet.password(),
       role: UserRole.CUSTOMER,
-      isRoot: false,
-      isAdmin: false,
-      isCustomer: true,
-    };
+    });
     const error = <BaseError>validateAuthorization.exec({ user });
 
     expect(error instanceof ForbiddenError).equal(true);

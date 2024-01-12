@@ -7,29 +7,29 @@ import { expect } from "chai";
 import NotFoundError from "../../../../../src/application/errors/NotFoundError";
 import BaseError from "../../../../../src/application/errors/BaseError";
 import UserRepository from "../../../../../src/adapters/repositories/UserRepository";
+import MemoRepository from "../../../../../src/adapters/repositories/MemoRepository";
 
 const sandbox = sinon.createSandbox();
 const userId = faker.string.uuid();
 const email = faker.internet.email();
 const password = faker.internet.password();
-const fakeUser = {
+const fakeUser = User.create({
   userId,
   email,
   password,
   role: UserRole.CUSTOMER,
-  isRoot: false,
-  isAdmin: false,
-  isCustomer: true,
-};
+});
 
 describe("/application/useCases/user/FindUserById.ts", () => {
   afterEach(() => sandbox.restore());
 
   it("should return an user passing an UUID", async () => {
     const userRepository = sandbox.createStubInstance(UserRepository);
-    const findUserById = new FindUserById(userRepository);
+    const memoRepository = sandbox.createStubInstance(MemoRepository);
+    const findUserById = new FindUserById(userRepository, memoRepository);
 
     userRepository.findOne.resolves(fakeUser);
+    memoRepository.findByUserId.resolves([]);
 
     const user = <User>(
       await findUserById.exec({ user: fakeUser, user_id: userId })
@@ -40,13 +40,13 @@ describe("/application/useCases/user/FindUserById.ts", () => {
     expect(user.password).equal(fakeUser.password);
     expect(user.role).equal(fakeUser.role);
     expect(user.isCustomer).equal(true);
-    expect(user.isAdmin).equal(false);
     expect(user.isRoot).equal(false);
   });
 
   it("should return a NotFoundError when authenticated user is different from request user", async () => {
     const userRepository = sandbox.createStubInstance(UserRepository);
-    const findUserById = new FindUserById(userRepository);
+    const memoRepository = sandbox.createStubInstance(MemoRepository);
+    const findUserById = new FindUserById(userRepository, memoRepository);
     const error = <BaseError>(
       await findUserById.exec({ user: fakeUser, user_id: "test" })
     );
@@ -58,7 +58,8 @@ describe("/application/useCases/user/FindUserById.ts", () => {
 
   it("should return a NotFoundError when no user is found", async () => {
     const userRepository = sandbox.createStubInstance(UserRepository);
-    const findUserById = new FindUserById(userRepository);
+    const memoRepository = sandbox.createStubInstance(MemoRepository);
+    const findUserById = new FindUserById(userRepository, memoRepository);
 
     userRepository.findOne.resolves();
 

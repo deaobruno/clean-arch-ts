@@ -12,7 +12,6 @@ const useCase = {
   exec: (data: any): Promise<void> => Promise.resolve(data),
 };
 const dependencies = {
-  createAdminController: new CustomController({ useCase }),
   findUsersController: new CustomController({ useCase }),
   findUserByIdController: new CustomController({ useCase }),
   updateUserController: new CustomController({ useCase }),
@@ -30,6 +29,6 @@ describe("/infra/http/v1/userRoutes.ts", () => {
   it("should return an array of user routes", () => {
     const routes = userRotes(dependencies, server);
 
-    expect(routes.length).equal(6);
+    expect(routes.length).equal(5);
   });
 });

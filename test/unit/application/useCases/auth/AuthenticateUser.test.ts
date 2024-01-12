@@ -10,6 +10,7 @@ import BaseError from "../../../../../src/application/errors/BaseError";
 import UnauthorizedError from "../../../../../src/application/errors/UnauthorizedError";
 import RefreshToken from "../../../../../src/domain/refreshToken/RefreshToken";
 import UserRole from "../../../../../src/domain/user/UserRole";
+import User from "../../../../../src/domain/user/User";
 
 const sandbox = sinon.createSandbox();
 const userId = faker.string.uuid();
@@ -21,15 +22,12 @@ const userData = {
   password,
   role: UserRole.CUSTOMER,
 };
-const fakeUser = {
+const fakeUser = User.create({
   userId,
   email,
   password: "hash",
   role: UserRole.CUSTOMER,
-  isRoot: false,
-  isAdmin: false,
-  isCustomer: true,
-};
+});
 
 describe("/application/useCases/auth/AuthenticateUser.ts", () => {
   afterEach(() => sandbox.restore());

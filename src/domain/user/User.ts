@@ -22,10 +22,6 @@ export default class User {
     return this.role === UserRole.ROOT;
   }
 
-  get isAdmin(): boolean {
-    return this.role === UserRole.ADMIN;
-  }
-
   get isCustomer(): boolean {
     return this.role === UserRole.CUSTOMER;
   }

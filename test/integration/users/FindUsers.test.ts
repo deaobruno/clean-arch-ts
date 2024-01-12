@@ -77,7 +77,16 @@ describe("GET /users", () => {
       user_id: userId,
       token,
     });
-    sandbox.stub(MongoDbDriver.prototype, "find").resolves(usersData);
+    sandbox
+      .stub(MongoDbDriver.prototype, "find")
+      .onCall(0)
+      .resolves(usersData)
+      .onCall(1)
+      .resolves([])
+      .onCall(2)
+      .resolves([])
+      .onCall(3)
+      .resolves([]);
 
     const { status, data } = await axios.get(`${url}`, {
       headers: { Authorization },
@@ -104,7 +113,12 @@ describe("GET /users", () => {
       user_id: userId,
       token,
     });
-    sandbox.stub(MongoDbDriver.prototype, "find").resolves([usersData[0]]);
+    sandbox
+      .stub(MongoDbDriver.prototype, "find")
+      .onFirstCall()
+      .resolves([usersData[0]])
+      .onSecondCall()
+      .resolves([]);
 
     const { status, data } = await axios.get(
       `${url}?email=${usersData[0].email}`,

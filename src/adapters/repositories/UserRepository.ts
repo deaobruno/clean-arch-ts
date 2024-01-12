@@ -35,14 +35,6 @@ export default class UserRepository implements IUserRepository {
     if (user) return this._mapper.dbToEntity(user);
   }
 
-  async findAdmins(): Promise<User[]> {
-    const users = await this._dbDriver.find(this._source, {
-      role: UserRole.ADMIN,
-    });
-
-    return users.map(this._mapper.dbToEntity);
-  }
-
   async findCustomers(): Promise<User[]> {
     const users = await this._dbDriver.find(this._source, {
       role: UserRole.CUSTOMER,

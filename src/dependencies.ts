@@ -5,7 +5,6 @@ import UserRepository from "./adapters/repositories/UserRepository";
 import RegisterCustomerSchema from "./infra/schemas/auth/RegisterCustomerSchema";
 import AuthenticateUserSchema from "./infra/schemas/auth/AuthenticateUserSchema";
 import RefreshAccessTokenSchema from "./infra/schemas/auth/RefreshAccessTokenSchema";
-import CreateAdminSchema from "./infra/schemas/user/CreateAdminSchema";
 import FindUsersSchema from "./infra/schemas/user/FindUsersSchema";
 import FindUserByIdSchema from "./infra/schemas/user/FindUserByIdSchema";
 import UpdateUserSchema from "./infra/schemas/user/UpdateUserSchema";
@@ -19,7 +18,6 @@ import DeleteMemoSchema from "./infra/schemas/memo/DeleteMemoSchema";
 import RegisterCustomer from "./application/useCases/auth/RegisterCustomer";
 import AuthenticateUser from "./application/useCases/auth/AuthenticateUser";
 import ValidateAuthentication from "./application/useCases/auth/ValidateAuthentication";
-import CreateAdmin from "./application/useCases/user/CreateAdmin";
 import FindUsers from "./application/useCases/user/FindUsers";
 import FindUserById from "./application/useCases/user/FindUserById";
 import UpdateUser from "./application/useCases/user/UpdateUser";
@@ -27,7 +25,6 @@ import UpdateUserPassword from "./application/useCases/user/UpdateUserPassword";
 import DeleteUser from "./application/useCases/user/DeleteUser";
 import RegisterCustomerController from "./adapters/controllers/auth/RegisterCustomerController";
 import AuthenticateUserController from "./adapters/controllers/auth/AuthenticateUserController";
-import CreateAdminController from "./adapters/controllers/user/CreateAdminController";
 import FindUsersController from "./adapters/controllers/user/FindUsersController";
 import FindUserByIdController from "./adapters/controllers/user/FindUserByIdController";
 import UpdateUserController from "./adapters/controllers/user/UpdateUserController";
@@ -122,7 +119,6 @@ const validateAuthenticationUseCase = new ValidateAuthentication(
 );
 const validateAuthorizationUseCase = new ValidateAuthorization();
 const createRootUseCase = new CreateRoot(userRepository, cryptoDriver);
-const createAdminUseCase = new CreateAdmin(userRepository, cryptoDriver);
 const findUsersUseCase = new FindUsers(userRepository, memoRepository);
 const findUserByIdUseCase = new FindUserById(userRepository, memoRepository);
 const updateUserUseCase = new UpdateUser(
@@ -169,13 +165,6 @@ const logoutController = new LogoutController({
   useCase: deleteRefreshTokenUseCase,
   schema: LogoutSchema,
   validateAuthenticationUseCase,
-});
-const createAdminController = new CreateAdminController({
-  useCase: createAdminUseCase,
-  schema: CreateAdminSchema,
-  validateAuthenticationUseCase,
-  validateAuthorizationUseCase,
-  presenter: adminPresenter,
 });
 const findUsersController = new FindUsersController({
   useCase: findUsersUseCase,
@@ -248,7 +237,6 @@ export default {
   authenticateUserController,
   refreshAccessTokenController,
   logoutController,
-  createAdminController,
   findUsersController,
   findUserByIdController,
   updateUserController,

@@ -36,8 +36,9 @@ describe("/src/domain/user/UserMapper.ts", () => {
       password,
       role,
       isRoot: false,
-      isAdmin: false,
       isCustomer: true,
+      memos: [],
+      addMemo: () => {},
     });
 
     const userDbData = {

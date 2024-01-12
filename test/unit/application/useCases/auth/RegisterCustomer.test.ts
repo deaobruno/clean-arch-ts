@@ -12,15 +12,12 @@ import UserRepository from "../../../../../src/adapters/repositories/UserReposit
 const sandbox = sinon.createSandbox();
 const email = faker.internet.email();
 const password = faker.internet.password();
-const fakeUser: User = {
+const fakeUser = User.create({
   userId: faker.string.uuid(),
   email,
   password,
   role: UserRole.CUSTOMER,
-  isRoot: false,
-  isAdmin: false,
-  isCustomer: true,
-};
+});
 const userParams = {
   email,
   password,
@@ -31,7 +28,7 @@ const userParams = {
 describe("/application/useCases/auth/RegisterCustomer.ts", () => {
   afterEach(() => sandbox.restore());
 
-  it("should successfully create an Admin User", async () => {
+  it("should successfully create a Customer User", async () => {
     const cryptoDriver = sandbox.createStubInstance(CryptoDriver);
     const userRepository = sandbox.createStubInstance(UserRepository);
     const registerCustomer = new RegisterCustomer(userRepository, cryptoDriver);
@@ -49,11 +46,10 @@ describe("/application/useCases/auth/RegisterCustomer.ts", () => {
     expect(user.password).equal(userParams.password);
     expect(user.role).equal(UserRole.CUSTOMER);
     expect(user.isCustomer).equal(true);
-    expect(user.isAdmin).equal(false);
     expect(user.isRoot).equal(false);
   });
 
-  it("should fail when trying to create an Admin User with repeated email", async () => {
+  it("should fail when trying to create a Customer User with repeated email", async () => {
     const cryptoDriver = sandbox.createStubInstance(CryptoDriver);
     const userRepository = sandbox.createStubInstance(UserRepository);
     const registerCustomer = new RegisterCustomer(userRepository, cryptoDriver);

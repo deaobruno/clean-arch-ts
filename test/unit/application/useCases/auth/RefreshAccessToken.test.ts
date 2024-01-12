@@ -8,6 +8,7 @@ import UserRole from "../../../../../src/domain/user/UserRole";
 import ForbiddenError from "../../../../../src/application/errors/ForbiddenError";
 import JwtDriver from "../../../../../src/infra/drivers/token/JwtDriver";
 import RefreshToken from "../../../../../src/domain/refreshToken/RefreshToken";
+import User from "../../../../../src/domain/user/User";
 
 const sandbox = sinon.createSandbox();
 const userId = faker.string.uuid();
@@ -17,12 +18,7 @@ const userData = {
   password: faker.internet.password(),
   role: UserRole.CUSTOMER,
 };
-const user = {
-  ...userData,
-  isRoot: false,
-  isAdmin: false,
-  isCustomer: true,
-};
+const user = User.create(userData);
 
 describe("/application/useCases/auth/RefreshAccessToken.ts", () => {
   afterEach(() => sandbox.restore());

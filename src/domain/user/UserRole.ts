@@ -1,6 +1,5 @@
 enum UserRole {
   ROOT,
-  ADMIN,
   CUSTOMER,
 }
 

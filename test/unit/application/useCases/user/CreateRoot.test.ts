@@ -10,15 +10,12 @@ import CryptoDriver from "../../../../../src/infra/drivers/hash/CryptoDriver";
 const sandbox = sinon.createSandbox();
 const email = faker.internet.email();
 const password = faker.internet.password();
-const fakeUser = {
+const fakeUser = User.create({
   userId: faker.string.uuid(),
   email,
   password,
   role: UserRole.ROOT,
-  isRoot: true,
-  isAdmin: false,
-  isCustomer: false,
-};
+});
 let userParams = {
   email,
   password,

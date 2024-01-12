@@ -7,17 +7,15 @@ import NotFoundError from "../../../../../src/application/errors/NotFoundError";
 import DeleteRefreshToken from "../../../../../src/application/useCases/auth/DeleteRefreshToken";
 import UserRole from "../../../../../src/domain/user/UserRole";
 import ForbiddenError from "../../../../../src/application/errors/ForbiddenError";
+import User from "../../../../../src/domain/user/User";
 
 const sandbox = sinon.createSandbox();
-const user = {
+const user = User.create({
   userId: faker.string.uuid(),
   email: faker.internet.email(),
   password: faker.internet.password(),
   role: UserRole.CUSTOMER,
-  isRoot: false,
-  isAdmin: false,
-  isCustomer: true,
-};
+});
 
 describe("/application/useCases/auth/DeleteRefreshToken.ts", () => {
   afterEach(() => sandbox.restore());

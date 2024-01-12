@@ -21,7 +21,7 @@ const url = "http://localhost:8080/api/v1/users";
 const userId = faker.string.uuid();
 const email = faker.internet.email();
 const password = faker.internet.password();
-const role = UserRole.ADMIN;
+const role = UserRole.ROOT;
 const Authorization = "Bearer token";
 const token = "refresh-token";
 

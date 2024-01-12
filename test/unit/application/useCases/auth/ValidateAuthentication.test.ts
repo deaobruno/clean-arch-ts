@@ -14,20 +14,12 @@ const userId = faker.string.uuid();
 const email = faker.internet.email();
 const password = faker.internet.password();
 const userData = {
-  id: userId,
-  email,
-  password,
-  role: UserRole.CUSTOMER,
-};
-const fakeUser = {
   userId,
   email,
   password,
   role: UserRole.CUSTOMER,
-  isRoot: false,
-  isAdmin: false,
-  isCustomer: true,
 };
+const fakeUser = User.create(userData);
 
 describe("/application/useCases/auth/ValidateAuthentication.ts", () => {
   afterEach(() => sandbox.restore());
@@ -52,12 +44,11 @@ describe("/application/useCases/auth/ValidateAuthentication.ts", () => {
     const authorization = "Bearer token";
     const { user } = <any>await validateAuthentication.exec({ authorization });
 
-    expect(user.userId).equal(userData.id);
+    expect(user.userId).equal(userData.userId);
     expect(user.email).equal(userData.email);
     expect(user.password).equal(userData.password);
     expect(user.role).equal(userData.role);
     expect(user.isCustomer).equal(true);
-    expect(user.isAdmin).equal(false);
     expect(user.isRoot).equal(false);
   });
 

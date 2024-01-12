@@ -1,10 +1,13 @@
+import sinon from "sinon";
 import { faker } from "@faker-js/faker";
+import { expect } from "chai";
 import UserRole from "../../../../../src/domain/user/UserRole";
 import User from "../../../../../src/domain/user/User";
 import CustomerPresenter from "../../../../../src/adapters/presenters/user/CustomerPresenter";
-import { expect } from "chai";
+import MemoPresenter from "../../../../../src/adapters/presenters/memo/MemoPresenter";
 
-const customerPresenter = new CustomerPresenter();
+const memoPresenter = sinon.createStubInstance(MemoPresenter);
+const customerPresenter = new CustomerPresenter(memoPresenter);
 
 describe("/application/presenters/user/CustomerPresenter.ts", () => {
   it("should return an external representation of a customer user object", () => {

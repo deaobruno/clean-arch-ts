@@ -166,7 +166,7 @@ describe("PUT /users/:user_id", () => {
     });
 
     const payload = {
-      email: "admin@email.com",
+      email: "user@email.com",
       test: "test",
     };
 

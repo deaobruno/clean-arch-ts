@@ -10,6 +10,7 @@ import ValidateAuthentication from "../../../../src/application/useCases/auth/Va
 import JwtDriver from "../../../../src/infra/drivers/token/JwtDriver";
 import UserRole from "../../../../src/domain/user/UserRole";
 import RefreshTokenRepository from "../../../../src/adapters/repositories/RefreshTokenRepository";
+import User from "../../../../src/domain/user/User";
 
 class CustomController extends AuthenticatedController {
   statusCode = 200;
@@ -33,15 +34,12 @@ describe("/adapters/controllers/AuthenticatedController.ts", () => {
 
   it("should return successfully when authenticated", async () => {
     sandbox.stub(validateAuthenticationUseCase, "exec").resolves({
-      user: {
+      user: User.create({
         userId: faker.string.uuid(),
         email: faker.internet.email(),
         password: faker.internet.password(),
         role: UserRole.CUSTOMER,
-        isRoot: false,
-        isAdmin: false,
-        isCustomer: true,
-      },
+      }),
     });
 
     const useCase = {
