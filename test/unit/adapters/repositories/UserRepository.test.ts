@@ -181,7 +181,7 @@ describe("/adapters/repositories/UserRepository", () => {
         addMemo: () => {},
       });
 
-    const users = await userRepository.find();
+    const users = await userRepository.find({ role: UserRole.CUSTOMER });
 
     expect(users[0].userId).equal(dbUsers[0].user_id);
     expect(users[0].email).equal(dbUsers[0].email);

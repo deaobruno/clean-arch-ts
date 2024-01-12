@@ -30,7 +30,7 @@ describe("/application/useCases/user/DeleteUser.ts", () => {
       RefreshTokenRepository
     );
     const memoRepository = sandbox.createStubInstance(MemoRepository);
-    const deleteUser: DeleteUser = new DeleteUser(
+    const deleteUser = new DeleteUser(
       userRepository,
       refreshTokenRepository,
       memoRepository
@@ -46,13 +46,13 @@ describe("/application/useCases/user/DeleteUser.ts", () => {
     expect(result).equal(undefined);
   });
 
-  it("should fail when trying to update an user password passing wrong ID", async () => {
+  it("should fail when trying to delete an user passing wrong ID", async () => {
     const userRepository = sandbox.createStubInstance(UserRepository);
     const refreshTokenRepository = sandbox.createStubInstance(
       RefreshTokenRepository
     );
     const memoRepository = sandbox.createStubInstance(MemoRepository);
-    const deleteUser: DeleteUser = new DeleteUser(
+    const deleteUser = new DeleteUser(
       userRepository,
       refreshTokenRepository,
       memoRepository

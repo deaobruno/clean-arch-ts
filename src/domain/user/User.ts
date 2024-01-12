@@ -27,6 +27,13 @@ export default class User {
   }
 
   addMemo = (memo: Memo): void => {
+    const userMemos = this.memos.filter(
+      (userMemo) => userMemo.memoId === memo.memoId
+    );
+
+    if (userMemos.length > 0)
+      throw new Error("User: memo already added to user");
+
     this.memos.push(memo);
   };
 

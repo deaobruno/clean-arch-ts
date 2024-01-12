@@ -27,7 +27,7 @@ export default class Memo {
       /\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d\.\d+([+-][0-2]\d:[0-5]\d|Z)/;
     const nowMs = new Date().getTime();
 
-    if (!memoId) throw new Error('User: "memoId" required');
+    if (!memoId) throw new Error('Memo: "memoId" required');
 
     if (!uuidRegex.test(memoId)) throw new Error('Memo: Invalid "memoId"');
 
@@ -45,7 +45,8 @@ export default class Memo {
 
     const startMs = new Date(start).getTime();
 
-    if (startMs <= nowMs) throw new Error('Memo: "start" must a future date');
+    if (startMs <= nowMs)
+      throw new Error('Memo: "start" must be a future date');
 
     if (!end) throw new Error('Memo: "end" required');
 

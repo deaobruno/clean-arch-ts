@@ -6,13 +6,15 @@ export default {
 
     if (!uuidRegex.test(memo_id)) return Error('Invalid "memo_id" format');
 
-    if (title && title === "") return Error('"title" is required');
+    if (title !== undefined && title === "")
+      return Error('"title" is required');
 
-    if (text && text === "") return Error('"text" is required');
+    if (text !== undefined && text === "") return Error('"text" is required');
 
-    if (start && start === "") return Error('"start" is required');
+    if (start !== undefined && start === "")
+      return Error('"start" is required');
 
-    if (end && end === "") return Error('"end" is required');
+    if (end !== undefined && end === "") return Error('"end" is required');
 
     const invalidParams = Object.keys(payload)
       .filter(
