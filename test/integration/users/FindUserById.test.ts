@@ -78,7 +78,7 @@ describe("GET /users/:user_id", () => {
       password: hashDriver.hashString(password),
       role,
     });
-    sandbox.stub(MongoDbDriver.prototype, "findOne").onFirstCall().resolves({
+    sandbox.stub(MongoDbDriver.prototype, "findOne").resolves({
       user_id: userId,
       token,
     });
