@@ -58,6 +58,7 @@ import FindMemoByIdController from "./adapters/controllers/memo/FindMemoByIdCont
 import FindMemosByUserIdController from "./adapters/controllers/memo/FindMemosByUserIdController";
 import UpdateMemoController from "./adapters/controllers/memo/UpdateMemoController";
 import DeleteMemoController from "./adapters/controllers/memo/DeleteMemoController";
+import NodeCacheDriver from "./infra/drivers/cache/NodeCacheDriver";
 
 const {
   app: {
@@ -83,18 +84,32 @@ const jwtDriver = new JwtDriver(
   refreshTokenExpirationTime
 );
 const loggerDriver = new PinoDriver();
+const cacheDriver = new NodeCacheDriver();
 // MAPPERS
 const userMapper = new UserMapper();
 const refreshTokenMapper = new RefreshTokenMapper();
 const memoMapper = new MemoMapper();
 // REPOSITORIES
-const userRepository = new UserRepository(usersSource, dbDriver, userMapper);
+const memoRepository = new MemoRepository(
+  memoSource,
+  dbDriver,
+  cacheDriver,
+  memoMapper
+);
+const userRepository = new UserRepository(
+  usersSource,
+  dbDriver,
+  cacheDriver,
+  memoRepository,
+  userMapper
+);
 const refreshTokenRepository = new RefreshTokenRepository(
   refreshTokensSource,
   dbDriver,
-  refreshTokenMapper
+  cacheDriver,
+  refreshTokenMapper,
+  refreshTokenExpirationTime
 );
-const memoRepository = new MemoRepository(memoSource, dbDriver, memoMapper);
 // USE CASES
 const registerCustomerUseCase = new RegisterCustomer(
   userRepository,
@@ -115,29 +130,28 @@ const deleteRefreshTokenUseCase = new DeleteRefreshToken(
 );
 const validateAuthenticationUseCase = new ValidateAuthentication(
   jwtDriver,
-  refreshTokenRepository
+  refreshTokenRepository,
+  userRepository
 );
 const validateAuthorizationUseCase = new ValidateAuthorization();
 const createRootUseCase = new CreateRoot(userRepository, cryptoDriver);
-const findUsersUseCase = new FindUsers(userRepository, memoRepository);
-const findUserByIdUseCase = new FindUserById(userRepository, memoRepository);
+const findUsersUseCase = new FindUsers(userRepository);
+const findUserByIdUseCase = new FindUserById(userRepository);
 const updateUserUseCase = new UpdateUser(
   userRepository,
-  refreshTokenRepository,
-  memoRepository
+  refreshTokenRepository
 );
 const updateUserPasswordUseCase = new UpdateUserPassword(
   cryptoDriver,
   userRepository,
-  refreshTokenRepository,
-  memoRepository
+  refreshTokenRepository
 );
 const deleteUserUseCase = new DeleteUser(
   userRepository,
   refreshTokenRepository,
   memoRepository
 );
-const createMemoUseCase = new CreateMemo(memoRepository, cryptoDriver);
+const createMemoUseCase = new CreateMemo(cryptoDriver, memoRepository);
 const findMemoByIdUseCase = new FindMemoById(memoRepository);
 const findMemosByUserIdUseCase = new FindMemosByUserId(memoRepository);
 const updateMemoUseCase = new UpdateMemo(memoRepository);

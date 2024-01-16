@@ -3,7 +3,6 @@ import IUserRepository from "../../../domain/user/IUserRepository";
 import BaseError from "../../errors/BaseError";
 import IUseCase from "../IUseCase";
 import NotFoundError from "../../errors/NotFoundError";
-import IMemoRepository from "../../../domain/memo/IMemoRepository";
 
 type Input = {
   user: User;
@@ -13,10 +12,7 @@ type Input = {
 type Output = User | BaseError;
 
 export default class FindUserById implements IUseCase<Input, Output> {
-  constructor(
-    private _userRepository: IUserRepository,
-    private _memoRepository: IMemoRepository
-  ) {}
+  constructor(private _userRepository: IUserRepository) {}
 
   async exec(input: Input): Promise<Output> {
     const { user: requestUser, user_id } = input;
@@ -24,13 +20,9 @@ export default class FindUserById implements IUseCase<Input, Output> {
     if (requestUser.isCustomer && requestUser.userId !== user_id)
       return new NotFoundError("User not found");
 
-    const user = await this._userRepository.findOne({ user_id });
+    const user = await this._userRepository.findOneById(user_id);
 
     if (!user || user.isRoot) return new NotFoundError("User not found");
-
-    const memos = await this._memoRepository.findByUserId(user_id);
-
-    memos.forEach(user.addMemo);
 
     return user;
   }

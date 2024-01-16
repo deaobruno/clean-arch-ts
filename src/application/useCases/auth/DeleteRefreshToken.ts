@@ -7,7 +7,6 @@ import ForbiddenError from "../../errors/ForbiddenError";
 
 type Input = {
   user: User;
-  refresh_token: string;
 };
 
 type Output = void | BaseError;
@@ -16,16 +15,18 @@ export default class DeleteRefreshToken implements IUseCase<Input, Output> {
   constructor(private _refreshTokenRepository: IRefreshTokenRepository) {}
 
   async exec(payload: Input): Promise<Output> {
-    const { user, refresh_token } = payload;
-    const refreshToken = await this._refreshTokenRepository.findOneByToken(
-      refresh_token
+    const {
+      user: { userId },
+    } = payload;
+    const refreshToken = await this._refreshTokenRepository.findOneByUserId(
+      userId
     );
 
     if (!refreshToken) return new NotFoundError("Refresh token not found");
 
-    if (user.userId !== refreshToken.userId)
+    if (userId !== refreshToken.userId)
       return new ForbiddenError("Token does not belong to user");
 
-    await this._refreshTokenRepository.delete({ token: refreshToken.token });
+    await this._refreshTokenRepository.deleteAllByUserId(userId);
   }
 }

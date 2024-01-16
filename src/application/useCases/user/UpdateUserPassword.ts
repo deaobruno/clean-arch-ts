@@ -21,8 +21,7 @@ export default class UpdateUserPassword
   constructor(
     private _cryptoDriver: CryptoDriver,
     private _userRepository: IUserRepository,
-    private _refreshTokenRepository: IRefreshTokenRepository,
-    private _memoRepository: IMemoRepository
+    private _refreshTokenRepository: IRefreshTokenRepository
   ) {}
 
   async exec(input: UpdateUserPasswordInput): Promise<Output> {
@@ -31,7 +30,7 @@ export default class UpdateUserPassword
     if (requestUser.isCustomer && requestUser.userId !== user_id)
       return new NotFoundError("User not found");
 
-    const user = await this._userRepository.findOne({ user_id });
+    const user = await this._userRepository.findOneById(user_id);
 
     if (!user || user.isRoot) return new NotFoundError("User not found");
 
@@ -44,12 +43,10 @@ export default class UpdateUserPassword
       role: user.role,
     });
 
+    user.memos.forEach(updatedUser.addMemo);
+
     await this._userRepository.update(updatedUser);
-    await this._refreshTokenRepository.delete({ user_id });
-
-    const memos = await this._memoRepository.findByUserId(user_id);
-
-    memos.forEach(updatedUser.addMemo);
+    await this._refreshTokenRepository.deleteAllByUserId(user_id);
 
     return updatedUser;
   }

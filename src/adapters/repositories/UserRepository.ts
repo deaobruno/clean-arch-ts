@@ -3,11 +3,15 @@ import IDbDriver from "../../infra/drivers/db/IDbDriver";
 import IUserRepository from "../../domain/user/IUserRepository";
 import UserMapper from "../../domain/user/UserMapper";
 import UserRole from "../../domain/user/UserRole";
+import ICacheDriver from "../../infra/drivers/cache/ICacheDriver";
+import IMemoRepository from "../../domain/memo/IMemoRepository";
 
 export default class UserRepository implements IUserRepository {
   constructor(
     private _source: string,
     private _dbDriver: IDbDriver,
+    private _cacheDriver: ICacheDriver,
+    private _memoRepository: IMemoRepository,
     private _mapper: UserMapper
   ) {}
 
@@ -29,10 +33,40 @@ export default class UserRepository implements IUserRepository {
     if (user) return this._mapper.dbToEntity(user);
   }
 
-  async findOneByEmail(email: string): Promise<User | undefined> {
-    const user = await this._dbDriver.findOne(this._source, { email });
+  async findOneById(user_id: string): Promise<User | undefined> {
+    const cachedUser = this._cacheDriver.get(user_id);
 
-    if (user) return this._mapper.dbToEntity(user);
+    if (cachedUser) return cachedUser;
+
+    const user = await this.findOne({ user_id });
+
+    if (user) {
+      const memos = await this._memoRepository.findByUserId(user_id);
+
+      memos.forEach(user.addMemo);
+
+      this._cacheDriver.set(user_id, user);
+
+      return user;
+    }
+  }
+
+  async findOneByEmail(email: string): Promise<User | undefined> {
+    const cachedUser = this._cacheDriver.get(email);
+
+    if (cachedUser) return cachedUser;
+
+    const user = await this.findOne({ email });
+
+    if (user) {
+      const memos = await this._memoRepository.findByUserId(user.userId);
+
+      memos.forEach(user.addMemo);
+
+      this._cacheDriver.set(email, user);
+
+      return user;
+    }
   }
 
   async findCustomers(): Promise<User[]> {
@@ -44,14 +78,23 @@ export default class UserRepository implements IUserRepository {
   }
 
   async update(user: User): Promise<void> {
+    const { userId: user_id, email } = user;
     const dbUser = this._mapper.entityToDb(user);
 
     await this._dbDriver.update(this._source, dbUser, {
-      user_id: user.userId,
+      user_id,
     });
+
+    this._cacheDriver.del(user_id);
+    this._cacheDriver.del(email);
   }
 
-  async delete(filters?: object): Promise<void> {
-    await this._dbDriver.delete(this._source, filters);
+  async deleteOne(user: User): Promise<void> {
+    const { userId: user_id, email } = user;
+
+    await this._dbDriver.delete(this._source, { user_id });
+
+    this._cacheDriver.del(user_id);
+    this._cacheDriver.del(email);
   }
 }

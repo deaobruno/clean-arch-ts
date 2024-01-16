@@ -17,8 +17,8 @@ type Output = Memo | BaseError;
 
 export default class CreateMemo implements IUseCase<CreateMemoInput, Output> {
   constructor(
-    private _memoRepository: IMemoRepository,
-    private _cryptoDriver: IHashDriver
+    private _cryptoDriver: IHashDriver,
+    private _memoRepository: IMemoRepository
   ) {}
 
   async exec(input: CreateMemoInput): Promise<Output> {

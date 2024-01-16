@@ -6,7 +6,7 @@
   "scripts": {
     "build": "rm -rf dist/ && tsc",
     "start": "npm run build && node dist/app.js",
-    "dev": "cross-env NODE_ENV=development ts-node src/app.ts",
+    "dev": "cross-env NODE_ENV=development nodemon src/app.ts",
     "test": "nyc mocha -r ts-node/register test/**/*.test.ts --recursive --exit",
     "test:unit": "nyc mocha -r ts-node/register test/unit/**/*.test.ts --recursive --exit",
     "test:integration": "nyc mocha -r ts-node/register test/integration/**/*.test.ts --recursive --exit"
@@ -40,6 +40,7 @@
     "express": "^4.18.2",
     "jsonwebtoken": "^9.0.0",
     "mongodb": "^6.3.0",
+    "node-cache": "^5.1.2",
     "pino": "^8.16.2",
     "pino-pretty": "^10.2.3"
   }

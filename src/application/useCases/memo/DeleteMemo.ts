@@ -21,6 +21,6 @@ export default class DeleteMemo implements IUseCase<Input, Output> {
     if (!memo || (memo.userId !== user.userId && user.isCustomer))
       return new NotFoundError("Memo not found");
 
-    await this._memoRepository.delete({ memo_id });
+    await this._memoRepository.deleteOne(memo);
   }
 }

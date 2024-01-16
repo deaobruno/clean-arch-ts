@@ -26,7 +26,7 @@ export default class RegisterCustomer
     const { email, password } = input;
     const userByEmail = await this._userRepository.findOneByEmail(email);
 
-    if (userByEmail && userByEmail.email === email)
+    if (userByEmail instanceof User)
       return new ConflictError("Email already in use");
 
     const user = User.create({

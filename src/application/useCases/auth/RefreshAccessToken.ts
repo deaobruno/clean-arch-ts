@@ -26,8 +26,8 @@ export default class RefreshAccessToken implements IUseCase<Input, Output> {
 
   async exec(payload: Input) {
     const { user, refresh_token } = payload;
-    const previousToken = await this._refreshTokenRepository.findOneByToken(
-      refresh_token
+    const previousToken = await this._refreshTokenRepository.findOneByUserId(
+      user.userId
     );
     let userData;
 
@@ -47,7 +47,7 @@ export default class RefreshAccessToken implements IUseCase<Input, Output> {
       return new ForbiddenError("Invalid refresh token");
     }
 
-    await this._refreshTokenRepository.delete({ user_id: userId });
+    await this._refreshTokenRepository.deleteAllByUserId(userId);
 
     const accessToken = this._tokenDriver.generateAccessToken(userData);
     const refreshToken = this._tokenDriver.generateRefreshToken(userData);

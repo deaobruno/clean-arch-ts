@@ -5,6 +5,5 @@ export default interface IRefreshTokenRepository {
   find(filters?: object): Promise<RefreshToken[]>;
   findOne(filters: object): Promise<RefreshToken | undefined>;
   findOneByUserId(userId: string): Promise<RefreshToken | undefined>;
-  findOneByToken(token: string): Promise<RefreshToken | undefined>;
-  delete(filters: object): Promise<void>;
+  deleteAllByUserId(user_id: string): Promise<void>;
 }

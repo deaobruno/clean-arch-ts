@@ -5,6 +5,7 @@ import BaseError from "../../errors/BaseError";
 import IUseCase from "../IUseCase";
 import NotFoundError from "../../errors/NotFoundError";
 import IMemoRepository from "../../../domain/memo/IMemoRepository";
+import ConflictError from "../../errors/ConflictError";
 
 type UpdateUserInput = {
   user: User;
@@ -17,8 +18,7 @@ type Output = User | BaseError;
 export default class UpdateUser implements IUseCase<UpdateUserInput, Output> {
   constructor(
     private _userRepository: IUserRepository,
-    private _refreshTokenRepository: IRefreshTokenRepository,
-    private _memoRepository: IMemoRepository
+    private _refreshTokenRepository: IRefreshTokenRepository
   ) {}
 
   async exec(input: UpdateUserInput): Promise<Output> {
@@ -28,9 +28,16 @@ export default class UpdateUser implements IUseCase<UpdateUserInput, Output> {
     if (requestUser.isCustomer && requestUser.userId !== user_id)
       return new NotFoundError("User not found");
 
-    const user = await this._userRepository.findOne({ user_id });
+    const user = await this._userRepository.findOneById(user_id);
 
     if (!user || user.isRoot) return new NotFoundError("User not found");
+
+    if (email) {
+      const userByEmail = await this._userRepository.findOneByEmail(email);
+
+      if (userByEmail instanceof User)
+        return new ConflictError("Email already in use");
+    }
 
     const updatedUser = User.create({
       userId: user.userId,
@@ -39,12 +46,10 @@ export default class UpdateUser implements IUseCase<UpdateUserInput, Output> {
       role: user.role,
     });
 
+    user.memos.forEach(updatedUser.addMemo);
+
     await this._userRepository.update(updatedUser);
-    await this._refreshTokenRepository.delete({ user_id });
-
-    const memos = await this._memoRepository.findByUserId(user_id);
-
-    memos.forEach(updatedUser.addMemo);
+    await this._refreshTokenRepository.deleteAllByUserId(user_id);
 
     return updatedUser;
   }

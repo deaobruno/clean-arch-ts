@@ -35,12 +35,7 @@ export default class AuthenticateUser implements IUseCase<Input, Output> {
       return new UnauthorizedError();
 
     const { userId } = user;
-    const userData = {
-      id: userId,
-      email: user.email,
-      password: user.password,
-      role: user.role,
-    };
+    const userData = { id: userId };
     const accessToken = this._tokenDriver.generateAccessToken(userData);
     const refreshToken = this._tokenDriver.generateRefreshToken(userData);
     const refreshTokenEntity = RefreshToken.create({
@@ -48,7 +43,7 @@ export default class AuthenticateUser implements IUseCase<Input, Output> {
       token: refreshToken,
     });
 
-    await this._refreshTokenRepository.delete({ user_id: userId });
+    await this._refreshTokenRepository.deleteAllByUserId(userId);
     await this._refreshTokenRepository.create(refreshTokenEntity);
 
     return {

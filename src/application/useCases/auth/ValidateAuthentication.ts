@@ -4,7 +4,8 @@ import ITokenDriver from "../../../infra/drivers/token/ITokenDriver";
 import BaseError from "../../errors/BaseError";
 import IUseCase from "../IUseCase";
 import UnauthorizedError from "../../errors/UnauthorizedError";
-import InternalServerError from "../../errors/InternalServerError";
+import IUserRepository from "../../../domain/user/IUserRepository";
+import NotFoundError from "../../errors/NotFoundError";
 
 type Input = {
   authorization: string;
@@ -19,7 +20,8 @@ type Output =
 export default class ValidateAuthentication implements IUseCase<Input, Output> {
   constructor(
     private _tokenDriver: ITokenDriver,
-    private _refreshTokenRepository: IRefreshTokenRepository
+    private _refreshTokenRepository: IRefreshTokenRepository,
+    private _userRepository: IUserRepository
   ) {}
 
   async exec(input: Input): Promise<Output> {
@@ -45,21 +47,16 @@ export default class ValidateAuthentication implements IUseCase<Input, Output> {
       return new UnauthorizedError("Invalid token");
     }
 
-    const { id: userId, email, password, role } = userData;
+    const { id: userId } = userData;
     const refreshToken = await this._refreshTokenRepository.findOneByUserId(
       userId
     );
 
     if (!refreshToken) return new UnauthorizedError();
 
-    const user = User.create({
-      userId,
-      email,
-      password,
-      role,
-    });
+    const user = await this._userRepository.findOneById(userId);
 
-    if (user instanceof Error) return new InternalServerError(user.message);
+    if (!user) return new NotFoundError("User not found");
 
     return { user };
   }
