@@ -5,7 +5,6 @@ export default (dependencies: any, server: IServer, prefix?: string): any[] => {
   const {
     createMemoController,
     findMemoByIdController,
-    findMemosByUserIdController,
     updateMemoController,
     deleteMemoController,
   } = dependencies;
@@ -14,7 +13,6 @@ export default (dependencies: any, server: IServer, prefix?: string): any[] => {
   return [
     post(`${basePath}`, createMemoController),
     get(`${basePath}/:memo_id`, findMemoByIdController),
-    get(`${basePath}/user/:user_id`, findMemosByUserIdController),
     put(`${basePath}/:memo_id`, updateMemoController),
     del(`${basePath}/:memo_id`, deleteMemoController),
   ];

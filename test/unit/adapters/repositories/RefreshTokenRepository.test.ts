@@ -4,24 +4,30 @@ import { expect } from "chai";
 import config from "../../../../src/config";
 import RefreshTokenRepository from "../../../../src/adapters/repositories/RefreshTokenRepository";
 import MongoDbDriver from "../../../../src/infra/drivers/db/MongoDbDriver";
+import NodeCacheDriver from "../../../../src/infra/drivers/cache/NodeCacheDriver";
 import IDbDriver from "../../../../src/infra/drivers/db/IDbDriver";
 import IRefreshTokenRepository from "../../../../src/domain/refreshToken/IRefreshTokenRepository";
 import RefreshTokenMapper from "../../../../src/domain/refreshToken/RefreshTokenMapper";
 import RefreshToken from "../../../../src/domain/refreshToken/RefreshToken";
+import ICacheDriver from "../../../../src/infra/drivers/cache/ICacheDriver";
 
 const sandbox = sinon.createSandbox();
 let dbDriver: IDbDriver;
+let cacheDriver: ICacheDriver;
 let refreshTokenMapper: RefreshTokenMapper;
 let refreshTokenRepository: IRefreshTokenRepository;
 
 describe("/adapters/repositories/RefreshTokenRepository", () => {
   beforeEach(() => {
     dbDriver = MongoDbDriver.getInstance("test");
+    cacheDriver = sandbox.createStubInstance(NodeCacheDriver);
     refreshTokenMapper = new RefreshTokenMapper();
     refreshTokenRepository = new RefreshTokenRepository(
       config.db.refreshTokensSource,
       dbDriver,
-      refreshTokenMapper
+      cacheDriver,
+      refreshTokenMapper,
+      config.app.refreshTokenExpirationTime
     );
   });
 
@@ -199,39 +205,12 @@ describe("/adapters/repositories/RefreshTokenRepository", () => {
     expect(refreshToken).equal(undefined);
   });
 
-  it('should return a RefreshToken from DB passing "token" as a filter', async () => {
-    const userId = faker.string.uuid();
-    const token = "refresh-token";
-
-    sandbox.stub(MongoDbDriver.prototype, "findOne").resolves({
-      user_id: userId,
-      token,
-    });
-    sandbox.stub(refreshTokenMapper, "dbToEntity").returns({
-      userId,
-      token,
-    });
-
-    const refreshToken = <RefreshToken>(
-      await refreshTokenRepository.findOneByToken(token)
-    );
-
-    expect(refreshToken.userId).equal(userId);
-    expect(refreshToken.token).equal(token);
-  });
-
-  it('should return undefined when no RefreshToken is found passing "token" as a filter', async () => {
-    sandbox.stub(MongoDbDriver.prototype, "findOne").resolves();
-
-    const refreshToken = await refreshTokenRepository.findOneByToken("test");
-
-    expect(refreshToken).equal(undefined);
-  });
-
   it("should delete a RefreshToken from DB", async () => {
-    sandbox.stub(MongoDbDriver.prototype, "delete").resolves();
+    sandbox.stub(MongoDbDriver.prototype, "deleteMany").resolves();
 
-    const result = await refreshTokenRepository.delete({ user_id: "test" });
+    const result = await refreshTokenRepository.deleteAllByUserId(
+      faker.string.uuid()
+    );
 
     expect(result).equal(undefined);
   });

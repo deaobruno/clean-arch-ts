@@ -7,7 +7,9 @@ import User from "../../../../../src/domain/user/User";
 import UnauthorizedError from "../../../../../src/application/errors/UnauthorizedError";
 import BaseError from "../../../../../src/application/errors/BaseError";
 import RefreshTokenRepository from "../../../../../src/adapters/repositories/RefreshTokenRepository";
+import UserRepository from "../../../../../src/adapters/repositories/UserRepository";
 import JwtDriver from "../../../../../src/infra/drivers/token/JwtDriver";
+import NotFoundError from "../../../../../src/application/errors/NotFoundError";
 
 const sandbox = sinon.createSandbox();
 const userId = faker.string.uuid();
@@ -29,9 +31,11 @@ describe("/application/useCases/auth/ValidateAuthentication.ts", () => {
     const refreshTokenRepository = sandbox.createStubInstance(
       RefreshTokenRepository
     );
+    const userRepository = sandbox.createStubInstance(UserRepository);
     const validateAuthentication = new ValidateAuthentication(
       tokenDriver,
-      refreshTokenRepository
+      refreshTokenRepository,
+      userRepository
     );
 
     tokenDriver.validateAccessToken.returns(userData);
@@ -39,7 +43,7 @@ describe("/application/useCases/auth/ValidateAuthentication.ts", () => {
       userId: userId,
       token: "token",
     });
-    sandbox.stub(User, "create").returns(fakeUser);
+    userRepository.findOneById.resolves(fakeUser);
 
     const authorization = "Bearer token";
     const { user } = <any>await validateAuthentication.exec({ authorization });
@@ -57,9 +61,11 @@ describe("/application/useCases/auth/ValidateAuthentication.ts", () => {
     const refreshTokenRepository = sandbox.createStubInstance(
       RefreshTokenRepository
     );
+    const userRepository = sandbox.createStubInstance(UserRepository);
     const validateAuthentication = new ValidateAuthentication(
       tokenDriver,
-      refreshTokenRepository
+      refreshTokenRepository,
+      userRepository
     );
 
     const authorization = "";
@@ -67,9 +73,7 @@ describe("/application/useCases/auth/ValidateAuthentication.ts", () => {
       await validateAuthentication.exec({ authorization })
     );
 
-    expect(error instanceof UnauthorizedError).equal(true);
-    expect(error.message).equal("No token provided");
-    expect(error.statusCode).equal(401);
+    expect(error).deep.equal(new UnauthorizedError("No token provided"));
   });
 
   it("should return an UnauthorizedError when authentication method is not Bearer Token", async () => {
@@ -77,9 +81,11 @@ describe("/application/useCases/auth/ValidateAuthentication.ts", () => {
     const refreshTokenRepository = sandbox.createStubInstance(
       RefreshTokenRepository
     );
+    const userRepository = sandbox.createStubInstance(UserRepository);
     const validateAuthentication = new ValidateAuthentication(
       tokenDriver,
-      refreshTokenRepository
+      refreshTokenRepository,
+      userRepository
     );
 
     const authorization = "test token";
@@ -87,9 +93,9 @@ describe("/application/useCases/auth/ValidateAuthentication.ts", () => {
       await validateAuthentication.exec({ authorization })
     );
 
-    expect(error instanceof UnauthorizedError).equal(true);
-    expect(error.message).equal("Invalid authentication type");
-    expect(error.statusCode).equal(401);
+    expect(error).deep.equal(
+      new UnauthorizedError("Invalid authentication type")
+    );
   });
 
   it("should return an UnauthorizedError when authentication token is empty", async () => {
@@ -97,9 +103,11 @@ describe("/application/useCases/auth/ValidateAuthentication.ts", () => {
     const refreshTokenRepository = sandbox.createStubInstance(
       RefreshTokenRepository
     );
+    const userRepository = sandbox.createStubInstance(UserRepository);
     const validateAuthentication = new ValidateAuthentication(
       tokenDriver,
-      refreshTokenRepository
+      refreshTokenRepository,
+      userRepository
     );
 
     const authorization = "Bearer";
@@ -107,9 +115,7 @@ describe("/application/useCases/auth/ValidateAuthentication.ts", () => {
       await validateAuthentication.exec({ authorization })
     );
 
-    expect(error instanceof UnauthorizedError).equal(true);
-    expect(error.message).equal("No token provided");
-    expect(error.statusCode).equal(401);
+    expect(error).deep.equal(new UnauthorizedError("No token provided"));
   });
 
   it("should return an UnauthorizedError when token is expired", async () => {
@@ -117,9 +123,11 @@ describe("/application/useCases/auth/ValidateAuthentication.ts", () => {
     const refreshTokenRepository = sandbox.createStubInstance(
       RefreshTokenRepository
     );
+    const userRepository = sandbox.createStubInstance(UserRepository);
     const validateAuthentication = new ValidateAuthentication(
       tokenDriver,
-      refreshTokenRepository
+      refreshTokenRepository,
+      userRepository
     );
 
     tokenDriver.validateAccessToken.throws({ name: "TokenExpiredError" });
@@ -129,9 +137,7 @@ describe("/application/useCases/auth/ValidateAuthentication.ts", () => {
       await validateAuthentication.exec({ authorization })
     );
 
-    expect(error instanceof UnauthorizedError).equal(true);
-    expect(error.message).equal("Token expired");
-    expect(error.statusCode).equal(401);
+    expect(error).deep.equal(new UnauthorizedError("Token expired"));
   });
 
   it("should return an UnauthorizedError when token is invalid", async () => {
@@ -139,9 +145,11 @@ describe("/application/useCases/auth/ValidateAuthentication.ts", () => {
     const refreshTokenRepository = sandbox.createStubInstance(
       RefreshTokenRepository
     );
+    const userRepository = sandbox.createStubInstance(UserRepository);
     const validateAuthentication = new ValidateAuthentication(
       tokenDriver,
-      refreshTokenRepository
+      refreshTokenRepository,
+      userRepository
     );
 
     tokenDriver.validateAccessToken.throws({});
@@ -151,9 +159,7 @@ describe("/application/useCases/auth/ValidateAuthentication.ts", () => {
       await validateAuthentication.exec({ authorization })
     );
 
-    expect(error instanceof UnauthorizedError).equal(true);
-    expect(error.message).equal("Invalid token");
-    expect(error.statusCode).equal(401);
+    expect(error).deep.equal(new UnauthorizedError("Invalid token"));
   });
 
   it("should return an UnauthorizedError when no refresh token is found for user", async () => {
@@ -161,9 +167,11 @@ describe("/application/useCases/auth/ValidateAuthentication.ts", () => {
     const refreshTokenRepository = sandbox.createStubInstance(
       RefreshTokenRepository
     );
+    const userRepository = sandbox.createStubInstance(UserRepository);
     const validateAuthentication = new ValidateAuthentication(
       tokenDriver,
-      refreshTokenRepository
+      refreshTokenRepository,
+      userRepository
     );
 
     tokenDriver.validateAccessToken.returns(userData);
@@ -174,8 +182,31 @@ describe("/application/useCases/auth/ValidateAuthentication.ts", () => {
       await validateAuthentication.exec({ authorization })
     );
 
-    expect(error instanceof UnauthorizedError).equal(true);
-    expect(error.message).equal("Unauthorized");
-    expect(error.statusCode).equal(401);
+    expect(error).deep.equal(new UnauthorizedError("Unauthorized"));
+  });
+
+  it("should return a NotFoundError when user is not found", async () => {
+    const tokenDriver = sandbox.createStubInstance(JwtDriver);
+    const refreshTokenRepository = sandbox.createStubInstance(
+      RefreshTokenRepository
+    );
+    const userRepository = sandbox.createStubInstance(UserRepository);
+    const validateAuthentication = new ValidateAuthentication(
+      tokenDriver,
+      refreshTokenRepository,
+      userRepository
+    );
+
+    tokenDriver.validateAccessToken.returns(userData);
+    refreshTokenRepository.findOneByUserId.resolves({
+      userId: userId,
+      token: "token",
+    });
+    userRepository.findOneById.resolves();
+
+    const authorization = "Bearer token";
+    const error = <any>await validateAuthentication.exec({ authorization });
+
+    expect(error).deep.equal(new NotFoundError("User not found"));
   });
 });

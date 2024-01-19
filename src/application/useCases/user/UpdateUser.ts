@@ -4,7 +4,6 @@ import IUserRepository from "../../../domain/user/IUserRepository";
 import BaseError from "../../errors/BaseError";
 import IUseCase from "../IUseCase";
 import NotFoundError from "../../errors/NotFoundError";
-import IMemoRepository from "../../../domain/memo/IMemoRepository";
 import ConflictError from "../../errors/ConflictError";
 
 type UpdateUserInput = {
@@ -41,12 +40,10 @@ export default class UpdateUser implements IUseCase<UpdateUserInput, Output> {
 
     const updatedUser = User.create({
       userId: user.userId,
-      email: email || user.email,
+      email: email ?? user.email,
       password: user.password,
       role: user.role,
     });
-
-    user.memos.forEach(updatedUser.addMemo);
 
     await this._userRepository.update(updatedUser);
     await this._refreshTokenRepository.deleteAllByUserId(user_id);

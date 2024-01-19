@@ -1,13 +1,10 @@
-import sinon from "sinon";
 import { faker } from "@faker-js/faker";
 import { expect } from "chai";
 import UserRole from "../../../../../src/domain/user/UserRole";
 import User from "../../../../../src/domain/user/User";
 import AdminPresenter from "../../../../../src/adapters/presenters/user/AdminPresenter";
-import MemoPresenter from "../../../../../src/adapters/presenters/memo/MemoPresenter";
 
-const memoPresenter = sinon.createStubInstance(MemoPresenter);
-const adminPresenter = new AdminPresenter(memoPresenter);
+const adminPresenter = new AdminPresenter();
 
 describe("/application/presenters/user/AdminPresenter.ts", () => {
   it("should return an external representation of an admin user object", () => {

@@ -9,19 +9,24 @@ import UserMapper from "../../../../src/domain/user/UserMapper";
 import UserRole from "../../../../src/domain/user/UserRole";
 import User from "../../../../src/domain/user/User";
 import MongoDbDriver from "../../../../src/infra/drivers/db/MongoDbDriver";
+import NodeCacheDriver from "../../../../src/infra/drivers/cache/NodeCacheDriver";
+import ICacheDriver from "../../../../src/infra/drivers/cache/ICacheDriver";
 
 const sandbox = sinon.createSandbox();
 let dbDriver: IDbDriver;
+let cacheDriver: ICacheDriver;
 let userMapper: UserMapper;
 let userRepository: IUserRepository;
 
 describe("/adapters/repositories/UserRepository", () => {
   beforeEach(() => {
     dbDriver = MongoDbDriver.getInstance("test");
+    cacheDriver = sandbox.createStubInstance(NodeCacheDriver);
     userMapper = new UserMapper();
     userRepository = new UserRepository(
       config.db.usersSource,
       dbDriver,
+      cacheDriver,
       userMapper
     );
   });
@@ -245,6 +250,34 @@ describe("/adapters/repositories/UserRepository", () => {
     expect(user).equal(undefined);
   });
 
+  it("should return an User passing user_id as a filter", async () => {
+    const dbUser = {
+      user_id: faker.string.uuid(),
+      email: faker.internet.email(),
+      password: faker.internet.password(),
+      role: UserRole.CUSTOMER,
+    };
+
+    sandbox.stub(MongoDbDriver.prototype, "findOne").resolves(dbUser);
+
+    const user = <User>await userRepository.findOneById(dbUser.user_id);
+
+    expect(user.userId).equal(dbUser.user_id);
+    expect(user.email).equal(dbUser.email);
+    expect(user.password).equal(dbUser.password);
+    expect(user.role).equal(dbUser.role);
+    expect(user.isRoot).equal(false);
+    expect(user.isCustomer).equal(true);
+  });
+
+  it("should return undefined when passing an invalid user_id as a filter", async () => {
+    sandbox.stub(MongoDbDriver.prototype, "findOne").resolves();
+
+    const user = await userRepository.findOneById("");
+
+    expect(user).equal(undefined);
+  });
+
   it("should return an User passing an email as a filter", async () => {
     const dbUser = {
       user_id: faker.string.uuid(),
@@ -352,9 +385,24 @@ describe("/adapters/repositories/UserRepository", () => {
   });
 
   it("should delete an User from DB", async () => {
+    const userId = faker.string.uuid();
+    const email = faker.internet.email();
+    const password = faker.internet.password();
+    const role = UserRole.CUSTOMER;
+    const fakeUser = {
+      userId,
+      email,
+      password,
+      role,
+      isRoot: false,
+      isCustomer: true,
+      memos: [],
+      addMemo: () => {},
+    };
+
     sandbox.stub(MongoDbDriver.prototype, "delete").resolves();
 
-    const result = await userRepository.delete({ user_id: "test" });
+    const result = await userRepository.deleteOne(fakeUser);
 
     expect(result).equal(undefined);
   });

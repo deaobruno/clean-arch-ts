@@ -7,7 +7,6 @@ import { expect } from "chai";
 import NotFoundError from "../../../../../src/application/errors/NotFoundError";
 import BaseError from "../../../../../src/application/errors/BaseError";
 import UserRepository from "../../../../../src/adapters/repositories/UserRepository";
-import MemoRepository from "../../../../../src/adapters/repositories/MemoRepository";
 
 const sandbox = sinon.createSandbox();
 const fakeUsers = [
@@ -36,11 +35,9 @@ describe("/application/useCases/user/FindUsers.ts", () => {
 
   it("should return an array with all users when no filter is passed", async () => {
     const userRepository = sandbox.createStubInstance(UserRepository);
-    const memoRepository = sandbox.createStubInstance(MemoRepository);
-    const findUsers = new FindUsers(userRepository, memoRepository);
+    const findUsers = new FindUsers(userRepository);
 
     userRepository.find.resolves(fakeUsers);
-    memoRepository.findByUserId.resolves([]);
 
     const users = <User[]>await findUsers.exec({ user: fakeUsers[0] });
 
@@ -67,11 +64,9 @@ describe("/application/useCases/user/FindUsers.ts", () => {
 
   it("should return an array with filtered users", async () => {
     const userRepository = sandbox.createStubInstance(UserRepository);
-    const memoRepository = sandbox.createStubInstance(MemoRepository);
-    const findUsers = new FindUsers(userRepository, memoRepository);
+    const findUsers = new FindUsers(userRepository);
 
     userRepository.find.resolves([fakeUsers[0]]);
-    memoRepository.findByUserId.resolves([]);
 
     const users = <User[]>(
       await findUsers.exec({ user: fakeUsers[0], email: fakeUsers[0].email })
@@ -88,8 +83,7 @@ describe("/application/useCases/user/FindUsers.ts", () => {
 
   it("should return a NotFoundError when no users are found", async () => {
     const userRepository = sandbox.createStubInstance(UserRepository);
-    const memoRepository = sandbox.createStubInstance(MemoRepository);
-    const findUsers = new FindUsers(userRepository, memoRepository);
+    const findUsers = new FindUsers(userRepository);
 
     userRepository.find.resolves([]);
 
@@ -102,8 +96,7 @@ describe("/application/useCases/user/FindUsers.ts", () => {
 
   it("should return a NotFoundError when no users are found", async () => {
     const userRepository = sandbox.createStubInstance(UserRepository);
-    const memoRepository = sandbox.createStubInstance(MemoRepository);
-    const findUsers = new FindUsers(userRepository, memoRepository);
+    const findUsers = new FindUsers(userRepository);
 
     userRepository.find.resolves([]);
 

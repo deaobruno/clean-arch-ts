@@ -14,6 +14,7 @@ const useCase = {
 const dependencies = {
   findUsersController: new CustomController({ useCase }),
   findUserByIdController: new CustomController({ useCase }),
+  findMemosByUserIdController: new CustomController({ useCase }),
   updateUserController: new CustomController({ useCase }),
   updateUserPasswordController: new CustomController({ useCase }),
   deleteUserController: new CustomController({ useCase }),
@@ -21,7 +22,6 @@ const dependencies = {
 const server = sinon.createStubInstance(ExpressDriver);
 
 server.get = sinon.stub();
-server.post = sinon.stub();
 server.put = sinon.stub();
 server.delete = sinon.stub();
 
@@ -29,6 +29,6 @@ describe("/infra/http/v1/userRoutes.ts", () => {
   it("should return an array of user routes", () => {
     const routes = userRoutes(dependencies, server);
 
-    expect(routes.length).equal(5);
+    expect(routes.length).equal(6);
   });
 });

@@ -5,15 +5,17 @@ export default (dependencies: any, server: IServer, prefix?: string): any[] => {
   const {
     findUsersController,
     findUserByIdController,
+    findMemosByUserIdController,
     updateUserController,
     updateUserPasswordController,
     deleteUserController,
   } = dependencies;
-  const { get, post, put, delete: del } = server;
+  const { get, put, delete: del } = server;
 
   return [
     get(basePath, findUsersController),
     get(`${basePath}/:user_id`, findUserByIdController),
+    get(`${basePath}/:user_id/memos`, findMemosByUserIdController),
     put(`${basePath}/:user_id`, updateUserController),
     put(`${basePath}/:user_id/update-password`, updateUserPasswordController),
     del(`${basePath}/:user_id`, deleteUserController),

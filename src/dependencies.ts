@@ -100,7 +100,6 @@ const userRepository = new UserRepository(
   usersSource,
   dbDriver,
   cacheDriver,
-  memoRepository,
   userMapper
 );
 const refreshTokenRepository = new RefreshTokenRepository(
@@ -157,9 +156,9 @@ const findMemosByUserIdUseCase = new FindMemosByUserId(memoRepository);
 const updateMemoUseCase = new UpdateMemo(memoRepository);
 const deleteMemoUseCase = new DeleteMemo(memoRepository);
 // PRESENTERS
+const customerPresenter = new CustomerPresenter();
+const adminPresenter = new AdminPresenter();
 const memoPresenter = new MemoPresenter();
-const customerPresenter = new CustomerPresenter(memoPresenter);
-const adminPresenter = new AdminPresenter(memoPresenter);
 // CONTROLLERS
 const registerCustomerController = new RegisterCustomerController({
   useCase: registerCustomerUseCase,

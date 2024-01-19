@@ -8,7 +8,7 @@ import NotFoundError from "../../../../../src/application/errors/NotFoundError";
 import BaseError from "../../../../../src/application/errors/BaseError";
 import UserRepository from "../../../../../src/adapters/repositories/UserRepository";
 import RefreshTokenRepository from "../../../../../src/adapters/repositories/RefreshTokenRepository";
-import MemoRepository from "../../../../../src/adapters/repositories/MemoRepository";
+import ConflictError from "../../../../../src/application/errors/ConflictError";
 
 const sandbox = sinon.createSandbox();
 const userId = faker.string.uuid();
@@ -29,17 +29,11 @@ describe("/application/useCases/user/UpdateUser.ts", () => {
     const refreshTokenRepository = sandbox.createStubInstance(
       RefreshTokenRepository
     );
-    const memoRepository = sandbox.createStubInstance(MemoRepository);
-    const updateUser = new UpdateUser(
-      userRepository,
-      refreshTokenRepository,
-      memoRepository
-    );
+    const updateUser = new UpdateUser(userRepository, refreshTokenRepository);
 
-    userRepository.findOne.resolves(fakeUser);
+    userRepository.findOneById.resolves(fakeUser);
     userRepository.update.resolves();
-    refreshTokenRepository.delete.resolves();
-    memoRepository.findByUserId.resolves([]);
+    refreshTokenRepository.deleteAllByUserId.resolves();
 
     const newEmail = faker.internet.email();
 
@@ -66,12 +60,7 @@ describe("/application/useCases/user/UpdateUser.ts", () => {
     const refreshTokenRepository = sandbox.createStubInstance(
       RefreshTokenRepository
     );
-    const memoRepository = sandbox.createStubInstance(MemoRepository);
-    const updateUser = new UpdateUser(
-      userRepository,
-      refreshTokenRepository,
-      memoRepository
-    );
+    const updateUser = new UpdateUser(userRepository, refreshTokenRepository);
 
     const error = <BaseError>await updateUser.exec({
       user: User.create({
@@ -83,9 +72,7 @@ describe("/application/useCases/user/UpdateUser.ts", () => {
       user_id: "test",
     });
 
-    expect(error instanceof NotFoundError).equal(true);
-    expect(error.message).equal("User not found");
-    expect(error.statusCode).equal(404);
+    expect(error).deep.equal(new NotFoundError("User not found"));
   });
 
   it("should return a NotFoundError when authenticated user is different from found user", async () => {
@@ -93,12 +80,7 @@ describe("/application/useCases/user/UpdateUser.ts", () => {
     const refreshTokenRepository = sandbox.createStubInstance(
       RefreshTokenRepository
     );
-    const memoRepository = sandbox.createStubInstance(MemoRepository);
-    const updateUser = new UpdateUser(
-      userRepository,
-      refreshTokenRepository,
-      memoRepository
-    );
+    const updateUser = new UpdateUser(userRepository, refreshTokenRepository);
 
     const error = <BaseError>await updateUser.exec({
       user: User.create({
@@ -110,8 +92,36 @@ describe("/application/useCases/user/UpdateUser.ts", () => {
       user_id: userId,
     });
 
-    expect(error instanceof NotFoundError).equal(true);
-    expect(error.message).equal("User not found");
-    expect(error.statusCode).equal(404);
+    expect(error).deep.equal(new NotFoundError("User not found"));
+  });
+
+  it("should fail when trying to create a Customer User with repeated email", async () => {
+    const userRepository = sandbox.createStubInstance(UserRepository);
+    const refreshTokenRepository = sandbox.createStubInstance(
+      RefreshTokenRepository
+    );
+    const newEmail = faker.internet.email();
+    const newUser = fakeUser;
+
+    newUser.email = newEmail;
+
+    const updateUser = new UpdateUser(userRepository, refreshTokenRepository);
+
+    userRepository.findOneById.resolves(fakeUser);
+    userRepository.findOneByEmail.resolves(newUser);
+    userRepository.update.resolves();
+    refreshTokenRepository.deleteAllByUserId.resolves();
+
+    fakeUser.email = newEmail;
+
+    userRepository.update.resolves();
+
+    const updateData = {
+      user_id: userId,
+      email: newEmail,
+    };
+    const error = await updateUser.exec({ user: fakeUser, ...updateData });
+
+    expect(error).deep.equal(new ConflictError("Email already in use"));
   });
 });

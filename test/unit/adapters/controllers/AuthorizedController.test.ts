@@ -2,32 +2,28 @@ import sinon from "sinon";
 import { faker } from "@faker-js/faker";
 import { expect } from "chai";
 import AuthorizedController from "../../../../src/adapters/controllers/AuthorizedController";
-import IUseCase from "../../../../src/application/useCases/IUseCase";
-import ISchema from "../../../../src/infra/schemas/ISchema";
-import ControllerConfig from "../../../../src/adapters/controllers/ControllerConfig";
 import ValidateAuthentication from "../../../../src/application/useCases/auth/ValidateAuthentication";
 import JwtDriver from "../../../../src/infra/drivers/token/JwtDriver";
 import ValidateAuthorization from "../../../../src/application/useCases/auth/ValidateAuthorization";
 import UserRole from "../../../../src/domain/user/UserRole";
 import ForbiddenError from "../../../../src/application/errors/ForbiddenError";
 import RefreshTokenRepository from "../../../../src/adapters/repositories/RefreshTokenRepository";
+import UserRepository from "../../../../src/adapters/repositories/UserRepository";
 import User from "../../../../src/domain/user/User";
 
 class CustomController extends AuthorizedController {
   statusCode = 200;
-
-  constructor(config: ControllerConfig<IUseCase<any, any>, ISchema>) {
-    super(config);
-  }
 }
 
 const sandbox = sinon.createSandbox();
 const refreshTokenRepository = sandbox.createStubInstance(
   RefreshTokenRepository
 );
+const userRepository = sandbox.createStubInstance(UserRepository);
 const validateAuthenticationUseCase = new ValidateAuthentication(
   sandbox.createStubInstance(JwtDriver),
-  refreshTokenRepository
+  refreshTokenRepository,
+  userRepository
 );
 const validateAuthorizationUseCase = new ValidateAuthorization();
 

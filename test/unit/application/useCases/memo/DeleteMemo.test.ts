@@ -38,7 +38,7 @@ describe("/application/useCases/memo/DeleteMemo.ts", () => {
     const deleteMemo = new DeleteMemo(memoRepository);
 
     memoRepository.findOne.resolves(fakeMemo);
-    memoRepository.delete.resolves();
+    memoRepository.deleteOne.resolves();
 
     const result = await deleteMemo.exec({ user, memo_id: memoId });
 

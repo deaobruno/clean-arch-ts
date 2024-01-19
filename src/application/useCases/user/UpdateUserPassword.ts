@@ -5,7 +5,6 @@ import CryptoDriver from "../../../infra/drivers/hash/CryptoDriver";
 import BaseError from "../../errors/BaseError";
 import IUseCase from "../IUseCase";
 import NotFoundError from "../../errors/NotFoundError";
-import IMemoRepository from "../../../domain/memo/IMemoRepository";
 
 type UpdateUserPasswordInput = {
   user: User;
@@ -42,8 +41,6 @@ export default class UpdateUserPassword
         : user.password,
       role: user.role,
     });
-
-    user.memos.forEach(updatedUser.addMemo);
 
     await this._userRepository.update(updatedUser);
     await this._refreshTokenRepository.deleteAllByUserId(user_id);

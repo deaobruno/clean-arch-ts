@@ -26,14 +26,12 @@ describe("/application/useCases/auth/DeleteRefreshToken.ts", () => {
     );
     const deleteRefreshToken = new DeleteRefreshToken(refreshTokenRepository);
 
-    refreshTokenRepository.findOneByToken.resolves({
+    refreshTokenRepository.findOneByUserId.resolves({
       userId: user.userId,
       token: "token",
     });
 
-    expect(
-      await deleteRefreshToken.exec({ user, refresh_token: "token" })
-    ).equal(undefined);
+    expect(await deleteRefreshToken.exec({ user })).equal(undefined);
   });
 
   it("should return NotFoundError when refresh token is not found", async () => {
@@ -41,9 +39,7 @@ describe("/application/useCases/auth/DeleteRefreshToken.ts", () => {
       RefreshTokenRepository
     );
     const deleteRefreshToken = new DeleteRefreshToken(refreshTokenRepository);
-    const error = <BaseError>(
-      await deleteRefreshToken.exec({ user, refresh_token: "token" })
-    );
+    const error = <BaseError>await deleteRefreshToken.exec({ user });
 
     expect(error instanceof NotFoundError).equal(true);
     expect(error.message).equal("Refresh token not found");
@@ -56,14 +52,12 @@ describe("/application/useCases/auth/DeleteRefreshToken.ts", () => {
     );
     const deleteRefreshToken = new DeleteRefreshToken(refreshTokenRepository);
 
-    refreshTokenRepository.findOneByToken.resolves({
+    refreshTokenRepository.findOneByUserId.resolves({
       userId: faker.string.uuid(),
       token: "token",
     });
 
-    const error = <BaseError>(
-      await deleteRefreshToken.exec({ user, refresh_token: "token" })
-    );
+    const error = <BaseError>await deleteRefreshToken.exec({ user });
 
     expect(error instanceof ForbiddenError).equal(true);
     expect(error.message).equal("Token does not belong to user");

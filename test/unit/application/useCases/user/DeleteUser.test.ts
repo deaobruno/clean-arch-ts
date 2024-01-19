@@ -36,10 +36,10 @@ describe("/application/useCases/user/DeleteUser.ts", () => {
       memoRepository
     );
 
-    userRepository.findOne.resolves(fakeUser);
-    userRepository.delete.resolves();
-    refreshTokenRepository.delete.resolves();
-    memoRepository.delete.resolves();
+    userRepository.findOneById.resolves(fakeUser);
+    userRepository.deleteOne.resolves();
+    refreshTokenRepository.deleteAllByUserId.resolves();
+    memoRepository.deleteAllByUser.resolves();
 
     const result = await deleteUser.exec({ user_id: userId });
 

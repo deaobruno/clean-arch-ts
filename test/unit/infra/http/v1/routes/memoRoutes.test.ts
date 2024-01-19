@@ -14,7 +14,6 @@ const useCase = {
 const dependencies = {
   createMemoController: new CustomController({ useCase }),
   findMemoByIdController: new CustomController({ useCase }),
-  findMemosByUserIdController: new CustomController({ useCase }),
   updateMemoController: new CustomController({ useCase }),
   deleteMemoController: new CustomController({ useCase }),
 };
@@ -29,6 +28,6 @@ describe("/infra/http/v1/memoRoutes.ts", () => {
   it("should return an array of memo routes", () => {
     const routes = memoRoutes(dependencies, server);
 
-    expect(routes.length).equal(5);
+    expect(routes.length).equal(4);
   });
 });

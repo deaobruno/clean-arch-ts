@@ -41,7 +41,7 @@ describe("/application/useCases/memo/CreateMemo.ts", () => {
   it("should successfully create a Memo", async () => {
     const cryptoDriver = sandbox.createStubInstance(CryptoDriver);
     const memoRepository = sandbox.createStubInstance(MemoRepository);
-    const createRoot = new CreateMemo(memoRepository, cryptoDriver);
+    const createRoot = new CreateMemo(cryptoDriver, memoRepository);
 
     cryptoDriver.generateID.returns(faker.string.uuid());
     cryptoDriver.hashString.returns("hash");

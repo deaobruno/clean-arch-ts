@@ -7,7 +7,6 @@ import { expect } from "chai";
 import NotFoundError from "../../../../../src/application/errors/NotFoundError";
 import BaseError from "../../../../../src/application/errors/BaseError";
 import UserRepository from "../../../../../src/adapters/repositories/UserRepository";
-import MemoRepository from "../../../../../src/adapters/repositories/MemoRepository";
 
 const sandbox = sinon.createSandbox();
 const userId = faker.string.uuid();
@@ -25,11 +24,9 @@ describe("/application/useCases/user/FindUserById.ts", () => {
 
   it("should return an user passing an UUID", async () => {
     const userRepository = sandbox.createStubInstance(UserRepository);
-    const memoRepository = sandbox.createStubInstance(MemoRepository);
-    const findUserById = new FindUserById(userRepository, memoRepository);
+    const findUserById = new FindUserById(userRepository);
 
-    userRepository.findOne.resolves(fakeUser);
-    memoRepository.findByUserId.resolves([]);
+    userRepository.findOneById.resolves(fakeUser);
 
     const user = <User>(
       await findUserById.exec({ user: fakeUser, user_id: userId })
@@ -45,8 +42,7 @@ describe("/application/useCases/user/FindUserById.ts", () => {
 
   it("should return a NotFoundError when authenticated user is different from request user", async () => {
     const userRepository = sandbox.createStubInstance(UserRepository);
-    const memoRepository = sandbox.createStubInstance(MemoRepository);
-    const findUserById = new FindUserById(userRepository, memoRepository);
+    const findUserById = new FindUserById(userRepository);
     const error = <BaseError>(
       await findUserById.exec({ user: fakeUser, user_id: "test" })
     );
@@ -58,10 +54,9 @@ describe("/application/useCases/user/FindUserById.ts", () => {
 
   it("should return a NotFoundError when no user is found", async () => {
     const userRepository = sandbox.createStubInstance(UserRepository);
-    const memoRepository = sandbox.createStubInstance(MemoRepository);
-    const findUserById = new FindUserById(userRepository, memoRepository);
+    const findUserById = new FindUserById(userRepository);
 
-    userRepository.findOne.resolves();
+    userRepository.findOneById.resolves();
 
     const error = <BaseError>(
       await findUserById.exec({ user: fakeUser, user_id: userId })

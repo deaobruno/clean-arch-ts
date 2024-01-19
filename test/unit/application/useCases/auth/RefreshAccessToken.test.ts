@@ -33,12 +33,12 @@ describe("/application/useCases/auth/RefreshAccessToken.ts", () => {
       refreshTokenRepository
     );
 
-    refreshTokenRepository.findOneByToken.resolves({
+    refreshTokenRepository.findOneByUserId.resolves({
       userId,
       token: "refresh-token",
     });
     tokenDriver.validateRefreshToken.returns(userData);
-    refreshTokenRepository.delete.resolves();
+    refreshTokenRepository.deleteAllByUserId.resolves();
     tokenDriver.generateAccessToken.returns("access-token");
     tokenDriver.generateRefreshToken.returns("refresh-token");
     sandbox
@@ -63,7 +63,7 @@ describe("/application/useCases/auth/RefreshAccessToken.ts", () => {
       refreshTokenRepository
     );
 
-    refreshTokenRepository.findOneByToken.resolves();
+    refreshTokenRepository.findOneByUserId.resolves();
 
     const error = <BaseError>(
       await refreshAccessToken.exec({ user, refresh_token: "refresh-token" })
@@ -84,7 +84,7 @@ describe("/application/useCases/auth/RefreshAccessToken.ts", () => {
       refreshTokenRepository
     );
 
-    refreshTokenRepository.findOneByToken.resolves({
+    refreshTokenRepository.findOneByUserId.resolves({
       userId,
       token: "refresh-token",
     });
@@ -109,7 +109,7 @@ describe("/application/useCases/auth/RefreshAccessToken.ts", () => {
       refreshTokenRepository
     );
 
-    refreshTokenRepository.findOneByToken.resolves({
+    refreshTokenRepository.findOneByUserId.resolves({
       userId,
       token: "refresh-token",
     });
@@ -134,7 +134,7 @@ describe("/application/useCases/auth/RefreshAccessToken.ts", () => {
       refreshTokenRepository
     );
 
-    refreshTokenRepository.findOneByToken.resolves({
+    refreshTokenRepository.findOneByUserId.resolves({
       userId: faker.string.uuid(),
       token: "refresh-token",
     });

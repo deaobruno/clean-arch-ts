@@ -9,7 +9,6 @@ import BaseError from "../../../../../src/application/errors/BaseError";
 import UserRepository from "../../../../../src/adapters/repositories/UserRepository";
 import RefreshTokenRepository from "../../../../../src/adapters/repositories/RefreshTokenRepository";
 import CryptoDriver from "../../../../../src/infra/drivers/hash/CryptoDriver";
-import MemoRepository from "../../../../../src/adapters/repositories/MemoRepository";
 
 const sandbox = sinon.createSandbox();
 const userId = faker.string.uuid();
@@ -31,24 +30,21 @@ describe("/application/useCases/user/UpdateUserPassword.ts", () => {
     const refreshTokenRepository = sandbox.createStubInstance(
       RefreshTokenRepository
     );
-    const memoRepository = sandbox.createStubInstance(MemoRepository);
     const updateUserPassword = new UpdateUserPassword(
       cryptoDriver,
       userRepository,
-      refreshTokenRepository,
-      memoRepository
+      refreshTokenRepository
     );
 
     cryptoDriver.hashString.returns("hash");
-    userRepository.findOne.resolves(fakeUser);
-    memoRepository.findByUserId.resolves([]);
+    userRepository.findOneById.resolves(fakeUser);
 
     const newPassword = faker.internet.password();
 
     fakeUser.password = cryptoDriver.hashString(newPassword);
 
     userRepository.update.resolves();
-    refreshTokenRepository.delete.resolves();
+    refreshTokenRepository.deleteAllByUserId.resolves();
 
     const updateData = {
       user_id: userId,
@@ -74,12 +70,10 @@ describe("/application/useCases/user/UpdateUserPassword.ts", () => {
     const refreshTokenRepository = sandbox.createStubInstance(
       RefreshTokenRepository
     );
-    const memoRepository = sandbox.createStubInstance(MemoRepository);
     const updateUserPassword = new UpdateUserPassword(
       cryptoDriver,
       userRepository,
-      refreshTokenRepository,
-      memoRepository
+      refreshTokenRepository
     );
 
     const error = <BaseError>await updateUserPassword.exec({
@@ -88,9 +82,7 @@ describe("/application/useCases/user/UpdateUserPassword.ts", () => {
       password: faker.internet.password(),
     });
 
-    expect(error instanceof NotFoundError).equal(true);
-    expect(error.message).equal("User not found");
-    expect(error.statusCode).equal(404);
+    expect(error).deep.equal(new NotFoundError("User not found"));
   });
 
   it("should return a NotFoundError when trying to update an user password passing wrong ID", async () => {
@@ -99,15 +91,13 @@ describe("/application/useCases/user/UpdateUserPassword.ts", () => {
     const refreshTokenRepository = sandbox.createStubInstance(
       RefreshTokenRepository
     );
-    const memoRepository = sandbox.createStubInstance(MemoRepository);
     const updateUserPassword = new UpdateUserPassword(
       cryptoDriver,
       userRepository,
-      refreshTokenRepository,
-      memoRepository
+      refreshTokenRepository
     );
 
-    userRepository.findOne.resolves();
+    userRepository.findOneById.resolves();
 
     const error = <BaseError>await updateUserPassword.exec({
       user: fakeUser,
@@ -115,8 +105,6 @@ describe("/application/useCases/user/UpdateUserPassword.ts", () => {
       password: "",
     });
 
-    expect(error instanceof NotFoundError).equal(true);
-    expect(error.message).equal("User not found");
-    expect(error.statusCode).equal(404);
+    expect(error).deep.equal(new NotFoundError("User not found"));
   });
 });

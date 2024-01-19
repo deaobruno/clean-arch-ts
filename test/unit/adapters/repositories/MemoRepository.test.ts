@@ -7,20 +7,26 @@ import IDbDriver from "../../../../src/infra/drivers/db/IDbDriver";
 import IMemoRepository from "../../../../src/domain/memo/IMemoRepository";
 import MemoMapper from "../../../../src/domain/memo/MemoMapper";
 import MongoDbDriver from "../../../../src/infra/drivers/db/MongoDbDriver";
+import NodeCacheDriver from "../../../../src/infra/drivers/cache/NodeCacheDriver";
 import Memo from "../../../../src/domain/memo/Memo";
+import ICacheDriver from "../../../../src/infra/drivers/cache/ICacheDriver";
+import UserRole from "../../../../src/domain/user/UserRole";
 
 const sandbox = sinon.createSandbox();
 let dbDriver: IDbDriver;
+let cacheDriver: ICacheDriver;
 let memoMapper: MemoMapper;
 let memoRepository: IMemoRepository;
 
-describe("/adapters/repositories/UserRepository", () => {
+describe("/adapters/repositories/MemoRepository", () => {
   beforeEach(() => {
     dbDriver = MongoDbDriver.getInstance("test");
+    cacheDriver = sandbox.createStubInstance(NodeCacheDriver);
     memoMapper = new MemoMapper();
     memoRepository = new MemoRepository(
       config.db.memoSource,
       dbDriver,
+      cacheDriver,
       memoMapper
     );
   });
@@ -255,6 +261,36 @@ describe("/adapters/repositories/UserRepository", () => {
     expect(memo).equal(undefined);
   });
 
+  it("should return a memo passing memo_id as a filter", async () => {
+    const dbMemo = {
+      memo_id: faker.string.uuid(),
+      user_id: faker.string.uuid(),
+      title: "New Memo",
+      text: "Lorem ipsum",
+      start: new Date(new Date().getTime() + 3.6e6).toISOString(),
+      end: new Date(new Date().getTime() + 3.6e6 * 2).toISOString(),
+    };
+
+    sandbox.stub(MongoDbDriver.prototype, "findOne").resolves(dbMemo);
+
+    const memo = await memoRepository.findOneById(dbMemo.memo_id);
+
+    expect(memo?.memoId).equal(dbMemo.memo_id);
+    expect(memo?.userId).equal(dbMemo.user_id);
+    expect(memo?.title).equal(dbMemo.title);
+    expect(memo?.text).equal(dbMemo.text);
+    expect(memo?.start).equal(dbMemo.start);
+    expect(memo?.end).equal(dbMemo.end);
+  });
+
+  it("should return undefined when passing an invalid memo_id as a filter", async () => {
+    sandbox.stub(MongoDbDriver.prototype, "findOne").resolves();
+
+    const memo = await memoRepository.findOneById("");
+
+    expect(memo).equal(undefined);
+  });
+
   it("should return an array of memos passing user_id as a filter", async () => {
     const dbMemo = {
       memo_id: faker.string.uuid(),
@@ -311,17 +347,47 @@ describe("/adapters/repositories/UserRepository", () => {
   });
 
   it("should delete a memo from DB", async () => {
+    const memoId = faker.string.uuid();
+    const userId = faker.string.uuid();
+    const title = "New Memo";
+    const text = "Lorem ipsum";
+    const start = new Date(new Date().getTime() + 3.6e6).toISOString();
+    const end = new Date(new Date().getTime() + 3.6e6 * 2).toISOString();
+    const fakeMemo = {
+      memoId,
+      userId,
+      title,
+      text,
+      start,
+      end,
+    };
+
     sandbox.stub(MongoDbDriver.prototype, "delete").resolves();
 
-    const result = await memoRepository.delete({ memo_id: "test" });
+    const result = await memoRepository.deleteOne(fakeMemo);
 
     expect(result).equal(undefined);
   });
 
   it("should delete all memos passing user_id from DB", async () => {
+    const userId = faker.string.uuid();
+    const email = faker.internet.email();
+    const password = faker.internet.password();
+    const role = UserRole.CUSTOMER;
+    const fakeUser = {
+      userId,
+      email,
+      password,
+      role,
+      isRoot: false,
+      isCustomer: true,
+      memos: [],
+      addMemo: () => {},
+    };
+
     sandbox.stub(MongoDbDriver.prototype, "deleteMany").resolves();
 
-    const result = await memoRepository.deleteAllByUserId("test");
+    const result = await memoRepository.deleteAllByUser(fakeUser);
 
     expect(result).equal(undefined);
   });
