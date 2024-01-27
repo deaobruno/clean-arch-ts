@@ -4,12 +4,10 @@ import authRoutes from "./authRoutes";
 import userRoutes from "./userRoutes";
 import memoRoutes from "./memoRoutes";
 
-export default (server: IServer) => {
+export default (server: IServer): void => {
   const prefix = "/api/v1";
 
-  return [
-    ...authRoutes(dependencies, server, prefix),
-    ...userRoutes(dependencies, server, prefix),
-    ...memoRoutes(dependencies, server, prefix),
-  ];
+  authRoutes(dependencies, server, prefix);
+  userRoutes(dependencies, server, prefix);
+  memoRoutes(dependencies, server, prefix);
 };

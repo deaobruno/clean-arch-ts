@@ -1,3 +1,4 @@
+import User from "../user/User";
 import RefreshToken from "./RefreshToken";
 
 export default interface IRefreshTokenRepository {
@@ -5,5 +6,6 @@ export default interface IRefreshTokenRepository {
   find(filters?: object): Promise<RefreshToken[]>;
   findOne(filters: object): Promise<RefreshToken | undefined>;
   findOneByUserId(userId: string): Promise<RefreshToken | undefined>;
-  deleteAllByUserId(user_id: string): Promise<void>;
+  deleteOne(refreshToken: RefreshToken): Promise<void>;
+  deleteAllByUser(user: User): Promise<void>;
 }

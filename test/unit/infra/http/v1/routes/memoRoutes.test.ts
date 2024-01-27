@@ -28,6 +28,6 @@ describe("/infra/http/v1/memoRoutes.ts", () => {
   it("should return an array of memo routes", () => {
     const routes = memoRoutes(dependencies, server);
 
-    expect(routes.length).equal(4);
+    expect(routes).equal(undefined);
   });
 });

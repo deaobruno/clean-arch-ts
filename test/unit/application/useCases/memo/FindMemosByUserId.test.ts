@@ -50,11 +50,24 @@ describe("/application/useCases/memo/FindMemosByUserId.ts", () => {
     expect(memos[0].end).equal(fakeMemo.end);
   });
 
-  it("should return a NotFoundError when no memos are found for user_id", async () => {
+  it("should return a NotFoundError when request user is different from user_id", async () => {
     const memoRepository = sandbox.createStubInstance(MemoRepository);
     const findMemosByUserId = new FindMemosByUserId(memoRepository);
     const error = <BaseError>(
       await findMemosByUserId.exec({ user, user_id: "test" })
+    );
+
+    expect(error).deep.equal(new NotFoundError("Memos not found"));
+  });
+
+  it("should return a NotFoundError when no memos are found for user_id", async () => {
+    const memoRepository = sandbox.createStubInstance(MemoRepository);
+    const findMemosByUserId = new FindMemosByUserId(memoRepository);
+
+    memoRepository.findByUserId.resolves([]);
+
+    const error = <BaseError>(
+      await findMemosByUserId.exec({ user, user_id: userId })
     );
 
     expect(error).deep.equal(new NotFoundError("Memos not found"));

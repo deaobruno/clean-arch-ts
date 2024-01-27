@@ -2,7 +2,7 @@ export default interface IDbDriver {
   dbName?: string;
   connect(url: string): Promise<void>;
   disconnect(): Promise<void>;
-  create(source: string, data: any, options?: object): Promise<any>;
+  create(source: string, data: any, options?: object): Promise<void>;
   find(source: string, filters?: object, options?: object): Promise<any[]>;
   findOne(
     source: string,
@@ -14,7 +14,7 @@ export default interface IDbDriver {
     data: any,
     filters: object,
     options?: object
-  ): Promise<any>;
+  ): Promise<void>;
   delete(source: string, filters?: object, options?: object): Promise<void>;
   deleteMany(source: string, filters?: object, options?: object): Promise<void>;
 }

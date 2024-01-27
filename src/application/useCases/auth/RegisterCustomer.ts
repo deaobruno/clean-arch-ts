@@ -36,8 +36,6 @@ export default class RegisterCustomer
       role: UserRole.CUSTOMER,
     });
 
-    if (user instanceof Error) return new InternalServerError(user.message);
-
     await this._userRepository.create(user);
 
     return user;

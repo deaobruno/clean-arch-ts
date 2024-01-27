@@ -8,10 +8,6 @@ const eventEmitter = new EventEmitter();
 export default class EventsDriver implements IEventsDriver {
   constructor(private _logger: ILoggerDriver) {}
 
-  publish(topic: string, data?: any): void {
-    eventEmitter.emit(topic, data);
-  }
-
   subscribe(topic: string, event: IEvent): void {
     eventEmitter.on(topic, (data?: any) => {
       try {
@@ -20,5 +16,9 @@ export default class EventsDriver implements IEventsDriver {
         this._logger.error(`[${topic}]: ${error}`);
       }
     });
+  }
+
+  publish(topic: string, data?: any): void {
+    eventEmitter.emit(topic, data);
   }
 }

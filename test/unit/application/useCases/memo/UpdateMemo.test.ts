@@ -62,6 +62,21 @@ describe("/application/useCases/memo/UpdateMemo.ts", () => {
     expect(memo.end).equal(newEnd);
   });
 
+  it("should return the same memo when no attribute is updated", async () => {
+    const memoRepository = sandbox.createStubInstance(MemoRepository);
+    const updateMemo = new UpdateMemo(memoRepository);
+
+    memoRepository.findOne.resolves(fakeMemo);
+    memoRepository.update.resolves();
+
+    const memo = <Memo>await updateMemo.exec({
+      user,
+      memo_id: memoId,
+    });
+
+    expect(memo).deep.equal(fakeMemo);
+  });
+
   it("should return a NotFoundError when memo is not found", async () => {
     const memoRepository = sandbox.createStubInstance(MemoRepository);
     const updateMemo = new UpdateMemo(memoRepository);
@@ -71,5 +86,18 @@ describe("/application/useCases/memo/UpdateMemo.ts", () => {
     );
 
     expect(error).deep.equal(new NotFoundError("Memo not found"));
+  });
+
+  it("should fail when trying to update a memo passing wrong ID", async () => {
+    const memoRepository = sandbox.createStubInstance(MemoRepository);
+    const updateMemo = new UpdateMemo(memoRepository);
+
+    memoRepository.findOne.resolves(
+      Memo.create({ ...fakeMemo, userId: faker.string.uuid() })
+    );
+
+    const result = await updateMemo.exec({ user, memo_id: memoId });
+
+    expect(result).deep.equal(new NotFoundError("Memo not found"));
   });
 });

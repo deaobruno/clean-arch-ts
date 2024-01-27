@@ -29,6 +29,6 @@ describe("/infra/http/v1/userRoutes.ts", () => {
   it("should return an array of user routes", () => {
     const routes = userRoutes(dependencies, server);
 
-    expect(routes.length).equal(6);
+    expect(routes).equal(undefined);
   });
 });

@@ -34,7 +34,7 @@ export default class UpdateUser implements IUseCase<UpdateUserInput, Output> {
     if (email) {
       const userByEmail = await this._userRepository.findOneByEmail(email);
 
-      if (userByEmail instanceof User)
+      if (userByEmail instanceof User && user.userId !== userByEmail.userId)
         return new ConflictError("Email already in use");
     }
 
@@ -46,7 +46,7 @@ export default class UpdateUser implements IUseCase<UpdateUserInput, Output> {
     });
 
     await this._userRepository.update(updatedUser);
-    await this._refreshTokenRepository.deleteAllByUserId(user_id);
+    await this._refreshTokenRepository.deleteAllByUser(updatedUser);
 
     return updatedUser;
   }

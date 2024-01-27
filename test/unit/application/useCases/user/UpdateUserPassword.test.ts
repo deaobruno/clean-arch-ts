@@ -44,12 +44,46 @@ describe("/application/useCases/user/UpdateUserPassword.ts", () => {
     fakeUser.password = cryptoDriver.hashString(newPassword);
 
     userRepository.update.resolves();
-    refreshTokenRepository.deleteAllByUserId.resolves();
+    refreshTokenRepository.deleteAllByUser.resolves();
 
     const updateData = {
       user_id: userId,
-      password: newPassword,
-      confirm_password: newPassword,
+      password: faker.internet.password(),
+    };
+
+    const user = <User>(
+      await updateUserPassword.exec({ user: fakeUser, ...updateData })
+    );
+
+    expect(user.userId).equal(fakeUser.userId);
+    expect(user.email).equal(fakeUser.email);
+    expect(user.password).equal(fakeUser.password);
+    expect(user.role).equal(fakeUser.role);
+    expect(user.isCustomer).equal(true);
+    expect(user.isRoot).equal(false);
+  });
+
+  it("should return same user when input password is empty", async () => {
+    const cryptoDriver = sandbox.createStubInstance(CryptoDriver);
+    const userRepository = sandbox.createStubInstance(UserRepository);
+    const refreshTokenRepository = sandbox.createStubInstance(
+      RefreshTokenRepository
+    );
+    const updateUserPassword = new UpdateUserPassword(
+      cryptoDriver,
+      userRepository,
+      refreshTokenRepository
+    );
+
+    cryptoDriver.hashString.returns("hash");
+    userRepository.findOneById.resolves(fakeUser);
+
+    userRepository.update.resolves();
+    refreshTokenRepository.deleteAllByUser.resolves();
+
+    const updateData = {
+      user_id: userId,
+      password: "",
     };
 
     const user = <User>(

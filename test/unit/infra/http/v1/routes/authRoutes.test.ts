@@ -28,6 +28,6 @@ describe("/infra/http/v1/authRoutes.ts", () => {
   it("should return an array of auth routes", () => {
     const routes = authRotes(dependencies, server);
 
-    expect(routes.length).equal(4);
+    expect(routes).equal(undefined);
   });
 });

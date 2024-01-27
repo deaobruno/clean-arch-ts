@@ -6,6 +6,8 @@ import IUseCase from "../IUseCase";
 import UnauthorizedError from "../../errors/UnauthorizedError";
 import IUserRepository from "../../../domain/user/IUserRepository";
 import NotFoundError from "../../errors/NotFoundError";
+import RefreshToken from "../../../domain/refreshToken/RefreshToken";
+import ForbiddenError from "../../errors/ForbiddenError";
 
 type Input = {
   authorization: string;
@@ -14,6 +16,7 @@ type Input = {
 type Output =
   | {
       user: User;
+      refreshToken: RefreshToken;
     }
   | BaseError;
 
@@ -58,6 +61,9 @@ export default class ValidateAuthentication implements IUseCase<Input, Output> {
 
     if (!user) return new NotFoundError("User not found");
 
-    return { user };
+    if (userId !== refreshToken.userId)
+      return new ForbiddenError("Token does not belong to user");
+
+    return { user, refreshToken };
   }
 }

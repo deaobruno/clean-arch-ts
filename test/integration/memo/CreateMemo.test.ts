@@ -11,14 +11,13 @@ import JwtDriver from "../../../src/infra/drivers/token/JwtDriver";
 
 const {
   db: {
-    mongo: { dbUrl, dbName },
+    mongo: { dbUrl },
   },
 } = config;
 const sandbox = sinon.createSandbox();
 const hashDriver = new CryptoDriver();
-const dbDriver = MongoDbDriver.getInstance(dbName);
+const dbDriver = MongoDbDriver.getInstance("test");
 const url = "http://localhost:8080/api/v1/memos";
-const userId = faker.string.uuid();
 const email = faker.internet.email();
 const password = faker.internet.password();
 const role = UserRole.CUSTOMER;
@@ -41,21 +40,25 @@ describe("POST /memos", () => {
   });
 
   it("should get status 201 when successfully created a new memo", async () => {
-    sandbox.stub(JwtDriver.prototype, "validateAccessToken").returns({
-      id: userId,
-      email,
-      password: hashDriver.hashString(password),
-      role,
-    });
+    const userId = faker.string.uuid();
+
+    sandbox
+      .stub(JwtDriver.prototype, "validateAccessToken")
+      .returns({ id: userId });
     sandbox
       .stub(dbDriver, "findOne")
-      .onFirstCall()
+      .onCall(0)
       .resolves({
         user_id: userId,
         token,
       })
-      .onSecondCall()
-      .resolves();
+      .onCall(1)
+      .resolves({
+        user_id: userId,
+        email,
+        password: hashDriver.hashString(password),
+        role,
+      });
     sandbox.stub(dbDriver, "create").resolves();
 
     const payload = {
@@ -65,7 +68,7 @@ describe("POST /memos", () => {
       end: new Date(new Date().getTime() + 3.6e6 * 2).toISOString(),
     };
     const { status, data } = await axios.post(url, payload, {
-      headers: { Authorization },
+      headers: { Authorization, "Content-Type": "application/json" },
     });
 
     expect(status).equal(201);
@@ -77,16 +80,25 @@ describe("POST /memos", () => {
   });
 
   it('should get status 400 when trying to register a memo without "title"', async () => {
-    sandbox.stub(JwtDriver.prototype, "validateAccessToken").returns({
-      id: userId,
-      email,
-      password: hashDriver.hashString(password),
-      role,
-    });
-    sandbox.stub(dbDriver, "findOne").resolves({
-      user_id: userId,
-      token,
-    });
+    const userId = faker.string.uuid();
+
+    sandbox
+      .stub(JwtDriver.prototype, "validateAccessToken")
+      .returns({ id: userId });
+    sandbox
+      .stub(dbDriver, "findOne")
+      .onCall(0)
+      .resolves({
+        user_id: userId,
+        token,
+      })
+      .onCall(1)
+      .resolves({
+        user_id: userId,
+        email,
+        password: hashDriver.hashString(password),
+        role,
+      });
 
     const payload = {
       title: "",
@@ -106,16 +118,25 @@ describe("POST /memos", () => {
   });
 
   it('should get status 400 when trying to register a memo without "text"', async () => {
-    sandbox.stub(JwtDriver.prototype, "validateAccessToken").returns({
-      id: userId,
-      email,
-      password: hashDriver.hashString(password),
-      role,
-    });
-    sandbox.stub(dbDriver, "findOne").resolves({
-      user_id: userId,
-      token,
-    });
+    const userId = faker.string.uuid();
+
+    sandbox
+      .stub(JwtDriver.prototype, "validateAccessToken")
+      .returns({ id: userId });
+    sandbox
+      .stub(dbDriver, "findOne")
+      .onCall(0)
+      .resolves({
+        user_id: userId,
+        token,
+      })
+      .onCall(1)
+      .resolves({
+        user_id: userId,
+        email,
+        password: hashDriver.hashString(password),
+        role,
+      });
 
     const payload = {
       title: "New Title",
@@ -135,16 +156,25 @@ describe("POST /memos", () => {
   });
 
   it('should get status 400 when trying to register a memo without "start"', async () => {
-    sandbox.stub(JwtDriver.prototype, "validateAccessToken").returns({
-      id: userId,
-      email,
-      password: hashDriver.hashString(password),
-      role,
-    });
-    sandbox.stub(dbDriver, "findOne").resolves({
-      user_id: userId,
-      token,
-    });
+    const userId = faker.string.uuid();
+
+    sandbox
+      .stub(JwtDriver.prototype, "validateAccessToken")
+      .returns({ id: userId });
+    sandbox
+      .stub(dbDriver, "findOne")
+      .onCall(0)
+      .resolves({
+        user_id: userId,
+        token,
+      })
+      .onCall(1)
+      .resolves({
+        user_id: userId,
+        email,
+        password: hashDriver.hashString(password),
+        role,
+      });
 
     const payload = {
       title: "New Title",
@@ -164,16 +194,25 @@ describe("POST /memos", () => {
   });
 
   it('should get status 400 when trying to register a memo without "end"', async () => {
-    sandbox.stub(JwtDriver.prototype, "validateAccessToken").returns({
-      id: userId,
-      email,
-      password: hashDriver.hashString(password),
-      role,
-    });
-    sandbox.stub(dbDriver, "findOne").resolves({
-      user_id: userId,
-      token,
-    });
+    const userId = faker.string.uuid();
+
+    sandbox
+      .stub(JwtDriver.prototype, "validateAccessToken")
+      .returns({ id: userId });
+    sandbox
+      .stub(dbDriver, "findOne")
+      .onCall(0)
+      .resolves({
+        user_id: userId,
+        token,
+      })
+      .onCall(1)
+      .resolves({
+        user_id: userId,
+        email,
+        password: hashDriver.hashString(password),
+        role,
+      });
 
     const payload = {
       title: "New Title",
@@ -193,16 +232,25 @@ describe("POST /memos", () => {
   });
 
   it("should get status 400 when trying to register a memo with invalid param", async () => {
-    sandbox.stub(JwtDriver.prototype, "validateAccessToken").returns({
-      id: userId,
-      email,
-      password: hashDriver.hashString(password),
-      role,
-    });
-    sandbox.stub(dbDriver, "findOne").resolves({
-      user_id: userId,
-      token,
-    });
+    const userId = faker.string.uuid();
+
+    sandbox
+      .stub(JwtDriver.prototype, "validateAccessToken")
+      .returns({ id: userId });
+    sandbox
+      .stub(dbDriver, "findOne")
+      .onCall(0)
+      .resolves({
+        user_id: userId,
+        token,
+      })
+      .onCall(1)
+      .resolves({
+        user_id: userId,
+        email,
+        password: hashDriver.hashString(password),
+        role,
+      });
 
     const payload = {
       title: "New Title",

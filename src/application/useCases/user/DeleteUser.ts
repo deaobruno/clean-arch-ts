@@ -25,7 +25,7 @@ export default class DeleteUser implements IUseCase<Input, Output> {
     if (!user || user.isRoot) return new NotFoundError("User not found");
 
     await this._userRepository.deleteOne(user);
-    await this._refreshTokenRepository.deleteAllByUserId(user_id);
+    await this._refreshTokenRepository.deleteAllByUser(user);
     await this._memoRepository.deleteAllByUser(user);
   }
 }

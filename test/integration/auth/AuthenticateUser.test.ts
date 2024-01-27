@@ -10,11 +10,11 @@ import MongoDbDriver from "../../../src/infra/drivers/db/MongoDbDriver";
 
 const {
   db: {
-    mongo: { dbUrl, dbName },
+    mongo: { dbUrl },
   },
 } = config;
 const hashDriver = new CryptoDriver();
-const dbDriver = MongoDbDriver.getInstance(dbName);
+const dbDriver = MongoDbDriver.getInstance("test");
 const url = "http://localhost:8080/api/v1/auth/login";
 const email = faker.internet.email();
 const password = faker.internet.password();
@@ -41,7 +41,6 @@ describe("POST /auth", () => {
       password: hashDriver.hashString(password),
       role: UserRole.CUSTOMER,
     });
-    sinon.stub(dbDriver, "delete").resolves();
     sinon.stub(dbDriver, "create").resolves();
 
     const payload = {

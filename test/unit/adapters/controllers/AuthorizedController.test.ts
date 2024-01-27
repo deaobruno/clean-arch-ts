@@ -10,6 +10,7 @@ import ForbiddenError from "../../../../src/application/errors/ForbiddenError";
 import RefreshTokenRepository from "../../../../src/adapters/repositories/RefreshTokenRepository";
 import UserRepository from "../../../../src/adapters/repositories/UserRepository";
 import User from "../../../../src/domain/user/User";
+import RefreshToken from "../../../../src/domain/refreshToken/RefreshToken";
 
 class CustomController extends AuthorizedController {
   statusCode = 200;
@@ -31,12 +32,18 @@ describe("/adapters/controllers/AuthorizedController.ts", () => {
   afterEach(() => sandbox.restore());
 
   it("should return successfully when authorized", async () => {
+    const userId = faker.string.uuid();
+
     sandbox.stub(validateAuthenticationUseCase, "exec").resolves({
       user: User.create({
-        userId: faker.string.uuid(),
+        userId,
         email: faker.internet.email(),
         password: faker.internet.password(),
         role: UserRole.CUSTOMER,
+      }),
+      refreshToken: RefreshToken.create({
+        userId,
+        token: "refresh-token",
       }),
     });
     sandbox.stub(validateAuthorizationUseCase, "exec").returns();
@@ -60,12 +67,18 @@ describe("/adapters/controllers/AuthorizedController.ts", () => {
   });
 
   it("should return error when not authorized", async () => {
+    const userId = faker.string.uuid();
+
     sandbox.stub(validateAuthenticationUseCase, "exec").resolves({
       user: User.create({
-        userId: faker.string.uuid(),
+        userId,
         email: faker.internet.email(),
         password: faker.internet.password(),
         role: UserRole.CUSTOMER,
+      }),
+      refreshToken: RefreshToken.create({
+        userId,
+        token: "refresh-token",
       }),
     });
     sandbox

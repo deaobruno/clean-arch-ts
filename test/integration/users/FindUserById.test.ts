@@ -8,17 +8,18 @@ import CryptoDriver from "../../../src/infra/drivers/hash/CryptoDriver";
 import server from "../../../src/infra/http/v1/server";
 import MongoDbDriver from "../../../src/infra/drivers/db/MongoDbDriver";
 import JwtDriver from "../../../src/infra/drivers/token/JwtDriver";
+import UserRepository from "../../../src/adapters/repositories/UserRepository";
+import User from "../../../src/domain/user/User";
 
 const {
   db: {
-    mongo: { dbUrl, dbName },
+    mongo: { dbUrl },
   },
 } = config;
 const sandbox = sinon.createSandbox();
-const dbDriver = MongoDbDriver.getInstance(dbName);
+const dbDriver = MongoDbDriver.getInstance("test");
 const hashDriver = new CryptoDriver();
 const url = "http://localhost:8080/api/v1/users";
-const userId = faker.string.uuid();
 const email = faker.internet.email();
 const password = faker.internet.password();
 const role = UserRole.CUSTOMER;
@@ -41,29 +42,26 @@ describe("GET /users/:user_id", () => {
   });
 
   it("should get 200 status code and an object with a single user data when trying to find an user by id", async () => {
-    sandbox.stub(JwtDriver.prototype, "validateAccessToken").returns({
-      id: userId,
-      email,
-      password: hashDriver.hashString(password),
-      role,
-    });
+    const userId = faker.string.uuid();
+
     sandbox
-      .stub(MongoDbDriver.prototype, "findOne")
-      .onFirstCall()
-      .resolves({
-        user_id: userId,
-        token,
-      })
-      .onSecondCall()
-      .resolves({
-        user_id: userId,
+      .stub(JwtDriver.prototype, "validateAccessToken")
+      .returns({ id: userId });
+    sandbox.stub(dbDriver, "findOne").onCall(0).resolves({
+      user_id: userId,
+      token,
+    });
+    sandbox.stub(UserRepository.prototype, "findOneById").resolves(
+      User.create({
+        userId,
         email,
         password: hashDriver.hashString(password),
         role: UserRole.CUSTOMER,
-      });
+      })
+    );
 
     const { status, data } = await axios.get(`${url}/${userId}`, {
-      headers: { Authorization },
+      headers: { Authorization, "Content-Type": "application/json" },
     });
 
     expect(status).equal(200);
@@ -72,16 +70,25 @@ describe("GET /users/:user_id", () => {
   });
 
   it("should get 400 status code when trying to find an user passing invalid id", async () => {
-    sandbox.stub(JwtDriver.prototype, "validateAccessToken").returns({
-      id: userId,
-      email,
-      password: hashDriver.hashString(password),
-      role,
-    });
-    sandbox.stub(MongoDbDriver.prototype, "findOne").resolves({
-      user_id: userId,
-      token,
-    });
+    const userId = faker.string.uuid();
+
+    sandbox
+      .stub(JwtDriver.prototype, "validateAccessToken")
+      .returns({ id: userId });
+    sandbox
+      .stub(dbDriver, "findOne")
+      .onCall(0)
+      .resolves({
+        user_id: userId,
+        token,
+      })
+      .onCall(1)
+      .resolves({
+        user_id: userId,
+        email,
+        password: hashDriver.hashString(password),
+        role,
+      });
 
     await axios
       .get(`${url}/test`, { headers: { Authorization } })
@@ -92,20 +99,27 @@ describe("GET /users/:user_id", () => {
   });
 
   it("should get 404 status code when authenticated customer ID is different from request user_id", async () => {
-    sandbox.stub(JwtDriver.prototype, "validateAccessToken").returns({
-      id: userId,
-      email,
-      password: hashDriver.hashString(password),
-      role,
+    const userId = faker.string.uuid();
+
+    sandbox
+      .stub(JwtDriver.prototype, "validateAccessToken")
+      .returns({ id: userId });
+    sandbox.stub(dbDriver, "findOne").onCall(0).resolves({
+      user_id: userId,
+      token,
     });
     sandbox
-      .stub(MongoDbDriver.prototype, "findOne")
-      .onFirstCall()
-      .resolves({
-        user_id: userId,
-        token,
-      })
-      .onSecondCall()
+      .stub(UserRepository.prototype, "findOneById")
+      .onCall(0)
+      .resolves(
+        User.create({
+          userId,
+          email,
+          password: hashDriver.hashString(password),
+          role: UserRole.CUSTOMER,
+        })
+      )
+      .onCall(1)
       .resolves();
 
     await axios
@@ -117,26 +131,28 @@ describe("GET /users/:user_id", () => {
   });
 
   it("should get 404 status code when user is not found", async () => {
-    sandbox.stub(JwtDriver.prototype, "validateAccessToken").returns({
-      id: userId,
-      email,
-      password: hashDriver.hashString(password),
-      role,
+    const userId = faker.string.uuid();
+
+    sandbox
+      .stub(JwtDriver.prototype, "validateAccessToken")
+      .returns({ id: userId });
+    sandbox.stub(dbDriver, "findOne").onCall(0).resolves({
+      user_id: userId,
+      token,
     });
     sandbox
-      .stub(MongoDbDriver.prototype, "findOne")
-      .onFirstCall()
-      .resolves({
-        user_id: userId,
-        token,
-      })
-      .onSecondCall()
-      .resolves({
-        user_id: faker.string.uuid(),
-        email: faker.internet.email(),
-        password: hashDriver.hashString(faker.internet.password()),
-        role: UserRole.CUSTOMER,
-      });
+      .stub(UserRepository.prototype, "findOneById")
+      .onCall(0)
+      .resolves(
+        User.create({
+          userId: faker.string.uuid(),
+          email: faker.internet.email(),
+          password: hashDriver.hashString(faker.internet.password()),
+          role: UserRole.CUSTOMER,
+        })
+      )
+      .onCall(1)
+      .resolves();
 
     await axios
       .get(`${url}/${userId}`, { headers: { Authorization } })

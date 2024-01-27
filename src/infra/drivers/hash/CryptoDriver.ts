@@ -1,4 +1,4 @@
-import crypto from "node:crypto";
+import crypto, { BinaryToTextEncoding } from "node:crypto";
 
 export default class CryptoDriver {
   constructor() {}
@@ -7,7 +7,11 @@ export default class CryptoDriver {
     return crypto.randomUUID();
   }
 
-  hashString(text: string): string {
-    return crypto.createHash("sha256").update(text).digest("hex");
+  hashString(
+    text: string,
+    algorithm = "sha256",
+    encoding: BinaryToTextEncoding = "hex"
+  ): string {
+    return crypto.createHash(algorithm).update(text).digest(encoding);
   }
 }

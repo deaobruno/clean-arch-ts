@@ -57,4 +57,17 @@ describe("/application/useCases/memo/FindMemoById.ts", () => {
 
     expect(error).deep.equal(new NotFoundError("Memo not found"));
   });
+
+  it("should fail when trying to find a memo passing wrong ID", async () => {
+    const memoRepository = sandbox.createStubInstance(MemoRepository);
+    const findMemoById = new FindMemoById(memoRepository);
+
+    memoRepository.findOne.resolves(
+      Memo.create({ ...fakeMemo, userId: faker.string.uuid() })
+    );
+
+    const result = await findMemoById.exec({ user, memo_id: memoId });
+
+    expect(result).deep.equal(new NotFoundError("Memo not found"));
+  });
 });

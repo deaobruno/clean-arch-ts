@@ -43,7 +43,7 @@ export default class UpdateUserPassword
     });
 
     await this._userRepository.update(updatedUser);
-    await this._refreshTokenRepository.deleteAllByUserId(user_id);
+    await this._refreshTokenRepository.deleteAllByUser(updatedUser);
 
     return updatedUser;
   }

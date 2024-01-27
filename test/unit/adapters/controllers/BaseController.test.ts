@@ -104,7 +104,9 @@ describe("/adapters/controllers/BaseController.ts", () => {
     const controller = new CustomController({ useCase, presenter });
     const data = { test: "test", invalid: false };
 
-    expect(await controller.handle({}, data)).deep.equal(data);
+    expect(
+      await controller.handle({ "content-type": "application/json" }, data)
+    ).deep.equal(data);
   });
 
   it("should return an array of objects formatted by presenter", async () => {

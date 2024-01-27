@@ -5,48 +5,40 @@ import config from "../../../../src/config";
 import RefreshTokenRepository from "../../../../src/adapters/repositories/RefreshTokenRepository";
 import MongoDbDriver from "../../../../src/infra/drivers/db/MongoDbDriver";
 import NodeCacheDriver from "../../../../src/infra/drivers/cache/NodeCacheDriver";
-import IDbDriver from "../../../../src/infra/drivers/db/IDbDriver";
-import IRefreshTokenRepository from "../../../../src/domain/refreshToken/IRefreshTokenRepository";
 import RefreshTokenMapper from "../../../../src/domain/refreshToken/RefreshTokenMapper";
 import RefreshToken from "../../../../src/domain/refreshToken/RefreshToken";
-import ICacheDriver from "../../../../src/infra/drivers/cache/ICacheDriver";
+import User from "../../../../src/domain/user/User";
+import UserRole from "../../../../src/domain/user/UserRole";
 
 const sandbox = sinon.createSandbox();
-let dbDriver: IDbDriver;
-let cacheDriver: ICacheDriver;
-let refreshTokenMapper: RefreshTokenMapper;
-let refreshTokenRepository: IRefreshTokenRepository;
 
 describe("/adapters/repositories/RefreshTokenRepository", () => {
-  beforeEach(() => {
-    dbDriver = MongoDbDriver.getInstance("test");
-    cacheDriver = sandbox.createStubInstance(NodeCacheDriver);
-    refreshTokenMapper = new RefreshTokenMapper();
-    refreshTokenRepository = new RefreshTokenRepository(
-      config.db.refreshTokensSource,
-      dbDriver,
-      cacheDriver,
-      refreshTokenMapper,
-      config.app.refreshTokenExpirationTime
-    );
-  });
-
   afterEach(() => sandbox.restore());
 
   it("should save a RefreshToken entity in DB", async () => {
     const userId = faker.string.uuid();
     const token = "refresh-token";
     const fakeRefreshToken = { userId, token };
+    const dbDriver = sandbox.createStubInstance(MongoDbDriver);
+    const cacheDriver = sandbox.createStubInstance(NodeCacheDriver);
+    const refreshTokenMapper = sandbox.createStubInstance(RefreshTokenMapper);
+    const refreshTokenRepository = new RefreshTokenRepository(
+      config.db.refreshTokensSource,
+      dbDriver,
+      cacheDriver,
+      refreshTokenMapper,
+      config.app.refreshTokenExpirationTime
+    );
 
     sandbox.stub(RefreshToken, "create").returns({
       userId,
       token,
     });
-    sandbox.stub(refreshTokenMapper, "entityToDb").returns({
+    refreshTokenMapper.entityToDb.returns({
       user_id: userId,
       token,
     });
-    sandbox.stub(MongoDbDriver.prototype, "create").resolves();
+    dbDriver.create.resolves();
 
     const result = await refreshTokenRepository.create(fakeRefreshToken);
 
@@ -68,10 +60,19 @@ describe("/adapters/repositories/RefreshTokenRepository", () => {
         token: "refresh-token-3",
       },
     ];
+    const dbDriver = sandbox.createStubInstance(MongoDbDriver);
+    const cacheDriver = sandbox.createStubInstance(NodeCacheDriver);
+    const refreshTokenMapper = sandbox.createStubInstance(RefreshTokenMapper);
+    const refreshTokenRepository = new RefreshTokenRepository(
+      config.db.refreshTokensSource,
+      dbDriver,
+      cacheDriver,
+      refreshTokenMapper,
+      config.app.refreshTokenExpirationTime
+    );
 
-    sandbox.stub(MongoDbDriver.prototype, "find").resolves(dbRefreshTokens);
-    sandbox
-      .stub(refreshTokenMapper, "dbToEntity")
+    dbDriver.find.resolves(dbRefreshTokens);
+    refreshTokenMapper.dbToEntity
       .withArgs(dbRefreshTokens[0])
       .returns({
         userId: dbRefreshTokens[0].user_id,
@@ -110,10 +111,19 @@ describe("/adapters/repositories/RefreshTokenRepository", () => {
         token: "refresh-token-2",
       },
     ];
+    const dbDriver = sandbox.createStubInstance(MongoDbDriver);
+    const cacheDriver = sandbox.createStubInstance(NodeCacheDriver);
+    const refreshTokenMapper = sandbox.createStubInstance(RefreshTokenMapper);
+    const refreshTokenRepository = new RefreshTokenRepository(
+      config.db.refreshTokensSource,
+      dbDriver,
+      cacheDriver,
+      refreshTokenMapper,
+      config.app.refreshTokenExpirationTime
+    );
 
-    sandbox.stub(MongoDbDriver.prototype, "find").resolves(dbRefreshTokens);
-    sandbox
-      .stub(refreshTokenMapper, "dbToEntity")
+    dbDriver.find.resolves(dbRefreshTokens);
+    refreshTokenMapper.dbToEntity
       .withArgs(dbRefreshTokens[0])
       .returns({
         userId: dbRefreshTokens[0].user_id,
@@ -137,8 +147,18 @@ describe("/adapters/repositories/RefreshTokenRepository", () => {
 
   it("should return an empty array when no RefreshTokens are found", async () => {
     const dbRefreshTokens: any[] = [];
+    const dbDriver = sandbox.createStubInstance(MongoDbDriver);
+    const cacheDriver = sandbox.createStubInstance(NodeCacheDriver);
+    const refreshTokenMapper = sandbox.createStubInstance(RefreshTokenMapper);
+    const refreshTokenRepository = new RefreshTokenRepository(
+      config.db.refreshTokensSource,
+      dbDriver,
+      cacheDriver,
+      refreshTokenMapper,
+      config.app.refreshTokenExpirationTime
+    );
 
-    sandbox.stub(MongoDbDriver.prototype, "find").resolves(dbRefreshTokens);
+    dbDriver.find.resolves(dbRefreshTokens);
 
     const refreshTokens = await refreshTokenRepository.find();
 
@@ -148,12 +168,22 @@ describe("/adapters/repositories/RefreshTokenRepository", () => {
   it("should return a RefreshToken from DB when some filter is passed", async () => {
     const userId = faker.string.uuid();
     const token = "refresh-token";
+    const dbDriver = sandbox.createStubInstance(MongoDbDriver);
+    const cacheDriver = sandbox.createStubInstance(NodeCacheDriver);
+    const refreshTokenMapper = sandbox.createStubInstance(RefreshTokenMapper);
+    const refreshTokenRepository = new RefreshTokenRepository(
+      config.db.refreshTokensSource,
+      dbDriver,
+      cacheDriver,
+      refreshTokenMapper,
+      config.app.refreshTokenExpirationTime
+    );
 
-    sandbox.stub(MongoDbDriver.prototype, "findOne").resolves({
+    dbDriver.findOne.resolves({
       user_id: userId,
       token,
     });
-    sandbox.stub(refreshTokenMapper, "dbToEntity").returns({
+    refreshTokenMapper.dbToEntity.returns({
       userId,
       token,
     });
@@ -167,7 +197,18 @@ describe("/adapters/repositories/RefreshTokenRepository", () => {
   });
 
   it("should return undefined when no RefreshToken is found", async () => {
-    sandbox.stub(MongoDbDriver.prototype, "findOne").resolves();
+    const dbDriver = sandbox.createStubInstance(MongoDbDriver);
+    const cacheDriver = sandbox.createStubInstance(NodeCacheDriver);
+    const refreshTokenMapper = sandbox.createStubInstance(RefreshTokenMapper);
+    const refreshTokenRepository = new RefreshTokenRepository(
+      config.db.refreshTokensSource,
+      dbDriver,
+      cacheDriver,
+      refreshTokenMapper,
+      config.app.refreshTokenExpirationTime
+    );
+
+    dbDriver.findOne.resolves();
 
     const refreshToken = await refreshTokenRepository.findOne({
       user_id: "test",
@@ -179,12 +220,49 @@ describe("/adapters/repositories/RefreshTokenRepository", () => {
   it('should return a RefreshToken from DB passing "userId" as a filter', async () => {
     const userId = faker.string.uuid();
     const token = "refresh-token";
+    const dbDriver = sandbox.createStubInstance(MongoDbDriver);
+    const cacheDriver = sandbox.createStubInstance(NodeCacheDriver);
+    const refreshTokenMapper = sandbox.createStubInstance(RefreshTokenMapper);
+    const refreshTokenRepository = new RefreshTokenRepository(
+      config.db.refreshTokensSource,
+      dbDriver,
+      cacheDriver,
+      refreshTokenMapper,
+      config.app.refreshTokenExpirationTime
+    );
 
-    sandbox.stub(MongoDbDriver.prototype, "findOne").resolves({
+    dbDriver.findOne.resolves({
       user_id: userId,
       token,
     });
-    sandbox.stub(refreshTokenMapper, "dbToEntity").returns({
+    refreshTokenMapper.dbToEntity.returns({
+      userId,
+      token,
+    });
+
+    const refreshToken = <RefreshToken>(
+      await refreshTokenRepository.findOneByUserId(userId)
+    );
+
+    expect(refreshToken.userId).equal(userId);
+    expect(refreshToken.token).equal(token);
+  });
+
+  it('should return a RefreshToken from cache passing "userId" as a filter', async () => {
+    const userId = faker.string.uuid();
+    const token = "refresh-token";
+    const dbDriver = sandbox.createStubInstance(MongoDbDriver);
+    const cacheDriver = sandbox.createStubInstance(NodeCacheDriver);
+    const refreshTokenMapper = sandbox.createStubInstance(RefreshTokenMapper);
+    const refreshTokenRepository = new RefreshTokenRepository(
+      config.db.refreshTokensSource,
+      dbDriver,
+      cacheDriver,
+      refreshTokenMapper,
+      config.app.refreshTokenExpirationTime
+    );
+
+    cacheDriver.get.returns({
       userId,
       token,
     });
@@ -198,7 +276,18 @@ describe("/adapters/repositories/RefreshTokenRepository", () => {
   });
 
   it('should return undefined when no RefreshToken is found passing "userId" as a filter', async () => {
-    sandbox.stub(MongoDbDriver.prototype, "findOne").resolves();
+    const dbDriver = sandbox.createStubInstance(MongoDbDriver);
+    const cacheDriver = sandbox.createStubInstance(NodeCacheDriver);
+    const refreshTokenMapper = sandbox.createStubInstance(RefreshTokenMapper);
+    const refreshTokenRepository = new RefreshTokenRepository(
+      config.db.refreshTokensSource,
+      dbDriver,
+      cacheDriver,
+      refreshTokenMapper,
+      config.app.refreshTokenExpirationTime
+    );
+
+    dbDriver.findOne.resolves();
 
     const refreshToken = await refreshTokenRepository.findOneByUserId("test");
 
@@ -206,11 +295,49 @@ describe("/adapters/repositories/RefreshTokenRepository", () => {
   });
 
   it("should delete a RefreshToken from DB", async () => {
-    sandbox.stub(MongoDbDriver.prototype, "deleteMany").resolves();
-
-    const result = await refreshTokenRepository.deleteAllByUserId(
-      faker.string.uuid()
+    const refreshToken = RefreshToken.create({
+      userId: faker.string.uuid(),
+      token: "refresh-token",
+    });
+    const dbDriver = sandbox.createStubInstance(MongoDbDriver);
+    const cacheDriver = sandbox.createStubInstance(NodeCacheDriver);
+    const refreshTokenMapper = sandbox.createStubInstance(RefreshTokenMapper);
+    const refreshTokenRepository = new RefreshTokenRepository(
+      config.db.refreshTokensSource,
+      dbDriver,
+      cacheDriver,
+      refreshTokenMapper,
+      config.app.refreshTokenExpirationTime
     );
+
+    dbDriver.delete.resolves();
+
+    const result = await refreshTokenRepository.deleteOne(refreshToken);
+
+    expect(result).equal(undefined);
+  });
+
+  it("should delete a RefreshToken from DB", async () => {
+    const user = User.create({
+      userId: faker.string.uuid(),
+      email: faker.internet.email(),
+      password: faker.internet.password(),
+      role: UserRole.CUSTOMER,
+    });
+    const dbDriver = sandbox.createStubInstance(MongoDbDriver);
+    const cacheDriver = sandbox.createStubInstance(NodeCacheDriver);
+    const refreshTokenMapper = sandbox.createStubInstance(RefreshTokenMapper);
+    const refreshTokenRepository = new RefreshTokenRepository(
+      config.db.refreshTokensSource,
+      dbDriver,
+      cacheDriver,
+      refreshTokenMapper,
+      config.app.refreshTokenExpirationTime
+    );
+
+    dbDriver.deleteMany.resolves();
+
+    const result = await refreshTokenRepository.deleteAllByUser(user);
 
     expect(result).equal(undefined);
   });

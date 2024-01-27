@@ -23,7 +23,7 @@ export default class FindMemosByUserId implements IUseCase<Input, Output> {
 
     const memos = await this._memoRepository.findByUserId(user_id);
 
-    if (!memos) return new NotFoundError("Memos not found");
+    if (memos.length <= 0) return new NotFoundError("Memos not found");
 
     return memos;
   }

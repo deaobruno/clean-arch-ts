@@ -8,14 +8,16 @@ import CryptoDriver from "../../../src/infra/drivers/hash/CryptoDriver";
 import server from "../../../src/infra/http/v1/server";
 import MongoDbDriver from "../../../src/infra/drivers/db/MongoDbDriver";
 import JwtDriver from "../../../src/infra/drivers/token/JwtDriver";
+import UserRepository from "../../../src/adapters/repositories/UserRepository";
+import User from "../../../src/domain/user/User";
 
 const {
   db: {
-    mongo: { dbUrl, dbName },
+    mongo: { dbUrl },
   },
 } = config;
 const sandbox = sinon.createSandbox();
-const dbDriver = MongoDbDriver.getInstance(dbName);
+const dbDriver = MongoDbDriver.getInstance("test");
 const hashDriver = new CryptoDriver();
 const url = "http://localhost:8080/api/v1/users";
 const userId = faker.string.uuid();
@@ -41,35 +43,41 @@ describe("PUT /users/:user_id", () => {
   });
 
   it("should get 200 when trying to update an existing user", async () => {
-    sandbox.stub(JwtDriver.prototype, "validateAccessToken").returns({
-      id: userId,
-      email,
-      password: hashDriver.hashString(password),
-      role,
-    });
     sandbox
-      .stub(MongoDbDriver.prototype, "findOne")
-      .onFirstCall()
+      .stub(JwtDriver.prototype, "validateAccessToken")
+      .returns({ id: userId });
+    sandbox
+      .stub(dbDriver, "findOne")
+      .onCall(0)
       .resolves({
         user_id: userId,
         token,
       })
-      .onSecondCall()
+      .onCall(1)
       .resolves({
         user_id: userId,
         email,
         password: hashDriver.hashString(password),
         role,
-      });
-    sandbox.stub(MongoDbDriver.prototype, "update").resolves();
-    sandbox.stub(MongoDbDriver.prototype, "delete").resolves();
+      })
+      .onCall(2)
+      .resolves({
+        user_id: userId,
+        email,
+        password: hashDriver.hashString(password),
+        role,
+      })
+      .onCall(3)
+      .resolves();
+    sandbox.stub(dbDriver, "update").resolves();
+    sandbox.stub(dbDriver, "deleteMany").resolves();
 
     const newEmail = faker.internet.email();
     const payload = {
       email: newEmail,
     };
     const { status, data } = await axios.put(`${url}/${userId}`, payload, {
-      headers: { Authorization },
+      headers: { Authorization, "Content-Type": "application/json" },
     });
 
     expect(status).equal(200);
@@ -78,16 +86,23 @@ describe("PUT /users/:user_id", () => {
   });
 
   it("should get 400 status code when trying to update an user passing invalid id", async () => {
-    sandbox.stub(JwtDriver.prototype, "validateAccessToken").returns({
-      id: userId,
-      email,
-      password: hashDriver.hashString(password),
-      role,
-    });
-    sandbox.stub(MongoDbDriver.prototype, "findOne").resolves({
-      user_id: userId,
-      token,
-    });
+    sandbox
+      .stub(JwtDriver.prototype, "validateAccessToken")
+      .returns({ id: userId });
+    sandbox
+      .stub(dbDriver, "findOne")
+      .onCall(0)
+      .resolves({
+        user_id: userId,
+        token,
+      })
+      .onCall(1)
+      .resolves({
+        user_id: userId,
+        email,
+        password: hashDriver.hashString(password),
+        role,
+      });
 
     const payload = {
       email: faker.internet.email(),
@@ -102,16 +117,23 @@ describe("PUT /users/:user_id", () => {
   });
 
   it('should get 400 status code when trying to update an user passing empty "email" as param', async () => {
-    sandbox.stub(JwtDriver.prototype, "validateAccessToken").returns({
-      id: userId,
-      email,
-      password: hashDriver.hashString(password),
-      role,
-    });
-    sandbox.stub(MongoDbDriver.prototype, "findOne").resolves({
-      user_id: userId,
-      token,
-    });
+    sandbox
+      .stub(JwtDriver.prototype, "validateAccessToken")
+      .returns({ id: userId });
+    sandbox
+      .stub(dbDriver, "findOne")
+      .onCall(0)
+      .resolves({
+        user_id: userId,
+        token,
+      })
+      .onCall(1)
+      .resolves({
+        user_id: userId,
+        email,
+        password: hashDriver.hashString(password),
+        role,
+      });
 
     const payload = {
       email: "",
@@ -128,16 +150,23 @@ describe("PUT /users/:user_id", () => {
   });
 
   it('should get 400 status code when trying to update an user passing invalid "email" as param', async () => {
-    sandbox.stub(JwtDriver.prototype, "validateAccessToken").returns({
-      id: userId,
-      email,
-      password: hashDriver.hashString(password),
-      role,
-    });
-    sandbox.stub(MongoDbDriver.prototype, "findOne").resolves({
-      user_id: userId,
-      token,
-    });
+    sandbox
+      .stub(JwtDriver.prototype, "validateAccessToken")
+      .returns({ id: userId });
+    sandbox
+      .stub(dbDriver, "findOne")
+      .onCall(0)
+      .resolves({
+        user_id: userId,
+        token,
+      })
+      .onCall(1)
+      .resolves({
+        user_id: userId,
+        email,
+        password: hashDriver.hashString(password),
+        role,
+      });
 
     const payload = {
       email: "test",
@@ -154,16 +183,23 @@ describe("PUT /users/:user_id", () => {
   });
 
   it("should get 400 status code when trying to update an user with invalid param", async () => {
-    sandbox.stub(JwtDriver.prototype, "validateAccessToken").returns({
-      id: userId,
-      email,
-      password: hashDriver.hashString(password),
-      role,
-    });
-    sandbox.stub(MongoDbDriver.prototype, "findOne").resolves({
-      user_id: userId,
-      token,
-    });
+    sandbox
+      .stub(JwtDriver.prototype, "validateAccessToken")
+      .returns({ id: userId });
+    sandbox
+      .stub(dbDriver, "findOne")
+      .onCall(0)
+      .resolves({
+        user_id: userId,
+        token,
+      })
+      .onCall(1)
+      .resolves({
+        user_id: userId,
+        email,
+        password: hashDriver.hashString(password),
+        role,
+      });
 
     const payload = {
       email: "user@email.com",
@@ -181,16 +217,25 @@ describe("PUT /users/:user_id", () => {
   });
 
   it("should get 404 status code when user is not found", async () => {
-    sandbox.stub(JwtDriver.prototype, "validateAccessToken").returns({
-      id: userId,
-      email,
-      password: hashDriver.hashString(password),
-      role,
-    });
-    sandbox.stub(MongoDbDriver.prototype, "findOne").resolves({
-      user_id: userId,
-      token,
-    });
+    sandbox
+      .stub(JwtDriver.prototype, "validateAccessToken")
+      .returns({ id: userId });
+    sandbox
+      .stub(dbDriver, "findOne")
+      .onCall(0)
+      .resolves({
+        user_id: userId,
+        token,
+      })
+      .onCall(1)
+      .resolves({
+        user_id: userId,
+        email,
+        password: hashDriver.hashString(password),
+        role,
+      })
+      .onCall(2)
+      .resolves();
 
     const payload = {};
 
@@ -205,16 +250,26 @@ describe("PUT /users/:user_id", () => {
   });
 
   it("should get 404 status code when authenticated customer is different from token user", async () => {
-    sandbox.stub(JwtDriver.prototype, "validateAccessToken").returns({
-      id: faker.string.uuid(),
-      email: faker.internet.email(),
-      password: hashDriver.hashString(faker.internet.password()),
-      role,
-    });
-    sandbox.stub(MongoDbDriver.prototype, "findOne").resolves({
+    sandbox
+      .stub(JwtDriver.prototype, "validateAccessToken")
+      .returns({ id: userId });
+    sandbox.stub(dbDriver, "findOne").resolves({
       user_id: userId,
       token,
     });
+    sandbox
+      .stub(UserRepository.prototype, "findOneById")
+      .onCall(0)
+      .resolves(
+        User.create({
+          userId,
+          email,
+          password: hashDriver.hashString(password),
+          role,
+        })
+      )
+      .onCall(1)
+      .resolves();
 
     const payload = {};
 

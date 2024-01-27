@@ -10,12 +10,12 @@ import UserRole from "../../../src/domain/user/UserRole";
 
 const {
   db: {
-    mongo: { dbUrl, dbName },
+    mongo: { dbUrl },
   },
 } = config;
 const sandbox = sinon.createSandbox();
 const cryptoDriver = new CryptoDriver();
-const dbDriver = MongoDbDriver.getInstance(dbName);
+const dbDriver = MongoDbDriver.getInstance("test");
 const url = "http://localhost:8080/api/v1/auth/register";
 
 describe("POST /auth/register", () => {
@@ -143,11 +143,7 @@ describe("POST /auth/register", () => {
       password: cryptoDriver.hashString(password),
       role: UserRole.CUSTOMER,
     });
-    sandbox.stub(dbDriver, "create").resolves({
-      user_id: faker.string.uuid(),
-      email,
-      password: cryptoDriver.hashString(password),
-    });
+    sandbox.stub(dbDriver, "create").resolves();
 
     await axios.post(url, payload).catch(({ response: { status, data } }) => {
       expect(status).equal(409);

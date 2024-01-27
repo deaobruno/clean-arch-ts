@@ -38,7 +38,7 @@ import RefreshTokenRepository from "./adapters/repositories/RefreshTokenReposito
 import RefreshAccessTokenController from "./adapters/controllers/auth/RefreshAccessTokenController";
 import RefreshAccessToken from "./application/useCases/auth/RefreshAccessToken";
 import LogoutSchema from "./infra/schemas/auth/LogoutSchema";
-import DeleteRefreshToken from "./application/useCases/auth/DeleteRefreshToken";
+import DeleteRefreshToken from "./application/useCases/auth/Logout";
 import LogoutController from "./adapters/controllers/auth/LogoutController";
 import UserMapper from "./domain/user/UserMapper";
 import RefreshTokenMapper from "./domain/refreshToken/RefreshTokenMapper";

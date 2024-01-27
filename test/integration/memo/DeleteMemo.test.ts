@@ -11,15 +11,14 @@ import JwtDriver from "../../../src/infra/drivers/token/JwtDriver";
 
 const {
   db: {
-    mongo: { dbUrl, dbName },
+    mongo: { dbUrl },
   },
 } = config;
 const sandbox = sinon.createSandbox();
-const dbDriver = MongoDbDriver.getInstance(dbName);
+const dbDriver = MongoDbDriver.getInstance("test");
 const hashDriver = new CryptoDriver();
 const url = "http://localhost:8080/api/v1/memos";
 const memoId = faker.string.uuid();
-const userId = faker.string.uuid();
 const email = faker.internet.email();
 const password = faker.internet.password();
 const role = UserRole.ROOT;
@@ -42,20 +41,26 @@ describe("DELETE /memos", () => {
   });
 
   it("should get 204 status code when trying to delete an existing memo", async () => {
-    sandbox.stub(JwtDriver.prototype, "validateAccessToken").returns({
-      id: userId,
-      email,
-      password: hashDriver.hashString(password),
-      role,
-    });
+    const userId = faker.string.uuid();
+
+    sandbox
+      .stub(JwtDriver.prototype, "validateAccessToken")
+      .returns({ id: userId });
     sandbox
       .stub(dbDriver, "findOne")
-      .onFirstCall()
+      .onCall(0)
       .resolves({
         user_id: userId,
         token,
       })
-      .onSecondCall()
+      .onCall(1)
+      .resolves({
+        user_id: userId,
+        email,
+        password: hashDriver.hashString(password),
+        role,
+      })
+      .onCall(2)
       .resolves({
         memo_id: memoId,
         user_id: userId,
@@ -74,16 +79,25 @@ describe("DELETE /memos", () => {
   });
 
   it("should get 400 status code when trying to delete a memo passing invalid memo_id", async () => {
-    sandbox.stub(JwtDriver.prototype, "validateAccessToken").returns({
-      id: userId,
-      email,
-      password: hashDriver.hashString(password),
-      role,
-    });
-    sandbox.stub(dbDriver, "findOne").resolves({
-      user_id: userId,
-      token,
-    });
+    const userId = faker.string.uuid();
+
+    sandbox
+      .stub(JwtDriver.prototype, "validateAccessToken")
+      .returns({ id: userId });
+    sandbox
+      .stub(dbDriver, "findOne")
+      .onCall(0)
+      .resolves({
+        user_id: userId,
+        token,
+      })
+      .onCall(1)
+      .resolves({
+        user_id: userId,
+        email,
+        password: hashDriver.hashString(password),
+        role,
+      });
 
     await axios
       .delete(`${url}/test`, { headers: { Authorization } })
@@ -94,16 +108,25 @@ describe("DELETE /memos", () => {
   });
 
   it("should get 404 status code when trying to delete a memo with wrong memo_id", async () => {
-    sandbox.stub(JwtDriver.prototype, "validateAccessToken").returns({
-      id: userId,
-      email,
-      password: hashDriver.hashString(password),
-      role,
-    });
-    sandbox.stub(dbDriver, "findOne").onFirstCall().resolves({
-      user_id: userId,
-      token,
-    });
+    const userId = faker.string.uuid();
+
+    sandbox
+      .stub(JwtDriver.prototype, "validateAccessToken")
+      .returns({ id: userId });
+    sandbox
+      .stub(dbDriver, "findOne")
+      .onCall(0)
+      .resolves({
+        user_id: userId,
+        token,
+      })
+      .onCall(1)
+      .resolves({
+        user_id: userId,
+        email,
+        password: hashDriver.hashString(password),
+        role,
+      });
 
     await axios
       .delete(`${url}/${faker.string.uuid()}`, { headers: { Authorization } })

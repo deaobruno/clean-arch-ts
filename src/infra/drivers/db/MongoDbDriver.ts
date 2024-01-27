@@ -13,8 +13,8 @@ import IDbDriver from "./IDbDriver";
 export default class MongoDbDriver implements IDbDriver {
   private static instance: IDbDriver;
   private static client: MongoClient;
-  private static connected: boolean;
   private static dbName: string;
+  static connected: boolean;
 
   private constructor(dbName: string) {
     MongoDbDriver.dbName = dbName;

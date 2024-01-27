@@ -3,34 +3,15 @@ import { faker } from "@faker-js/faker";
 import { expect } from "chai";
 import config from "../../../../src/config";
 import MemoRepository from "../../../../src/adapters/repositories/MemoRepository";
-import IDbDriver from "../../../../src/infra/drivers/db/IDbDriver";
-import IMemoRepository from "../../../../src/domain/memo/IMemoRepository";
 import MemoMapper from "../../../../src/domain/memo/MemoMapper";
 import MongoDbDriver from "../../../../src/infra/drivers/db/MongoDbDriver";
 import NodeCacheDriver from "../../../../src/infra/drivers/cache/NodeCacheDriver";
 import Memo from "../../../../src/domain/memo/Memo";
-import ICacheDriver from "../../../../src/infra/drivers/cache/ICacheDriver";
 import UserRole from "../../../../src/domain/user/UserRole";
 
 const sandbox = sinon.createSandbox();
-let dbDriver: IDbDriver;
-let cacheDriver: ICacheDriver;
-let memoMapper: MemoMapper;
-let memoRepository: IMemoRepository;
 
 describe("/adapters/repositories/MemoRepository", () => {
-  beforeEach(() => {
-    dbDriver = MongoDbDriver.getInstance("test");
-    cacheDriver = sandbox.createStubInstance(NodeCacheDriver);
-    memoMapper = new MemoMapper();
-    memoRepository = new MemoRepository(
-      config.db.memoSource,
-      dbDriver,
-      cacheDriver,
-      memoMapper
-    );
-  });
-
   afterEach(() => sandbox.restore());
 
   it("should save an User entity", async () => {
@@ -48,9 +29,18 @@ describe("/adapters/repositories/MemoRepository", () => {
       start,
       end,
     };
+    const dbDriver = sandbox.createStubInstance(MongoDbDriver);
+    const cacheDriver = sandbox.createStubInstance(NodeCacheDriver);
+    const memoMapper = sandbox.createStubInstance(MemoMapper);
+    const memoRepository = new MemoRepository(
+      config.db.memoSource,
+      dbDriver,
+      cacheDriver,
+      memoMapper
+    );
 
     sandbox.stub(Memo, "create").returns(fakeMemo);
-    sandbox.stub(memoMapper, "entityToDb").returns({
+    memoMapper.entityToDb.returns({
       memo_id: memoId,
       user_id: userId,
       title,
@@ -58,7 +48,7 @@ describe("/adapters/repositories/MemoRepository", () => {
       start,
       end,
     });
-    sandbox.stub(MongoDbDriver.prototype, "create").resolves();
+    dbDriver.create.resolves();
 
     const result = await memoRepository.create(fakeMemo);
 
@@ -92,10 +82,19 @@ describe("/adapters/repositories/MemoRepository", () => {
         end: new Date(new Date().getTime() + 3.6e6 * 2).toISOString(),
       },
     ];
+    const dbDriver = sandbox.createStubInstance(MongoDbDriver);
+    const cacheDriver = sandbox.createStubInstance(NodeCacheDriver);
+    const memoMapper = sandbox.createStubInstance(MemoMapper);
+    const memoRepository = new MemoRepository(
+      config.db.memoSource,
+      dbDriver,
+      cacheDriver,
+      memoMapper
+    );
 
-    sandbox.stub(MongoDbDriver.prototype, "find").resolves(dbMemos);
-    sandbox
-      .stub(memoMapper, "dbToEntity")
+    dbDriver.find.resolves(dbMemos);
+    sandbox;
+    memoMapper.dbToEntity
       .withArgs(dbMemos[0])
       .returns({
         memoId: dbMemos[0].memo_id,
@@ -174,10 +173,19 @@ describe("/adapters/repositories/MemoRepository", () => {
         end: new Date(new Date().getTime() + 3.6e6 * 2).toISOString(),
       },
     ];
+    const dbDriver = sandbox.createStubInstance(MongoDbDriver);
+    const cacheDriver = sandbox.createStubInstance(NodeCacheDriver);
+    const memoMapper = sandbox.createStubInstance(MemoMapper);
+    const memoRepository = new MemoRepository(
+      config.db.memoSource,
+      dbDriver,
+      cacheDriver,
+      memoMapper
+    );
 
-    sandbox.stub(MongoDbDriver.prototype, "find").resolves(dbMemos);
-    sandbox
-      .stub(memoMapper, "dbToEntity")
+    dbDriver.find.resolves(dbMemos);
+    sandbox;
+    memoMapper.dbToEntity
       .withArgs(dbMemos[0])
       .returns({
         memoId: dbMemos[0].memo_id,
@@ -215,15 +223,24 @@ describe("/adapters/repositories/MemoRepository", () => {
 
   it("should return an empty array when no memos are found", async () => {
     const dbMemos: any[] = [];
+    const dbDriver = sandbox.createStubInstance(MongoDbDriver);
+    const cacheDriver = sandbox.createStubInstance(NodeCacheDriver);
+    const memoMapper = sandbox.createStubInstance(MemoMapper);
+    const memoRepository = new MemoRepository(
+      config.db.memoSource,
+      dbDriver,
+      cacheDriver,
+      memoMapper
+    );
 
-    sandbox.stub(MongoDbDriver.prototype, "find").resolves(dbMemos);
+    dbDriver.find.resolves(dbMemos);
 
     const users = await memoRepository.find();
 
     expect(users.length).equal(0);
   });
 
-  it("should return an User from DB when some filter is passed", async () => {
+  it("should return a memo from DB when some filter is passed", async () => {
     const dbMemo = {
       memo_id: faker.string.uuid(),
       user_id: faker.string.uuid(),
@@ -232,9 +249,18 @@ describe("/adapters/repositories/MemoRepository", () => {
       start: new Date(new Date().getTime() + 3.6e6).toISOString(),
       end: new Date(new Date().getTime() + 3.6e6 * 2).toISOString(),
     };
+    const dbDriver = sandbox.createStubInstance(MongoDbDriver);
+    const cacheDriver = sandbox.createStubInstance(NodeCacheDriver);
+    const memoMapper = sandbox.createStubInstance(MemoMapper);
+    const memoRepository = new MemoRepository(
+      config.db.memoSource,
+      dbDriver,
+      cacheDriver,
+      memoMapper
+    );
 
-    sandbox.stub(MongoDbDriver.prototype, "findOne").resolves(dbMemo);
-    sandbox.stub(memoMapper, "dbToEntity").returns({
+    dbDriver.findOne.resolves(dbMemo);
+    memoMapper.dbToEntity.returns({
       memoId: dbMemo.memo_id,
       userId: dbMemo.user_id,
       title: dbMemo.title,
@@ -254,14 +280,24 @@ describe("/adapters/repositories/MemoRepository", () => {
   });
 
   it("should return undefined when no memo is found", async () => {
-    sandbox.stub(MongoDbDriver.prototype, "findOne").resolves();
+    const dbDriver = sandbox.createStubInstance(MongoDbDriver);
+    const cacheDriver = sandbox.createStubInstance(NodeCacheDriver);
+    const memoMapper = sandbox.createStubInstance(MemoMapper);
+    const memoRepository = new MemoRepository(
+      config.db.memoSource,
+      dbDriver,
+      cacheDriver,
+      memoMapper
+    );
+
+    dbDriver.findOne.resolves();
 
     const memo = await memoRepository.findOne({ memo_id: "test" });
 
     expect(memo).equal(undefined);
   });
 
-  it("should return a memo passing memo_id as a filter", async () => {
+  it("should return a memo from db passing memo_id as a filter", async () => {
     const dbMemo = {
       memo_id: faker.string.uuid(),
       user_id: faker.string.uuid(),
@@ -270,8 +306,25 @@ describe("/adapters/repositories/MemoRepository", () => {
       start: new Date(new Date().getTime() + 3.6e6).toISOString(),
       end: new Date(new Date().getTime() + 3.6e6 * 2).toISOString(),
     };
+    const dbDriver = sandbox.createStubInstance(MongoDbDriver);
+    const cacheDriver = sandbox.createStubInstance(NodeCacheDriver);
+    const memoMapper = sandbox.createStubInstance(MemoMapper);
+    const memoRepository = new MemoRepository(
+      config.db.memoSource,
+      dbDriver,
+      cacheDriver,
+      memoMapper
+    );
 
-    sandbox.stub(MongoDbDriver.prototype, "findOne").resolves(dbMemo);
+    dbDriver.findOne.resolves(dbMemo);
+    memoMapper.dbToEntity.returns({
+      memoId: dbMemo.memo_id,
+      userId: dbMemo.user_id,
+      title: dbMemo.title,
+      text: dbMemo.text,
+      start: dbMemo.start,
+      end: dbMemo.end,
+    });
 
     const memo = await memoRepository.findOneById(dbMemo.memo_id);
 
@@ -283,8 +336,49 @@ describe("/adapters/repositories/MemoRepository", () => {
     expect(memo?.end).equal(dbMemo.end);
   });
 
+  it("should return a memo from cache passing memo_id as a filter", async () => {
+    const memoData = {
+      memoId: faker.string.uuid(),
+      userId: faker.string.uuid(),
+      title: "New Memo",
+      text: "Lorem ipsum",
+      start: new Date(new Date().getTime() + 3.6e6).toISOString(),
+      end: new Date(new Date().getTime() + 3.6e6 * 2).toISOString(),
+    };
+    const dbDriver = sandbox.createStubInstance(MongoDbDriver);
+    const cacheDriver = sandbox.createStubInstance(NodeCacheDriver);
+    const memoMapper = sandbox.createStubInstance(MemoMapper);
+    const memoRepository = new MemoRepository(
+      config.db.memoSource,
+      dbDriver,
+      cacheDriver,
+      memoMapper
+    );
+
+    cacheDriver.get.returns(Memo.create(memoData));
+
+    const memo = await memoRepository.findOneById(memoData.memoId);
+
+    expect(memo?.memoId).equal(memoData.memoId);
+    expect(memo?.userId).equal(memoData.userId);
+    expect(memo?.title).equal(memoData.title);
+    expect(memo?.text).equal(memoData.text);
+    expect(memo?.start).equal(memoData.start);
+    expect(memo?.end).equal(memoData.end);
+  });
+
   it("should return undefined when passing an invalid memo_id as a filter", async () => {
-    sandbox.stub(MongoDbDriver.prototype, "findOne").resolves();
+    const dbDriver = sandbox.createStubInstance(MongoDbDriver);
+    const cacheDriver = sandbox.createStubInstance(NodeCacheDriver);
+    const memoMapper = sandbox.createStubInstance(MemoMapper);
+    const memoRepository = new MemoRepository(
+      config.db.memoSource,
+      dbDriver,
+      cacheDriver,
+      memoMapper
+    );
+
+    dbDriver.findOne.resolves();
 
     const memo = await memoRepository.findOneById("");
 
@@ -300,8 +394,25 @@ describe("/adapters/repositories/MemoRepository", () => {
       start: new Date(new Date().getTime() + 3.6e6).toISOString(),
       end: new Date(new Date().getTime() + 3.6e6 * 2).toISOString(),
     };
+    const dbDriver = sandbox.createStubInstance(MongoDbDriver);
+    const cacheDriver = sandbox.createStubInstance(NodeCacheDriver);
+    const memoMapper = sandbox.createStubInstance(MemoMapper);
+    const memoRepository = new MemoRepository(
+      config.db.memoSource,
+      dbDriver,
+      cacheDriver,
+      memoMapper
+    );
 
-    sandbox.stub(MongoDbDriver.prototype, "find").resolves([dbMemo]);
+    dbDriver.find.resolves([dbMemo]);
+    memoMapper.dbToEntity.returns({
+      memoId: dbMemo.memo_id,
+      userId: dbMemo.user_id,
+      title: dbMemo.title,
+      text: dbMemo.text,
+      start: dbMemo.start,
+      end: dbMemo.end,
+    });
 
     const memos = await memoRepository.findByUserId(dbMemo.user_id);
 
@@ -314,7 +425,17 @@ describe("/adapters/repositories/MemoRepository", () => {
   });
 
   it("should return an empty array when passing an invalid user_id as a filter", async () => {
-    sandbox.stub(MongoDbDriver.prototype, "find").resolves([]);
+    const dbDriver = sandbox.createStubInstance(MongoDbDriver);
+    const cacheDriver = sandbox.createStubInstance(NodeCacheDriver);
+    const memoMapper = sandbox.createStubInstance(MemoMapper);
+    const memoRepository = new MemoRepository(
+      config.db.memoSource,
+      dbDriver,
+      cacheDriver,
+      memoMapper
+    );
+
+    dbDriver.find.resolves([]);
 
     const memos = await memoRepository.findByUserId("");
 
@@ -336,12 +457,19 @@ describe("/adapters/repositories/MemoRepository", () => {
       start,
       end,
     };
+    const dbDriver = sandbox.createStubInstance(MongoDbDriver);
+    const cacheDriver = sandbox.createStubInstance(NodeCacheDriver);
+    const memoMapper = sandbox.createStubInstance(MemoMapper);
+    const memoRepository = new MemoRepository(
+      config.db.memoSource,
+      dbDriver,
+      cacheDriver,
+      memoMapper
+    );
 
-    sandbox.stub(MongoDbDriver.prototype, "update").resolves();
+    dbDriver.update.resolves();
 
-    const result = await memoRepository.update(fakeMemo, {
-      title: "New Title",
-    });
+    const result = await memoRepository.update(fakeMemo);
 
     expect(result).equal(undefined);
   });
@@ -361,8 +489,17 @@ describe("/adapters/repositories/MemoRepository", () => {
       start,
       end,
     };
+    const dbDriver = sandbox.createStubInstance(MongoDbDriver);
+    const cacheDriver = sandbox.createStubInstance(NodeCacheDriver);
+    const memoMapper = sandbox.createStubInstance(MemoMapper);
+    const memoRepository = new MemoRepository(
+      config.db.memoSource,
+      dbDriver,
+      cacheDriver,
+      memoMapper
+    );
 
-    sandbox.stub(MongoDbDriver.prototype, "delete").resolves();
+    dbDriver.delete.resolves();
 
     const result = await memoRepository.deleteOne(fakeMemo);
 
@@ -384,8 +521,17 @@ describe("/adapters/repositories/MemoRepository", () => {
       memos: [],
       addMemo: () => {},
     };
+    const dbDriver = sandbox.createStubInstance(MongoDbDriver);
+    const cacheDriver = sandbox.createStubInstance(NodeCacheDriver);
+    const memoMapper = sandbox.createStubInstance(MemoMapper);
+    const memoRepository = new MemoRepository(
+      config.db.memoSource,
+      dbDriver,
+      cacheDriver,
+      memoMapper
+    );
 
-    sandbox.stub(MongoDbDriver.prototype, "deleteMany").resolves();
+    dbDriver.deleteMany.resolves();
 
     const result = await memoRepository.deleteAllByUser(fakeUser);
 

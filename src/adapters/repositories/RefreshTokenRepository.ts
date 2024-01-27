@@ -3,6 +3,7 @@ import IRefreshTokenRepository from "../../domain/refreshToken/IRefreshTokenRepo
 import RefreshToken from "../../domain/refreshToken/RefreshToken";
 import RefreshTokenMapper from "../../domain/refreshToken/RefreshTokenMapper";
 import ICacheDriver from "../../infra/drivers/cache/ICacheDriver";
+import User from "../../domain/user/User";
 
 export default class RefreshTokenRepository implements IRefreshTokenRepository {
   constructor(
@@ -49,7 +50,16 @@ export default class RefreshTokenRepository implements IRefreshTokenRepository {
     }
   }
 
-  async deleteAllByUserId(user_id: string): Promise<void> {
+  async deleteOne(refreshToken: RefreshToken): Promise<void> {
+    const { userId, token } = refreshToken;
+
+    await this._dbDriver.delete(this._source, { token });
+
+    this._cacheDriver.del(`token-${userId}`);
+  }
+
+  async deleteAllByUser(user: User): Promise<void> {
+    const { userId: user_id } = user;
     await this._dbDriver.deleteMany(this._source, { user_id });
 
     this._cacheDriver.del(`token-${user_id}`);

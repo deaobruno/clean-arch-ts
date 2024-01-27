@@ -43,7 +43,6 @@ export default class AuthenticateUser implements IUseCase<Input, Output> {
       token: refreshToken,
     });
 
-    await this._refreshTokenRepository.deleteAllByUserId(userId);
     await this._refreshTokenRepository.create(refreshTokenEntity);
 
     return {

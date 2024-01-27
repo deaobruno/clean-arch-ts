@@ -12,7 +12,7 @@ import UserRepository from "../../../../../src/adapters/repositories/UserReposit
 const sandbox = sinon.createSandbox();
 const email = faker.internet.email();
 const password = faker.internet.password();
-const fakeUser = User.create({
+const fakeUser = <User>User.create({
   userId: faker.string.uuid(),
   email,
   password,
@@ -58,8 +58,6 @@ describe("/application/useCases/auth/RegisterCustomer.ts", () => {
 
     const error = <BaseError>await registerCustomer.exec(userParams);
 
-    expect(error instanceof ConflictError).equal(true);
-    expect(error.message).equal("Email already in use");
-    expect(error.statusCode).equal(409);
+    expect(error).deep.equal(new ConflictError("Email already in use"));
   });
 });

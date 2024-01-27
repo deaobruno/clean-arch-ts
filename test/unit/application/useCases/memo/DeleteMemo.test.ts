@@ -45,10 +45,23 @@ describe("/application/useCases/memo/DeleteMemo.ts", () => {
     expect(result).equal(undefined);
   });
 
-  it("should fail when trying to delete a memo passing wrong ID", async () => {
+  it("should fail when trying to delete a memo passing empty ID", async () => {
     const memoRepository = sandbox.createStubInstance(MemoRepository);
     const deleteMemo = new DeleteMemo(memoRepository);
     const result = await deleteMemo.exec({ user, memo_id: "" });
+
+    expect(result).deep.equal(new NotFoundError("Memo not found"));
+  });
+
+  it("should fail when trying to delete a memo passing wrong ID", async () => {
+    const memoRepository = sandbox.createStubInstance(MemoRepository);
+    const deleteMemo = new DeleteMemo(memoRepository);
+
+    memoRepository.findOne.resolves(
+      Memo.create({ ...fakeMemo, userId: faker.string.uuid() })
+    );
+
+    const result = await deleteMemo.exec({ user, memo_id: memoId });
 
     expect(result).deep.equal(new NotFoundError("Memo not found"));
   });

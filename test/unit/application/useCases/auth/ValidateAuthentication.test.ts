@@ -10,18 +10,22 @@ import RefreshTokenRepository from "../../../../../src/adapters/repositories/Ref
 import UserRepository from "../../../../../src/adapters/repositories/UserRepository";
 import JwtDriver from "../../../../../src/infra/drivers/token/JwtDriver";
 import NotFoundError from "../../../../../src/application/errors/NotFoundError";
+import ForbiddenError from "../../../../../src/application/errors/ForbiddenError";
 
 const sandbox = sinon.createSandbox();
 const userId = faker.string.uuid();
 const email = faker.internet.email();
 const password = faker.internet.password();
+const role = UserRole.CUSTOMER;
 const userData = {
+  id: userId,
+};
+const fakeUser = User.create({
   userId,
   email,
   password,
-  role: UserRole.CUSTOMER,
-};
-const fakeUser = User.create(userData);
+  role,
+});
 
 describe("/application/useCases/auth/ValidateAuthentication.ts", () => {
   afterEach(() => sandbox.restore());
@@ -46,14 +50,18 @@ describe("/application/useCases/auth/ValidateAuthentication.ts", () => {
     userRepository.findOneById.resolves(fakeUser);
 
     const authorization = "Bearer token";
-    const { user } = <any>await validateAuthentication.exec({ authorization });
+    const { user, refreshToken } = <any>(
+      await validateAuthentication.exec({ authorization })
+    );
 
-    expect(user.userId).equal(userData.userId);
-    expect(user.email).equal(userData.email);
-    expect(user.password).equal(userData.password);
-    expect(user.role).equal(userData.role);
+    expect(user.userId).equal(userId);
+    expect(user.email).equal(email);
+    expect(user.password).equal(password);
+    expect(user.role).equal(role);
     expect(user.isCustomer).equal(true);
     expect(user.isRoot).equal(false);
+    expect(refreshToken.userId).equal(userId);
+    expect(refreshToken.token).equal("token");
   });
 
   it("should return an UnauthorizedError when authentication data is empty", async () => {
@@ -205,8 +213,39 @@ describe("/application/useCases/auth/ValidateAuthentication.ts", () => {
     userRepository.findOneById.resolves();
 
     const authorization = "Bearer token";
-    const error = <any>await validateAuthentication.exec({ authorization });
+    const error = <BaseError>(
+      await validateAuthentication.exec({ authorization })
+    );
 
     expect(error).deep.equal(new NotFoundError("User not found"));
+  });
+
+  it("should return a ForbiddenError when request token does not belong to user", async () => {
+    const tokenDriver = sandbox.createStubInstance(JwtDriver);
+    const refreshTokenRepository = sandbox.createStubInstance(
+      RefreshTokenRepository
+    );
+    const userRepository = sandbox.createStubInstance(UserRepository);
+    const validateAuthentication = new ValidateAuthentication(
+      tokenDriver,
+      refreshTokenRepository,
+      userRepository
+    );
+
+    tokenDriver.validateAccessToken.returns(userData);
+    refreshTokenRepository.findOneByUserId.resolves({
+      userId: faker.string.uuid(),
+      token: "token",
+    });
+    userRepository.findOneById.resolves(fakeUser);
+
+    const authorization = "Bearer token";
+    const error = <BaseError>(
+      await validateAuthentication.exec({ authorization })
+    );
+
+    expect(error).deep.equal(
+      new ForbiddenError("Token does not belong to user")
+    );
   });
 });

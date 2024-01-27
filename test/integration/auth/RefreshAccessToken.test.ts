@@ -6,20 +6,17 @@ import { expect } from "chai";
 import JwtDriver from "../../../src/infra/drivers/token/JwtDriver";
 import config from "../../../src/config";
 import UserRole from "../../../src/domain/user/UserRole";
-import CryptoDriver from "../../../src/infra/drivers/hash/CryptoDriver";
 import MongoDbDriver from "../../../src/infra/drivers/db/MongoDbDriver";
 import server from "../../../src/infra/http/v1/server";
 
 const {
   db: {
-    mongo: { dbUrl, dbName },
+    mongo: { dbUrl },
   },
 } = config;
 const sandbox = sinon.createSandbox();
-const dbDriver = MongoDbDriver.getInstance(dbName);
-const hashDriver = new CryptoDriver();
+const dbDriver = MongoDbDriver.getInstance("test");
 const url = "http://localhost:8080/api/v1/auth/refresh-token";
-const userId = faker.string.uuid();
 const email = faker.internet.email();
 const password = faker.internet.password();
 const role = UserRole.CUSTOMER;
@@ -42,24 +39,30 @@ describe("POST /auth/refresh-token", () => {
   });
 
   it("should get 200 status code when trying to refresh an access token", async () => {
-    sandbox.stub(JwtDriver.prototype, "validateAccessToken").returns({
-      id: userId,
-      email,
-      password: hashDriver.hashString(password),
-      role,
-    });
-    sandbox.stub(MongoDbDriver.prototype, "findOne").resolves({
-      user_id: userId,
-      token,
-    });
-    sandbox.stub(JwtDriver.prototype, "validateRefreshToken").returns({
-      id: userId,
-      email,
-      password: hashDriver.hashString(password),
-      role,
-    });
-    sandbox.stub(MongoDbDriver.prototype, "delete").resolves();
-    sandbox.stub(MongoDbDriver.prototype, "create").resolves();
+    const user_id = faker.string.uuid();
+
+    sandbox
+      .stub(JwtDriver.prototype, "validateAccessToken")
+      .returns({ id: user_id });
+    sandbox
+      .stub(dbDriver, "findOne")
+      .onCall(0)
+      .resolves({
+        user_id,
+        token,
+      })
+      .onCall(1)
+      .resolves({
+        user_id,
+        email,
+        password,
+        role,
+      });
+    sandbox
+      .stub(JwtDriver.prototype, "validateRefreshToken")
+      .returns({ id: user_id });
+    sandbox.stub(dbDriver, "delete").resolves();
+    sandbox.stub(dbDriver, "create").resolves();
 
     const {
       status,
@@ -75,13 +78,12 @@ describe("POST /auth/refresh-token", () => {
   });
 
   it("should get 401 status code when trying to refresh an access token without a previous refresh token", async () => {
-    sandbox.stub(JwtDriver.prototype, "validateAccessToken").returns({
-      id: userId,
-      email,
-      password: hashDriver.hashString(password),
-      role,
-    });
-    sandbox.stub(MongoDbDriver.prototype, "findOne").resolves();
+    const user_id = faker.string.uuid();
+
+    sandbox
+      .stub(JwtDriver.prototype, "validateAccessToken")
+      .returns({ id: user_id });
+    sandbox.stub(dbDriver, "findOne").resolves();
 
     await axios
       .post(url, { refresh_token: token }, { headers: { Authorization } })
@@ -91,44 +93,25 @@ describe("POST /auth/refresh-token", () => {
       });
   });
 
-  it("should get 403 status code when previous RefreshToken is not found", async () => {
-    sandbox.stub(JwtDriver.prototype, "validateAccessToken").returns({
-      id: userId,
-      email,
-      password: hashDriver.hashString(password),
-      role,
-    });
-    sandbox.stub(MongoDbDriver.prototype, "findOne").onFirstCall().resolves({
-      user_id: userId,
-      token,
-    });
-
-    await axios
-      .post(url, { refresh_token: "token" }, { headers: { Authorization } })
-      .catch(({ response: { status, data } }) => {
-        expect(status).equal(403);
-        expect(data.error).equal("Refresh token not found");
-      });
-  });
-
   it("should get 403 status code when authenticated user is different from token user", async () => {
-    sandbox.stub(JwtDriver.prototype, "validateAccessToken").returns({
-      id: userId,
-      email,
-      password: hashDriver.hashString(password),
-      role,
-    });
+    const user_id = faker.string.uuid();
+
     sandbox
-      .stub(MongoDbDriver.prototype, "findOne")
-      .onFirstCall()
+      .stub(JwtDriver.prototype, "validateAccessToken")
+      .returns({ id: faker.string.uuid() });
+    sandbox
+      .stub(dbDriver, "findOne")
+      .onCall(0)
       .resolves({
-        user_id: userId,
+        user_id,
         token,
       })
-      .onSecondCall()
+      .onCall(1)
       .resolves({
-        user_id: faker.string.uuid(),
-        token,
+        user_id,
+        email,
+        password,
+        role,
       });
 
     await axios
@@ -140,9 +123,11 @@ describe("POST /auth/refresh-token", () => {
   });
 
   it("should get 403 status code when refresh token is expired", async () => {
+    const user_id = faker.string.uuid();
+
     const expiredToken = jwt.sign(
       {
-        id: userId,
+        id: user_id,
         email,
         password,
         role: UserRole.CUSTOMER,
@@ -151,23 +136,22 @@ describe("POST /auth/refresh-token", () => {
       { expiresIn: -10 }
     );
 
-    sandbox.stub(JwtDriver.prototype, "validateAccessToken").returns({
-      id: userId,
-      email,
-      password: hashDriver.hashString(password),
-      role,
-    });
     sandbox
-      .stub(MongoDbDriver.prototype, "findOne")
-      .onFirstCall()
+      .stub(JwtDriver.prototype, "validateAccessToken")
+      .returns({ id: user_id });
+    sandbox
+      .stub(dbDriver, "findOne")
+      .onCall(0)
       .resolves({
-        user_id: userId,
-        token,
-      })
-      .onSecondCall()
-      .resolves({
-        user_id: userId,
+        user_id,
         token: expiredToken,
+      })
+      .onCall(1)
+      .resolves({
+        user_id,
+        email,
+        password,
+        role,
       });
 
     await axios
@@ -183,9 +167,11 @@ describe("POST /auth/refresh-token", () => {
   });
 
   it("should get 403 status code when refresh token is invalid", async () => {
+    const user_id = faker.string.uuid();
+
     const invalidToken = jwt.sign(
       {
-        id: userId,
+        id: user_id,
         email,
         password,
         role: UserRole.CUSTOMER,
@@ -193,23 +179,22 @@ describe("POST /auth/refresh-token", () => {
       "invalid-key"
     );
 
-    sandbox.stub(JwtDriver.prototype, "validateAccessToken").returns({
-      id: userId,
-      email,
-      password: hashDriver.hashString(password),
-      role,
-    });
     sandbox
-      .stub(MongoDbDriver.prototype, "findOne")
-      .onFirstCall()
+      .stub(JwtDriver.prototype, "validateAccessToken")
+      .returns({ id: user_id });
+    sandbox
+      .stub(dbDriver, "findOne")
+      .onCall(0)
       .resolves({
-        user_id: userId,
-        token,
-      })
-      .onSecondCall()
-      .resolves({
-        user_id: userId,
+        user_id,
         token: invalidToken,
+      })
+      .onCall(1)
+      .resolves({
+        user_id,
+        email,
+        password,
+        role,
       });
 
     await axios

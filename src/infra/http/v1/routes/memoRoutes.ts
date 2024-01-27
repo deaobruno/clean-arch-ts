@@ -1,6 +1,6 @@
 import IServer from "../../../drivers/server/IServerDriver";
 
-export default (dependencies: any, server: IServer, prefix?: string): any[] => {
+export default (dependencies: any, server: IServer, prefix?: string): void => {
   const basePath = `${prefix}/memos`;
   const {
     createMemoController,
@@ -10,10 +10,8 @@ export default (dependencies: any, server: IServer, prefix?: string): any[] => {
   } = dependencies;
   const { get, post, put, delete: del } = server;
 
-  return [
-    post(`${basePath}`, createMemoController),
-    get(`${basePath}/:memo_id`, findMemoByIdController),
-    put(`${basePath}/:memo_id`, updateMemoController),
-    del(`${basePath}/:memo_id`, deleteMemoController),
-  ];
+  post(`${basePath}`, createMemoController);
+  get(`${basePath}/:memo_id`, findMemoByIdController);
+  put(`${basePath}/:memo_id`, updateMemoController);
+  del(`${basePath}/:memo_id`, deleteMemoController);
 };

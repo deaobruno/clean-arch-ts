@@ -14,11 +14,12 @@ const sandbox = sinon.createSandbox();
 const userId = faker.string.uuid();
 const email = faker.internet.email();
 const password = faker.internet.password();
+const role = UserRole.CUSTOMER;
 const fakeUser = User.create({
   userId,
   email,
   password,
-  role: UserRole.CUSTOMER,
+  role,
 });
 
 describe("/application/useCases/user/UpdateUser.ts", () => {
@@ -33,7 +34,7 @@ describe("/application/useCases/user/UpdateUser.ts", () => {
 
     userRepository.findOneById.resolves(fakeUser);
     userRepository.update.resolves();
-    refreshTokenRepository.deleteAllByUserId.resolves();
+    refreshTokenRepository.deleteAllByUser.resolves();
 
     const newEmail = faker.internet.email();
 
@@ -55,19 +56,44 @@ describe("/application/useCases/user/UpdateUser.ts", () => {
     expect(user.isRoot).equal(false);
   });
 
-  it("should fail when trying to update an user passing wrong ID", async () => {
+  it("should return same user when no attributes are updated", async () => {
     const userRepository = sandbox.createStubInstance(UserRepository);
     const refreshTokenRepository = sandbox.createStubInstance(
       RefreshTokenRepository
     );
     const updateUser = new UpdateUser(userRepository, refreshTokenRepository);
 
+    userRepository.findOneById.resolves(fakeUser);
+    userRepository.update.resolves();
+    refreshTokenRepository.deleteAllByUser.resolves();
+
+    userRepository.update.resolves();
+
+    const updateData = {
+      user_id: userId,
+    };
+    const user = <User>await updateUser.exec({ user: fakeUser, ...updateData });
+
+    expect(user.userId).equal(fakeUser.userId);
+    expect(user.email).equal(fakeUser.email);
+    expect(user.password).equal(fakeUser.password);
+    expect(user.role).equal(fakeUser.role);
+    expect(user.isCustomer).equal(true);
+    expect(user.isRoot).equal(false);
+  });
+
+  it("should fail when trying to update an user passing wrong ID", async () => {
+    const userRepository = sandbox.createStubInstance(UserRepository);
+    const refreshTokenRepository = sandbox.createStubInstance(
+      RefreshTokenRepository
+    );
+    const updateUser = new UpdateUser(userRepository, refreshTokenRepository);
     const error = <BaseError>await updateUser.exec({
       user: User.create({
         userId: faker.string.uuid(),
         email,
         password,
-        role: UserRole.CUSTOMER,
+        role,
       }),
       user_id: "test",
     });
@@ -81,15 +107,62 @@ describe("/application/useCases/user/UpdateUser.ts", () => {
       RefreshTokenRepository
     );
     const updateUser = new UpdateUser(userRepository, refreshTokenRepository);
+    const error = <BaseError>await updateUser.exec({
+      user: User.create({
+        userId: faker.string.uuid(),
+        email,
+        password,
+        role,
+      }),
+      user_id: userId,
+    });
+
+    expect(error).deep.equal(new NotFoundError("User not found"));
+  });
+
+  it("should fail when user is not found", async () => {
+    const userRepository = sandbox.createStubInstance(UserRepository);
+    const refreshTokenRepository = sandbox.createStubInstance(
+      RefreshTokenRepository
+    );
+    const updateUser = new UpdateUser(userRepository, refreshTokenRepository);
+    const error = <BaseError>await updateUser.exec({
+      user: User.create({
+        userId,
+        email,
+        password,
+        role,
+      }),
+      user_id: userId,
+    });
+
+    expect(error).deep.equal(new NotFoundError("User not found"));
+  });
+
+  it("should fail when a customer is trying to update a root user", async () => {
+    const userRepository = sandbox.createStubInstance(UserRepository);
+    const refreshTokenRepository = sandbox.createStubInstance(
+      RefreshTokenRepository
+    );
+    const updateUser = new UpdateUser(userRepository, refreshTokenRepository);
+
+    userRepository.findOneById.resolves(
+      User.create({
+        userId: faker.string.uuid(),
+        email,
+        password,
+        role: UserRole.ROOT,
+      })
+    );
 
     const error = <BaseError>await updateUser.exec({
       user: User.create({
         userId: faker.string.uuid(),
         email,
         password,
-        role: UserRole.CUSTOMER,
+        role,
       }),
-      user_id: userId,
+      user_id: "test",
     });
 
     expect(error).deep.equal(new NotFoundError("User not found"));
@@ -101,16 +174,18 @@ describe("/application/useCases/user/UpdateUser.ts", () => {
       RefreshTokenRepository
     );
     const newEmail = faker.internet.email();
-    const newUser = fakeUser;
-
-    newUser.email = newEmail;
-
+    const newUser = User.create({
+      userId: faker.string.uuid(),
+      email: newEmail,
+      password,
+      role,
+    });
     const updateUser = new UpdateUser(userRepository, refreshTokenRepository);
 
     userRepository.findOneById.resolves(fakeUser);
     userRepository.findOneByEmail.resolves(newUser);
     userRepository.update.resolves();
-    refreshTokenRepository.deleteAllByUserId.resolves();
+    refreshTokenRepository.deleteAllByUser.resolves();
 
     fakeUser.email = newEmail;
 
