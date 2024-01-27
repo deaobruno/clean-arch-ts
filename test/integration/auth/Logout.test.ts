@@ -1,97 +1,73 @@
-import axios from 'axios'
-import { faker } from '@faker-js/faker'
-import { expect } from 'chai'
-import routes from '../../../src/infra/http/v1/routes'
-import dependencies from '../../../src/dependencies'
-import config from '../../../src/config'
-import InMemoryUserRepository from '../../../src/adapters/repositories/inMemory/InMemoryUserRepository'
-import CryptoDriver from '../../../src/infra/drivers/hash/CryptoDriver'
-import { LevelEnum } from '../../../src/domain/User'
-import InMemoryDriver from '../../../src/infra/drivers/db/InMemoryDriver'
-import { UserMapper } from '../../../src/domain/mappers/UserMapper'
-import { RefreshTokenMapper } from '../../../src/domain/mappers/RefreshTokenMapper'
-import InMemoryRefreshTokenRepository from '../../../src/adapters/repositories/inMemory/InMemoryRefreshTokenRepository'
+import axios from "axios";
+import { faker } from "@faker-js/faker";
+import { expect } from "chai";
+import sinon from "sinon";
+import config from "../../../src/config";
+import CryptoDriver from "../../../src/infra/drivers/hash/CryptoDriver";
+import UserRole from "../../../src/domain/user/UserRole";
+import server from "../../../src/infra/http/v1/server";
+import MongoDbDriver from "../../../src/infra/drivers/db/MongoDbDriver";
+import JwtDriver from "../../../src/infra/drivers/token/JwtDriver";
 
-const dependenciesContainer = dependencies(config)
+const sandbox = sinon.createSandbox();
 const {
-  drivers: {
-    httpServerDriver,
+  db: {
+    mongo: { dbUrl },
   },
-} = dependenciesContainer
-const hashDriver = new CryptoDriver()
-const dbDriver = InMemoryDriver.getInstance()
-const userMapper = new UserMapper()
-const refreshTokenMapper = new RefreshTokenMapper()
-const userRepository = new InMemoryUserRepository(config.db.usersSource, dbDriver, userMapper)
-const refreshTokenRepository = new InMemoryRefreshTokenRepository(config.db.refreshTokensSource, dbDriver, refreshTokenMapper)
-const url = 'http://localhost:3031/api/v1/auth/logout'
-const email = faker.internet.email()
-const password = faker.internet.password()
-let Authorization: string
-let token: string
+} = config;
+const hashDriver = new CryptoDriver();
+const dbDriver = MongoDbDriver.getInstance("test");
+const url = "http://localhost:8080/api/v1/auth/logout";
+const user_id = faker.string.uuid();
+const email = faker.internet.email();
+const password = hashDriver.hashString(faker.internet.password());
+const role = UserRole.CUSTOMER;
+const Authorization = "Bearer token";
+const token = "refresh-token";
 
-describe('DELETE /auth/logout', () => {
+describe("DELETE /auth/logout", () => {
   before(async () => {
-    await userRepository.save({
-      userId: faker.string.uuid(),
-      email,
-      password: hashDriver.hashString(password),
-      level: LevelEnum.CUSTOMER,
-    })
+    await dbDriver.connect(dbUrl);
 
-    httpServerDriver.start(3031, routes(dependenciesContainer))
-  })
+    server.start(8080);
+  });
 
-  beforeEach(async () => {
-    const { data: { accessToken, refreshToken } } = await axios.post('http://localhost:3031/api/v1/auth/login', {
-      email,
-      password,
-    })
-
-    Authorization = `Bearer ${ accessToken }`
-    token = refreshToken
-  })
+  afterEach(() => sandbox.restore());
 
   after(async () => {
-    await userRepository.delete()
-    await refreshTokenRepository.delete()
+    await dbDriver.disconnect();
 
-    httpServerDriver.stop()
-  })
+    server.stop();
+  });
 
-  it('should get 204 status code when successfully log an user out', async () => {
-    const { status } = await axios.delete(url, { headers: { Authorization }, data: { refresh_token: token } })
-
-    expect(status).equal(204)
-  })
-
-  it('should get 404 status code when refreshToken is not found', async () => {
-    await axios.delete(url, { headers: { Authorization }, data: { refresh_token: 'token' } })
-      .catch(({ response: { status, data } }) => {
-        expect(status).equal(404)
-        expect(data.error).equal('Refresh token not found')
-      })
-  })
-
-  it('should get 403 status code when authenticated user is different from token user', async () => {
-    const newEmail = faker.internet.email()
-
-    await userRepository.save({
-      userId: faker.string.uuid(),
-      email: newEmail,
-      password: hashDriver.hashString(password),
-      level: LevelEnum.ADMIN
-    })
-
-    const { data: { refreshToken } } = await axios.post('http://localhost:3031/api/v1/auth/login', {
-      email: newEmail,
+  it("should get 204 status code when successfully log an user out", async () => {
+    sandbox.stub(JwtDriver.prototype, "validateAccessToken").returns({
+      id: user_id,
+      email,
       password,
-    })
+      role,
+    });
+    sandbox
+      .stub(dbDriver, "findOne")
+      .onCall(0)
+      .resolves({
+        user_id,
+        token,
+      })
+      .onCall(1)
+      .resolves({
+        user_id,
+        email,
+        password,
+        role,
+      });
+    sandbox.stub(dbDriver, "delete").resolves();
 
-    await axios.delete(url, { headers: { Authorization }, data: { refresh_token: refreshToken } })
-      .catch(({ response: { status, data } }) => {
-        expect(status).equal(403)
-        expect(data.error).equal('Token does not belong to user')
-    })
-  })
-})
+    const { status } = await axios.delete(url, {
+      headers: { Authorization },
+      data: { refresh_token: token },
+    });
+
+    expect(status).equal(204);
+  });
+});

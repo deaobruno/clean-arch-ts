@@ -1,0 +1,38 @@
+import { faker } from "@faker-js/faker";
+import { expect } from "chai";
+import DeleteMemoSchema from "../../../../../src/infra/schemas/memo/DeleteMemoSchema";
+
+const { validate } = DeleteMemoSchema;
+
+describe("/infra/schemas/memo/DeleteMemoSchema.ts", () => {
+  it("should execute without errors", () => {
+    const validation = validate({ memo_id: faker.string.uuid() });
+
+    expect(validation).equal(undefined);
+  });
+
+  it("should fail when memo_id is empty", () => {
+    const validation = <Error>validate({
+      memo_id: "",
+    });
+
+    expect(validation.message).equal('Invalid "memo_id" format');
+  });
+
+  it("should fail when memo_id is invalid", () => {
+    const validation = <Error>validate({
+      memo_id: "test",
+    });
+
+    expect(validation.message).equal('Invalid "memo_id" format');
+  });
+
+  it("should fail when passing invalid param", () => {
+    const validation = <Error>validate({
+      memo_id: faker.string.uuid(),
+      test: "test",
+    });
+
+    expect(validation.message).equal('Invalid param(s): "test"');
+  });
+});

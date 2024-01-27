@@ -1,57 +1,67 @@
-import sinon from 'sinon'
-import { faker } from '@faker-js/faker'
-import { expect } from 'chai'
-import DeleteUser from '../../../../../src/application/useCases/user/DeleteUser'
-import IUserRepository from '../../../../../src/domain/repositories/IUserRepository'
-import NotFoundError from '../../../../../src/application/errors/NotFoundError'
-import BaseError from '../../../../../src/application/errors/BaseError'
-import IRefreshTokenRepository from '../../../../../src/domain/repositories/IRefreshTokenRepository'
-import UserRepositoryMock from '../../../../mocks/repositories/inMemory/InMemoryUserRepositoryMock'
-import RefreshTokenRepositoryMock from '../../../../mocks/repositories/inMemory/InMemoryRefreshTokenRepositoryMock'
-import { LevelEnum } from '../../../../../src/domain/User'
+import sinon from "sinon";
+import { faker } from "@faker-js/faker";
+import { expect } from "chai";
+import DeleteUser from "../../../../../src/application/useCases/user/DeleteUser";
+import NotFoundError from "../../../../../src/application/errors/NotFoundError";
+import BaseError from "../../../../../src/application/errors/BaseError";
+import UserRepository from "../../../../../src/adapters/repositories/UserRepository";
+import RefreshTokenRepository from "../../../../../src/adapters/repositories/RefreshTokenRepository";
+import UserRole from "../../../../../src/domain/user/UserRole";
+import User from "../../../../../src/domain/user/User";
+import MemoRepository from "../../../../../src/adapters/repositories/MemoRepository";
 
-const sandbox = sinon.createSandbox()
-const userRepository: IUserRepository = UserRepositoryMock
-const refreshTokenRepository: IRefreshTokenRepository = RefreshTokenRepositoryMock
-const deleteUser: DeleteUser = new DeleteUser(userRepository, refreshTokenRepository)
-const userId = faker.string.uuid()
-const email = faker.internet.email()
-const password = faker.internet.password()
-const fakeUser = {
+const sandbox = sinon.createSandbox();
+const userId = faker.string.uuid();
+const email = faker.internet.email();
+const password = faker.internet.password();
+const fakeUser = User.create({
   userId: faker.string.uuid(),
   email,
   password,
-  level: LevelEnum.CUSTOMER,
-  isRoot: false,
-  isAdmin: false,
-  isCustomer: true,
-}
-let notFoundError: NotFoundError
+  role: UserRole.CUSTOMER,
+});
 
-describe('/application/useCases/user/DeleteUser.ts', () => {
-  beforeEach(() => {
-    notFoundError = sandbox.stub(NotFoundError.prototype)
-    notFoundError.name = 'NotFoundError'
-    notFoundError.statusCode = 404
-    notFoundError.message = 'User not found'
-  })
+describe("/application/useCases/user/DeleteUser.ts", () => {
+  afterEach(() => sandbox.restore());
 
-  afterEach(() => sandbox.restore())
+  it("should delete an existing user", async () => {
+    const userRepository = sandbox.createStubInstance(UserRepository);
+    const refreshTokenRepository = sandbox.createStubInstance(
+      RefreshTokenRepository
+    );
+    const memoRepository = sandbox.createStubInstance(MemoRepository);
+    const deleteUser = new DeleteUser(
+      userRepository,
+      refreshTokenRepository,
+      memoRepository
+    );
 
-  it('should delete an existing user',async () => {
-    sandbox.stub(userRepository, 'findOne')
-      .resolves(fakeUser)
+    userRepository.findOneById.resolves(fakeUser);
+    userRepository.deleteOne.resolves();
+    refreshTokenRepository.deleteAllByUser.resolves();
+    memoRepository.deleteAllByUser.resolves();
 
-    const result = await deleteUser.exec({ user_id: userId })
+    const result = await deleteUser.exec({ user_id: userId });
 
-    expect(result).equal(undefined)
-  })
+    expect(result).equal(undefined);
+  });
 
-  it('should fail when trying to update an user password passing wrong ID', async () => {
-    const error = <BaseError>await deleteUser.exec({ user_id: '' })
+  it("should fail when trying to delete an user passing wrong ID", async () => {
+    const userRepository = sandbox.createStubInstance(UserRepository);
+    const refreshTokenRepository = sandbox.createStubInstance(
+      RefreshTokenRepository
+    );
+    const memoRepository = sandbox.createStubInstance(MemoRepository);
+    const deleteUser = new DeleteUser(
+      userRepository,
+      refreshTokenRepository,
+      memoRepository
+    );
 
-    expect(error instanceof NotFoundError).equal(true)
-    expect(error.message).equal('User not found')
-    expect(error.statusCode).equal(404)
-  })
-})
+    const error = <BaseError>await deleteUser.exec({ user_id: "" });
+
+    expect(error instanceof NotFoundError).equal(true);
+    expect(error.message).equal("User not found");
+    expect(error.statusCode).equal(404);
+  });
+});

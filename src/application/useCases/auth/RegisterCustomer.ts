@@ -1,39 +1,43 @@
-import { LevelEnum, User } from '../../../domain/User'
-import IUserRepository from '../../../domain/repositories/IUserRepository'
-import CryptoDriver from '../../../infra/drivers/hash/CryptoDriver'
-import BaseError from '../../errors/BaseError'
-import IUseCase from '../IUseCase'
-import ConflictError from '../../errors/ConflictError'
+import User from "../../../domain/user/User";
+import UserRole from "../../../domain/user/UserRole";
+import IUserRepository from "../../../domain/user/IUserRepository";
+import CryptoDriver from "../../../infra/drivers/hash/CryptoDriver";
+import BaseError from "../../errors/BaseError";
+import IUseCase from "../IUseCase";
+import ConflictError from "../../errors/ConflictError";
+import InternalServerError from "../../errors/InternalServerError";
 
 type RegisterCustomerInput = {
-  email: string
-  password: string
-}
+  email: string;
+  password: string;
+};
 
-type Output = User | BaseError
+type Output = User | BaseError;
 
-export default class RegisterCustomer implements IUseCase<RegisterCustomerInput, Output> {
+export default class RegisterCustomer
+  implements IUseCase<RegisterCustomerInput, Output>
+{
   constructor(
     private _userRepository: IUserRepository,
-    private _cryptoDriver: CryptoDriver,
+    private _cryptoDriver: CryptoDriver
   ) {}
 
   async exec(input: RegisterCustomerInput): Promise<Output> {
-    const { email, password } = input
-    const userByEmail = await this._userRepository.findOneByEmail(email)
+    const { email, password } = input;
+    const userByEmail = await this._userRepository.findOneByEmail(email);
 
-    if (userByEmail && userByEmail.email === email)
-      return new ConflictError('Email already in use')
+    if (userByEmail instanceof User)
+      return new ConflictError("Email already in use");
 
     const user = User.create({
       userId: this._cryptoDriver.generateID(),
       email,
       password: this._cryptoDriver.hashString(password),
-      level: LevelEnum.CUSTOMER,
-    })
+      role: UserRole.CUSTOMER,
+    });
 
-    await this._userRepository.save(user)
+    await this._userRepository.create(user);
 
-    return user
+    return user;
   }
 }

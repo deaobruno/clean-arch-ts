@@ -1,49 +1,57 @@
-import cluster from 'node:cluster'
-import process from 'node:process'
-import { availableParallelism } from 'node:os'
-import dependencies from './dependencies'
-import routes from './infra/http/v1/routes'
-import config from './config'
+import cluster from "node:cluster";
+import process from "node:process";
+import { availableParallelism } from "node:os";
+import server from "./infra/http/v1/server";
+import config from "./config";
+import dependencies from "./dependencies";
 
-const dependenciesContainer = dependencies(config)
 const {
-  drivers: {
-    httpServerDriver,
+  db: {
+    mongo: { dbUrl },
   },
-} = dependenciesContainer
-const numCPUs = availableParallelism()
+  app: { rootUserEmail, rootUserPassword },
+  server: { httpPort },
+} = config;
+const { dbDriver, loggerDriver, createRootUserEvent } = dependencies;
+const numCPUs = availableParallelism();
+
+(async () => {
+  await dbDriver.connect(dbUrl);
+
+  createRootUserEvent.trigger({
+    email: rootUserEmail,
+    password: rootUserPassword,
+  });
+})();
 
 if (cluster.isPrimary) {
-  console.log(`[${process.pid}] Primary is running`)
-
-  for (let i = 0; i < numCPUs; i++)
-    cluster.fork()
+  for (let i = 0; i < numCPUs; i++) cluster.fork();
 } else {
-  console.log(`[${process.pid}] Worker is running`)
-
-  httpServerDriver.start(config.server.httpPort, routes(dependenciesContainer))
+  server.start(httpPort);
 }
 
 const gracefulShutdown = (signal: string, code: number) => {
-  httpServerDriver.stop(() => {
-    console.log('Shutting server down...')
+  server.stop(async () => {
+    loggerDriver.info("Shutting server down...");
 
-    process.exit(code)
-  })
-}
+    await dbDriver.disconnect();
 
-process.on('uncaughtException', (error, origin) => {
-  console.log(`[${origin}] ${error}`)
-})
+    process.exit(code);
+  });
+};
 
-process.on('unhandledRejection', (error) => {
-  console.log(`[unhandledRejection] ${error}`)
-})
+process.on("uncaughtException", (error, origin) => {
+  loggerDriver.error(`[${origin}] ${error}`);
+});
 
-process.on('SIGINT', gracefulShutdown)
+process.on("unhandledRejection", (error) => {
+  loggerDriver.error(`[unhandledRejection] ${error}`);
+});
 
-process.on('SIGTERM', gracefulShutdown)
+process.on("SIGINT", gracefulShutdown);
 
-process.on('exit', (code: number) => {
-  console.log(`Server shut down with code: ${code}`)
-})
+process.on("SIGTERM", gracefulShutdown);
+
+process.on("exit", (code: number) => {
+  loggerDriver.fatal(`Server shut down with code: ${code}`);
+});

@@ -1,140 +1,137 @@
-import axios from 'axios'
-import { faker } from '@faker-js/faker'
-import { expect } from 'chai'
-import routes from '../../../src/infra/http/v1/routes'
-import dependencies from '../../../src/dependencies'
-import config from '../../../src/config'
-import InMemoryDriver from '../../../src/infra/drivers/db/InMemoryDriver'
-import { UserMapper } from '../../../src/domain/mappers/UserMapper'
-import InMemoryUserRepository from '../../../src/adapters/repositories/inMemory/InMemoryUserRepository'
-import CryptoDriver from '../../../src/infra/drivers/hash/CryptoDriver'
-import { LevelEnum } from '../../../src/domain/User'
-import { RefreshTokenMapper } from '../../../src/domain/mappers/RefreshTokenMapper'
-import InMemoryRefreshTokenRepository from '../../../src/adapters/repositories/inMemory/InMemoryRefreshTokenRepository'
+import axios from "axios";
+import { faker } from "@faker-js/faker";
+import { expect } from "chai";
+import sinon from "sinon";
+import server from "../../../src/infra/http/v1/server";
+import config from "../../../src/config";
+import CryptoDriver from "../../../src/infra/drivers/hash/CryptoDriver";
+import UserRole from "../../../src/domain/user/UserRole";
+import MongoDbDriver from "../../../src/infra/drivers/db/MongoDbDriver";
 
-const dependenciesContainer = dependencies(config)
 const {
-  drivers: {
-    httpServerDriver,
+  db: {
+    mongo: { dbUrl },
   },
-} = dependenciesContainer
-const hashDriver = new CryptoDriver()
-const dbDriver = InMemoryDriver.getInstance()
-const userMapper = new UserMapper()
-const refreshTokenMapper = new RefreshTokenMapper()
-const userRepository = new InMemoryUserRepository(config.db.usersSource, dbDriver, userMapper)
-const refreshTokenRepository = new InMemoryRefreshTokenRepository(config.db.refreshTokensSource, dbDriver, refreshTokenMapper)
-const url = 'http://localhost:3031/api/v1/auth/login'
-const email = faker.internet.email()
-const password = faker.internet.password()
+} = config;
+const hashDriver = new CryptoDriver();
+const dbDriver = MongoDbDriver.getInstance("test");
+const url = "http://localhost:8080/api/v1/auth/login";
+const email = faker.internet.email();
+const password = faker.internet.password();
 
-describe('POST /auth', () => {
+describe("POST /auth", () => {
   before(async () => {
-    await userRepository.save({
-      userId: faker.string.uuid(),
-      email,
-      password: hashDriver.hashString(password),
-      level: LevelEnum.CUSTOMER,
-    })
+    await dbDriver.connect(dbUrl);
 
-    httpServerDriver.start(3031, routes(dependenciesContainer))
-  })
+    server.start(8080);
+  });
+
+  afterEach(() => sinon.restore());
 
   after(async () => {
-    await userRepository.delete()
-    await refreshTokenRepository.delete()
+    await dbDriver.disconnect();
 
-    httpServerDriver.stop()
-  })
+    server.stop();
+  });
 
-  it('should get status 200 when successfully authenticated an user', async () => {
+  it("should get status 200 when successfully authenticated an user", async () => {
+    sinon.stub(dbDriver, "findOne").resolves({
+      user_id: faker.string.uuid(),
+      email,
+      password: hashDriver.hashString(password),
+      role: UserRole.CUSTOMER,
+    });
+    sinon.stub(dbDriver, "create").resolves();
+
     const payload = {
       email,
       password,
-    }
-    const { status, data } = await axios.post(url, payload)
+    };
+    const { status, data } = await axios.post(url, payload);
 
-    expect(status).equal(200)
-    expect(typeof data.accessToken).equal('string')
-    expect(typeof data.refreshToken).equal('string')
-  })
+    expect(status).equal(200);
+    expect(typeof data.accessToken).equal("string");
+    expect(typeof data.refreshToken).equal("string");
+  });
 
   it('should get status 400 when trying to authenticate an user without "email"', async () => {
     const payload = {
-      email: '',
+      email: "",
       password,
-    }
+    };
 
-    await axios.post(url, payload)
-      .catch(({ response: { status, data } }) => {
-        expect(status).equal(400)
-        expect(data.error).equal('"email" is required')
-      })
-  })
+    await axios.post(url, payload).catch(({ response: { status, data } }) => {
+      expect(status).equal(400);
+      expect(data.error).equal('"email" is required');
+    });
+  });
 
   it('should get status 400 when trying to authenticate an user with invalid "email"', async () => {
     const payload = {
-      email: 'test',
+      email: "test",
       password,
-    }
+    };
 
-    await axios.post(url, payload)
-      .catch(({ response: { status, data } }) => {
-        expect(status).equal(400)
-        expect(data.error).equal('Invalid "email" format')
-      })
-  })
+    await axios.post(url, payload).catch(({ response: { status, data } }) => {
+      expect(status).equal(400);
+      expect(data.error).equal('Invalid "email" format');
+    });
+  });
 
   it('should get status 400 when trying to authenticate an user without "password"', async () => {
     const payload = {
       email,
-      password: '',
-    }
+      password: "",
+    };
 
-    await axios.post(url, payload)
-      .catch(({ response: { status, data } }) => {
-        expect(status).equal(400)
-        expect(data.error).equal('"password" is required')
-      })
-  })
+    await axios.post(url, payload).catch(({ response: { status, data } }) => {
+      expect(status).equal(400);
+      expect(data.error).equal('"password" is required');
+    });
+  });
 
-  it('should get status 400 when trying to authenticate an user with invalid param', async () => {
+  it("should get status 400 when trying to authenticate an user with invalid param", async () => {
     const payload = {
       email,
       password,
       test: true,
-    }
+    };
 
-    await axios.post(url, payload)
-      .catch(({ response: { status, data } }) => {
-        expect(status).equal(400)
-        expect(data.error).equal('Invalid param(s): "test"')
-      })
-  })
+    await axios.post(url, payload).catch(({ response: { status, data } }) => {
+      expect(status).equal(400);
+      expect(data.error).equal('Invalid param(s): "test"');
+    });
+  });
 
-  it('should get status 401 when trying to authenticate an user that does not exist', async () => {
+  it("should get status 401 when trying to authenticate an user that does not exist", async () => {
+    sinon.stub(dbDriver, "findOne").resolves();
+
     const payload = {
       email: faker.internet.email(),
       password,
-    }
+    };
 
-    await axios.post(url, payload)
-      .catch(({ response: { status, data } }) => {
-        expect(status).equal(401)
-        expect(data.error).equal('Unauthorized')
-      })
-  })
+    await axios.post(url, payload).catch(({ response: { status, data } }) => {
+      expect(status).equal(401);
+      expect(data.error).equal("Unauthorized");
+    });
+  });
 
-  it('should get status 401 when trying to authenticate an existing user with wrong password', async () => {
+  it("should get status 401 when trying to authenticate an existing user with wrong password", async () => {
+    sinon.stub(dbDriver, "findOne").resolves({
+      user_id: faker.string.uuid(),
+      email,
+      password: hashDriver.hashString(faker.internet.password()),
+      role: UserRole.CUSTOMER,
+    });
     const payload = {
       email,
-      password: 'test',
-    }
+      password: "test",
+    };
 
-    await axios.post(url, payload)
-      .catch(({ response: { status, data } }) => {
-        expect(status).equal(401)
-        expect(data.error).equal('Unauthorized')
-      })
-  })
-})
+    await axios.post(url, payload).catch(({ response: { status, data } }) => {
+      expect(status).equal(401);
+      expect(data.error).equal("Unauthorized");
+    });
+  });
+});
