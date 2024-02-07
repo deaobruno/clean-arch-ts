@@ -68,14 +68,14 @@ const {
     refreshTokenExpirationTime,
   },
   db: {
-    mongo: { dbName },
+    mongo: { dbUrl, dbName },
     usersSource,
     refreshTokensSource,
     memoSource,
   },
 } = config;
 // DRIVERS
-const dbDriver = MongoDbDriver.getInstance(dbName);
+const dbDriver = MongoDbDriver.getInstance(dbUrl, dbName);
 const cryptoDriver = new CryptoDriver();
 const jwtDriver = new JwtDriver(
   accessTokenSecret,

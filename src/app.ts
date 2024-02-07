@@ -6,9 +6,6 @@ import config from "./config";
 import dependencies from "./dependencies";
 
 const {
-  db: {
-    mongo: { dbUrl },
-  },
   app: { environment, rootUserEmail, rootUserPassword },
   server: { httpPort },
 } = config;
@@ -16,8 +13,6 @@ const { dbDriver, loggerDriver, createRootUserEvent } = dependencies;
 const numCPUs = availableParallelism();
 
 (async () => {
-  await dbDriver.connect(dbUrl);
-
   createRootUserEvent.trigger({
     email: rootUserEmail,
     password: rootUserPassword,
