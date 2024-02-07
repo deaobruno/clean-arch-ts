@@ -22,7 +22,7 @@ export default class UpdateMemo implements IUseCase<UpdateMemoInput, Output> {
   async exec(input: UpdateMemoInput): Promise<Output> {
     const { user, memo_id, ...memoInput } = input;
     const { title, text, start, end } = memoInput;
-    const memo = await this._memoRepository.findOne({ memo_id });
+    const memo = await this._memoRepository.findOneById(memo_id);
 
     if (!memo || (memo.userId !== user.userId && user.isCustomer))
       return new NotFoundError("Memo not found");

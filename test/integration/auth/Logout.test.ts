@@ -16,7 +16,7 @@ const {
   },
 } = config;
 const hashDriver = new CryptoDriver();
-const dbDriver = MongoDbDriver.getInstance("test");
+const dbDriver = MongoDbDriver.getInstance(dbUrl, "test");
 const url = "http://localhost:8080/api/v1/auth/logout";
 const user_id = faker.string.uuid();
 const email = faker.internet.email();
@@ -27,7 +27,7 @@ const token = "refresh-token";
 
 describe("DELETE /auth/logout", () => {
   before(async () => {
-    await dbDriver.connect(dbUrl);
+    await dbDriver.connect();
 
     server.start(8080);
   });

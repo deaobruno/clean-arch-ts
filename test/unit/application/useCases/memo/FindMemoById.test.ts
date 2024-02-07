@@ -38,7 +38,7 @@ describe("/application/useCases/memo/FindMemoById.ts", () => {
     const memoRepository = sandbox.createStubInstance(MemoRepository);
     const findMemoById = new FindMemoById(memoRepository);
 
-    memoRepository.findOne.resolves(fakeMemo);
+    memoRepository.findOneById.resolves(fakeMemo);
 
     const memo = <Memo>await findMemoById.exec({ user, memo_id: memoId });
 
@@ -62,7 +62,7 @@ describe("/application/useCases/memo/FindMemoById.ts", () => {
     const memoRepository = sandbox.createStubInstance(MemoRepository);
     const findMemoById = new FindMemoById(memoRepository);
 
-    memoRepository.findOne.resolves(
+    memoRepository.findOneById.resolves(
       Memo.create({ ...fakeMemo, userId: faker.string.uuid() })
     );
 

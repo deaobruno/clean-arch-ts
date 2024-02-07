@@ -50,6 +50,22 @@ describe("/application/useCases/memo/FindMemosByUserId.ts", () => {
     expect(memos[0].end).equal(fakeMemo.end);
   });
 
+  it("should return an array of memos with pagination passing user_id", async () => {
+    const memoRepository = sandbox.createStubInstance(MemoRepository);
+    const findMemosByUserId = new FindMemosByUserId(memoRepository);
+
+    memoRepository.findByUserId.resolves([fakeMemo]);
+
+    const memos = await findMemosByUserId.exec({ user, user_id: userId, limit: '1', page: '0' });
+
+    expect(memos[0].memoId).equal(memoId);
+    expect(memos[0].userId).equal(userId);
+    expect(memos[0].title).equal(fakeMemo.title);
+    expect(memos[0].text).equal(fakeMemo.text);
+    expect(memos[0].start).equal(fakeMemo.start);
+    expect(memos[0].end).equal(fakeMemo.end);
+  });
+
   it("should return a NotFoundError when request user is different from user_id", async () => {
     const memoRepository = sandbox.createStubInstance(MemoRepository);
     const findMemosByUserId = new FindMemosByUserId(memoRepository);

@@ -7,6 +7,7 @@ export default {
     httpPort: process.env.HTTP_PORT ?? 8080,
   },
   app: {
+    environment: process.env.NODE_ENV ?? "production",
     rootUserEmail: process.env.ROOT_USER_EMAIL ?? "",
     rootUserPassword: process.env.ROOT_USER_PASSWORD ?? "",
     accessTokenSecret: process.env.ACCESS_TOKEN_SECRET ?? "",

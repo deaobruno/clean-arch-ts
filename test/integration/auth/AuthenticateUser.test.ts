@@ -14,14 +14,14 @@ const {
   },
 } = config;
 const hashDriver = new CryptoDriver();
-const dbDriver = MongoDbDriver.getInstance("test");
+const dbDriver = MongoDbDriver.getInstance(dbUrl, "test");
 const url = "http://localhost:8080/api/v1/auth/login";
 const email = faker.internet.email();
 const password = faker.internet.password();
 
 describe("POST /auth", () => {
   before(async () => {
-    await dbDriver.connect(dbUrl);
+    await dbDriver.connect();
 
     server.start(8080);
   });

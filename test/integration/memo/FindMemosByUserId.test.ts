@@ -15,7 +15,7 @@ const {
   },
 } = config;
 const sandbox = sinon.createSandbox();
-const dbDriver = MongoDbDriver.getInstance("test");
+const dbDriver = MongoDbDriver.getInstance(dbUrl, "test");
 const hashDriver = new CryptoDriver();
 const email = faker.internet.email();
 const password = faker.internet.password();
@@ -25,7 +25,7 @@ const token = "refresh-token";
 
 describe("GET /memos/user/:memo_id", () => {
   before(async () => {
-    await dbDriver.connect(dbUrl);
+    await dbDriver.connect();
 
     server.start(8080);
   });

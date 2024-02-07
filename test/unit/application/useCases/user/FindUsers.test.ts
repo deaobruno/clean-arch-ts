@@ -62,6 +62,29 @@ describe("/application/useCases/user/FindUsers.ts", () => {
     expect(users[2].isRoot).equal(false);
   });
 
+  it("should return an array with all users with pagination when no filter is passed", async () => {
+    const userRepository = sandbox.createStubInstance(UserRepository);
+    const findUsers = new FindUsers(userRepository);
+
+    userRepository.find.resolves(fakeUsers);
+
+    const users = <User[]>await findUsers.exec({ user: fakeUsers[0], limit: '2', page: '0' });
+
+    expect(users.length).equal(3);
+    expect(users[0].userId).equal(fakeUsers[0].userId);
+    expect(users[0].email).equal(fakeUsers[0].email);
+    expect(users[0].password).equal(fakeUsers[0].password);
+    expect(users[0].role).equal(fakeUsers[0].role);
+    expect(users[0].isCustomer).equal(true);
+    expect(users[0].isRoot).equal(false);
+    expect(users[1].userId).equal(fakeUsers[1].userId);
+    expect(users[1].email).equal(fakeUsers[1].email);
+    expect(users[1].password).equal(fakeUsers[1].password);
+    expect(users[1].role).equal(fakeUsers[1].role);
+    expect(users[1].isCustomer).equal(true);
+    expect(users[1].isRoot).equal(false);
+  });
+
   it("should return an array with filtered users", async () => {
     const userRepository = sandbox.createStubInstance(UserRepository);
     const findUsers = new FindUsers(userRepository);

@@ -17,7 +17,7 @@ export default class FindMemoById implements IUseCase<Input, Output> {
 
   async exec(input: Input): Promise<Output> {
     const { user, memo_id } = input;
-    const memo = await this._memoRepository.findOne({ memo_id });
+    const memo = await this._memoRepository.findOneById(memo_id);
 
     if (!memo || (memo.userId !== user.userId && user.isCustomer))
       return new NotFoundError("Memo not found");

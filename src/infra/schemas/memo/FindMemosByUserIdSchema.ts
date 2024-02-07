@@ -7,7 +7,7 @@ export default {
     if (!uuidRegex.test(user_id)) return Error('Invalid "user_id" format');
 
     const invalidParams = Object.keys(payload)
-      .filter((key) => !["user_id"].includes(key))
+      .filter((key) => !['user_id', 'limit', 'page'].includes(key))
       .map((key) => `"${key}"`)
       .join(", ");
 
