@@ -42,7 +42,7 @@ describe("/application/useCases/memo/UpdateMemo.ts", () => {
     const newStart = new Date(new Date().getTime() + 3.6e6).toISOString();
     const newEnd = new Date(new Date().getTime() + 3.6e6 * 2).toISOString();
 
-    memoRepository.findOne.resolves(fakeMemo);
+    memoRepository.findOneById.resolves(fakeMemo);
     memoRepository.update.resolves();
 
     const memo = <Memo>await updateMemo.exec({
@@ -66,7 +66,7 @@ describe("/application/useCases/memo/UpdateMemo.ts", () => {
     const memoRepository = sandbox.createStubInstance(MemoRepository);
     const updateMemo = new UpdateMemo(memoRepository);
 
-    memoRepository.findOne.resolves(fakeMemo);
+    memoRepository.findOneById.resolves(fakeMemo);
     memoRepository.update.resolves();
 
     const memo = <Memo>await updateMemo.exec({
@@ -92,7 +92,7 @@ describe("/application/useCases/memo/UpdateMemo.ts", () => {
     const memoRepository = sandbox.createStubInstance(MemoRepository);
     const updateMemo = new UpdateMemo(memoRepository);
 
-    memoRepository.findOne.resolves(
+    memoRepository.findOneById.resolves(
       Memo.create({ ...fakeMemo, userId: faker.string.uuid() })
     );
 

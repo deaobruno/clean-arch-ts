@@ -6,6 +6,10 @@ import config from "./config";
 import dependencies from "./dependencies";
 
 const {
+  db: {
+    usersSource,
+    memoSource
+  },
   app: { environment, rootUserEmail, rootUserPassword },
   server: { httpPort },
 } = config;
@@ -13,6 +17,12 @@ const { dbDriver, loggerDriver, createRootUserEvent } = dependencies;
 const numCPUs = availableParallelism();
 
 (async () => {
+  await dbDriver.connect();
+  await dbDriver.createIndex(usersSource, 'user_id')
+  await dbDriver.createIndex(usersSource, 'email')
+  await dbDriver.createIndex(memoSource, 'memo_id')
+  await dbDriver.disconnect();
+
   createRootUserEvent.trigger({
     email: rootUserEmail,
     password: rootUserPassword,

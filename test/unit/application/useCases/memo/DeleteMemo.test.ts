@@ -37,7 +37,7 @@ describe("/application/useCases/memo/DeleteMemo.ts", () => {
     const memoRepository = sandbox.createStubInstance(MemoRepository);
     const deleteMemo = new DeleteMemo(memoRepository);
 
-    memoRepository.findOne.resolves(fakeMemo);
+    memoRepository.findOneById.resolves(fakeMemo);
     memoRepository.deleteOne.resolves();
 
     const result = await deleteMemo.exec({ user, memo_id: memoId });
@@ -57,7 +57,7 @@ describe("/application/useCases/memo/DeleteMemo.ts", () => {
     const memoRepository = sandbox.createStubInstance(MemoRepository);
     const deleteMemo = new DeleteMemo(memoRepository);
 
-    memoRepository.findOne.resolves(
+    memoRepository.findOneById.resolves(
       Memo.create({ ...fakeMemo, userId: faker.string.uuid() })
     );
 

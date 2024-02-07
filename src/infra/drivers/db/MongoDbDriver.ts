@@ -44,6 +44,10 @@ export default class MongoDbDriver implements IDbDriver {
     }
   }
 
+  async createIndex(source: string, column: string, order = 1): Promise<void> {
+    await MongoDbDriver.getCollection(source).createIndex({ [column]: order })
+  }
+
   private static getCollection(collectionName: string): Collection {
     if (!this.connected) throw new Error("MongoDB driver not connected");
 
