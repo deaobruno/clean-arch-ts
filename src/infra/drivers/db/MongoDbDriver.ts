@@ -61,8 +61,13 @@ export default class MongoDbDriver implements IDbDriver {
   async find(
     source: string,
     filters: Filter<Document> = {},
-    options?: FindOptions
+    options: FindOptions = {}
   ): Promise<Document[]> {
+    const limit = options.limit ?? 10
+
+    options.limit = limit
+    options.skip = (options.skip ?? 0) * limit
+
     return MongoDbDriver.getCollection(source).find(filters, options).toArray();
   }
 

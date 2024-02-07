@@ -11,7 +11,7 @@ export default {
 
     const invalidParams = Object
       .keys(payload)
-      .filter(key => !['userId', 'email'].includes(key))
+      .filter(key => !['userId', 'email', 'limit', 'page'].includes(key))
       .map(key => `"${ key }"`)
       .join(', ')
     

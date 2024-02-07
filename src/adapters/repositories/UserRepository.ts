@@ -19,8 +19,8 @@ export default class UserRepository implements IUserRepository {
     await this._dbDriver.create(this._source, dbUser);
   }
 
-  async find(filters?: object): Promise<User[]> {
-    const users = await this._dbDriver.find(this._source, filters);
+  async find(filters?: object, options = {}): Promise<User[]> {
+    const users = await this._dbDriver.find(this._source, filters, options);
 
     return users.map(this._mapper.dbToEntity);
   }

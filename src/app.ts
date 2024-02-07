@@ -9,7 +9,7 @@ const {
   db: {
     mongo: { dbUrl },
   },
-  app: { rootUserEmail, rootUserPassword },
+  app: { environment, rootUserEmail, rootUserPassword },
   server: { httpPort },
 } = config;
 const { dbDriver, loggerDriver, createRootUserEvent } = dependencies;
@@ -24,7 +24,7 @@ const numCPUs = availableParallelism();
   });
 })();
 
-if (cluster.isPrimary) {
+if (environment === 'production' && cluster.isPrimary) {
   for (let i = 0; i < numCPUs; i++) cluster.fork();
 } else {
   server.start(httpPort);

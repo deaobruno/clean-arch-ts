@@ -21,14 +21,14 @@ export default class MemoRepository implements IMemoRepository {
     this._cacheDriver.del(memo.userId);
   }
 
-  async find(filters?: object): Promise<Memo[]> {
-    const memos = await this._dbDriver.find(this._source, filters);
+  async find(filters?: object, options = {}): Promise<Memo[]> {
+    const memos = await this._dbDriver.find(this._source, filters, options);
 
     return memos.map(this._mapper.dbToEntity);
   }
 
-  async findByUserId(user_id: string): Promise<Memo[]> {
-    return this.find({ user_id });
+  async findByUserId(user_id: string, options = {}): Promise<Memo[]> {
+    return this.find({ user_id }, options);
   }
 
   async findOne(filters: object): Promise<Memo | undefined> {

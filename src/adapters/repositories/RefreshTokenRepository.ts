@@ -20,8 +20,8 @@ export default class RefreshTokenRepository implements IRefreshTokenRepository {
     await this._dbDriver.create(this._source, dbRefreshToken);
   }
 
-  async find(filters?: object): Promise<RefreshToken[]> {
-    const refreshTokens = await this._dbDriver.find(this._source, filters);
+  async find(filters?: object, options = {}): Promise<RefreshToken[]> {
+    const refreshTokens = await this._dbDriver.find(this._source, filters, options);
 
     return refreshTokens.map(this._mapper.dbToEntity);
   }
