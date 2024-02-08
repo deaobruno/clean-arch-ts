@@ -8,6 +8,7 @@ import UserRole from "../../../src/domain/user/UserRole";
 import server from "../../../src/infra/http/v1/server";
 import MongoDbDriver from "../../../src/infra/drivers/db/MongoDbDriver";
 import JwtDriver from "../../../src/infra/drivers/token/JwtDriver";
+import { MongoClient } from "mongodb";
 
 const sandbox = sinon.createSandbox();
 const {
@@ -26,8 +27,10 @@ const Authorization = "Bearer token";
 const token = "refresh-token";
 
 describe("DELETE /auth/logout", () => {
+  let client: MongoClient
+
   before(async () => {
-    await dbDriver.connect();
+    client = await dbDriver.connect();
 
     server.start(8080);
   });
@@ -35,7 +38,7 @@ describe("DELETE /auth/logout", () => {
   afterEach(() => sandbox.restore());
 
   after(async () => {
-    await dbDriver.disconnect();
+    await dbDriver.disconnect(client);
 
     server.stop();
   });

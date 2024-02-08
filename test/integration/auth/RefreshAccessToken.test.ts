@@ -8,6 +8,7 @@ import config from "../../../src/config";
 import UserRole from "../../../src/domain/user/UserRole";
 import MongoDbDriver from "../../../src/infra/drivers/db/MongoDbDriver";
 import server from "../../../src/infra/http/v1/server";
+import { MongoClient } from "mongodb";
 
 const {
   db: {
@@ -24,8 +25,10 @@ const Authorization = "Bearer token";
 const token = "refresh-token";
 
 describe("POST /auth/refresh-token", () => {
+  let client: MongoClient
+
   before(async () => {
-    await dbDriver.connect();
+    client = await dbDriver.connect();
 
     server.start(8080);
   });
@@ -33,7 +36,7 @@ describe("POST /auth/refresh-token", () => {
   afterEach(() => sandbox.restore());
 
   after(async () => {
-    await dbDriver.disconnect();
+    await dbDriver.disconnect(client);
 
     server.stop();
   });

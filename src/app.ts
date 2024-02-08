@@ -17,11 +17,9 @@ const { dbDriver, loggerDriver, createRootUserEvent } = dependencies;
 const numCPUs = availableParallelism();
 
 (async () => {
-  await dbDriver.connect();
   await dbDriver.createIndex(usersSource, 'user_id')
   await dbDriver.createIndex(usersSource, 'email')
   await dbDriver.createIndex(memoSource, 'memo_id')
-  await dbDriver.disconnect();
 
   createRootUserEvent.trigger({
     email: rootUserEmail,
@@ -38,8 +36,6 @@ if (environment === 'production' && cluster.isPrimary) {
 const gracefulShutdown = (signal: string, code: number) => {
   server.stop(async () => {
     loggerDriver.info("Shutting server down...");
-
-    await dbDriver.disconnect();
 
     process.exit(code);
   });
