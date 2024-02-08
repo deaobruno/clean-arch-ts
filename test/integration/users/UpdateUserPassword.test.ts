@@ -10,6 +10,7 @@ import MongoDbDriver from "../../../src/infra/drivers/db/MongoDbDriver";
 import JwtDriver from "../../../src/infra/drivers/token/JwtDriver";
 import UserRepository from "../../../src/adapters/repositories/UserRepository";
 import User from "../../../src/domain/user/User";
+import { MongoClient } from "mongodb";
 
 const {
   db: {
@@ -26,8 +27,10 @@ const Authorization = "Bearer token";
 const token = "refresh-token";
 
 describe("PUT /users/:user_id/update-password", () => {
+  let client: MongoClient
+
   before(async () => {
-    await dbDriver.connect();
+    client = await dbDriver.connect();
 
     server.start(8080);
   });
@@ -35,7 +38,7 @@ describe("PUT /users/:user_id/update-password", () => {
   afterEach(() => sandbox.restore());
 
   after(async () => {
-    await dbDriver.disconnect();
+    await dbDriver.disconnect(client);
 
     server.stop();
   });

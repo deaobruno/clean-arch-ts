@@ -7,6 +7,7 @@ import config from "../../../src/config";
 import CryptoDriver from "../../../src/infra/drivers/hash/CryptoDriver";
 import UserRole from "../../../src/domain/user/UserRole";
 import MongoDbDriver from "../../../src/infra/drivers/db/MongoDbDriver";
+import { MongoClient } from "mongodb";
 
 const {
   db: {
@@ -20,8 +21,10 @@ const email = faker.internet.email();
 const password = faker.internet.password();
 
 describe("POST /auth", () => {
+  let client: MongoClient
+
   before(async () => {
-    await dbDriver.connect();
+    client = await dbDriver.connect();
 
     server.start(8080);
   });
@@ -29,7 +32,7 @@ describe("POST /auth", () => {
   afterEach(() => sinon.restore());
 
   after(async () => {
-    await dbDriver.disconnect();
+    await dbDriver.disconnect(client);
 
     server.stop();
   });

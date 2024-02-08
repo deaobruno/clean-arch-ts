@@ -8,6 +8,7 @@ import CryptoDriver from "../../../src/infra/drivers/hash/CryptoDriver";
 import server from "../../../src/infra/http/v1/server";
 import MongoDbDriver from "../../../src/infra/drivers/db/MongoDbDriver";
 import JwtDriver from "../../../src/infra/drivers/token/JwtDriver";
+import { MongoClient } from "mongodb";
 
 const {
   db: {
@@ -24,8 +25,10 @@ const Authorization = "Bearer token";
 const token = "refresh-token";
 
 describe("GET /memos/user/:memo_id", () => {
+  let client: MongoClient
+
   before(async () => {
-    await dbDriver.connect();
+    client = await dbDriver.connect();
 
     server.start(8080);
   });
@@ -33,7 +36,7 @@ describe("GET /memos/user/:memo_id", () => {
   afterEach(() => sandbox.restore());
 
   after(async () => {
-    await dbDriver.disconnect();
+    await dbDriver.disconnect(client);
 
     server.stop();
   });

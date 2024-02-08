@@ -1,9 +1,9 @@
 import { faker } from '@faker-js/faker'
-import sinon from 'sinon'
 import { expect } from "chai";
 import config from "../../../../../src/config";
 import MongoDbDriver from "../../../../../src/infra/drivers/db/MongoDbDriver";
 import IDbDriver from "../../../../../src/infra/drivers/db/IDbDriver";
+import { MongoClient } from 'mongodb';
 
 const {
   db: {
@@ -39,51 +39,23 @@ describe("/src/infra/drivers/db/MongoDbDriver.ts", () => {
     expect(dbDriver).deep.equal(instance);
   });
 
-  it("should connect to a mongoDb server passing db url", async () => {
+  it("should connect to a MongoDb server and return a MongoDb Client object", async () => {
     const result = await instance.connect();
 
-    expect(result).equal(undefined);
-    expect(MongoDbDriver.connected).equal(true);
+    expect(result instanceof MongoClient).equal(true);
   });
 
-  it("should return undefined when already connected to a mongoDb server with same db url", async () => {
-    const result = await instance.connect();
+  it("should disconnect from connected MongoDb server", async () => {
+    const result = await instance.disconnect(await instance.connect());
 
     expect(result).equal(undefined);
-    expect(MongoDbDriver.connected).equal(true);
-  });
-
-  it("should disconnect from connected mongoDb server", async () => {
-    const result = await instance.disconnect();
-
-    expect(result).equal(undefined);
-    expect(MongoDbDriver.connected).equal(false);
-  });
-
-  it("should return undefined when no mongoDb server is connected", async () => {
-    const result = await instance.disconnect();
-
-    expect(result).equal(undefined);
-    expect(MongoDbDriver.connected).equal(false);
   });
 
   it("should create an index in given collection", async () => {
-    await instance.connect()
     const result = await instance.createIndex(collectionName, 'id')
-    await instance.disconnect()
 
     expect(result).equal(undefined)
   })
-
-  it("should get an error when db is not connected when trying to create a document passing collection name and data", async () => {
-    const connectStub = sinon.stub(MongoDbDriver.prototype, 'connect').resolves()
-
-    await instance.create(collectionName, data).catch((error) => {
-      expect(error.message).equal("MongoDB driver not connected");
-    });
-
-    connectStub.restore()
-  });
 
   it("should create a document passing collection name and data", async () => {
     const result = await instance.create(collectionName, data);

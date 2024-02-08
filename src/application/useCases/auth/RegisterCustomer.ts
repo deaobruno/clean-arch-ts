@@ -5,7 +5,6 @@ import CryptoDriver from "../../../infra/drivers/hash/CryptoDriver";
 import BaseError from "../../errors/BaseError";
 import IUseCase from "../IUseCase";
 import ConflictError from "../../errors/ConflictError";
-import InternalServerError from "../../errors/InternalServerError";
 
 type RegisterCustomerInput = {
   email: string;

@@ -7,6 +7,7 @@ import MongoDbDriver from "../../../src/infra/drivers/db/MongoDbDriver";
 import server from "../../../src/infra/http/v1/server";
 import CryptoDriver from "../../../src/infra/drivers/hash/CryptoDriver";
 import UserRole from "../../../src/domain/user/UserRole";
+import { MongoClient } from "mongodb";
 
 const {
   db: {
@@ -19,8 +20,10 @@ const dbDriver = MongoDbDriver.getInstance(dbUrl, "test");
 const url = "http://localhost:8080/api/v1/auth/register";
 
 describe("POST /auth/register", () => {
+  let client: MongoClient
+
   before(async () => {
-    await dbDriver.connect();
+    client = await dbDriver.connect();
 
     server.start(8080);
   });
@@ -28,7 +31,7 @@ describe("POST /auth/register", () => {
   afterEach(() => sandbox.restore());
 
   after(async () => {
-    await dbDriver.disconnect();
+    await dbDriver.disconnect(client);
 
     server.stop();
   });
