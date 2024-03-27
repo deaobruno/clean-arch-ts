@@ -55,8 +55,6 @@ export default class MongoDbDriver implements IDbDriver {
   }
 
   private async transact(operation: Function): Promise<void | Document | Document[]> {
-    await this.connect()
-
     const session = MongoDbDriver.client.startSession()
 
     try {
@@ -65,7 +63,6 @@ export default class MongoDbDriver implements IDbDriver {
       })
     } finally {
       await session.endSession()
-      await this.disconnect()
     }
   }
 

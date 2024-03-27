@@ -14,14 +14,12 @@ const {
   server: { httpPort },
 } = config;
 const { dbDriver, loggerDriver, createRootUserEvent } = dependencies;
-const numCPUs = availableParallelism();
 
 (async () => {
   await dbDriver.connect();
   await dbDriver.createIndex(usersSource, 'user_id')
   await dbDriver.createIndex(usersSource, 'email')
   await dbDriver.createIndex(memoSource, 'memo_id')
-  await dbDriver.disconnect();
 
   createRootUserEvent.trigger({
     email: rootUserEmail,
@@ -30,6 +28,8 @@ const numCPUs = availableParallelism();
 })();
 
 if (environment === 'production' && cluster.isPrimary) {
+  const numCPUs = availableParallelism();
+
   for (let i = 0; i < numCPUs; i++) cluster.fork();
 } else {
   server.start(httpPort);
