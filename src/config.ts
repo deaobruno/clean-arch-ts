@@ -28,4 +28,10 @@ export default {
     refreshTokensSource: process.env.REFRESH_TOKENS_SOURCE_NAME ?? "",
     memoSource: process.env.MEMO_SOURCE_NAME ?? "",
   },
+  cache: {
+    redis: {
+      url: process.env.REDIS_URL ?? "",
+      password: process.env.REDIS_PASSWORD ?? "",
+    }
+  }
 };

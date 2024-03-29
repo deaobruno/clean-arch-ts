@@ -81,9 +81,17 @@ export default class ExpressDriver implements IServerDriver {
 
   start(httpPort: string | number): void {
     this.httpServer = this.app.listen(httpPort, () => {
+      const serverAddress = this.httpServer?.address()
+      let address = 'localhost'
+
+      if (serverAddress && typeof serverAddress === 'object' && serverAddress.address !== '::')
+        address = serverAddress.address
+
       this._logger.info(
-        `Express HTTP Server started. Listening on port ${httpPort}.`
+        `[Express] HTTP Server started: http://${address}:${httpPort}.`
       );
+
+      this.httpServer?.on('close', () => this._logger.info('[Express] HTTP Server stopped'))
     });
   }
 

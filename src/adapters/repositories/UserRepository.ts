@@ -32,25 +32,27 @@ export default class UserRepository implements IUserRepository {
   }
 
   async findOneById(user_id: string): Promise<User | undefined> {
-    const cachedUser = this._cacheDriver.get(user_id);
+    const cachedUser = await this._cacheDriver.get(user_id);
 
     if (cachedUser) return cachedUser;
 
     const user = await this.findOne({ user_id });
 
-    this._cacheDriver.set(user_id, user);
+    if (user)
+      await this._cacheDriver.set(user_id, user);
 
     return user;
   }
 
   async findOneByEmail(email: string): Promise<User | undefined> {
-    const cachedUser = this._cacheDriver.get(email);
+    const cachedUser = await this._cacheDriver.get(email);
 
     if (cachedUser) return cachedUser;
 
     const user = await this.findOne({ email });
 
-    this._cacheDriver.set(email, user);
+    if (user)
+      await this._cacheDriver.set(email, user);
 
     return user;
   }
@@ -71,8 +73,8 @@ export default class UserRepository implements IUserRepository {
       user_id,
     });
 
-    this._cacheDriver.del(user_id);
-    this._cacheDriver.del(email);
+    await this._cacheDriver.del(user_id);
+    await this._cacheDriver.del(email);
   }
 
   async deleteOne(user: User): Promise<void> {
@@ -80,7 +82,7 @@ export default class UserRepository implements IUserRepository {
 
     await this._dbDriver.delete(this._source, { user_id });
 
-    this._cacheDriver.del(user_id);
-    this._cacheDriver.del(email);
+    await this._cacheDriver.del(user_id);
+    await this._cacheDriver.del(email);
   }
 }

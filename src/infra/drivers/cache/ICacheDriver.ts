@@ -1,5 +1,7 @@
 export default interface ICacheDriver {
-  set(key: string, data: any, ttl?: number): void;
-  get(key: string): any;
-  del(key: string): void;
+  connect(): Promise<void>
+  disconnect(): Promise<void>
+  set(key: string, data: any, ttl?: number): Promise<void>;
+  get(key: string): Promise<any>;
+  del(key: string): Promise<void>;
 }

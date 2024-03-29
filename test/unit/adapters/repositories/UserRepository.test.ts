@@ -7,7 +7,7 @@ import UserMapper from "../../../../src/domain/user/UserMapper";
 import UserRole from "../../../../src/domain/user/UserRole";
 import User from "../../../../src/domain/user/User";
 import MongoDbDriver from "../../../../src/infra/drivers/db/MongoDbDriver";
-import NodeCacheDriver from "../../../../src/infra/drivers/cache/NodeCacheDriver";
+import RedisDriver from "../../../../src/infra/drivers/cache/RedisDriver";
 
 const sandbox = sinon.createSandbox();
 
@@ -30,7 +30,7 @@ describe("/adapters/repositories/UserRepository", () => {
       addMemo: () => {},
     };
     const dbDriver = sandbox.createStubInstance(MongoDbDriver);
-    const cacheDriver = sandbox.createStubInstance(NodeCacheDriver);
+    const cacheDriver = sandbox.createStubInstance(RedisDriver);
     const userMapper = sandbox.createStubInstance(UserMapper);
     const userRepository = new UserRepository(
       config.db.usersSource,
@@ -75,7 +75,7 @@ describe("/adapters/repositories/UserRepository", () => {
       },
     ];
     const dbDriver = sandbox.createStubInstance(MongoDbDriver);
-    const cacheDriver = sandbox.createStubInstance(NodeCacheDriver);
+    const cacheDriver = sandbox.createStubInstance(RedisDriver);
     const userMapper = sandbox.createStubInstance(UserMapper);
     const userRepository = new UserRepository(
       config.db.usersSource,
@@ -158,7 +158,7 @@ describe("/adapters/repositories/UserRepository", () => {
       },
     ];
     const dbDriver = sandbox.createStubInstance(MongoDbDriver);
-    const cacheDriver = sandbox.createStubInstance(NodeCacheDriver);
+    const cacheDriver = sandbox.createStubInstance(RedisDriver);
     const userMapper = sandbox.createStubInstance(UserMapper);
     const userRepository = new UserRepository(
       config.db.usersSource,
@@ -211,7 +211,7 @@ describe("/adapters/repositories/UserRepository", () => {
   it("should return an empty array when no Users are found", async () => {
     const dbUsers: any[] = [];
     const dbDriver = sandbox.createStubInstance(MongoDbDriver);
-    const cacheDriver = sandbox.createStubInstance(NodeCacheDriver);
+    const cacheDriver = sandbox.createStubInstance(RedisDriver);
     const userMapper = sandbox.createStubInstance(UserMapper);
     const userRepository = new UserRepository(
       config.db.usersSource,
@@ -235,7 +235,7 @@ describe("/adapters/repositories/UserRepository", () => {
       role: UserRole.CUSTOMER,
     };
     const dbDriver = sandbox.createStubInstance(MongoDbDriver);
-    const cacheDriver = sandbox.createStubInstance(NodeCacheDriver);
+    const cacheDriver = sandbox.createStubInstance(RedisDriver);
     const userMapper = sandbox.createStubInstance(UserMapper);
     const userRepository = new UserRepository(
       config.db.usersSource,
@@ -268,7 +268,7 @@ describe("/adapters/repositories/UserRepository", () => {
 
   it("should return undefined when no User is found", async () => {
     const dbDriver = sandbox.createStubInstance(MongoDbDriver);
-    const cacheDriver = sandbox.createStubInstance(NodeCacheDriver);
+    const cacheDriver = sandbox.createStubInstance(RedisDriver);
     const userMapper = sandbox.createStubInstance(UserMapper);
     const userRepository = new UserRepository(
       config.db.usersSource,
@@ -292,7 +292,7 @@ describe("/adapters/repositories/UserRepository", () => {
       role: UserRole.CUSTOMER,
     };
     const dbDriver = sandbox.createStubInstance(MongoDbDriver);
-    const cacheDriver = sandbox.createStubInstance(NodeCacheDriver);
+    const cacheDriver = sandbox.createStubInstance(RedisDriver);
     const userMapper = sandbox.createStubInstance(UserMapper);
     const userRepository = new UserRepository(
       config.db.usersSource,
@@ -324,7 +324,7 @@ describe("/adapters/repositories/UserRepository", () => {
       role: UserRole.CUSTOMER,
     });
     const dbDriver = sandbox.createStubInstance(MongoDbDriver);
-    const cacheDriver = sandbox.createStubInstance(NodeCacheDriver);
+    const cacheDriver = sandbox.createStubInstance(RedisDriver);
     const userMapper = sandbox.createStubInstance(UserMapper);
     const userRepository = new UserRepository(
       config.db.usersSource,
@@ -333,7 +333,7 @@ describe("/adapters/repositories/UserRepository", () => {
       userMapper
     );
 
-    cacheDriver.get.returns(userEntity);
+    cacheDriver.get.resolves(userEntity);
 
     const user = <User>await userRepository.findOneById(userEntity.userId);
 
@@ -347,7 +347,7 @@ describe("/adapters/repositories/UserRepository", () => {
 
   it("should return undefined when passing an invalid user_id as a filter", async () => {
     const dbDriver = sandbox.createStubInstance(MongoDbDriver);
-    const cacheDriver = sandbox.createStubInstance(NodeCacheDriver);
+    const cacheDriver = sandbox.createStubInstance(RedisDriver);
     const userMapper = sandbox.createStubInstance(UserMapper);
     const userRepository = new UserRepository(
       config.db.usersSource,
@@ -371,7 +371,7 @@ describe("/adapters/repositories/UserRepository", () => {
       role: UserRole.CUSTOMER,
     };
     const dbDriver = sandbox.createStubInstance(MongoDbDriver);
-    const cacheDriver = sandbox.createStubInstance(NodeCacheDriver);
+    const cacheDriver = sandbox.createStubInstance(RedisDriver);
     const userMapper = sandbox.createStubInstance(UserMapper);
     const userRepository = new UserRepository(
       config.db.usersSource,
@@ -403,7 +403,7 @@ describe("/adapters/repositories/UserRepository", () => {
       role: UserRole.CUSTOMER,
     });
     const dbDriver = sandbox.createStubInstance(MongoDbDriver);
-    const cacheDriver = sandbox.createStubInstance(NodeCacheDriver);
+    const cacheDriver = sandbox.createStubInstance(RedisDriver);
     const userMapper = sandbox.createStubInstance(UserMapper);
     const userRepository = new UserRepository(
       config.db.usersSource,
@@ -412,7 +412,7 @@ describe("/adapters/repositories/UserRepository", () => {
       userMapper
     );
 
-    cacheDriver.get.returns(userEntity);
+    cacheDriver.get.resolves(userEntity);
 
     const user = <User>await userRepository.findOneByEmail(userEntity.email);
 
@@ -426,7 +426,7 @@ describe("/adapters/repositories/UserRepository", () => {
 
   it("should return undefined when passing an invalid email as a filter", async () => {
     const dbDriver = sandbox.createStubInstance(MongoDbDriver);
-    const cacheDriver = sandbox.createStubInstance(NodeCacheDriver);
+    const cacheDriver = sandbox.createStubInstance(RedisDriver);
     const userMapper = sandbox.createStubInstance(UserMapper);
     const userRepository = new UserRepository(
       config.db.usersSource,
@@ -464,7 +464,7 @@ describe("/adapters/repositories/UserRepository", () => {
       },
     ];
     const dbDriver = sandbox.createStubInstance(MongoDbDriver);
-    const cacheDriver = sandbox.createStubInstance(NodeCacheDriver);
+    const cacheDriver = sandbox.createStubInstance(RedisDriver);
     const userMapper = sandbox.createStubInstance(UserMapper);
     const userRepository = new UserRepository(
       config.db.usersSource,
@@ -507,7 +507,7 @@ describe("/adapters/repositories/UserRepository", () => {
 
   it("should return an empty array of customer Users", async () => {
     const dbDriver = sandbox.createStubInstance(MongoDbDriver);
-    const cacheDriver = sandbox.createStubInstance(NodeCacheDriver);
+    const cacheDriver = sandbox.createStubInstance(RedisDriver);
     const userMapper = sandbox.createStubInstance(UserMapper);
     const userRepository = new UserRepository(
       config.db.usersSource,
@@ -539,7 +539,7 @@ describe("/adapters/repositories/UserRepository", () => {
       addMemo: () => {},
     };
     const dbDriver = sandbox.createStubInstance(MongoDbDriver);
-    const cacheDriver = sandbox.createStubInstance(NodeCacheDriver);
+    const cacheDriver = sandbox.createStubInstance(RedisDriver);
     const userMapper = sandbox.createStubInstance(UserMapper);
     const userRepository = new UserRepository(
       config.db.usersSource,
@@ -571,7 +571,7 @@ describe("/adapters/repositories/UserRepository", () => {
       addMemo: () => {},
     };
     const dbDriver = sandbox.createStubInstance(MongoDbDriver);
-    const cacheDriver = sandbox.createStubInstance(NodeCacheDriver);
+    const cacheDriver = sandbox.createStubInstance(RedisDriver);
     const userMapper = sandbox.createStubInstance(UserMapper);
     const userRepository = new UserRepository(
       config.db.usersSource,

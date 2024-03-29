@@ -58,7 +58,7 @@ import FindMemoByIdController from "./adapters/controllers/memo/FindMemoByIdCont
 import FindMemosByUserIdController from "./adapters/controllers/memo/FindMemosByUserIdController";
 import UpdateMemoController from "./adapters/controllers/memo/UpdateMemoController";
 import DeleteMemoController from "./adapters/controllers/memo/DeleteMemoController";
-import NodeCacheDriver from "./infra/drivers/cache/NodeCacheDriver";
+import RedisDriver from "./infra/drivers/cache/RedisDriver";
 
 const {
   app: {
@@ -73,9 +73,16 @@ const {
     refreshTokensSource,
     memoSource,
   },
+  cache: {
+    redis: {
+      url: redisUrl,
+      password: redisPassword,
+    }
+  }
 } = config;
 // DRIVERS
-const dbDriver = MongoDbDriver.getInstance(dbUrl, dbName);
+const loggerDriver = new PinoDriver();
+const dbDriver = MongoDbDriver.getInstance(dbUrl, dbName, loggerDriver);
 const cryptoDriver = new CryptoDriver();
 const jwtDriver = new JwtDriver(
   accessTokenSecret,
@@ -83,8 +90,7 @@ const jwtDriver = new JwtDriver(
   refreshTokenSecret,
   refreshTokenExpirationTime
 );
-const loggerDriver = new PinoDriver();
-const cacheDriver = new NodeCacheDriver();
+const cacheDriver = new RedisDriver(redisUrl, redisPassword, loggerDriver);
 // MAPPERS
 const userMapper = new UserMapper();
 const refreshTokenMapper = new RefreshTokenMapper();
@@ -246,6 +252,7 @@ const createRootUserEvent = new CreateRootUserEvent(createRootUseCase);
 export default {
   dbDriver,
   loggerDriver,
+  cacheDriver,
   registerCustomerController,
   authenticateUserController,
   refreshAccessTokenController,

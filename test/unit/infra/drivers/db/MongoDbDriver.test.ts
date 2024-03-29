@@ -4,6 +4,7 @@ import { expect } from "chai";
 import config from "../../../../../src/config";
 import MongoDbDriver from "../../../../../src/infra/drivers/db/MongoDbDriver";
 import IDbDriver from "../../../../../src/infra/drivers/db/IDbDriver";
+import PinoDriver from '../../../../../src/infra/drivers/logger/PinoDriver';
 
 const {
   db: {
@@ -16,6 +17,7 @@ const data = {
   id: faker.string.uuid(),
   test: "ok",
 };
+const logger = sinon.createStubInstance(PinoDriver)
 
 
 describe("/src/infra/drivers/db/MongoDbDriver.ts", () => {
@@ -26,7 +28,7 @@ describe("/src/infra/drivers/db/MongoDbDriver.ts", () => {
   });
 
   it("should return a MongoDbDriver instance when there is no previous instance", () => {
-    const dbDriver = MongoDbDriver.getInstance(dbUrl, dbName);
+    const dbDriver = MongoDbDriver.getInstance(dbUrl, dbName, logger);
 
     instance = dbDriver;
 
@@ -34,7 +36,7 @@ describe("/src/infra/drivers/db/MongoDbDriver.ts", () => {
   });
 
   it("should return a MongoDbDriver when there is a previous instance", () => {
-    const dbDriver = MongoDbDriver.getInstance(dbUrl, dbName);
+    const dbDriver = MongoDbDriver.getInstance(dbUrl, dbName, logger);
 
     expect(dbDriver).deep.equal(instance);
   });

@@ -9,6 +9,7 @@ import {
   UpdateFilter,
 } from "mongodb";
 import IDbDriver from "./IDbDriver";
+import ILoggerDriver from "../logger/ILoggerDriver";
 
 export default class MongoDbDriver implements IDbDriver {
   private static instance: IDbDriver;
@@ -17,14 +18,14 @@ export default class MongoDbDriver implements IDbDriver {
   private static dbName: string;
   static connected: boolean;
 
-  private constructor(dbUrl: string, dbName: string) {
+  private constructor(dbUrl: string, dbName: string, private logger: ILoggerDriver) {
     MongoDbDriver.dbUrl = dbUrl;
     MongoDbDriver.dbName = dbName;
   }
 
-  static getInstance(dbUrl: string, dbName: string): IDbDriver {
+  static getInstance(dbUrl: string, dbName: string, logger: ILoggerDriver): IDbDriver {
     if (!MongoDbDriver.instance)
-      MongoDbDriver.instance = new MongoDbDriver(dbUrl, dbName);
+      MongoDbDriver.instance = new MongoDbDriver(dbUrl, dbName, logger);
 
     return MongoDbDriver.instance;
   }
@@ -33,6 +34,16 @@ export default class MongoDbDriver implements IDbDriver {
     if (!MongoDbDriver.connected) {
       MongoDbDriver.client = await MongoClient.connect(MongoDbDriver.dbUrl);
       MongoDbDriver.connected = true;
+
+      this.logger.info('[MongoDb] Client connected')
+
+      MongoDbDriver.client.on('serverClosed', () => {
+        this.logger.info('[MongoDb] Client disconnected')
+      })
+
+      MongoDbDriver.client.on('error', (error) => {
+        this.logger.error(`[MongoDb] Error: ${error}`)
+      })
     }
   }
 

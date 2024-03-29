@@ -13,10 +13,12 @@ const {
   app: { environment, rootUserEmail, rootUserPassword },
   server: { httpPort },
 } = config;
-const { dbDriver, loggerDriver, createRootUserEvent } = dependencies;
+const { dbDriver, loggerDriver, cacheDriver, createRootUserEvent } = dependencies;
 
 (async () => {
   await dbDriver.connect();
+  await cacheDriver.connect()
+
   await dbDriver.createIndex(usersSource, 'user_id')
   await dbDriver.createIndex(usersSource, 'email')
   await dbDriver.createIndex(memoSource, 'memo_id')
@@ -37,9 +39,8 @@ if (environment === 'production' && cluster.isPrimary) {
 
 const gracefulShutdown = (signal: string, code: number) => {
   server.stop(async () => {
-    loggerDriver.info("Shutting server down...");
-
     await dbDriver.disconnect();
+    await cacheDriver.disconnect();
 
     process.exit(code);
   });
@@ -58,5 +59,5 @@ process.on("SIGINT", gracefulShutdown);
 process.on("SIGTERM", gracefulShutdown);
 
 process.on("exit", (code: number) => {
-  loggerDriver.fatal(`Server shut down with code: ${code}`);
+  loggerDriver.fatal(`Application exited with code: ${code}`);
 });
