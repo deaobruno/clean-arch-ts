@@ -2,6 +2,7 @@ import { Server } from "node:http";
 import express, { NextFunction, Request, Response, Router } from "express";
 import bodyParser from "body-parser";
 import cors, { CorsOptions } from 'cors'
+import helmet from "helmet";
 import IServerDriver from "./IServerDriver";
 import NotFoundError from "../../../application/errors/NotFoundError";
 import InternalServerError from "../../../application/errors/InternalServerError";
@@ -32,6 +33,7 @@ export default class ExpressDriver implements IServerDriver {
     });
     this.app.use(bodyParser.json());
     this.app.use(bodyParser.urlencoded({ extended: false }));
+    this.app.use(helmet())
     this.app.use(cors(corsOpts));
     this.app.use(this.router);
     this.app.use((req: Request, res: Response, next: NextFunction) => next(new NotFoundError("Invalid URL")));

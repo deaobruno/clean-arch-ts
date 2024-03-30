@@ -87,8 +87,8 @@ const {
 // DRIVERS
 const loggerDriver = new PinoDriver(infoFilePath, errorFilePath);
 const dbDriver = MongoDbDriver.getInstance(dbUrl, dbName, loggerDriver);
-const cryptoDriver = new CryptoDriver();
-const jwtDriver = new JwtDriver(
+const hashDriver = new CryptoDriver();
+const tokenDriver = new JwtDriver(
   accessTokenSecret,
   accessTokenExpirationTime,
   refreshTokenSecret,
@@ -122,28 +122,28 @@ const refreshTokenRepository = new RefreshTokenRepository(
 // USE CASES
 const registerCustomerUseCase = new RegisterCustomer(
   userRepository,
-  cryptoDriver
+  hashDriver
 );
 const authenticateUserUseCase = new AuthenticateUser(
   userRepository,
   refreshTokenRepository,
-  jwtDriver,
-  cryptoDriver
+  tokenDriver,
+  hashDriver
 );
 const refreshAccessTokenUseCase = new RefreshAccessToken(
-  jwtDriver,
+  tokenDriver,
   refreshTokenRepository
 );
 const deleteRefreshTokenUseCase = new DeleteRefreshToken(
   refreshTokenRepository
 );
 const validateAuthenticationUseCase = new ValidateAuthentication(
-  jwtDriver,
+  tokenDriver,
   refreshTokenRepository,
   userRepository
 );
 const validateAuthorizationUseCase = new ValidateAuthorization();
-const createRootUseCase = new CreateRoot(userRepository, cryptoDriver);
+const createRootUseCase = new CreateRoot(userRepository, hashDriver);
 const findUsersUseCase = new FindUsers(userRepository);
 const findUserByIdUseCase = new FindUserById(userRepository);
 const updateUserUseCase = new UpdateUser(
@@ -151,7 +151,7 @@ const updateUserUseCase = new UpdateUser(
   refreshTokenRepository
 );
 const updateUserPasswordUseCase = new UpdateUserPassword(
-  cryptoDriver,
+  hashDriver,
   userRepository,
   refreshTokenRepository
 );
@@ -160,7 +160,7 @@ const deleteUserUseCase = new DeleteUser(
   refreshTokenRepository,
   memoRepository
 );
-const createMemoUseCase = new CreateMemo(cryptoDriver, memoRepository);
+const createMemoUseCase = new CreateMemo(hashDriver, memoRepository);
 const findMemoByIdUseCase = new FindMemoById(memoRepository);
 const findMemosByUserIdUseCase = new FindMemosByUserId(memoRepository);
 const updateMemoUseCase = new UpdateMemo(memoRepository);
