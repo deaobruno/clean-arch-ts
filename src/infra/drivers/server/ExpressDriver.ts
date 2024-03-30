@@ -1,6 +1,7 @@
 import { Server } from "node:http";
 import express, { NextFunction, Request, Response, Router } from "express";
 import bodyParser from "body-parser";
+import cors, { CorsOptions } from 'cors'
 import IServerDriver from "./IServerDriver";
 import NotFoundError from "../../../application/errors/NotFoundError";
 import InternalServerError from "../../../application/errors/InternalServerError";
@@ -12,17 +13,11 @@ export default class ExpressDriver implements IServerDriver {
   httpServer?: Server;
   router = Router();
 
-  constructor(private _logger: ILoggerDriver) {
-    this.app.use(bodyParser.json());
-
-    this.app.use(bodyParser.urlencoded({ extended: false }));
-
+  constructor(private _logger: ILoggerDriver, corsOpts: CorsOptions) {
     this.app.use((req: Request, res: Response, next: NextFunction) => {
       const send = res.send;
 
-      res.send = (content) => {
-        return send.call(res, content);
-      };
+      res.send = (content) => send.call(res, content);
 
       res.on("finish", () => {
         this._logger.info({
@@ -35,13 +30,11 @@ export default class ExpressDriver implements IServerDriver {
 
       next();
     });
-
+    this.app.use(bodyParser.json());
+    this.app.use(bodyParser.urlencoded({ extended: false }));
+    this.app.use(cors(corsOpts));
     this.app.use(this.router);
-
-    this.app.use((req: Request, res: Response, next: NextFunction) => {
-      next(new NotFoundError("Invalid URL"));
-    });
-
+    this.app.use((req: Request, res: Response, next: NextFunction) => next(new NotFoundError("Invalid URL")));
     this.app.use(
       (
         error: Error & { statusCode: number },

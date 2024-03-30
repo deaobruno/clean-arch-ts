@@ -78,10 +78,14 @@ const {
       url: redisUrl,
       password: redisPassword,
     }
+  },
+  logger: {
+    infoFilePath,
+    errorFilePath,
   }
 } = config;
 // DRIVERS
-const loggerDriver = new PinoDriver();
+const loggerDriver = new PinoDriver(infoFilePath, errorFilePath);
 const dbDriver = MongoDbDriver.getInstance(dbUrl, dbName, loggerDriver);
 const cryptoDriver = new CryptoDriver();
 const jwtDriver = new JwtDriver(

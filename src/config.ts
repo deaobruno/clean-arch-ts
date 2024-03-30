@@ -33,5 +33,12 @@ export default {
       url: process.env.REDIS_URL ?? "",
       password: process.env.REDIS_PASSWORD ?? "",
     }
+  },
+  cors: {
+    origin: process.env.CORS_ORIGIN ?? "*",
+  },
+  logger: {
+    infoFilePath: process.env.INFO_LOG_FILE_PATH ?? "",
+    errorFilePath: process.env.ERROR_LOG_FILE_PATH ?? "",
   }
 };

@@ -1,9 +1,10 @@
 import ExpressDriver from "../../drivers/server/ExpressDriver";
 import dependencies from "../../../dependencies";
 import routes from "./routes/routes";
+import config from "../../../config";
 
 const { loggerDriver } = dependencies;
-const server = new ExpressDriver(loggerDriver);
+const server = new ExpressDriver(loggerDriver, config.cors);
 
 routes(server);
 

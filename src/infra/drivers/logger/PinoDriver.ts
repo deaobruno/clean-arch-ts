@@ -1,30 +1,34 @@
-import pino from "pino";
+import pino, { Logger } from "pino";
 import ILoggerDriver from "./ILoggerDriver";
 
 export default class PinoDriver implements ILoggerDriver {
-  private _logger = pino({
-    transport: {
-      targets: [
-        {
-          target: "pino-pretty",
-        },
-        {
-          target: "pino/file",
-          level: "info",
-          options: {
-            destination: "./logs/info.log",
+  private _logger: Logger
+
+  constructor(private infoLogPath: string, private errorLogPath: string) {
+    this._logger = pino({
+      transport: {
+        targets: [
+          {
+            target: "pino-pretty",
           },
-        },
-        {
-          target: "pino/file",
-          level: "error",
-          options: {
-            destination: "./logs/error.log",
+          {
+            target: "pino/file",
+            level: "info",
+            options: {
+              destination: this.infoLogPath,
+            },
           },
-        },
-      ],
-    },
-  });
+          {
+            target: "pino/file",
+            level: "error",
+            options: {
+              destination: this.errorLogPath,
+            },
+          },
+        ],
+      },
+    });
+  }
 
   info(params: any): void {
     this._logger.info(params);
