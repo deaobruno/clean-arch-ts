@@ -21,19 +21,28 @@ export default class RedisDriver implements ICacheDriver {
   }
 
   async set(key: string, data: object, EX = 900): Promise<void> {
+    if (!this.client.isReady)
+      return
+
     await this.client.set(key, JSON.stringify(data), { EX });
   }
 
   async get(key: string): Promise<any> {
+    if (!this.client.isReady)
+      return
+
     const data = await this.client.get(key)
 
     if (!data)
-      return undefined
+      return
 
     return JSON.parse(data);
   }
 
   async del(key: string): Promise<void> {
+    if (!this.client.isReady)
+      return
+
     await this.client.del(key);
   }
 }

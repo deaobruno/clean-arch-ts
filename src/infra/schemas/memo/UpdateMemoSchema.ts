@@ -1,28 +1,16 @@
+import joi from 'joi'
+
 export default {
-  validate(payload: any): void | Error {
-    const { memo_id, title, text, start, end } = payload;
-    const uuidRegex =
-      /^[0-9a-f]{8}\b-[0-9a-f]{4}\b-[0-9a-f]{4}\b-[0-9a-f]{4}\b-[0-9a-f]{12}$/gi;
+  validate: (payload: any): void | Error => {
+    const { error } = joi.object({
+      memo_id: joi.string().uuid().required(),
+      title: joi.string().min(5).max(100),
+      text: joi.string().min(8).max(64),
+      start: joi.date().iso(),
+      end: joi.date().iso().min(joi.ref('start')),
+    }).validate(payload)
 
-    if (!uuidRegex.test(memo_id)) return Error('Invalid "memo_id" format');
-
-    if (title !== undefined && title === "")
-      return Error('"title" is required');
-
-    if (text !== undefined && text === "") return Error('"text" is required');
-
-    if (start !== undefined && start === "")
-      return Error('"start" is required');
-
-    if (end !== undefined && end === "") return Error('"end" is required');
-
-    const invalidParams = Object.keys(payload)
-      .filter(
-        (key) => !["memo_id", "title", "text", "start", "end"].includes(key)
-      )
-      .map((key) => `"${key}"`)
-      .join(", ");
-
-    if (invalidParams) return Error(`Invalid param(s): ${invalidParams}`);
-  },
-};
+    if (error)
+      return error
+  }
+}

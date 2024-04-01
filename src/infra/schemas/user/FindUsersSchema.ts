@@ -1,21 +1,14 @@
+import joi from 'joi'
+
 export default {
-  validate(payload: any): void | Error {
-    const { email } = payload
-    const emailRegex = /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/gi
+  validate: (payload: any): void | Error => {
+    const { error } = joi.object({
+      email: joi.string().email().max(100),
+      limit: joi.string(),
+      page: joi.string(),
+    }).validate(payload)
 
-    if (email === '')
-      return Error('"email" is required')
-
-    if (email && !emailRegex.test(email))
-      return Error('Invalid "email" format')
-
-    const invalidParams = Object
-      .keys(payload)
-      .filter(key => !['userId', 'email', 'limit', 'page'].includes(key))
-      .map(key => `"${ key }"`)
-      .join(', ')
-    
-    if (invalidParams)
-      return Error(`Invalid param(s): ${ invalidParams }`)
+    if (error)
+      return error
   }
 }

@@ -39,6 +39,8 @@ if (environment === 'production' && cluster.isPrimary) {
 
 const gracefulShutdown = (signal: string, code: number) => {
   server.stop(async () => {
+    await cacheDriver.del(rootUserEmail)
+
     await dbDriver.disconnect();
     await cacheDriver.disconnect();
 
