@@ -19,7 +19,7 @@ type Output =
     }
   | BaseError;
 
-export default class AuthenticateUser implements IUseCase<Input, Output> {
+export default class Login implements IUseCase<Input, Output> {
   constructor(
     private _userRepository: IUserRepository,
     private _refreshTokenRepository: IRefreshTokenRepository,

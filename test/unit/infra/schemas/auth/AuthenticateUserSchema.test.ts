@@ -1,10 +1,10 @@
 import { faker } from '@faker-js/faker'
 import { expect } from 'chai'
-import AuthenticateUserSchema from '../../../../../src/infra/schemas/auth/AuthenticateUserSchema'
+import LoginSchema from '../../../../../src/infra/schemas/auth/LoginSchema'
 
-const { validate } = AuthenticateUserSchema
+const { validate } = LoginSchema
 
-describe('/infra/schemas/auth/AuthenticateUserSchema.ts', () => {
+describe('/infra/schemas/auth/LoginSchema.ts', () => {
   it('should execute without errors', () => {
     const validation = validate({
       email: faker.internet.email(),

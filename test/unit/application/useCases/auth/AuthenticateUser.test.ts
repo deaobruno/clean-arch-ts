@@ -5,7 +5,7 @@ import JwtDriver from "../../../../../src/infra/drivers/token/JwtDriver";
 import CryptoDriver from "../../../../../src/infra/drivers/hash/CryptoDriver";
 import UserRepository from "../../../../../src/adapters/repositories/UserRepository";
 import RefreshTokenRepository from "../../../../../src/adapters/repositories/RefreshTokenRepository";
-import AuthenticateUser from "../../../../../src/application/useCases/auth/AuthenticateUser";
+import Login from "../../../../../src/application/useCases/auth/Login";
 import BaseError from "../../../../../src/application/errors/BaseError";
 import UnauthorizedError from "../../../../../src/application/errors/UnauthorizedError";
 import RefreshToken from "../../../../../src/domain/refreshToken/RefreshToken";
@@ -29,7 +29,7 @@ const fakeUser = User.create({
   role: UserRole.CUSTOMER,
 });
 
-describe("/application/useCases/auth/AuthenticateUser.ts", () => {
+describe("/application/useCases/auth/Login.ts", () => {
   afterEach(() => sandbox.restore());
 
   it("should return a JWT access token and a JWT refresh token", async () => {
@@ -48,7 +48,7 @@ describe("/application/useCases/auth/AuthenticateUser.ts", () => {
       .stub(RefreshToken, "create")
       .returns({ userId: faker.string.uuid(), token: "token" });
 
-    const authenticateUser = new AuthenticateUser(
+    const authenticateUser = new Login(
       userRepository,
       refreshTokenRepository,
       tokenDriver,
@@ -71,7 +71,7 @@ describe("/application/useCases/auth/AuthenticateUser.ts", () => {
       RefreshTokenRepository
     );
 
-    const authenticateUser = new AuthenticateUser(
+    const authenticateUser = new Login(
       userRepository,
       refreshTokenRepository,
       tokenDriver,
@@ -96,7 +96,7 @@ describe("/application/useCases/auth/AuthenticateUser.ts", () => {
     fakeUser.password = "test";
     userRepository.findOneByEmail.resolves(fakeUser);
 
-    const authenticateUser = new AuthenticateUser(
+    const authenticateUser = new Login(
       userRepository,
       refreshTokenRepository,
       tokenDriver,

@@ -3,7 +3,7 @@ import CryptoDriver from "./infra/drivers/hash/CryptoDriver";
 import JwtDriver from "./infra/drivers/token/JwtDriver";
 import UserRepository from "./adapters/repositories/UserRepository";
 import RegisterCustomerSchema from "./infra/schemas/auth/RegisterCustomerSchema";
-import AuthenticateUserSchema from "./infra/schemas/auth/AuthenticateUserSchema";
+import LoginSchema from "./infra/schemas/auth/LoginSchema";
 import RefreshAccessTokenSchema from "./infra/schemas/auth/RefreshAccessTokenSchema";
 import FindUsersSchema from "./infra/schemas/user/FindUsersSchema";
 import FindUserByIdSchema from "./infra/schemas/user/FindUserByIdSchema";
@@ -16,7 +16,7 @@ import FindMemosByUserIdSchema from "./infra/schemas/memo/FindMemosByUserIdSchem
 import UpdateMemoSchema from "./infra/schemas/memo/UpdateMemoSchema";
 import DeleteMemoSchema from "./infra/schemas/memo/DeleteMemoSchema";
 import RegisterCustomer from "./application/useCases/auth/RegisterCustomer";
-import AuthenticateUser from "./application/useCases/auth/AuthenticateUser";
+import Login from "./application/useCases/auth/Login";
 import ValidateAuthentication from "./application/useCases/auth/ValidateAuthentication";
 import FindUsers from "./application/useCases/user/FindUsers";
 import FindUserById from "./application/useCases/user/FindUserById";
@@ -24,7 +24,7 @@ import UpdateUser from "./application/useCases/user/UpdateUser";
 import UpdateUserPassword from "./application/useCases/user/UpdateUserPassword";
 import DeleteUser from "./application/useCases/user/DeleteUser";
 import RegisterCustomerController from "./adapters/controllers/auth/RegisterCustomerController";
-import AuthenticateUserController from "./adapters/controllers/auth/AuthenticateUserController";
+import LoginController from "./adapters/controllers/auth/LoginController";
 import FindUsersController from "./adapters/controllers/user/FindUsersController";
 import FindUserByIdController from "./adapters/controllers/user/FindUserByIdController";
 import UpdateUserController from "./adapters/controllers/user/UpdateUserController";
@@ -124,7 +124,7 @@ const registerCustomerUseCase = new RegisterCustomer(
   userRepository,
   hashDriver
 );
-const authenticateUserUseCase = new AuthenticateUser(
+const loginUseCase = new Login(
   userRepository,
   refreshTokenRepository,
   tokenDriver,
@@ -175,9 +175,9 @@ const registerCustomerController = new RegisterCustomerController({
   schema: RegisterCustomerSchema,
   presenter: customerPresenter,
 });
-const authenticateUserController = new AuthenticateUserController({
-  useCase: authenticateUserUseCase,
-  schema: AuthenticateUserSchema,
+const loginController = new LoginController({
+  useCase: loginUseCase,
+  schema: LoginSchema,
 });
 const refreshAccessTokenController = new RefreshAccessTokenController({
   useCase: refreshAccessTokenUseCase,
@@ -258,7 +258,7 @@ export default {
   loggerDriver,
   cacheDriver,
   registerCustomerController,
-  authenticateUserController,
+  loginController,
   refreshAccessTokenController,
   logoutController,
   findUsersController,
