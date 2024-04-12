@@ -3,7 +3,6 @@ import axios from "axios";
 import { faker } from "@faker-js/faker";
 import { expect } from "chai";
 import UserRole from "../../../src/domain/user/UserRole";
-import config from "../../../src/config";
 import CryptoDriver from "../../../src/infra/drivers/hash/CryptoDriver";
 import server from "../../../src/infra/http/v1/server";
 import MongoDbDriver from "../../../src/infra/drivers/db/MongoDbDriver";
@@ -11,13 +10,7 @@ import JwtDriver from "../../../src/infra/drivers/token/JwtDriver";
 import UserRepository from "../../../src/adapters/repositories/UserRepository";
 import User from "../../../src/domain/user/User";
 
-const {
-  db: {
-    mongo: { dbUrl },
-  },
-} = config;
 const sandbox = sinon.createSandbox();
-const dbDriver = MongoDbDriver.getInstance(dbUrl, "test");
 const hashDriver = new CryptoDriver();
 const url = "http://localhost:8080/api/v1/users";
 const userId = faker.string.uuid();
@@ -25,19 +18,11 @@ const Authorization = "Bearer token";
 const token = "refresh-token";
 
 describe("DELETE /users", () => {
-  before(async () => {
-    await dbDriver.connect();
-
-    server.start(8080);
-  });
+  before(() => server.start(8080));
 
   afterEach(() => sandbox.restore());
 
-  after(async () => {
-    await dbDriver.disconnect();
-
-    server.stop();
-  });
+  after(() => server.stop());
 
   it("should get 204 status code when trying to delete an existing user", async () => {
     const deletedUserId = faker.string.uuid();
@@ -45,8 +30,7 @@ describe("DELETE /users", () => {
     sandbox
       .stub(JwtDriver.prototype, "validateAccessToken")
       .returns({ id: userId });
-    sandbox
-      .stub(dbDriver, "findOne")
+    sandbox.stub(MongoDbDriver.prototype, "findOne")
       .onCall(0)
       .resolves({
         user_id: userId,
@@ -66,8 +50,8 @@ describe("DELETE /users", () => {
         password: hashDriver.hashString(faker.internet.password()),
         role: UserRole.CUSTOMER,
       });
-    sandbox.stub(dbDriver, "delete").resolves();
-    sandbox.stub(dbDriver, "deleteMany").resolves();
+    sandbox.stub(MongoDbDriver.prototype, "delete").resolves();
+    sandbox.stub(MongoDbDriver.prototype, "deleteMany").resolves();
 
     const { status } = await axios.delete(`${url}/${deletedUserId}`, {
       headers: { Authorization },
@@ -80,8 +64,7 @@ describe("DELETE /users", () => {
     sandbox
       .stub(JwtDriver.prototype, "validateAccessToken")
       .returns({ id: userId });
-    sandbox
-      .stub(dbDriver, "findOne")
+    sandbox.stub(MongoDbDriver.prototype, "findOne")
       .onCall(0)
       .resolves({
         user_id: userId,
@@ -99,7 +82,7 @@ describe("DELETE /users", () => {
       .delete(`${url}/test`, { headers: { Authorization } })
       .catch(({ response: { status, data } }) => {
         expect(status).equal(400);
-        expect(data.error).equal('Invalid "user_id" format');
+        expect(data.error).equal('"user_id" must be a valid GUID');
       });
   });
 
@@ -107,8 +90,7 @@ describe("DELETE /users", () => {
     sandbox
       .stub(JwtDriver.prototype, "validateAccessToken")
       .returns({ id: userId });
-    sandbox
-      .stub(dbDriver, "findOne")
+    sandbox.stub(MongoDbDriver.prototype, "findOne")
       .onCall(0)
       .resolves({
         user_id: userId,

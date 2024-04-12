@@ -4,7 +4,7 @@ export default {
   validate: (payload: any): void | Error => {
     const { error } = joi.object({
       user_id: joi.string().uuid().required(),
-      email: joi.string().email().max(100).required(),
+      email: joi.string().email().max(100),
     }).validate(payload)
 
     if (error)

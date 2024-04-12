@@ -3,45 +3,31 @@ import { faker } from "@faker-js/faker";
 import { expect } from "chai";
 import sinon from "sinon";
 import server from "../../../src/infra/http/v1/server";
-import config from "../../../src/config";
 import CryptoDriver from "../../../src/infra/drivers/hash/CryptoDriver";
 import UserRole from "../../../src/domain/user/UserRole";
 import MongoDbDriver from "../../../src/infra/drivers/db/MongoDbDriver";
 
-const {
-  db: {
-    mongo: { dbUrl },
-  },
-} = config;
+const sandbox = sinon.createSandbox();
 const hashDriver = new CryptoDriver();
-const dbDriver = MongoDbDriver.getInstance(dbUrl, "test");
 const url = "http://localhost:8080/api/v1/auth/login";
 const email = faker.internet.email();
 const password = faker.internet.password();
 
 describe("POST /auth", () => {
-  before(async () => {
-    await dbDriver.connect();
+  before(() => server.start(8080));
 
-    server.start(8080);
-  });
+  afterEach(() => sandbox.restore());
 
-  afterEach(() => sinon.restore());
-
-  after(async () => {
-    await dbDriver.disconnect();
-
-    server.stop();
-  });
+  after(() => server.stop());
 
   it("should get status 200 when successfully authenticated an user", async () => {
-    sinon.stub(dbDriver, "findOne").resolves({
+    sandbox.stub(MongoDbDriver.prototype, "findOne").resolves({
       user_id: faker.string.uuid(),
       email,
       password: hashDriver.hashString(password),
       role: UserRole.CUSTOMER,
     });
-    sinon.stub(dbDriver, "create").resolves();
+    sandbox.stub(MongoDbDriver.prototype, "create").resolves();
 
     const payload = {
       email,
@@ -62,7 +48,7 @@ describe("POST /auth", () => {
 
     await axios.post(url, payload).catch(({ response: { status, data } }) => {
       expect(status).equal(400);
-      expect(data.error).equal('"email" is required');
+      expect(data.error).equal('"email" is not allowed to be empty');
     });
   });
 
@@ -74,7 +60,7 @@ describe("POST /auth", () => {
 
     await axios.post(url, payload).catch(({ response: { status, data } }) => {
       expect(status).equal(400);
-      expect(data.error).equal('Invalid "email" format');
+      expect(data.error).equal('"email" must be a valid email');
     });
   });
 
@@ -86,7 +72,7 @@ describe("POST /auth", () => {
 
     await axios.post(url, payload).catch(({ response: { status, data } }) => {
       expect(status).equal(400);
-      expect(data.error).equal('"password" is required');
+      expect(data.error).equal('"password" is not allowed to be empty');
     });
   });
 
@@ -99,12 +85,12 @@ describe("POST /auth", () => {
 
     await axios.post(url, payload).catch(({ response: { status, data } }) => {
       expect(status).equal(400);
-      expect(data.error).equal('Invalid param(s): "test"');
+      expect(data.error).equal('"test" is not allowed');
     });
   });
 
   it("should get status 401 when trying to authenticate an user that does not exist", async () => {
-    sinon.stub(dbDriver, "findOne").resolves();
+    sandbox.stub(MongoDbDriver.prototype, "findOne").resolves();
 
     const payload = {
       email: faker.internet.email(),
@@ -118,7 +104,7 @@ describe("POST /auth", () => {
   });
 
   it("should get status 401 when trying to authenticate an existing user with wrong password", async () => {
-    sinon.stub(dbDriver, "findOne").resolves({
+    sandbox.stub(MongoDbDriver.prototype, "findOne").resolves({
       user_id: faker.string.uuid(),
       email,
       password: hashDriver.hashString(faker.internet.password()),
@@ -126,7 +112,7 @@ describe("POST /auth", () => {
     });
     const payload = {
       email,
-      password: "test",
+      password: "12345679",
     };
 
     await axios.post(url, payload).catch(({ response: { status, data } }) => {
