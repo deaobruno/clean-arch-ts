@@ -1,6 +1,6 @@
 export default interface IDbDriver {
   dbName?: string;
-  connect(): Promise<void>;
+  connect(client?: any): Promise<void>;
   disconnect(): Promise<void>;
   createIndex(source: string, column: string, order?: number): Promise<void>;
   create(source: string, data: any, options?: object): Promise<void>;

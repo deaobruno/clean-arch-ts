@@ -48,7 +48,7 @@ describe("/application/useCases/auth/Login.ts", () => {
       .stub(RefreshToken, "create")
       .returns({ userId: faker.string.uuid(), token: "token" });
 
-    const authenticateUser = new Login(
+    const login = new Login(
       userRepository,
       refreshTokenRepository,
       tokenDriver,
@@ -56,7 +56,7 @@ describe("/application/useCases/auth/Login.ts", () => {
     );
 
     const { accessToken, refreshToken } = <any>(
-      await authenticateUser.exec(userData)
+      await login.exec(userData)
     );
 
     expect(accessToken).equal("access-token");
@@ -71,14 +71,14 @@ describe("/application/useCases/auth/Login.ts", () => {
       RefreshTokenRepository
     );
 
-    const authenticateUser = new Login(
+    const login = new Login(
       userRepository,
       refreshTokenRepository,
       tokenDriver,
       hashDriver
     );
 
-    const error = <BaseError>await authenticateUser.exec(userData);
+    const error = <BaseError>await login.exec(userData);
 
     expect(error instanceof UnauthorizedError).equal(true);
     expect(error.message).equal("Unauthorized");
@@ -96,14 +96,14 @@ describe("/application/useCases/auth/Login.ts", () => {
     fakeUser.password = "test";
     userRepository.findOneByEmail.resolves(fakeUser);
 
-    const authenticateUser = new Login(
+    const login = new Login(
       userRepository,
       refreshTokenRepository,
       tokenDriver,
       hashDriver
     );
 
-    const error = <BaseError>await authenticateUser.exec(userData);
+    const error = <BaseError>await login.exec(userData);
 
     expect(error instanceof UnauthorizedError).equal(true);
     expect(error.message).equal("Unauthorized");

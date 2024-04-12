@@ -24,7 +24,7 @@ describe('/infra/schemas/user/UpdateUserPasswordSchema.ts', () => {
       confirm_password: password,
     })
 
-    expect(validation.message).equal('Invalid "user_id" format')
+    expect(validation.message).equal('"user_id" is not allowed to be empty');
   })
 
   it('should fail when passing a number as user ID', () => {
@@ -34,7 +34,7 @@ describe('/infra/schemas/user/UpdateUserPasswordSchema.ts', () => {
       confirm_password: password,
     })
 
-    expect(validation.message).equal('Invalid "user_id" format')
+    expect(validation.message).equal('"user_id" must be a string');
   })
 
   it('should fail when passing a boolean as user ID', () => {
@@ -44,7 +44,7 @@ describe('/infra/schemas/user/UpdateUserPasswordSchema.ts', () => {
       confirm_password: password,
     })
 
-    expect(validation.message).equal('Invalid "user_id" format')
+    expect(validation.message).equal('"user_id" must be a string');
   })
 
   it('should fail when passing an object as user ID', () => {
@@ -54,7 +54,7 @@ describe('/infra/schemas/user/UpdateUserPasswordSchema.ts', () => {
       confirm_password: password,
     })
 
-    expect(validation.message).equal('Invalid "user_id" format')
+    expect(validation.message).equal('"user_id" must be a string');
   })
 
   it('should fail when passing a Bigint as user ID', () => {
@@ -64,7 +64,7 @@ describe('/infra/schemas/user/UpdateUserPasswordSchema.ts', () => {
       confirm_password: password,
     })
 
-    expect(validation.message).equal('Invalid "user_id" format')
+    expect(validation.message).equal('"user_id" must be a string');
   })
 
   it('should fail when passing invalid user ID', () => {
@@ -74,7 +74,7 @@ describe('/infra/schemas/user/UpdateUserPasswordSchema.ts', () => {
       confirm_password: password,
     })
 
-    expect(validation.message).equal('Invalid "user_id" format')
+    expect(validation.message).equal('"user_id" must be a valid GUID');
   })
 
   it('should fail when password is empty', () => {
@@ -84,7 +84,7 @@ describe('/infra/schemas/user/UpdateUserPasswordSchema.ts', () => {
       confirm_password: password,
     })
 
-    expect(validation.message).equal('"password" is required')
+    expect(validation.message).equal('"password" is not allowed to be empty');
   })
 
   it('should fail when confirm_password is empty', () => {
@@ -94,7 +94,7 @@ describe('/infra/schemas/user/UpdateUserPasswordSchema.ts', () => {
       confirm_password: '',
     })
 
-    expect(validation.message).equal('"confirm_password" is required')
+    expect(validation.message).equal('"confirm_password" must be [ref:password]');
   })
 
   it('should fail when passwords mismatch', () => {
@@ -104,7 +104,7 @@ describe('/infra/schemas/user/UpdateUserPasswordSchema.ts', () => {
       confirm_password: 'test',
     })
 
-    expect(validation.message).equal('Passwords mismatch')
+    expect(validation.message).equal('"confirm_password" must be [ref:password]');
   })
 
   it('should fail when passing invalid param', () => {
@@ -115,6 +115,6 @@ describe('/infra/schemas/user/UpdateUserPasswordSchema.ts', () => {
       test: 'test'
     })
 
-    expect(validation.message).equal('Invalid param(s): "test"')
+    expect(validation.message).equal('"test" is not allowed');
   })
 })

@@ -13,7 +13,7 @@ const useCase = {
 };
 const dependencies = {
   registerCustomerController: new CustomController({ useCase }),
-  authenticateUserController: new CustomController({ useCase }),
+  loginController: new CustomController({ useCase }),
   refreshAccessTokenController: new CustomController({ useCase }),
   logoutController: new CustomController({ useCase }),
 };

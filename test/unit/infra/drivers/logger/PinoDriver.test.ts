@@ -1,8 +1,10 @@
 import sinon from "sinon";
-import PinoDriver from "../../../../../src/infra/drivers/logger/PinoDriver";
 import { expect } from "chai";
+import config from "../../../../../src/config"
+import PinoDriver from "../../../../../src/infra/drivers/logger/PinoDriver";
 
 const sandbox = sinon.createSandbox();
+const { logger: { infoFilePath, errorFilePath } } = config
 const infoSpy = sinon.spy();
 const errorSpy = sinon.spy();
 const fatalSpy = sinon.spy();
@@ -11,7 +13,7 @@ describe("/src/infra/drivers/logger/PinoDriver.ts", () => {
   afterEach(() => sandbox.restore());
 
   it("should log data at info level", () => {
-    const pinoDriver = new PinoDriver();
+    const pinoDriver = new PinoDriver(infoFilePath, errorFilePath);
     const loggerStub = sinon.stub((pinoDriver as any)._logger);
 
     loggerStub.info = infoSpy;
@@ -24,7 +26,7 @@ describe("/src/infra/drivers/logger/PinoDriver.ts", () => {
   });
 
   it("should log data at error level", () => {
-    const pinoDriver = new PinoDriver();
+    const pinoDriver = new PinoDriver(infoFilePath, errorFilePath);
     const loggerStub = sinon.stub((pinoDriver as any)._logger);
 
     loggerStub.error = errorSpy;
@@ -37,7 +39,7 @@ describe("/src/infra/drivers/logger/PinoDriver.ts", () => {
   });
 
   it("should log data at fatal level", () => {
-    const pinoDriver = new PinoDriver();
+    const pinoDriver = new PinoDriver(infoFilePath, errorFilePath);
     const loggerStub = sinon.stub((pinoDriver as any)._logger);
 
     loggerStub.fatal = fatalSpy;

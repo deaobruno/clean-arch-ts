@@ -30,9 +30,9 @@ export default class MongoDbDriver implements IDbDriver {
     return MongoDbDriver.instance;
   }
 
-  async connect(): Promise<void> {
+  async connect(client?: MongoClient): Promise<void> {
     if (!MongoDbDriver.connected) {
-      MongoDbDriver.client = await MongoClient.connect(MongoDbDriver.dbUrl);
+      MongoDbDriver.client = client ?? await MongoClient.connect(MongoDbDriver.dbUrl);
       MongoDbDriver.connected = true;
 
       this.logger.info('[MongoDb] Client connected')
@@ -55,10 +55,6 @@ export default class MongoDbDriver implements IDbDriver {
     }
   }
 
-  async createIndex(source: string, column: string, order = 1): Promise<void> {
-    await MongoDbDriver.getCollection(source).createIndex({ [column]: order })
-  }
-
   private static getCollection(collectionName: string): Collection {
     if (!this.connected) throw new Error("MongoDB driver not connected");
 
@@ -73,8 +69,13 @@ export default class MongoDbDriver implements IDbDriver {
         return await operation()
       })
     } finally {
-      await session.endSession()
+      if (session)
+        await session.endSession()
     }
+  }
+
+  async createIndex(source: string, column: string, order = 1): Promise<void> {
+    await MongoDbDriver.getCollection(source).createIndex({ [column]: order })
   }
 
   async create(
@@ -84,7 +85,7 @@ export default class MongoDbDriver implements IDbDriver {
   ): Promise<void> {
     await this.transact(async () => {
       data.created_at = new Date().toISOString();
-      
+
       await MongoDbDriver.getCollection(source).insertOne(data, options);
     })
   }
@@ -96,10 +97,10 @@ export default class MongoDbDriver implements IDbDriver {
   ): Promise<Document[]> {
     return <Document[]> await this.transact(async () => {
       const limit = options.limit ?? 10
-  
+
       options.limit = limit
       options.skip = (options.skip ?? 0) * limit
-  
+
       return await MongoDbDriver.getCollection(source).find(filters, options).toArray();
     })
   }
@@ -122,7 +123,7 @@ export default class MongoDbDriver implements IDbDriver {
   ): Promise<void> {
     await this.transact(async () => {
       data.updated_at = new Date().toISOString();
-  
+
       await MongoDbDriver.getCollection(source).updateOne(
         filters,
         { $set: data },
