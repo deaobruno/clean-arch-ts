@@ -27,10 +27,7 @@ describe("DELETE /auth/logout", () => {
 
   it("should get 204 status code when successfully log an user out", async () => {
     sandbox.stub(JwtDriver.prototype, "validateAccessToken").returns({
-      id: user_id,
-      email,
-      password,
-      role,
+      id: user_id
     });
     sandbox
       .stub(MongoDbDriver.prototype, "findOne")
