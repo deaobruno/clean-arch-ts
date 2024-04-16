@@ -6,6 +6,7 @@ import server from "../../../src/infra/http/v1/server";
 import CryptoDriver from "../../../src/infra/drivers/hash/CryptoDriver";
 import UserRole from "../../../src/domain/user/UserRole";
 import MongoDbDriver from "../../../src/infra/drivers/db/MongoDbDriver";
+import BcryptDriver from "../../../src/infra/drivers/encryption/BcryptDriver";
 
 const sandbox = sinon.createSandbox();
 const hashDriver = new CryptoDriver();
@@ -21,6 +22,7 @@ describe("POST /auth", () => {
   after(() => server.stop());
 
   it("should get status 200 when successfully authenticated an user", async () => {
+    sandbox.stub(BcryptDriver.prototype, "compare").resolves(true)
     sandbox.stub(MongoDbDriver.prototype, "findOne").resolves({
       user_id: faker.string.uuid(),
       email,

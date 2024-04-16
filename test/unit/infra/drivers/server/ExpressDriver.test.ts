@@ -6,6 +6,7 @@ import ExpressDriver from "../../../../../src/infra/drivers/server/ExpressDriver
 import BaseController from "../../../../../src/adapters/controllers/BaseController";
 import PinoDriver from "../../../../../src/infra/drivers/logger/PinoDriver";
 import BadRequestError from "../../../../../src/application/errors/BadRequestError";
+import { Server } from "http";
 
 const loggerDriver = sinon.createStubInstance(PinoDriver);
 const { cors } = config
@@ -94,7 +95,15 @@ describe("/infra/drivers/server/ExpressDriver.ts", () => {
   });
 
   it("should start the server passing an array of Routes", () => {
-    const result = server.start(8080);
+    const port = 8080
+
+    sinon.stub(Server.prototype, 'address').returns({
+      address: '0.0.0.0',
+      family: 'family',
+      port,
+    })
+
+    const result = server.start(port);
 
     expect(result).equal(undefined);
   });

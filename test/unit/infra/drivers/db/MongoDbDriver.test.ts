@@ -60,6 +60,34 @@ describe("/src/infra/drivers/db/MongoDbDriver.ts", () => {
     expect(dbDriver).deep.equal(instance);
   });
 
+  it("should log a message after starting client connection", async () => {
+    const dbDriver = MongoDbDriver.getInstance(dbUrl, dbName, logger);
+    const loggerInfoStub = sandbox.stub(PinoDriver.prototype, 'info')
+
+    await dbDriver.connect();
+
+    expect(loggerInfoStub.calledOnceWith('[MongoDb] Client connected')).equal(true)
+  });
+
+  it.skip("should log a message after client throws an error", async () => {
+    const dbDriver = MongoDbDriver.getInstance(dbUrl, dbName, logger);
+
+    await dbDriver.connect();
+    await dbDriver.createIndex('collectionName', 'id', 0)
+
+    expect(logger.error.calledOnceWith('[Redis] Client connected')).equal(true)
+  });
+
+  it("should log a message after ending client connection", async () => {
+    const dbDriver = MongoDbDriver.getInstance(dbUrl, dbName, logger);
+    const loggerInfoStub = sandbox.stub(PinoDriver.prototype, 'info')
+
+    await dbDriver.connect();
+    await dbDriver.disconnect();
+
+    expect(loggerInfoStub.calledOnceWith('[MongoDb] Client disconnected')).equal(true)
+  });
+
   it("should connect to a mongoDb server", async () => {
     const mongoDbClient = sandbox.createStubInstance(MongoClient)
     const mongoDb = sandbox.createStubInstance(Db)

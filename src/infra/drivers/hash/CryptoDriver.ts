@@ -1,8 +1,6 @@
 import crypto, { BinaryToTextEncoding } from "node:crypto";
 
 export default class CryptoDriver {
-  constructor() {}
-
   generateID(): string {
     return crypto.randomUUID();
   }

@@ -59,6 +59,7 @@ import FindMemosByUserIdController from "./adapters/controllers/memo/FindMemosBy
 import UpdateMemoController from "./adapters/controllers/memo/UpdateMemoController";
 import DeleteMemoController from "./adapters/controllers/memo/DeleteMemoController";
 import RedisDriver from "./infra/drivers/cache/RedisDriver";
+import BcryptDriver from "./infra/drivers/encryption/BcryptDriver";
 
 const {
   app: {
@@ -82,7 +83,7 @@ const {
   logger: {
     infoFilePath,
     errorFilePath,
-  }
+  },
 } = config;
 // DRIVERS
 const loggerDriver = new PinoDriver(infoFilePath, errorFilePath);
@@ -92,9 +93,10 @@ const tokenDriver = new JwtDriver(
   accessTokenSecret,
   accessTokenExpirationTime,
   refreshTokenSecret,
-  refreshTokenExpirationTime
+  refreshTokenExpirationTime,
 );
 const cacheDriver = new RedisDriver(redisUrl, redisPassword, loggerDriver);
+const encryptionDriver = new BcryptDriver()
 // MAPPERS
 const userMapper = new UserMapper();
 const refreshTokenMapper = new RefreshTokenMapper();
@@ -104,61 +106,62 @@ const memoRepository = new MemoRepository(
   memoSource,
   dbDriver,
   cacheDriver,
-  memoMapper
+  memoMapper,
 );
 const userRepository = new UserRepository(
   usersSource,
   dbDriver,
   cacheDriver,
-  userMapper
+  userMapper,
 );
 const refreshTokenRepository = new RefreshTokenRepository(
   refreshTokensSource,
   dbDriver,
   cacheDriver,
   refreshTokenMapper,
-  refreshTokenExpirationTime
+  refreshTokenExpirationTime,
 );
 // USE CASES
 const registerCustomerUseCase = new RegisterCustomer(
+  hashDriver,
+  encryptionDriver,
   userRepository,
-  hashDriver
 );
 const loginUseCase = new Login(
+  encryptionDriver,
+  tokenDriver,
   userRepository,
   refreshTokenRepository,
-  tokenDriver,
-  hashDriver
 );
 const refreshAccessTokenUseCase = new RefreshAccessToken(
   tokenDriver,
-  refreshTokenRepository
+  refreshTokenRepository,
 );
 const deleteRefreshTokenUseCase = new DeleteRefreshToken(
-  refreshTokenRepository
+  refreshTokenRepository,
 );
 const validateAuthenticationUseCase = new ValidateAuthentication(
   tokenDriver,
   refreshTokenRepository,
-  userRepository
+  userRepository,
 );
 const validateAuthorizationUseCase = new ValidateAuthorization();
-const createRootUseCase = new CreateRoot(userRepository, hashDriver);
+const createRootUseCase = new CreateRoot(hashDriver, encryptionDriver, userRepository);
 const findUsersUseCase = new FindUsers(userRepository);
 const findUserByIdUseCase = new FindUserById(userRepository);
 const updateUserUseCase = new UpdateUser(
   userRepository,
-  refreshTokenRepository
+  refreshTokenRepository,
 );
 const updateUserPasswordUseCase = new UpdateUserPassword(
-  hashDriver,
+  encryptionDriver,
   userRepository,
-  refreshTokenRepository
+  refreshTokenRepository,
 );
 const deleteUserUseCase = new DeleteUser(
   userRepository,
   refreshTokenRepository,
-  memoRepository
+  memoRepository,
 );
 const createMemoUseCase = new CreateMemo(hashDriver, memoRepository);
 const findMemoByIdUseCase = new FindMemoById(memoRepository);

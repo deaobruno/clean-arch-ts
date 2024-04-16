@@ -10,14 +10,6 @@ const { url, password } = config.cache.redis
 describe('/src/infra/drivers/cache/RedisDriver.ts', () => {
   afterEach(() => sandbox.restore())
 
-  it('should start Redis client connection with default client', async () => {
-    const logger = sandbox.createStubInstance(PinoDriver)
-    const redisDriver = new RedisDriver(url, password, logger)
-    const result = await redisDriver.connect()
-
-    expect(result).equal(undefined)
-  })
-
   it('should start Redis client connection with custom client', async () => {
     const logger = sandbox.createStubInstance(PinoDriver)
     const redisClient: any = {
@@ -38,24 +30,25 @@ describe('/src/infra/drivers/cache/RedisDriver.ts', () => {
     expect(result).equal(undefined)
   })
 
+  it('should start Redis client connection with default client', async () => {
+    const logger = sandbox.createStubInstance(PinoDriver)
+    const redisDriver = new RedisDriver(url, password, logger)
+    const result = await redisDriver.connect()
+
+    expect(result).equal(undefined)
+    expect(logger.info.calledWith('[Redis] Client connected')).equal(true)
+  })
+
   it('should stop Redis client connection', async () => {
     const logger = sandbox.createStubInstance(PinoDriver)
-    const redisClient: any = {
-      on: sandbox.stub(),
-      connect: sandbox.stub(),
-      disconnect: sandbox.stub(),
-      set: sandbox.stub(),
-      get: sandbox.stub(),
-      del: sandbox.stub(),
-      isReady: true,
-    }
-    const redisDriver = new RedisDriver('url', 'password', logger, redisClient)
+    const redisDriver = new RedisDriver(url, password, logger)
 
-    redisClient.disconnect.resolves()
+    await redisDriver.connect()
 
     const result = await redisDriver.disconnect()
 
     expect(result).equal(undefined)
+    expect(logger.info.calledWith('[Redis] Client disconnected')).equal(true)
   })
 
   it('should store an object in Redis cache', async () => {

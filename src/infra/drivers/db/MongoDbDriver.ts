@@ -48,7 +48,7 @@ export default class MongoDbDriver implements IDbDriver {
   }
 
   async disconnect(): Promise<void> {
-    if (MongoDbDriver.connected) {
+    if (MongoDbDriver.connected === true) {
       await MongoDbDriver.client.close();
 
       MongoDbDriver.connected = false;

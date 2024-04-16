@@ -7,7 +7,7 @@ export default class RedisDriver implements ICacheDriver {
     url,
     password
   })) {
-    this.client.on('connect', () => logger.info(`[Redis] Client connected`));
+    this.client.on('connect', () => logger.info('[Redis] Client connected'));
     this.client.on('error', (error) => logger.error(`[Redis] ${error}`));
     this.client.on('end', () => logger.info('[Redis] Client disconnected'));
   }
