@@ -23,7 +23,7 @@ describe("/infra/schemas/memo/CreateMemoSchema.ts", () => {
       end: new Date().toISOString(),
     });
 
-    expect(validation.message).equal('"title" is required');
+    expect(validation.message).equal('"title" is not allowed to be empty');
   });
 
   it("should fail when text is empty", () => {
@@ -34,7 +34,7 @@ describe("/infra/schemas/memo/CreateMemoSchema.ts", () => {
       end: new Date().toISOString(),
     });
 
-    expect(validation.message).equal('"text" is required');
+    expect(validation.message).equal('"text" is not allowed to be empty');
   });
 
   it("should fail when start is empty", () => {
@@ -45,7 +45,7 @@ describe("/infra/schemas/memo/CreateMemoSchema.ts", () => {
       end: new Date().toISOString(),
     });
 
-    expect(validation.message).equal('"start" is required');
+    expect(validation.message).equal('"start" must be in ISO 8601 date format');
   });
 
   it("should fail when end is empty", () => {
@@ -56,7 +56,7 @@ describe("/infra/schemas/memo/CreateMemoSchema.ts", () => {
       end: "",
     });
 
-    expect(validation.message).equal('"end" is required');
+    expect(validation.message).equal('"end" must be in ISO 8601 date format');
   });
 
   it("should fail when passing invalid param", () => {
@@ -68,6 +68,6 @@ describe("/infra/schemas/memo/CreateMemoSchema.ts", () => {
       test: "test",
     });
 
-    expect(validation.message).equal('Invalid param(s): "test"');
+    expect(validation.message).equal('"test" is not allowed');
   });
 });

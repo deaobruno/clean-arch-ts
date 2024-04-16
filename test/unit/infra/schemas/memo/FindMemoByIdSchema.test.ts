@@ -16,7 +16,7 @@ describe("/infra/schemas/memo/FindMemoByIdSchema.ts", () => {
       memo_id: "",
     });
 
-    expect(validation.message).equal('Invalid "memo_id" format');
+    expect(validation.message).equal('"memo_id" is not allowed to be empty');
   });
 
   it("should fail when memo_id is invalid", () => {
@@ -24,7 +24,7 @@ describe("/infra/schemas/memo/FindMemoByIdSchema.ts", () => {
       memo_id: "test",
     });
 
-    expect(validation.message).equal('Invalid "memo_id" format');
+    expect(validation.message).equal('"memo_id" must be a valid GUID');
   });
 
   it("should fail when passing invalid param", () => {
@@ -33,6 +33,6 @@ describe("/infra/schemas/memo/FindMemoByIdSchema.ts", () => {
       test: "test",
     });
 
-    expect(validation.message).equal('Invalid param(s): "test"');
+    expect(validation.message).equal('"test" is not allowed');
   });
 });

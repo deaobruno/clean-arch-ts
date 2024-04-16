@@ -5,6 +5,7 @@ import RegisterCustomer from "../../../../../src/application/useCases/auth/Regis
 import UserRole from "../../../../../src/domain/user/UserRole";
 import User from "../../../../../src/domain/user/User";
 import CryptoDriver from "../../../../../src/infra/drivers/hash/CryptoDriver";
+import BcryptDriver from "../../../../../src/infra/drivers/encryption/BcryptDriver";
 import ConflictError from "../../../../../src/application/errors/ConflictError";
 import BaseError from "../../../../../src/application/errors/BaseError";
 import UserRepository from "../../../../../src/adapters/repositories/UserRepository";
@@ -30,12 +31,13 @@ describe("/application/useCases/auth/RegisterCustomer.ts", () => {
 
   it("should successfully create a Customer User", async () => {
     const cryptoDriver = sandbox.createStubInstance(CryptoDriver);
+    const encryptionDriver = sandbox.createStubInstance(BcryptDriver);
     const userRepository = sandbox.createStubInstance(UserRepository);
-    const registerCustomer = new RegisterCustomer(userRepository, cryptoDriver);
+    const registerCustomer = new RegisterCustomer(cryptoDriver, encryptionDriver, userRepository);
 
     userRepository.findOneByEmail.resolves();
     cryptoDriver.generateID.returns(faker.string.uuid());
-    cryptoDriver.hashString.returns("hash");
+    encryptionDriver.encrypt.resolves("hash");
     userRepository.create.resolves();
     sandbox.stub(User, "create").returns(fakeUser);
 
@@ -51,8 +53,9 @@ describe("/application/useCases/auth/RegisterCustomer.ts", () => {
 
   it("should fail when trying to create a Customer User with repeated email", async () => {
     const cryptoDriver = sandbox.createStubInstance(CryptoDriver);
+    const encryptionDriver = sandbox.createStubInstance(BcryptDriver);
     const userRepository = sandbox.createStubInstance(UserRepository);
-    const registerCustomer = new RegisterCustomer(userRepository, cryptoDriver);
+    const registerCustomer = new RegisterCustomer(cryptoDriver, encryptionDriver, userRepository);
 
     userRepository.findOneByEmail.resolves(fakeUser);
 

@@ -3,7 +3,8 @@ import joi from 'joi'
 export default {
   validate: (payload: any): void | Error => {
     const { error } = joi.object({
-      memo_id: joi.string().uuid().required(),
+      email: joi.string().email().required(),
+      password: joi.string().min(8).max(16).required(),
     }).validate(payload)
 
     if (error)

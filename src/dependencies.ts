@@ -3,7 +3,7 @@ import CryptoDriver from "./infra/drivers/hash/CryptoDriver";
 import JwtDriver from "./infra/drivers/token/JwtDriver";
 import UserRepository from "./adapters/repositories/UserRepository";
 import RegisterCustomerSchema from "./infra/schemas/auth/RegisterCustomerSchema";
-import AuthenticateUserSchema from "./infra/schemas/auth/AuthenticateUserSchema";
+import LoginSchema from "./infra/schemas/auth/LoginSchema";
 import RefreshAccessTokenSchema from "./infra/schemas/auth/RefreshAccessTokenSchema";
 import FindUsersSchema from "./infra/schemas/user/FindUsersSchema";
 import FindUserByIdSchema from "./infra/schemas/user/FindUserByIdSchema";
@@ -16,7 +16,7 @@ import FindMemosByUserIdSchema from "./infra/schemas/memo/FindMemosByUserIdSchem
 import UpdateMemoSchema from "./infra/schemas/memo/UpdateMemoSchema";
 import DeleteMemoSchema from "./infra/schemas/memo/DeleteMemoSchema";
 import RegisterCustomer from "./application/useCases/auth/RegisterCustomer";
-import AuthenticateUser from "./application/useCases/auth/AuthenticateUser";
+import Login from "./application/useCases/auth/Login";
 import ValidateAuthentication from "./application/useCases/auth/ValidateAuthentication";
 import FindUsers from "./application/useCases/user/FindUsers";
 import FindUserById from "./application/useCases/user/FindUserById";
@@ -24,7 +24,7 @@ import UpdateUser from "./application/useCases/user/UpdateUser";
 import UpdateUserPassword from "./application/useCases/user/UpdateUserPassword";
 import DeleteUser from "./application/useCases/user/DeleteUser";
 import RegisterCustomerController from "./adapters/controllers/auth/RegisterCustomerController";
-import AuthenticateUserController from "./adapters/controllers/auth/AuthenticateUserController";
+import LoginController from "./adapters/controllers/auth/LoginController";
 import FindUsersController from "./adapters/controllers/user/FindUsersController";
 import FindUserByIdController from "./adapters/controllers/user/FindUserByIdController";
 import UpdateUserController from "./adapters/controllers/user/UpdateUserController";
@@ -58,7 +58,8 @@ import FindMemoByIdController from "./adapters/controllers/memo/FindMemoByIdCont
 import FindMemosByUserIdController from "./adapters/controllers/memo/FindMemosByUserIdController";
 import UpdateMemoController from "./adapters/controllers/memo/UpdateMemoController";
 import DeleteMemoController from "./adapters/controllers/memo/DeleteMemoController";
-import NodeCacheDriver from "./infra/drivers/cache/NodeCacheDriver";
+import RedisDriver from "./infra/drivers/cache/RedisDriver";
+import BcryptDriver from "./infra/drivers/encryption/BcryptDriver";
 
 const {
   app: {
@@ -73,18 +74,29 @@ const {
     refreshTokensSource,
     memoSource,
   },
+  cache: {
+    redis: {
+      url: redisUrl,
+      password: redisPassword,
+    }
+  },
+  logger: {
+    infoFilePath,
+    errorFilePath,
+  },
 } = config;
 // DRIVERS
-const dbDriver = MongoDbDriver.getInstance(dbUrl, dbName);
-const cryptoDriver = new CryptoDriver();
-const jwtDriver = new JwtDriver(
+const loggerDriver = new PinoDriver(infoFilePath, errorFilePath);
+const dbDriver = MongoDbDriver.getInstance(dbUrl, dbName, loggerDriver);
+const hashDriver = new CryptoDriver();
+const tokenDriver = new JwtDriver(
   accessTokenSecret,
   accessTokenExpirationTime,
   refreshTokenSecret,
-  refreshTokenExpirationTime
+  refreshTokenExpirationTime,
 );
-const loggerDriver = new PinoDriver();
-const cacheDriver = new NodeCacheDriver();
+const cacheDriver = new RedisDriver(redisUrl, redisPassword, loggerDriver);
+const encryptionDriver = new BcryptDriver()
 // MAPPERS
 const userMapper = new UserMapper();
 const refreshTokenMapper = new RefreshTokenMapper();
@@ -94,63 +106,64 @@ const memoRepository = new MemoRepository(
   memoSource,
   dbDriver,
   cacheDriver,
-  memoMapper
+  memoMapper,
 );
 const userRepository = new UserRepository(
   usersSource,
   dbDriver,
   cacheDriver,
-  userMapper
+  userMapper,
 );
 const refreshTokenRepository = new RefreshTokenRepository(
   refreshTokensSource,
   dbDriver,
   cacheDriver,
   refreshTokenMapper,
-  refreshTokenExpirationTime
+  refreshTokenExpirationTime,
 );
 // USE CASES
 const registerCustomerUseCase = new RegisterCustomer(
+  hashDriver,
+  encryptionDriver,
   userRepository,
-  cryptoDriver
 );
-const authenticateUserUseCase = new AuthenticateUser(
+const loginUseCase = new Login(
+  encryptionDriver,
+  tokenDriver,
   userRepository,
   refreshTokenRepository,
-  jwtDriver,
-  cryptoDriver
 );
 const refreshAccessTokenUseCase = new RefreshAccessToken(
-  jwtDriver,
-  refreshTokenRepository
+  tokenDriver,
+  refreshTokenRepository,
 );
 const deleteRefreshTokenUseCase = new DeleteRefreshToken(
-  refreshTokenRepository
+  refreshTokenRepository,
 );
 const validateAuthenticationUseCase = new ValidateAuthentication(
-  jwtDriver,
+  tokenDriver,
   refreshTokenRepository,
-  userRepository
+  userRepository,
 );
 const validateAuthorizationUseCase = new ValidateAuthorization();
-const createRootUseCase = new CreateRoot(userRepository, cryptoDriver);
+const createRootUseCase = new CreateRoot(hashDriver, encryptionDriver, userRepository);
 const findUsersUseCase = new FindUsers(userRepository);
 const findUserByIdUseCase = new FindUserById(userRepository);
 const updateUserUseCase = new UpdateUser(
   userRepository,
-  refreshTokenRepository
+  refreshTokenRepository,
 );
 const updateUserPasswordUseCase = new UpdateUserPassword(
-  cryptoDriver,
+  encryptionDriver,
   userRepository,
-  refreshTokenRepository
+  refreshTokenRepository,
 );
 const deleteUserUseCase = new DeleteUser(
   userRepository,
   refreshTokenRepository,
-  memoRepository
+  memoRepository,
 );
-const createMemoUseCase = new CreateMemo(cryptoDriver, memoRepository);
+const createMemoUseCase = new CreateMemo(hashDriver, memoRepository);
 const findMemoByIdUseCase = new FindMemoById(memoRepository);
 const findMemosByUserIdUseCase = new FindMemosByUserId(memoRepository);
 const updateMemoUseCase = new UpdateMemo(memoRepository);
@@ -165,9 +178,9 @@ const registerCustomerController = new RegisterCustomerController({
   schema: RegisterCustomerSchema,
   presenter: customerPresenter,
 });
-const authenticateUserController = new AuthenticateUserController({
-  useCase: authenticateUserUseCase,
-  schema: AuthenticateUserSchema,
+const loginController = new LoginController({
+  useCase: loginUseCase,
+  schema: LoginSchema,
 });
 const refreshAccessTokenController = new RefreshAccessTokenController({
   useCase: refreshAccessTokenUseCase,
@@ -246,8 +259,9 @@ const createRootUserEvent = new CreateRootUserEvent(createRootUseCase);
 export default {
   dbDriver,
   loggerDriver,
+  cacheDriver,
   registerCustomerController,
-  authenticateUserController,
+  loginController,
   refreshAccessTokenController,
   logoutController,
   findUsersController,

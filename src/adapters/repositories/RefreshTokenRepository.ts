@@ -33,14 +33,14 @@ export default class RefreshTokenRepository implements IRefreshTokenRepository {
   }
 
   async findOneByUserId(user_id: string): Promise<RefreshToken | undefined> {
-    const cachedRefreshToken = this._cacheDriver.get(`token-${user_id}`);
+    const cachedRefreshToken = await this._cacheDriver.get(`token-${user_id}`);
 
     if (cachedRefreshToken) return cachedRefreshToken;
 
     const refreshToken = await this.findOne({ user_id });
 
     if (refreshToken) {
-      this._cacheDriver.set(
+      await this._cacheDriver.set(
         `token-${user_id}`,
         refreshToken,
         this._refreshTokenExpirationTime
@@ -55,13 +55,13 @@ export default class RefreshTokenRepository implements IRefreshTokenRepository {
 
     await this._dbDriver.delete(this._source, { token });
 
-    this._cacheDriver.del(`token-${userId}`);
+    await this._cacheDriver.del(`token-${userId}`);
   }
 
   async deleteAllByUser(user: User): Promise<void> {
     const { userId: user_id } = user;
     await this._dbDriver.deleteMany(this._source, { user_id });
 
-    this._cacheDriver.del(`token-${user_id}`);
+    await this._cacheDriver.del(`token-${user_id}`);
   }
 }

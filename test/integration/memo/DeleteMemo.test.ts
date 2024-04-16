@@ -2,20 +2,13 @@ import sinon from "sinon";
 import axios from "axios";
 import { faker } from "@faker-js/faker";
 import { expect } from "chai";
-import config from "../../../src/config";
 import UserRole from "../../../src/domain/user/UserRole";
 import CryptoDriver from "../../../src/infra/drivers/hash/CryptoDriver";
 import server from "../../../src/infra/http/v1/server";
 import MongoDbDriver from "../../../src/infra/drivers/db/MongoDbDriver";
 import JwtDriver from "../../../src/infra/drivers/token/JwtDriver";
 
-const {
-  db: {
-    mongo: { dbUrl },
-  },
-} = config;
 const sandbox = sinon.createSandbox();
-const dbDriver = MongoDbDriver.getInstance(dbUrl, "test");
 const hashDriver = new CryptoDriver();
 const url = "http://localhost:8080/api/v1/memos";
 const memoId = faker.string.uuid();
@@ -26,19 +19,11 @@ const Authorization = "Bearer token";
 const token = "refresh-token";
 
 describe("DELETE /memos", () => {
-  before(async () => {
-    await dbDriver.connect();
-
-    server.start(8080);
-  });
+  before(() => server.start(8080));
 
   afterEach(() => sandbox.restore());
 
-  after(async () => {
-    await dbDriver.disconnect();
-
-    server.stop();
-  });
+  after(() => server.stop());
 
   it("should get 204 status code when trying to delete an existing memo", async () => {
     const userId = faker.string.uuid();
@@ -46,8 +31,7 @@ describe("DELETE /memos", () => {
     sandbox
       .stub(JwtDriver.prototype, "validateAccessToken")
       .returns({ id: userId });
-    sandbox
-      .stub(dbDriver, "findOne")
+    sandbox.stub(MongoDbDriver.prototype, "findOne")
       .onCall(0)
       .resolves({
         user_id: userId,
@@ -69,7 +53,7 @@ describe("DELETE /memos", () => {
         start: new Date(new Date().getTime() + 3.6e6).toISOString(),
         end: new Date(new Date().getTime() + 3.6e6 * 2).toISOString(),
       });
-    sandbox.stub(dbDriver, "delete").resolves();
+    sandbox.stub(MongoDbDriver.prototype, "delete").resolves();
 
     const { status } = await axios.delete(`${url}/${memoId}`, {
       headers: { Authorization },
@@ -84,8 +68,7 @@ describe("DELETE /memos", () => {
     sandbox
       .stub(JwtDriver.prototype, "validateAccessToken")
       .returns({ id: userId });
-    sandbox
-      .stub(dbDriver, "findOne")
+    sandbox.stub(MongoDbDriver.prototype, "findOne")
       .onCall(0)
       .resolves({
         user_id: userId,
@@ -103,7 +86,7 @@ describe("DELETE /memos", () => {
       .delete(`${url}/test`, { headers: { Authorization } })
       .catch(({ response: { status, data } }) => {
         expect(status).equal(400);
-        expect(data.error).equal('Invalid "memo_id" format');
+        expect(data.error).equal('"memo_id" must be a valid GUID');
       });
   });
 
@@ -113,8 +96,7 @@ describe("DELETE /memos", () => {
     sandbox
       .stub(JwtDriver.prototype, "validateAccessToken")
       .returns({ id: userId });
-    sandbox
-      .stub(dbDriver, "findOne")
+    sandbox.stub(MongoDbDriver.prototype, "findOne")
       .onCall(0)
       .resolves({
         user_id: userId,

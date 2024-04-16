@@ -2,20 +2,13 @@ import sinon from "sinon";
 import axios from "axios";
 import { faker } from "@faker-js/faker";
 import { expect } from "chai";
-import config from "../../../src/config";
 import UserRole from "../../../src/domain/user/UserRole";
 import CryptoDriver from "../../../src/infra/drivers/hash/CryptoDriver";
 import server from "../../../src/infra/http/v1/server";
 import MongoDbDriver from "../../../src/infra/drivers/db/MongoDbDriver";
 import JwtDriver from "../../../src/infra/drivers/token/JwtDriver";
 
-const {
-  db: {
-    mongo: { dbUrl },
-  },
-} = config;
 const sandbox = sinon.createSandbox();
-const dbDriver = MongoDbDriver.getInstance(dbUrl, "test");
 const hashDriver = new CryptoDriver();
 const url = "http://localhost:8080/api/v1/memos";
 const memoId = faker.string.uuid();
@@ -26,19 +19,11 @@ const Authorization = "Bearer token";
 const token = "refresh-token";
 
 describe("GET /memos/:memo_id", () => {
-  before(async () => {
-    await dbDriver.connect();
-
-    server.start(8080);
-  });
+  before(() => server.start(8080));
 
   afterEach(() => sandbox.restore());
 
-  after(async () => {
-    await dbDriver.disconnect();
-
-    server.stop();
-  });
+  after(() => server.stop());
 
   it("should get 200 status code and an object with a single memo data when trying to find a memo by memo_id", async () => {
     const userId = faker.string.uuid();
@@ -50,8 +35,7 @@ describe("GET /memos/:memo_id", () => {
     sandbox
       .stub(JwtDriver.prototype, "validateAccessToken")
       .returns({ id: userId });
-    sandbox
-      .stub(dbDriver, "findOne")
+    sandbox.stub(MongoDbDriver.prototype, "findOne")
       .onCall(0)
       .resolves({
         user_id: userId,
@@ -92,8 +76,7 @@ describe("GET /memos/:memo_id", () => {
     sandbox
       .stub(JwtDriver.prototype, "validateAccessToken")
       .returns({ id: userId });
-    sandbox
-      .stub(dbDriver, "findOne")
+    sandbox.stub(MongoDbDriver.prototype, "findOne")
       .onCall(0)
       .resolves({
         user_id: userId,
@@ -111,7 +94,7 @@ describe("GET /memos/:memo_id", () => {
       .get(`${url}/test`, { headers: { Authorization } })
       .catch(({ response: { status, data } }) => {
         expect(status).equal(400);
-        expect(data.error).equal('Invalid "memo_id" format');
+        expect(data.error).equal('"memo_id" must be a valid GUID');
       });
   });
 
@@ -121,8 +104,7 @@ describe("GET /memos/:memo_id", () => {
     sandbox
       .stub(JwtDriver.prototype, "validateAccessToken")
       .returns({ id: userId });
-    sandbox
-      .stub(dbDriver, "findOne")
+    sandbox.stub(MongoDbDriver.prototype, "findOne")
       .onCall(0)
       .resolves({
         user_id: userId,

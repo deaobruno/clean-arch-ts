@@ -1,10 +1,10 @@
 import User from "../../../domain/user/User";
 import IRefreshTokenRepository from "../../../domain/refreshToken/IRefreshTokenRepository";
 import IUserRepository from "../../../domain/user/IUserRepository";
-import CryptoDriver from "../../../infra/drivers/hash/CryptoDriver";
 import BaseError from "../../errors/BaseError";
 import IUseCase from "../IUseCase";
 import NotFoundError from "../../errors/NotFoundError";
+import IEncryptionDriver from "../../../infra/drivers/encryption/IEncryptionDriver";
 
 type UpdateUserPasswordInput = {
   user: User;
@@ -18,7 +18,7 @@ export default class UpdateUserPassword
   implements IUseCase<UpdateUserPasswordInput, Output>
 {
   constructor(
-    private _cryptoDriver: CryptoDriver,
+    private _encryptionDriver: IEncryptionDriver,
     private _userRepository: IUserRepository,
     private _refreshTokenRepository: IRefreshTokenRepository
   ) {}
@@ -37,7 +37,7 @@ export default class UpdateUserPassword
       userId: user.userId,
       email: user.email,
       password: password
-        ? this._cryptoDriver.hashString(password)
+        ? await this._encryptionDriver.encrypt(password)
         : user.password,
       role: user.role,
     });

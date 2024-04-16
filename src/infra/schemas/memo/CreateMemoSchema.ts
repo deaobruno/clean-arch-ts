@@ -1,20 +1,15 @@
+import joi from 'joi'
+
 export default {
-  validate(payload: any): void | Error {
-    const { title, text, start, end } = payload;
+  validate: (payload: any): void | Error => {
+    const { error } = joi.object({
+      title: joi.string().min(5).max(100).required(),
+      text: joi.string().min(8).max(64).required(),
+      start: joi.date().iso().required(),
+      end: joi.date().iso().min(joi.ref('start')).required(),
+    }).validate(payload)
 
-    if (!title) return Error('"title" is required');
-
-    if (!text) return Error('"text" is required');
-
-    if (!start) return Error('"start" is required');
-
-    if (!end) return Error('"end" is required');
-
-    const invalidParams = Object.keys(payload)
-      .filter((key) => !["title", "text", "start", "end"].includes(key))
-      .map((key) => `"${key}"`)
-      .join(", ");
-
-    if (invalidParams) return Error(`Invalid param(s): ${invalidParams}`);
-  },
-};
+    if (error)
+      return error
+  }
+}

@@ -1,30 +1,14 @@
+import joi from 'joi'
+
 export default {
-  validate(payload: any): void | Error {
-    const { email, password, confirm_password } = payload
-    const emailRegex = /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/gi
+  validate: (payload: any): void | Error => {
+    const { error } = joi.object({
+      email: joi.string().email().max(100).required(),
+      password: joi.string().min(8).max(16).required(),
+      confirm_password: joi.ref('password'),
+    }).validate(payload)
 
-    if (!email)
-      return Error('"email" is required')
-
-    if (email && !emailRegex.test(email))
-      return Error('Invalid "email" format')
-
-    if (!password)
-      return Error('"password" is required')
-
-    if (!confirm_password)
-      return Error('"confirm_password" is required')
-
-    if (password && confirm_password && (password !== confirm_password))
-      return Error('Passwords mismatch')
-
-    const invalidParams = Object
-      .keys(payload)
-      .filter(key => !['email', 'password', 'confirm_password'].includes(key))
-      .map(key => `"${ key }"`)
-      .join(', ')
-    
-    if (invalidParams)
-      return Error(`Invalid param(s): ${ invalidParams }`)
+    if (error)
+      return error
   }
 }

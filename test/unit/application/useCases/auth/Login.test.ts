@@ -1,11 +1,11 @@
 import sinon from "sinon";
 import { faker } from "@faker-js/faker";
 import { expect } from "chai";
+import BcryptDriver from "../../../../../src/infra/drivers/encryption/BcryptDriver";
 import JwtDriver from "../../../../../src/infra/drivers/token/JwtDriver";
-import CryptoDriver from "../../../../../src/infra/drivers/hash/CryptoDriver";
 import UserRepository from "../../../../../src/adapters/repositories/UserRepository";
 import RefreshTokenRepository from "../../../../../src/adapters/repositories/RefreshTokenRepository";
-import AuthenticateUser from "../../../../../src/application/useCases/auth/AuthenticateUser";
+import Login from "../../../../../src/application/useCases/auth/Login";
 import BaseError from "../../../../../src/application/errors/BaseError";
 import UnauthorizedError from "../../../../../src/application/errors/UnauthorizedError";
 import RefreshToken from "../../../../../src/domain/refreshToken/RefreshToken";
@@ -29,34 +29,34 @@ const fakeUser = User.create({
   role: UserRole.CUSTOMER,
 });
 
-describe("/application/useCases/auth/AuthenticateUser.ts", () => {
+describe("/application/useCases/auth/Login.ts", () => {
   afterEach(() => sandbox.restore());
 
   it("should return a JWT access token and a JWT refresh token", async () => {
+    const encryptionDriver = sandbox.createStubInstance(BcryptDriver);
     const tokenDriver = sandbox.createStubInstance(JwtDriver);
-    const hashDriver = sandbox.createStubInstance(CryptoDriver);
     const userRepository = sandbox.createStubInstance(UserRepository);
     const refreshTokenRepository = sandbox.createStubInstance(
       RefreshTokenRepository
     );
 
     userRepository.findOneByEmail.resolves(fakeUser);
-    hashDriver.hashString.returns(fakeUser.password);
+    encryptionDriver.compare.resolves(true);
     tokenDriver.generateAccessToken.returns("access-token");
     tokenDriver.generateRefreshToken.returns("refresh-token");
     sandbox
       .stub(RefreshToken, "create")
       .returns({ userId: faker.string.uuid(), token: "token" });
 
-    const authenticateUser = new AuthenticateUser(
+    const login = new Login(
+      encryptionDriver,
+      tokenDriver,
       userRepository,
       refreshTokenRepository,
-      tokenDriver,
-      hashDriver
     );
 
     const { accessToken, refreshToken } = <any>(
-      await authenticateUser.exec(userData)
+      await login.exec(userData)
     );
 
     expect(accessToken).equal("access-token");
@@ -64,21 +64,21 @@ describe("/application/useCases/auth/AuthenticateUser.ts", () => {
   });
 
   it("should return an UnauthorizedError when user is not found", async () => {
+    const encryptionDriver = sandbox.createStubInstance(BcryptDriver);
     const tokenDriver = sandbox.createStubInstance(JwtDriver);
-    const hashDriver = sandbox.createStubInstance(CryptoDriver);
     const userRepository = sandbox.createStubInstance(UserRepository);
     const refreshTokenRepository = sandbox.createStubInstance(
       RefreshTokenRepository
     );
 
-    const authenticateUser = new AuthenticateUser(
+    const login = new Login(
+      encryptionDriver,
+      tokenDriver,
       userRepository,
       refreshTokenRepository,
-      tokenDriver,
-      hashDriver
     );
 
-    const error = <BaseError>await authenticateUser.exec(userData);
+    const error = <BaseError>await login.exec(userData);
 
     expect(error instanceof UnauthorizedError).equal(true);
     expect(error.message).equal("Unauthorized");
@@ -86,8 +86,8 @@ describe("/application/useCases/auth/AuthenticateUser.ts", () => {
   });
 
   it("should return an UnauthorizedError when given password is different from found user password", async () => {
+    const encryptionDriver = sandbox.createStubInstance(BcryptDriver);
     const tokenDriver = sandbox.createStubInstance(JwtDriver);
-    const hashDriver = sandbox.createStubInstance(CryptoDriver);
     const userRepository = sandbox.createStubInstance(UserRepository);
     const refreshTokenRepository = sandbox.createStubInstance(
       RefreshTokenRepository
@@ -96,14 +96,14 @@ describe("/application/useCases/auth/AuthenticateUser.ts", () => {
     fakeUser.password = "test";
     userRepository.findOneByEmail.resolves(fakeUser);
 
-    const authenticateUser = new AuthenticateUser(
+    const login = new Login(
+      encryptionDriver,
+      tokenDriver,
       userRepository,
       refreshTokenRepository,
-      tokenDriver,
-      hashDriver
     );
 
-    const error = <BaseError>await authenticateUser.exec(userData);
+    const error = <BaseError>await login.exec(userData);
 
     expect(error instanceof UnauthorizedError).equal(true);
     expect(error.message).equal("Unauthorized");

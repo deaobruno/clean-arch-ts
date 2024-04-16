@@ -1,11 +1,11 @@
 import User from "../../../domain/user/User";
 import UserRole from "../../../domain/user/UserRole";
 import IUserRepository from "../../../domain/user/IUserRepository";
-import CryptoDriver from "../../../infra/drivers/hash/CryptoDriver";
 import BaseError from "../../errors/BaseError";
 import IUseCase from "../IUseCase";
 import ConflictError from "../../errors/ConflictError";
-import InternalServerError from "../../errors/InternalServerError";
+import IHashDriver from "../../../infra/drivers/hash/IHashDriver";
+import IEncryptionDriver from "../../../infra/drivers/encryption/IEncryptionDriver";
 
 type RegisterCustomerInput = {
   email: string;
@@ -18,8 +18,9 @@ export default class RegisterCustomer
   implements IUseCase<RegisterCustomerInput, Output>
 {
   constructor(
+    private _hashDriver: IHashDriver,
+    private _encryptionDriver: IEncryptionDriver,
     private _userRepository: IUserRepository,
-    private _cryptoDriver: CryptoDriver
   ) {}
 
   async exec(input: RegisterCustomerInput): Promise<Output> {
@@ -30,9 +31,9 @@ export default class RegisterCustomer
       return new ConflictError("Email already in use");
 
     const user = User.create({
-      userId: this._cryptoDriver.generateID(),
+      userId: this._hashDriver.generateID(),
       email,
-      password: this._cryptoDriver.hashString(password),
+      password: await this._encryptionDriver.encrypt(password),
       role: UserRole.CUSTOMER,
     });
 

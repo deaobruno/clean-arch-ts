@@ -13,15 +13,15 @@ const {
   app: { environment, rootUserEmail, rootUserPassword },
   server: { httpPort },
 } = config;
-const { dbDriver, loggerDriver, createRootUserEvent } = dependencies;
-const numCPUs = availableParallelism();
+const { dbDriver, loggerDriver, cacheDriver, createRootUserEvent } = dependencies;
 
 (async () => {
   await dbDriver.connect();
+  await cacheDriver.connect()
+
   await dbDriver.createIndex(usersSource, 'user_id')
   await dbDriver.createIndex(usersSource, 'email')
   await dbDriver.createIndex(memoSource, 'memo_id')
-  await dbDriver.disconnect();
 
   createRootUserEvent.trigger({
     email: rootUserEmail,
@@ -30,6 +30,8 @@ const numCPUs = availableParallelism();
 })();
 
 if (environment === 'production' && cluster.isPrimary) {
+  const numCPUs = availableParallelism();
+
   for (let i = 0; i < numCPUs; i++) cluster.fork();
 } else {
   server.start(httpPort);
@@ -37,9 +39,10 @@ if (environment === 'production' && cluster.isPrimary) {
 
 const gracefulShutdown = (signal: string, code: number) => {
   server.stop(async () => {
-    loggerDriver.info("Shutting server down...");
+    await cacheDriver.del(rootUserEmail)
 
     await dbDriver.disconnect();
+    await cacheDriver.disconnect();
 
     process.exit(code);
   });
@@ -58,5 +61,5 @@ process.on("SIGINT", gracefulShutdown);
 process.on("SIGTERM", gracefulShutdown);
 
 process.on("exit", (code: number) => {
-  loggerDriver.fatal(`Server shut down with code: ${code}`);
+  loggerDriver.fatal(`Application exited with code: ${code}`);
 });

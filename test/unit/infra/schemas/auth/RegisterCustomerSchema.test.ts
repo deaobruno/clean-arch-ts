@@ -6,113 +6,121 @@ const { validate } = RegisterCustomerSchema
 
 describe('/infra/schemas/auth/RegisterCustomerSchema.ts', () => {
   it('should execute without errors', () => {
+    const password = faker.string.alphanumeric(8)
     const validation = validate({
       email: faker.internet.email(),
-      password: 'test',
-      confirm_password: 'test',
+      password,
+      confirm_password: password,
     })
 
     expect(validation).equal(undefined)
   })
 
   it('should fail when email is empty', () => {
+    const password = faker.string.alphanumeric(8)
     const validation = <Error>validate({
       email: '',
-      password: 'test',
-      confirm_password: 'test',
+      password,
+      confirm_password: password,
     })
 
-    expect(validation.message).equal('"email" is required')
+    expect(validation.message).equal('"email" is not allowed to be empty')
   })
 
   it('should fail when passing a number as email', () => {
+    const password = faker.string.alphanumeric(8)
     const validation = <Error>validate({
       email: 123,
-      password: 'test',
-      confirm_password: 'test',
+      password,
+      confirm_password: password,
     })
 
-    expect(validation.message).equal('Invalid "email" format')
+    expect(validation.message).equal('"email" must be a string')
   })
 
   it('should fail when passing a boolean as email', () => {
+    const password = faker.string.alphanumeric(8)
     const validation = <Error>validate({
       email: true,
-      password: 'test',
-      confirm_password: 'test',
+      password,
+      confirm_password: password,
     })
 
-    expect(validation.message).equal('Invalid "email" format')
+    expect(validation.message).equal('"email" must be a string')
   })
 
   it('should fail when passing an object as email', () => {
+    const password = faker.string.alphanumeric(8)
     const validation = <Error>validate({
       email: { test: 'test' },
-      password: 'test',
-      confirm_password: 'test',
+      password,
+      confirm_password: password,
     })
 
-    expect(validation.message).equal('Invalid "email" format')
+    expect(validation.message).equal('"email" must be a string')
   })
 
   it('should fail when passing a Bigint as email', () => {
+    const password = faker.string.alphanumeric(8)
     const validation = <Error>validate({
       email: BigInt(9007199254740991n),
-      password: 'test',
-      confirm_password: 'test',
+      password,
+      confirm_password: password,
     })
 
-    expect(validation.message).equal('Invalid "email" format')
+    expect(validation.message).equal('"email" must be a string')
   })
 
   it('should fail when passing invalid email', () => {
+    const password = faker.string.alphanumeric(8)
     const validation = <Error>validate({
       email: 'test',
-      password: 'test',
-      confirm_password: 'test',
+      password,
+      confirm_password: password,
     })
 
-    expect(validation.message).equal('Invalid "email" format')
+    expect(validation.message).equal('"email" must be a valid email')
   })
 
   it('should fail when missing password', () => {
     const validation = <Error>validate({
       email: faker.internet.email(),
       password: '',
-      confirm_password: 'test',
+      confirm_password: faker.string.alphanumeric(8),
     })
 
-    expect(validation.message).equal('"password" is required')
+    expect(validation.message).equal('"password" is not allowed to be empty')
   })
 
   it('should fail when missing confirm_password', () => {
     const validation = <Error>validate({
       email: faker.internet.email(),
-      password: 'test',
+      password: faker.string.alphanumeric(8),
       confirm_password: '',
     })
 
-    expect(validation.message).equal('"confirm_password" is required')
+    expect(validation.message).equal('"confirm_password" must be [ref:password]')
   })
 
   it('should fail when password and confirm_password are different', () => {
     const validation = <Error>validate({
       email: faker.internet.email(),
-      password: 'test',
-      confirm_password: 'tes',
+      password: faker.string.alphanumeric(8),
+      confirm_password: '12345678',
     })
 
-    expect(validation.message).equal('Passwords mismatch')
+    expect(validation.message).equal('"confirm_password" must be [ref:password]')
   })
 
   it('should fail when passing invalid param', () => {
+    const password = faker.string.alphanumeric(8)
     const validation = <Error>validate({
       email: faker.internet.email(),
-      password: 'test',
-      confirm_password: 'test',
-      test: 'test'
+      password,
+      confirm_password: password,
+      test: 'test',
     })
 
-    expect(validation.message).equal('Invalid param(s): "test"')
+    expect(validation.message).equal('"test" is not allowed')
   })
 })

@@ -22,7 +22,7 @@ describe('/infra/schemas/user/UpdateUserSchema.ts', () => {
       email,
     })
 
-    expect(validation.message).equal('Invalid "user_id" format')
+    expect(validation.message).equal('"user_id" is not allowed to be empty');
   })
 
   it('should fail when passing a number as user ID', () => {
@@ -31,7 +31,7 @@ describe('/infra/schemas/user/UpdateUserSchema.ts', () => {
       email,
     })
 
-    expect(validation.message).equal('Invalid "user_id" format')
+    expect(validation.message).equal('"user_id" must be a string');
   })
 
   it('should fail when passing a boolean as user ID', () => {
@@ -40,7 +40,7 @@ describe('/infra/schemas/user/UpdateUserSchema.ts', () => {
       email,
     })
 
-    expect(validation.message).equal('Invalid "user_id" format')
+    expect(validation.message).equal('"user_id" must be a string');
   })
 
   it('should fail when passing an object as user ID', () => {
@@ -49,7 +49,7 @@ describe('/infra/schemas/user/UpdateUserSchema.ts', () => {
       email,
     })
 
-    expect(validation.message).equal('Invalid "user_id" format')
+    expect(validation.message).equal('"user_id" must be a string');
   })
 
   it('should fail when passing a Bigint as user ID', () => {
@@ -58,7 +58,7 @@ describe('/infra/schemas/user/UpdateUserSchema.ts', () => {
       email,
     })
 
-    expect(validation.message).equal('Invalid "user_id" format')
+    expect(validation.message).equal('"user_id" must be a string');
   })
 
   it('should fail when passing invalid user ID', () => {
@@ -67,7 +67,7 @@ describe('/infra/schemas/user/UpdateUserSchema.ts', () => {
       email,
     })
 
-    expect(validation.message).equal('Invalid "user_id" format')
+    expect(validation.message).equal('"user_id" must be a valid GUID');
   })
 
   it('should fail when email is empty', () => {
@@ -76,7 +76,7 @@ describe('/infra/schemas/user/UpdateUserSchema.ts', () => {
       email: '',
     })
 
-    expect(validation.message).equal('"email" is required')
+    expect(validation.message).equal('"email" is not allowed to be empty');
   })
 
   it('should fail when passing a number as email', () => {
@@ -85,7 +85,7 @@ describe('/infra/schemas/user/UpdateUserSchema.ts', () => {
       email: 123,
     })
 
-    expect(validation.message).equal('Invalid "email" format')
+    expect(validation.message).equal('"email" must be a string');
   })
 
   it('should fail when passing a boolean as email', () => {
@@ -94,7 +94,7 @@ describe('/infra/schemas/user/UpdateUserSchema.ts', () => {
       email: true,
     })
 
-    expect(validation.message).equal('Invalid "email" format')
+    expect(validation.message).equal('"email" must be a string');
   })
 
   it('should fail when passing an object as email', () => {
@@ -103,7 +103,7 @@ describe('/infra/schemas/user/UpdateUserSchema.ts', () => {
       email: { test: 'test' },
     })
 
-    expect(validation.message).equal('Invalid "email" format')
+    expect(validation.message).equal('"email" must be a string');
   })
 
   it('should fail when passing a Bigint as email', () => {
@@ -112,7 +112,7 @@ describe('/infra/schemas/user/UpdateUserSchema.ts', () => {
       email: BigInt(9007199254740991n),
     })
 
-    expect(validation.message).equal('Invalid "email" format')
+    expect(validation.message).equal('"email" must be a string');
   })
 
   it('should fail when passing invalid email', () => {
@@ -121,7 +121,7 @@ describe('/infra/schemas/user/UpdateUserSchema.ts', () => {
       email: 'test',
     })
 
-    expect(validation.message).equal('Invalid "email" format')
+    expect(validation.message).equal('"email" must be a valid email');
   })
 
   it('should fail when passing invalid param', () => {
@@ -131,6 +131,6 @@ describe('/infra/schemas/user/UpdateUserSchema.ts', () => {
       test: 'test'
     })
 
-    expect(validation.message).equal('Invalid param(s): "test"')
+    expect(validation.message).equal('"test" is not allowed');
   })
 })

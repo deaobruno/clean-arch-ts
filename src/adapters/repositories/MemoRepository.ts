@@ -18,7 +18,7 @@ export default class MemoRepository implements IMemoRepository {
 
     await this._dbDriver.create(this._source, dbMemo);
 
-    this._cacheDriver.del(memo.userId);
+    await this._cacheDriver.del(memo.userId);
   }
 
   async find(filters?: object, options = {}): Promise<Memo[]> {
@@ -38,17 +38,17 @@ export default class MemoRepository implements IMemoRepository {
   }
 
   async findOneById(memo_id: string): Promise<Memo | undefined> {
-    const cachedMemo = this._cacheDriver.get(memo_id);
+    const cachedMemo = await this._cacheDriver.get(memo_id);
 
     if (cachedMemo) return cachedMemo;
 
     const memo = await this.findOne({ memo_id });
 
     if (memo) {
-      this._cacheDriver.set(memo_id, memo);
-
-      return memo;
+      await this._cacheDriver.set(memo_id, memo);
     }
+
+    return memo;
   }
 
   async update(memo: Memo): Promise<void> {
@@ -59,8 +59,8 @@ export default class MemoRepository implements IMemoRepository {
       memo_id,
     });
 
-    this._cacheDriver.del(memo_id);
-    this._cacheDriver.del(userId);
+    await this._cacheDriver.del(memo_id);
+    await this._cacheDriver.del(userId);
   }
 
   async deleteOne(memo: Memo): Promise<void> {
@@ -68,8 +68,8 @@ export default class MemoRepository implements IMemoRepository {
 
     await this._dbDriver.delete(this._source, { memo_id });
 
-    this._cacheDriver.del(memo_id);
-    this._cacheDriver.del(userId);
+    await this._cacheDriver.del(memo_id);
+    await this._cacheDriver.del(userId);
   }
 
   async deleteAllByUser(user: User): Promise<void> {

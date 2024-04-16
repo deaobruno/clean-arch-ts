@@ -9,6 +9,7 @@ import {
   UpdateFilter,
 } from "mongodb";
 import IDbDriver from "./IDbDriver";
+import ILoggerDriver from "../logger/ILoggerDriver";
 
 export default class MongoDbDriver implements IDbDriver {
   private static instance: IDbDriver;
@@ -17,35 +18,41 @@ export default class MongoDbDriver implements IDbDriver {
   private static dbName: string;
   static connected: boolean;
 
-  private constructor(dbUrl: string, dbName: string) {
+  private constructor(dbUrl: string, dbName: string, private logger: ILoggerDriver) {
     MongoDbDriver.dbUrl = dbUrl;
     MongoDbDriver.dbName = dbName;
   }
 
-  static getInstance(dbUrl: string, dbName: string): IDbDriver {
+  static getInstance(dbUrl: string, dbName: string, logger: ILoggerDriver): IDbDriver {
     if (!MongoDbDriver.instance)
-      MongoDbDriver.instance = new MongoDbDriver(dbUrl, dbName);
+      MongoDbDriver.instance = new MongoDbDriver(dbUrl, dbName, logger);
 
     return MongoDbDriver.instance;
   }
 
-  async connect(): Promise<void> {
+  async connect(client?: MongoClient): Promise<void> {
     if (!MongoDbDriver.connected) {
-      MongoDbDriver.client = await MongoClient.connect(MongoDbDriver.dbUrl);
+      MongoDbDriver.client = client ?? await MongoClient.connect(MongoDbDriver.dbUrl);
       MongoDbDriver.connected = true;
+
+      this.logger.info('[MongoDb] Client connected')
+
+      MongoDbDriver.client.on('serverClosed', () => {
+        this.logger.info('[MongoDb] Client disconnected')
+      })
+
+      MongoDbDriver.client.on('error', (error) => {
+        this.logger.error(`[MongoDb] Error: ${error}`)
+      })
     }
   }
 
   async disconnect(): Promise<void> {
-    if (MongoDbDriver.connected) {
+    if (MongoDbDriver.connected === true) {
       await MongoDbDriver.client.close();
 
       MongoDbDriver.connected = false;
     }
-  }
-
-  async createIndex(source: string, column: string, order = 1): Promise<void> {
-    await MongoDbDriver.getCollection(source).createIndex({ [column]: order })
   }
 
   private static getCollection(collectionName: string): Collection {
@@ -55,8 +62,6 @@ export default class MongoDbDriver implements IDbDriver {
   }
 
   private async transact(operation: Function): Promise<void | Document | Document[]> {
-    await this.connect()
-
     const session = MongoDbDriver.client.startSession()
 
     try {
@@ -64,9 +69,13 @@ export default class MongoDbDriver implements IDbDriver {
         return await operation()
       })
     } finally {
-      await session.endSession()
-      await this.disconnect()
+      if (session)
+        await session.endSession()
     }
+  }
+
+  async createIndex(source: string, column: string, order = 1): Promise<void> {
+    await MongoDbDriver.getCollection(source).createIndex({ [column]: order })
   }
 
   async create(
@@ -76,7 +85,7 @@ export default class MongoDbDriver implements IDbDriver {
   ): Promise<void> {
     await this.transact(async () => {
       data.created_at = new Date().toISOString();
-      
+
       await MongoDbDriver.getCollection(source).insertOne(data, options);
     })
   }
@@ -88,10 +97,10 @@ export default class MongoDbDriver implements IDbDriver {
   ): Promise<Document[]> {
     return <Document[]> await this.transact(async () => {
       const limit = options.limit ?? 10
-  
+
       options.limit = limit
       options.skip = (options.skip ?? 0) * limit
-  
+
       return await MongoDbDriver.getCollection(source).find(filters, options).toArray();
     })
   }
@@ -114,7 +123,7 @@ export default class MongoDbDriver implements IDbDriver {
   ): Promise<void> {
     await this.transact(async () => {
       data.updated_at = new Date().toISOString();
-  
+
       await MongoDbDriver.getCollection(source).updateOne(
         filters,
         { $set: data },

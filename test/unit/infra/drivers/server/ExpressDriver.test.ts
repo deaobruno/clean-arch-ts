@@ -1,13 +1,16 @@
 import axios from "axios";
 import { expect } from "chai";
+import sinon from "sinon";
+import config from "../../../../../src/config"
 import ExpressDriver from "../../../../../src/infra/drivers/server/ExpressDriver";
 import BaseController from "../../../../../src/adapters/controllers/BaseController";
-import sinon from "sinon";
 import PinoDriver from "../../../../../src/infra/drivers/logger/PinoDriver";
 import BadRequestError from "../../../../../src/application/errors/BadRequestError";
+import { Server } from "http";
 
 const loggerDriver = sinon.createStubInstance(PinoDriver);
-const server = new ExpressDriver(loggerDriver);
+const { cors } = config
+const server = new ExpressDriver(loggerDriver, cors);
 const { get, post, put, delete: del } = server;
 const useCase = {
   exec: (data: any): Promise<any> => Promise.resolve(data),
@@ -62,11 +65,11 @@ const errorController = new ErrorController({
   useCase: errorUseCase,
 });
 
-describe("/infra/drivers/server/ExpressDriver.ts", () => {
-  get("/400", badRequestErrorController);
-  get("/500", internalServerErrorController);
-  get("/500/error", errorController);
+get("/400", badRequestErrorController);
+get("/500", internalServerErrorController);
+get("/500/error", errorController);
 
+describe("/infra/drivers/server/ExpressDriver.ts", () => {
   it("should register a get route", () => {
     const result = get("/get", getController);
 
@@ -92,7 +95,15 @@ describe("/infra/drivers/server/ExpressDriver.ts", () => {
   });
 
   it("should start the server passing an array of Routes", () => {
-    const result = server.start(8080);
+    const port = 8080
+
+    sinon.stub(Server.prototype, 'address').returns({
+      address: '0.0.0.0',
+      family: 'family',
+      port,
+    })
+
+    const result = server.start(port);
 
     expect(result).equal(undefined);
   });
