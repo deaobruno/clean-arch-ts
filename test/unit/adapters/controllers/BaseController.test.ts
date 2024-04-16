@@ -5,11 +5,12 @@ import IUseCase from "../../../../src/application/useCases/IUseCase";
 import ISchema from "../../../../src/infra/schemas/ISchema";
 import BadRequestError from "../../../../src/application/errors/BadRequestError";
 import ControllerConfig from "../../../../src/adapters/controllers/ControllerConfig";
+import BaseError from "../../../../src/application/errors/BaseError";
 
 class CustomController extends BaseController {
   statusCode = 200;
 
-  constructor(config: ControllerConfig<IUseCase<any, any>, ISchema>) {
+  constructor(config: ControllerConfig<IUseCase<unknown, unknown>, ISchema>) {
     super(config);
   }
 }
@@ -39,7 +40,7 @@ describe("/adapters/controllers/BaseController.ts", () => {
       },
     };
     const customController = new CustomController({ useCase });
-    const result = await customController.handle({}, body);
+    const result = await customController.handle({}, <any>body);
 
     expect(result).deep.equal(body);
   });
@@ -53,7 +54,7 @@ describe("/adapters/controllers/BaseController.ts", () => {
       },
     };
     const customController = new CustomController({ useCase });
-    const result = await customController.handle({}, { ...body, ...params });
+    const result = await customController.handle({}, <any>{ ...body, ...params });
 
     expect(result).deep.equal({ ...body, ...params });
   });
@@ -69,7 +70,7 @@ describe("/adapters/controllers/BaseController.ts", () => {
       validate: () => undefined,
     };
     const customController = new CustomController({ useCase, schema });
-    const result = await customController.handle({}, body);
+    const result = await customController.handle({}, <any>body);
 
     expect(result).deep.equal(body);
   });
@@ -85,7 +86,7 @@ describe("/adapters/controllers/BaseController.ts", () => {
       validate: () => new Error("Error"),
     };
     const customController = new CustomController({ useCase, schema });
-    const error = await customController.handle({}, body);
+    const error = <BaseError>await customController.handle({}, <any>body);
 
     expect(error instanceof BadRequestError).equal(true);
     expect(error.message).equal("Error");
@@ -105,7 +106,7 @@ describe("/adapters/controllers/BaseController.ts", () => {
     const data = { test: "test", invalid: false };
 
     expect(
-      await controller.handle({ "content-type": "application/json" }, data)
+      await controller.handle({ "content-type": "application/json" }, <any>data)
     ).deep.equal(data);
   });
 
@@ -124,7 +125,7 @@ describe("/adapters/controllers/BaseController.ts", () => {
       { test: "test", invalid: false },
       { test: "test", invalid: false },
     ];
-    const result = await controller.handle({}, data);
+    const result = await controller.handle({}, <any>data);
 
     expect(result).deep.equal(data);
   });

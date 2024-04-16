@@ -22,7 +22,7 @@ const fakeMemo = Memo.create({
   start,
   end,
 });
-let memoData = {
+const memoData = {
   user: User.create({
     userId,
     email: faker.internet.email(),

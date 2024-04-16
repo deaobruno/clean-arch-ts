@@ -1,6 +1,6 @@
-import UserRole from "./UserRole";
-import IUserData from "./IUserData";
-import Memo from "../memo/Memo";
+import UserRole from './UserRole';
+import IUserData from './IUserData';
+import Memo from '../memo/Memo';
 
 export default class User {
   readonly userId: string;
@@ -28,11 +28,11 @@ export default class User {
 
   addMemo = (memo: Memo): void => {
     const userMemos = this.memos.filter(
-      (userMemo) => userMemo.memoId === memo.memoId
+      (userMemo) => userMemo.memoId === memo.memoId,
     );
 
     if (userMemos.length > 0)
-      throw new Error("User: memo already added to user");
+      throw new Error('User: memo already added to user');
 
     this.memos.push(memo);
   };

@@ -34,7 +34,7 @@ describe("/adapters/repositories/MemoRepository", () => {
     const memoMapper = sandbox.createStubInstance(MemoMapper);
     const memoRepository = new MemoRepository(
       config.db.memoSource,
-      dbDriver,
+      <any>dbDriver,
       cacheDriver,
       memoMapper
     );
@@ -87,7 +87,7 @@ describe("/adapters/repositories/MemoRepository", () => {
     const memoMapper = sandbox.createStubInstance(MemoMapper);
     const memoRepository = new MemoRepository(
       config.db.memoSource,
-      dbDriver,
+      <any>dbDriver,
       cacheDriver,
       memoMapper
     );
@@ -178,7 +178,7 @@ describe("/adapters/repositories/MemoRepository", () => {
     const memoMapper = sandbox.createStubInstance(MemoMapper);
     const memoRepository = new MemoRepository(
       config.db.memoSource,
-      dbDriver,
+      <any>dbDriver,
       cacheDriver,
       memoMapper
     );
@@ -228,7 +228,7 @@ describe("/adapters/repositories/MemoRepository", () => {
     const memoMapper = sandbox.createStubInstance(MemoMapper);
     const memoRepository = new MemoRepository(
       config.db.memoSource,
-      dbDriver,
+      <any>dbDriver,
       cacheDriver,
       memoMapper
     );
@@ -254,7 +254,7 @@ describe("/adapters/repositories/MemoRepository", () => {
     const memoMapper = sandbox.createStubInstance(MemoMapper);
     const memoRepository = new MemoRepository(
       config.db.memoSource,
-      dbDriver,
+      <any>dbDriver,
       cacheDriver,
       memoMapper
     );
@@ -285,7 +285,7 @@ describe("/adapters/repositories/MemoRepository", () => {
     const memoMapper = sandbox.createStubInstance(MemoMapper);
     const memoRepository = new MemoRepository(
       config.db.memoSource,
-      dbDriver,
+      <any>dbDriver,
       cacheDriver,
       memoMapper
     );
@@ -311,7 +311,7 @@ describe("/adapters/repositories/MemoRepository", () => {
     const memoMapper = sandbox.createStubInstance(MemoMapper);
     const memoRepository = new MemoRepository(
       config.db.memoSource,
-      dbDriver,
+      <any>dbDriver,
       cacheDriver,
       memoMapper
     );
@@ -350,7 +350,7 @@ describe("/adapters/repositories/MemoRepository", () => {
     const memoMapper = sandbox.createStubInstance(MemoMapper);
     const memoRepository = new MemoRepository(
       config.db.memoSource,
-      dbDriver,
+      <any>dbDriver,
       cacheDriver,
       memoMapper
     );
@@ -373,7 +373,7 @@ describe("/adapters/repositories/MemoRepository", () => {
     const memoMapper = sandbox.createStubInstance(MemoMapper);
     const memoRepository = new MemoRepository(
       config.db.memoSource,
-      dbDriver,
+      <any>dbDriver,
       cacheDriver,
       memoMapper
     );
@@ -399,7 +399,7 @@ describe("/adapters/repositories/MemoRepository", () => {
     const memoMapper = sandbox.createStubInstance(MemoMapper);
     const memoRepository = new MemoRepository(
       config.db.memoSource,
-      dbDriver,
+      <any>dbDriver,
       cacheDriver,
       memoMapper
     );
@@ -430,7 +430,7 @@ describe("/adapters/repositories/MemoRepository", () => {
     const memoMapper = sandbox.createStubInstance(MemoMapper);
     const memoRepository = new MemoRepository(
       config.db.memoSource,
-      dbDriver,
+      <any>dbDriver,
       cacheDriver,
       memoMapper
     );
@@ -462,7 +462,7 @@ describe("/adapters/repositories/MemoRepository", () => {
     const memoMapper = sandbox.createStubInstance(MemoMapper);
     const memoRepository = new MemoRepository(
       config.db.memoSource,
-      dbDriver,
+      <any>dbDriver,
       cacheDriver,
       memoMapper
     );
@@ -494,7 +494,7 @@ describe("/adapters/repositories/MemoRepository", () => {
     const memoMapper = sandbox.createStubInstance(MemoMapper);
     const memoRepository = new MemoRepository(
       config.db.memoSource,
-      dbDriver,
+      <any>dbDriver,
       cacheDriver,
       memoMapper
     );
@@ -526,7 +526,7 @@ describe("/adapters/repositories/MemoRepository", () => {
     const memoMapper = sandbox.createStubInstance(MemoMapper);
     const memoRepository = new MemoRepository(
       config.db.memoSource,
-      dbDriver,
+      <any>dbDriver,
       cacheDriver,
       memoMapper
     );

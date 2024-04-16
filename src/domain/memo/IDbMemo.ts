@@ -1,4 +1,4 @@
-type IMemoData = {
+type IDbMemo = {
   memo_id: string;
   user_id: string;
   title: string;
@@ -7,4 +7,4 @@ type IMemoData = {
   end: string;
 };
 
-export default IMemoData;
+export default IDbMemo;

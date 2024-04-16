@@ -1,5 +1,5 @@
-import Memo from "../../../domain/memo/Memo";
-import IPresenter from "../IPresenter";
+import Memo from '../../../domain/memo/Memo';
+import IPresenter from '../IPresenter';
 
 export default class CustomerPresenter implements IPresenter {
   toJson(memo: Memo) {

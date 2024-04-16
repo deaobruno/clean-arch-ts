@@ -1,6 +1,6 @@
-import IMapper from "../IMapper";
-import User from "./User";
-import IDbUser from "./IDbUser";
+import IMapper from '../IMapper';
+import User from './User';
+import IDbUser from './IDbUser';
 
 export default class UserMapper implements IMapper<User, IDbUser> {
   entityToDb(user: User): IDbUser {

@@ -1,5 +1,5 @@
-import CreateRoot from "../../../application/useCases/user/CreateRoot";
-import IEvent from "../IEvent";
+import CreateRoot from '../../../application/useCases/user/CreateRoot';
+import IEvent from '../IEvent';
 
 type CreateRootUserEventInput = {
   email: string;

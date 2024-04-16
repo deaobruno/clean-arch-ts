@@ -1,17 +1,18 @@
-import IDbDriver from "../../infra/drivers/db/IDbDriver";
-import IRefreshTokenRepository from "../../domain/refreshToken/IRefreshTokenRepository";
-import RefreshToken from "../../domain/refreshToken/RefreshToken";
-import RefreshTokenMapper from "../../domain/refreshToken/RefreshTokenMapper";
-import ICacheDriver from "../../infra/drivers/cache/ICacheDriver";
-import User from "../../domain/user/User";
+import IDbDriver from '../../infra/drivers/db/IDbDriver';
+import IRefreshTokenRepository from '../../domain/refreshToken/IRefreshTokenRepository';
+import RefreshToken from '../../domain/refreshToken/RefreshToken';
+import RefreshTokenMapper from '../../domain/refreshToken/RefreshTokenMapper';
+import ICacheDriver from '../../infra/drivers/cache/ICacheDriver';
+import User from '../../domain/user/User';
+import IDbRefreshToken from '../../domain/refreshToken/IDbRefreshToken';
 
 export default class RefreshTokenRepository implements IRefreshTokenRepository {
   constructor(
     private _source: string,
-    private _dbDriver: IDbDriver,
+    private _dbDriver: IDbDriver<IDbRefreshToken>,
     private _cacheDriver: ICacheDriver,
     private _mapper: RefreshTokenMapper,
-    private _refreshTokenExpirationTime: number
+    private _refreshTokenExpirationTime: number,
   ) {}
 
   async create(refreshToken: RefreshToken): Promise<void> {
@@ -21,7 +22,11 @@ export default class RefreshTokenRepository implements IRefreshTokenRepository {
   }
 
   async find(filters?: object, options = {}): Promise<RefreshToken[]> {
-    const refreshTokens = await this._dbDriver.find(this._source, filters, options);
+    const refreshTokens = await this._dbDriver.find(
+      this._source,
+      filters,
+      options,
+    );
 
     return refreshTokens.map(this._mapper.dbToEntity);
   }
@@ -33,7 +38,9 @@ export default class RefreshTokenRepository implements IRefreshTokenRepository {
   }
 
   async findOneByUserId(user_id: string): Promise<RefreshToken | undefined> {
-    const cachedRefreshToken = await this._cacheDriver.get(`token-${user_id}`);
+    const cachedRefreshToken = <RefreshToken>(
+      await this._cacheDriver.get(`token-${user_id}`)
+    );
 
     if (cachedRefreshToken) return cachedRefreshToken;
 
@@ -43,7 +50,7 @@ export default class RefreshTokenRepository implements IRefreshTokenRepository {
       await this._cacheDriver.set(
         `token-${user_id}`,
         refreshToken,
-        this._refreshTokenExpirationTime
+        this._refreshTokenExpirationTime,
       );
 
       return refreshToken;

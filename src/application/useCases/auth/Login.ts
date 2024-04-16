@@ -1,11 +1,11 @@
-import RefreshToken from "../../../domain/refreshToken/RefreshToken";
-import IRefreshTokenRepository from "../../../domain/refreshToken/IRefreshTokenRepository";
-import IUserRepository from "../../../domain/user/IUserRepository";
-import ITokenDriver from "../../../infra/drivers/token/ITokenDriver";
-import BaseError from "../../errors/BaseError";
-import IUseCase from "../IUseCase";
-import UnauthorizedError from "../../errors/UnauthorizedError";
-import IEncryptionDriver from "../../../infra/drivers/encryption/IEncryptionDriver";
+import RefreshToken from '../../../domain/refreshToken/RefreshToken';
+import IRefreshTokenRepository from '../../../domain/refreshToken/IRefreshTokenRepository';
+import IUserRepository from '../../../domain/user/IUserRepository';
+import ITokenDriver from '../../../infra/drivers/token/ITokenDriver';
+import BaseError from '../../errors/BaseError';
+import IUseCase from '../IUseCase';
+import UnauthorizedError from '../../errors/UnauthorizedError';
+import IEncryptionDriver from '../../../infra/drivers/encryption/IEncryptionDriver';
 
 type Input = {
   email: string;
@@ -31,7 +31,10 @@ export default class Login implements IUseCase<Input, Output> {
     const { email, password } = input;
     const user = await this._userRepository.findOneByEmail(email);
 
-    if (!user || !await this._encryptionDriver.compare(password, user.password))
+    if (
+      !user ||
+      !(await this._encryptionDriver.compare(password, user.password))
+    )
       return new UnauthorizedError();
 
     const { userId } = user;

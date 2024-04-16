@@ -27,7 +27,7 @@ server.delete = sinon.stub();
 
 describe("/infra/http/v1/userRoutes.ts", () => {
   it("should return an array of user routes", () => {
-    const routes = userRoutes(dependencies, server);
+    const routes = userRoutes(<any>dependencies, server);
 
     expect(routes).equal(undefined);
   });

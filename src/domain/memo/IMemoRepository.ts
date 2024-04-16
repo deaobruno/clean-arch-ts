@@ -1,5 +1,5 @@
-import User from "../user/User";
-import Memo from "./Memo";
+import User from '../user/User';
+import Memo from './Memo';
 
 export default interface IMemoRepository {
   create(memo: Memo): Promise<void>;

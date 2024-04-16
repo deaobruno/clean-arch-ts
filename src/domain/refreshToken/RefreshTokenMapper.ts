@@ -1,6 +1,6 @@
-import IMapper from "../IMapper";
-import IDbRefreshToken from "./IDbRefreshToken";
-import RefreshToken from "./RefreshToken";
+import IMapper from '../IMapper';
+import IDbRefreshToken from './IDbRefreshToken';
+import RefreshToken from './RefreshToken';
 
 export default class RefreshTokenMapper
   implements IMapper<RefreshToken, IDbRefreshToken>

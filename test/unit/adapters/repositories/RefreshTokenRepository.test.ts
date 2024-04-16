@@ -24,7 +24,7 @@ describe("/adapters/repositories/RefreshTokenRepository", () => {
     const refreshTokenMapper = sandbox.createStubInstance(RefreshTokenMapper);
     const refreshTokenRepository = new RefreshTokenRepository(
       config.db.refreshTokensSource,
-      dbDriver,
+      <any>dbDriver,
       cacheDriver,
       refreshTokenMapper,
       config.app.refreshTokenExpirationTime
@@ -65,7 +65,7 @@ describe("/adapters/repositories/RefreshTokenRepository", () => {
     const refreshTokenMapper = sandbox.createStubInstance(RefreshTokenMapper);
     const refreshTokenRepository = new RefreshTokenRepository(
       config.db.refreshTokensSource,
-      dbDriver,
+      <any>dbDriver,
       cacheDriver,
       refreshTokenMapper,
       config.app.refreshTokenExpirationTime
@@ -116,7 +116,7 @@ describe("/adapters/repositories/RefreshTokenRepository", () => {
     const refreshTokenMapper = sandbox.createStubInstance(RefreshTokenMapper);
     const refreshTokenRepository = new RefreshTokenRepository(
       config.db.refreshTokensSource,
-      dbDriver,
+      <any>dbDriver,
       cacheDriver,
       refreshTokenMapper,
       config.app.refreshTokenExpirationTime
@@ -152,7 +152,7 @@ describe("/adapters/repositories/RefreshTokenRepository", () => {
     const refreshTokenMapper = sandbox.createStubInstance(RefreshTokenMapper);
     const refreshTokenRepository = new RefreshTokenRepository(
       config.db.refreshTokensSource,
-      dbDriver,
+      <any>dbDriver,
       cacheDriver,
       refreshTokenMapper,
       config.app.refreshTokenExpirationTime
@@ -173,7 +173,7 @@ describe("/adapters/repositories/RefreshTokenRepository", () => {
     const refreshTokenMapper = sandbox.createStubInstance(RefreshTokenMapper);
     const refreshTokenRepository = new RefreshTokenRepository(
       config.db.refreshTokensSource,
-      dbDriver,
+      <any>dbDriver,
       cacheDriver,
       refreshTokenMapper,
       config.app.refreshTokenExpirationTime
@@ -202,7 +202,7 @@ describe("/adapters/repositories/RefreshTokenRepository", () => {
     const refreshTokenMapper = sandbox.createStubInstance(RefreshTokenMapper);
     const refreshTokenRepository = new RefreshTokenRepository(
       config.db.refreshTokensSource,
-      dbDriver,
+      <any>dbDriver,
       cacheDriver,
       refreshTokenMapper,
       config.app.refreshTokenExpirationTime
@@ -225,7 +225,7 @@ describe("/adapters/repositories/RefreshTokenRepository", () => {
     const refreshTokenMapper = sandbox.createStubInstance(RefreshTokenMapper);
     const refreshTokenRepository = new RefreshTokenRepository(
       config.db.refreshTokensSource,
-      dbDriver,
+      <any>dbDriver,
       cacheDriver,
       refreshTokenMapper,
       config.app.refreshTokenExpirationTime
@@ -256,7 +256,7 @@ describe("/adapters/repositories/RefreshTokenRepository", () => {
     const refreshTokenMapper = sandbox.createStubInstance(RefreshTokenMapper);
     const refreshTokenRepository = new RefreshTokenRepository(
       config.db.refreshTokensSource,
-      dbDriver,
+      <any>dbDriver,
       cacheDriver,
       refreshTokenMapper,
       config.app.refreshTokenExpirationTime
@@ -281,7 +281,7 @@ describe("/adapters/repositories/RefreshTokenRepository", () => {
     const refreshTokenMapper = sandbox.createStubInstance(RefreshTokenMapper);
     const refreshTokenRepository = new RefreshTokenRepository(
       config.db.refreshTokensSource,
-      dbDriver,
+      <any>dbDriver,
       cacheDriver,
       refreshTokenMapper,
       config.app.refreshTokenExpirationTime
@@ -304,7 +304,7 @@ describe("/adapters/repositories/RefreshTokenRepository", () => {
     const refreshTokenMapper = sandbox.createStubInstance(RefreshTokenMapper);
     const refreshTokenRepository = new RefreshTokenRepository(
       config.db.refreshTokensSource,
-      dbDriver,
+      <any>dbDriver,
       cacheDriver,
       refreshTokenMapper,
       config.app.refreshTokenExpirationTime
@@ -329,7 +329,7 @@ describe("/adapters/repositories/RefreshTokenRepository", () => {
     const refreshTokenMapper = sandbox.createStubInstance(RefreshTokenMapper);
     const refreshTokenRepository = new RefreshTokenRepository(
       config.db.refreshTokensSource,
-      dbDriver,
+      <any>dbDriver,
       cacheDriver,
       refreshTokenMapper,
       config.app.refreshTokenExpirationTime

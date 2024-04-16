@@ -1,10 +1,10 @@
-import User from "../../../domain/user/User";
-import UserRole from "../../../domain/user/UserRole";
-import IUserRepository from "../../../domain/user/IUserRepository";
-import IHashDriver from "../../../infra/drivers/hash/IHashDriver";
-import BaseError from "../../errors/BaseError";
-import IUseCase from "../IUseCase";
-import IEncryptionDriver from "../../../infra/drivers/encryption/IEncryptionDriver";
+import User from '../../../domain/user/User';
+import UserRole from '../../../domain/user/UserRole';
+import IUserRepository from '../../../domain/user/IUserRepository';
+import IHashDriver from '../../../infra/drivers/hash/IHashDriver';
+import BaseError from '../../errors/BaseError';
+import IUseCase from '../IUseCase';
+import IEncryptionDriver from '../../../infra/drivers/encryption/IEncryptionDriver';
 
 type CreateRootInput = {
   email: string;

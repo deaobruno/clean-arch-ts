@@ -1,22 +1,32 @@
-import BadRequestError from "../../application/errors/BadRequestError";
-import IUseCase from "../../application/useCases/IUseCase";
-import ValidateAuthentication from "../../application/useCases/auth/ValidateAuthentication";
-import ValidateAuthorization from "../../application/useCases/auth/ValidateAuthorization";
-import RefreshToken from "../../domain/refreshToken/RefreshToken";
-import User from "../../domain/user/User";
-import ISchema from "../../infra/schemas/ISchema";
-import IPresenter from "../presenters/IPresenter";
-import ControllerConfig from "./ControllerConfig";
+import BadRequestError from '../../application/errors/BadRequestError';
+import IUseCase from '../../application/useCases/IUseCase';
+import ValidateAuthentication from '../../application/useCases/auth/ValidateAuthentication';
+import ValidateAuthorization from '../../application/useCases/auth/ValidateAuthorization';
+import RefreshToken from '../../domain/refreshToken/RefreshToken';
+import User from '../../domain/user/User';
+import ISchema from '../../infra/schemas/ISchema';
+import IPresenter from '../presenters/IPresenter';
+import ControllerConfig from './ControllerConfig';
+
+type Headers = {
+  authorization?: string;
+  'content-type'?: string;
+};
+
+type Payload = {
+  user?: User;
+  refreshToken?: RefreshToken;
+};
 
 enum ContentType {
-  "application/json" = "toJson",
+  'application/json' = 'toJson',
 }
 
 export default abstract class BaseController {
   abstract readonly statusCode: number;
   protected authenticate = false;
   protected authorize = false;
-  private _useCase: IUseCase<any, any>;
+  private _useCase: IUseCase<unknown, unknown>;
   private _validateAuthenticationUseCase?: ValidateAuthentication;
   private _validateAuthorizationUseCase?: ValidateAuthorization;
   private _schema?: ISchema;
@@ -30,8 +40,9 @@ export default abstract class BaseController {
     this._presenter = config.presenter;
   }
 
-  async handle(headers: any, payload: any): Promise<any> {
-    const { authorization, "content-type": contentType } = headers;
+  async handle(headers: Headers, payload: Payload): Promise<unknown> {
+    const { authorization, 'content-type': contentType = 'application/json' } =
+      headers;
     let requestUser: User | undefined;
     let requestRefreshToken: RefreshToken | undefined;
 
@@ -68,10 +79,7 @@ export default abstract class BaseController {
 
     if (data instanceof Error || !this._presenter) return data;
 
-    const presenter =
-      this._presenter[
-        ContentType[contentType] || ContentType["application/json"]
-      ];
+    const presenter = this._presenter[ContentType[contentType]];
 
     return Array.isArray(data) ? data.map(presenter) : presenter(data);
   }

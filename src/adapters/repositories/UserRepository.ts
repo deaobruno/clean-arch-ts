@@ -1,16 +1,17 @@
-import User from "../../domain/user/User";
-import IDbDriver from "../../infra/drivers/db/IDbDriver";
-import IUserRepository from "../../domain/user/IUserRepository";
-import UserMapper from "../../domain/user/UserMapper";
-import UserRole from "../../domain/user/UserRole";
-import ICacheDriver from "../../infra/drivers/cache/ICacheDriver";
+import User from '../../domain/user/User';
+import IDbDriver from '../../infra/drivers/db/IDbDriver';
+import IUserRepository from '../../domain/user/IUserRepository';
+import UserMapper from '../../domain/user/UserMapper';
+import UserRole from '../../domain/user/UserRole';
+import ICacheDriver from '../../infra/drivers/cache/ICacheDriver';
+import IDbUser from '../../domain/user/IDbUser';
 
 export default class UserRepository implements IUserRepository {
   constructor(
     private _source: string,
-    private _dbDriver: IDbDriver,
+    private _dbDriver: IDbDriver<IDbUser>,
     private _cacheDriver: ICacheDriver,
-    private _mapper: UserMapper
+    private _mapper: UserMapper,
   ) {}
 
   async create(user: User): Promise<void> {
@@ -32,27 +33,25 @@ export default class UserRepository implements IUserRepository {
   }
 
   async findOneById(user_id: string): Promise<User | undefined> {
-    const cachedUser = await this._cacheDriver.get(user_id);
+    const cachedUser = <User>await this._cacheDriver.get(user_id);
 
     if (cachedUser) return cachedUser;
 
     const user = await this.findOne({ user_id });
 
-    if (user)
-      await this._cacheDriver.set(user_id, user);
+    if (user) await this._cacheDriver.set(user_id, user);
 
     return user;
   }
 
   async findOneByEmail(email: string): Promise<User | undefined> {
-    const cachedUser = await this._cacheDriver.get(email);
+    const cachedUser = <User>await this._cacheDriver.get(email);
 
     if (cachedUser) return cachedUser;
 
     const user = await this.findOne({ email });
 
-    if (user)
-      await this._cacheDriver.set(email, user);
+    if (user) await this._cacheDriver.set(email, user);
 
     return user;
   }

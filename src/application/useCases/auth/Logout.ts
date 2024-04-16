@@ -1,7 +1,7 @@
-import IRefreshTokenRepository from "../../../domain/refreshToken/IRefreshTokenRepository";
-import BaseError from "../../errors/BaseError";
-import IUseCase from "../IUseCase";
-import RefreshToken from "../../../domain/refreshToken/RefreshToken";
+import IRefreshTokenRepository from '../../../domain/refreshToken/IRefreshTokenRepository';
+import BaseError from '../../errors/BaseError';
+import IUseCase from '../IUseCase';
+import RefreshToken from '../../../domain/refreshToken/RefreshToken';
 
 type Input = {
   refreshToken: RefreshToken;
