@@ -9,6 +9,8 @@ import express, {
 } from 'express';
 import cors, { CorsOptions } from 'cors';
 import helmet from 'helmet';
+import sanitize from 'express-mongo-sanitize';
+import xss from 'xss-clean';
 import IServerDriver from './IServerDriver';
 import NotFoundError from '../../../application/errors/NotFoundError';
 import InternalServerError from '../../../application/errors/InternalServerError';
@@ -42,6 +44,8 @@ export default class ExpressDriver implements IServerDriver {
     });
     this.app.use(json());
     this.app.use(urlencoded({ extended: false }));
+    this.app.use(sanitize());
+    this.app.use(xss());
     this.app.use(helmet());
     this.app.use(cors(corsOpts));
     this.app.use(this.router);

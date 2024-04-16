@@ -15,5 +15,9 @@
     "ignoreDeprecations": "5.0" // TODO: fix array index references to remove this options
   },
   "include": ["src/**/*.ts"],
-  "exclude": ["./node_modules"]
+  "exclude": ["./node_modules"],
+  "ts-node": {
+    "files": true
+  },
+  "files": ["types.d.ts"]
 }
