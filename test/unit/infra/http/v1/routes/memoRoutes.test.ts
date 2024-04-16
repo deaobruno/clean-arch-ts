@@ -26,7 +26,7 @@ server.delete = sinon.stub();
 
 describe("/infra/http/v1/memoRoutes.ts", () => {
   it("should return an array of memo routes", () => {
-    const routes = memoRoutes(dependencies, server);
+    const routes = memoRoutes(<any>dependencies, server);
 
     expect(routes).equal(undefined);
   });

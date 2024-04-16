@@ -34,7 +34,7 @@ describe("/adapters/repositories/UserRepository", () => {
     const userMapper = sandbox.createStubInstance(UserMapper);
     const userRepository = new UserRepository(
       config.db.usersSource,
-      dbDriver,
+      <any>dbDriver,
       cacheDriver,
       userMapper
     );
@@ -79,7 +79,7 @@ describe("/adapters/repositories/UserRepository", () => {
     const userMapper = sandbox.createStubInstance(UserMapper);
     const userRepository = new UserRepository(
       config.db.usersSource,
-      dbDriver,
+      <any>dbDriver,
       cacheDriver,
       userMapper
     );
@@ -162,7 +162,7 @@ describe("/adapters/repositories/UserRepository", () => {
     const userMapper = sandbox.createStubInstance(UserMapper);
     const userRepository = new UserRepository(
       config.db.usersSource,
-      dbDriver,
+      <any>dbDriver,
       cacheDriver,
       userMapper
     );
@@ -215,7 +215,7 @@ describe("/adapters/repositories/UserRepository", () => {
     const userMapper = sandbox.createStubInstance(UserMapper);
     const userRepository = new UserRepository(
       config.db.usersSource,
-      dbDriver,
+      <any>dbDriver,
       cacheDriver,
       userMapper
     );
@@ -239,7 +239,7 @@ describe("/adapters/repositories/UserRepository", () => {
     const userMapper = sandbox.createStubInstance(UserMapper);
     const userRepository = new UserRepository(
       config.db.usersSource,
-      dbDriver,
+      <any>dbDriver,
       cacheDriver,
       userMapper
     );
@@ -272,7 +272,7 @@ describe("/adapters/repositories/UserRepository", () => {
     const userMapper = sandbox.createStubInstance(UserMapper);
     const userRepository = new UserRepository(
       config.db.usersSource,
-      dbDriver,
+      <any>dbDriver,
       cacheDriver,
       userMapper
     );
@@ -296,7 +296,7 @@ describe("/adapters/repositories/UserRepository", () => {
     const userMapper = sandbox.createStubInstance(UserMapper);
     const userRepository = new UserRepository(
       config.db.usersSource,
-      dbDriver,
+      <any>dbDriver,
       cacheDriver,
       userMapper
     );
@@ -328,7 +328,7 @@ describe("/adapters/repositories/UserRepository", () => {
     const userMapper = sandbox.createStubInstance(UserMapper);
     const userRepository = new UserRepository(
       config.db.usersSource,
-      dbDriver,
+      <any>dbDriver,
       cacheDriver,
       userMapper
     );
@@ -351,7 +351,7 @@ describe("/adapters/repositories/UserRepository", () => {
     const userMapper = sandbox.createStubInstance(UserMapper);
     const userRepository = new UserRepository(
       config.db.usersSource,
-      dbDriver,
+      <any>dbDriver,
       cacheDriver,
       userMapper
     );
@@ -375,7 +375,7 @@ describe("/adapters/repositories/UserRepository", () => {
     const userMapper = sandbox.createStubInstance(UserMapper);
     const userRepository = new UserRepository(
       config.db.usersSource,
-      dbDriver,
+      <any>dbDriver,
       cacheDriver,
       userMapper
     );
@@ -407,7 +407,7 @@ describe("/adapters/repositories/UserRepository", () => {
     const userMapper = sandbox.createStubInstance(UserMapper);
     const userRepository = new UserRepository(
       config.db.usersSource,
-      dbDriver,
+      <any>dbDriver,
       cacheDriver,
       userMapper
     );
@@ -430,7 +430,7 @@ describe("/adapters/repositories/UserRepository", () => {
     const userMapper = sandbox.createStubInstance(UserMapper);
     const userRepository = new UserRepository(
       config.db.usersSource,
-      dbDriver,
+      <any>dbDriver,
       cacheDriver,
       userMapper
     );
@@ -468,7 +468,7 @@ describe("/adapters/repositories/UserRepository", () => {
     const userMapper = sandbox.createStubInstance(UserMapper);
     const userRepository = new UserRepository(
       config.db.usersSource,
-      dbDriver,
+      <any>dbDriver,
       cacheDriver,
       userMapper
     );
@@ -511,7 +511,7 @@ describe("/adapters/repositories/UserRepository", () => {
     const userMapper = sandbox.createStubInstance(UserMapper);
     const userRepository = new UserRepository(
       config.db.usersSource,
-      dbDriver,
+      <any>dbDriver,
       cacheDriver,
       userMapper
     );
@@ -543,7 +543,7 @@ describe("/adapters/repositories/UserRepository", () => {
     const userMapper = sandbox.createStubInstance(UserMapper);
     const userRepository = new UserRepository(
       config.db.usersSource,
-      dbDriver,
+      <any>dbDriver,
       cacheDriver,
       userMapper
     );
@@ -575,7 +575,7 @@ describe("/adapters/repositories/UserRepository", () => {
     const userMapper = sandbox.createStubInstance(UserMapper);
     const userRepository = new UserRepository(
       config.db.usersSource,
-      dbDriver,
+      <any>dbDriver,
       cacheDriver,
       userMapper
     );

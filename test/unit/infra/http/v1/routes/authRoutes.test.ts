@@ -26,7 +26,7 @@ server.delete = sinon.stub();
 
 describe("/infra/http/v1/authRoutes.ts", () => {
   it("should return an array of auth routes", () => {
-    const routes = authRotes(dependencies, server);
+    const routes = authRotes(<any>dependencies, server);
 
     expect(routes).equal(undefined);
   });

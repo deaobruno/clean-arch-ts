@@ -113,7 +113,7 @@ describe('/src/infra/drivers/cache/RedisDriver.ts', () => {
     
     redisClient.get.resolves(JSON.stringify(data))
 
-    const result = await redisDriver.get(key)
+    const result = <any>await redisDriver.get(key)
 
     expect(result.key).equal(data.key)
     expect(redisClient.get.calledOnceWith(key)).equal(true)

@@ -10,6 +10,7 @@ import RefreshTokenRepository from "../../../../src/adapters/repositories/Refres
 import UserRepository from "../../../../src/adapters/repositories/UserRepository";
 import User from "../../../../src/domain/user/User";
 import RefreshToken from "../../../../src/domain/refreshToken/RefreshToken";
+import BaseError from "../../../../src/application/errors/BaseError";
 
 class CustomController extends AuthenticatedController {
   statusCode = 200;
@@ -76,7 +77,7 @@ describe("/adapters/controllers/AuthenticatedController.ts", () => {
       useCase,
       validateAuthenticationUseCase,
     });
-    const result = await customerController.handle(
+    const result = <BaseError>await customerController.handle(
       { authorization: "Bearer token" },
       {}
     );
