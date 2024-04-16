@@ -1,4 +1,4 @@
 export default interface IHashDriver {
-  generateID(): string
-  hashString(text: string): string
+  generateID(): string;
+  hashString(text: string): string;
 }

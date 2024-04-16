@@ -1,7 +1,7 @@
-import EventEmitter from "node:events";
-import IEvent from "../../../adapters/events/IEvent";
-import IEventsDriver from "./IEventsDriver";
-import ILoggerDriver from "../logger/ILoggerDriver";
+import EventEmitter from 'node:events';
+import IEvent from '../../../adapters/events/IEvent';
+import IEventsDriver from './IEventsDriver';
+import ILoggerDriver from '../logger/ILoggerDriver';
 
 const eventEmitter = new EventEmitter();
 
@@ -9,7 +9,7 @@ export default class EventsDriver implements IEventsDriver {
   constructor(private _logger: ILoggerDriver) {}
 
   subscribe(topic: string, event: IEvent): void {
-    eventEmitter.on(topic, (data?: any) => {
+    eventEmitter.on(topic, (data?: object) => {
       try {
         event.trigger(data);
       } catch (error) {
@@ -18,7 +18,7 @@ export default class EventsDriver implements IEventsDriver {
     });
   }
 
-  publish(topic: string, data?: any): void {
+  publish(topic: string, data?: unknown): void {
     eventEmitter.emit(topic, data);
   }
 }

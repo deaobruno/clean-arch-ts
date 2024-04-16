@@ -1,25 +1,35 @@
-import { Server } from "node:http";
-import express, { NextFunction, Request, Response, Router, json, urlencoded } from "express";
-import cors, { CorsOptions } from 'cors'
-import helmet from "helmet";
-import IServerDriver from "./IServerDriver";
-import NotFoundError from "../../../application/errors/NotFoundError";
-import InternalServerError from "../../../application/errors/InternalServerError";
-import BaseController from "../../../adapters/controllers/BaseController";
-import ILoggerDriver from "../logger/ILoggerDriver";
+import { Server } from 'node:http';
+import express, {
+  NextFunction,
+  Request,
+  Response,
+  Router,
+  json,
+  urlencoded,
+} from 'express';
+import cors, { CorsOptions } from 'cors';
+import helmet from 'helmet';
+import IServerDriver from './IServerDriver';
+import NotFoundError from '../../../application/errors/NotFoundError';
+import InternalServerError from '../../../application/errors/InternalServerError';
+import BaseController from '../../../adapters/controllers/BaseController';
+import ILoggerDriver from '../logger/ILoggerDriver';
 
 export default class ExpressDriver implements IServerDriver {
   app = express();
   httpServer?: Server;
   router = Router();
 
-  constructor(private _logger: ILoggerDriver, corsOpts: CorsOptions) {
+  constructor(
+    private _logger: ILoggerDriver,
+    corsOpts: CorsOptions,
+  ) {
     this.app.use((req: Request, res: Response, next: NextFunction) => {
       const send = res.send;
 
       res.send = (content) => send.call(res, content);
 
-      res.on("finish", () => {
+      res.on('finish', () => {
         this._logger.info({
           method: req.method.toLowerCase(),
           url: req.url,
@@ -35,25 +45,27 @@ export default class ExpressDriver implements IServerDriver {
     this.app.use(helmet());
     this.app.use(cors(corsOpts));
     this.app.use(this.router);
-    this.app.use((req: Request, res: Response, next: NextFunction) => next(new NotFoundError("Invalid URL")));
+    this.app.use((req: Request, res: Response, next: NextFunction) =>
+      next(new NotFoundError('Invalid URL')),
+    );
     this.app.use(
       (
         error: Error & { statusCode: number },
         req: Request,
         res: Response,
-        next: NextFunction
-      ) => {
+        next: NextFunction, // eslint-disable-line @typescript-eslint/no-unused-vars
+      ): void => {
         const { statusCode, message } = error;
 
         if (!statusCode)
           error = new InternalServerError(
-            !message || message === "" ? undefined : message
+            !message || message === '' ? undefined : message,
           );
 
         this._logger.error(error.stack);
 
         res.status(error.statusCode).send({ error: error.message });
-      }
+      },
     );
   }
 
@@ -75,17 +87,23 @@ export default class ExpressDriver implements IServerDriver {
 
   start(httpPort: string | number): void {
     this.httpServer = this.app.listen(httpPort, () => {
-      const serverAddress = this.httpServer?.address()
-      let address = 'localhost'
+      const serverAddress = this.httpServer?.address();
+      let address = 'localhost';
 
-      if (serverAddress && typeof serverAddress === 'object' && serverAddress.address !== '::')
-        address = serverAddress.address
+      if (
+        serverAddress &&
+        typeof serverAddress === 'object' &&
+        serverAddress.address !== '::'
+      )
+        address = serverAddress.address;
 
       this._logger.info(
-        `[Express] HTTP Server started: http://${address}:${httpPort}.`
+        `[Express] HTTP Server started: http://${address}:${httpPort}.`,
       );
 
-      this.httpServer?.on('close', () => this._logger.info('[Express] HTTP Server stopped'))
+      this.httpServer?.on('close', () =>
+        this._logger.info('[Express] HTTP Server stopped'),
+      );
     });
   }
 

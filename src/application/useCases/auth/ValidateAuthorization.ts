@@ -1,7 +1,7 @@
-import User from "../../../domain/user/User";
-import BaseError from "../../errors/BaseError";
-import IUseCase from "../IUseCase";
-import ForbiddenError from "../../errors/ForbiddenError";
+import User from '../../../domain/user/User';
+import BaseError from '../../errors/BaseError';
+import IUseCase from '../IUseCase';
+import ForbiddenError from '../../errors/ForbiddenError';
 
 type Input = {
   user: User;

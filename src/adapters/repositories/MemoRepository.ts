@@ -1,16 +1,17 @@
-import IMemoRepository from "../../domain/memo/IMemoRepository";
-import Memo from "../../domain/memo/Memo";
-import MemoMapper from "../../domain/memo/MemoMapper";
-import User from "../../domain/user/User";
-import ICacheDriver from "../../infra/drivers/cache/ICacheDriver";
-import IDbDriver from "../../infra/drivers/db/IDbDriver";
+import IMemoRepository from '../../domain/memo/IMemoRepository';
+import Memo from '../../domain/memo/Memo';
+import MemoMapper from '../../domain/memo/MemoMapper';
+import User from '../../domain/user/User';
+import ICacheDriver from '../../infra/drivers/cache/ICacheDriver';
+import IDbDriver from '../../infra/drivers/db/IDbDriver';
+import IDbMemo from '../../domain/memo/IDbMemo';
 
 export default class MemoRepository implements IMemoRepository {
   constructor(
     private _source: string,
-    private _dbDriver: IDbDriver,
+    private _dbDriver: IDbDriver<IDbMemo>,
     private _cacheDriver: ICacheDriver,
-    private _mapper: MemoMapper
+    private _mapper: MemoMapper,
   ) {}
 
   async create(memo: Memo): Promise<void> {
@@ -38,7 +39,7 @@ export default class MemoRepository implements IMemoRepository {
   }
 
   async findOneById(memo_id: string): Promise<Memo | undefined> {
-    const cachedMemo = await this._cacheDriver.get(memo_id);
+    const cachedMemo = <Memo>await this._cacheDriver.get(memo_id);
 
     if (cachedMemo) return cachedMemo;
 

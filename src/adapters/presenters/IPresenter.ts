@@ -1,3 +1,3 @@
 export default interface IPresenter {
-  toJson(data: any): any;
+  toJson(data: unknown): unknown;
 }

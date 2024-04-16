@@ -1,12 +1,13 @@
-import joi from 'joi'
+import joi from 'joi';
 
 export default {
-  validate: (payload: any): void | Error => {
-    const { error } = joi.object({
-      refresh_token: joi.string().required(),
-    }).validate(payload)
+  validate: (payload: unknown): void | Error => {
+    const { error } = joi
+      .object({
+        refresh_token: joi.string().required(),
+      })
+      .validate(payload);
 
-    if (error)
-      return error
-  }
-}
+    if (error) return error;
+  },
+};

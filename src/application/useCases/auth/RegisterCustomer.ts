@@ -1,11 +1,11 @@
-import User from "../../../domain/user/User";
-import UserRole from "../../../domain/user/UserRole";
-import IUserRepository from "../../../domain/user/IUserRepository";
-import BaseError from "../../errors/BaseError";
-import IUseCase from "../IUseCase";
-import ConflictError from "../../errors/ConflictError";
-import IHashDriver from "../../../infra/drivers/hash/IHashDriver";
-import IEncryptionDriver from "../../../infra/drivers/encryption/IEncryptionDriver";
+import User from '../../../domain/user/User';
+import UserRole from '../../../domain/user/UserRole';
+import IUserRepository from '../../../domain/user/IUserRepository';
+import BaseError from '../../errors/BaseError';
+import IUseCase from '../IUseCase';
+import ConflictError from '../../errors/ConflictError';
+import IHashDriver from '../../../infra/drivers/hash/IHashDriver';
+import IEncryptionDriver from '../../../infra/drivers/encryption/IEncryptionDriver';
 
 type RegisterCustomerInput = {
   email: string;
@@ -28,7 +28,7 @@ export default class RegisterCustomer
     const userByEmail = await this._userRepository.findOneByEmail(email);
 
     if (userByEmail instanceof User)
-      return new ConflictError("Email already in use");
+      return new ConflictError('Email already in use');
 
     const user = User.create({
       userId: this._hashDriver.generateID(),

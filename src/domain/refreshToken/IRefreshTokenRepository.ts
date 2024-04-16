@@ -1,5 +1,5 @@
-import User from "../user/User";
-import RefreshToken from "./RefreshToken";
+import User from '../user/User';
+import RefreshToken from './RefreshToken';
 
 export default interface IRefreshTokenRepository {
   create(refreshToken: RefreshToken): Promise<void>;

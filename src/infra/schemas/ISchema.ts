@@ -1,3 +1,3 @@
 export default interface ISchema {
-  validate: (payload: any) => void | Error
+  validate: (payload: unknown) => void | Error;
 }

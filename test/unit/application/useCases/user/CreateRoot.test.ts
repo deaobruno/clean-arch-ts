@@ -17,7 +17,7 @@ const fakeUser = User.create({
   password,
   role: UserRole.ROOT,
 });
-let userParams = {
+const userParams = {
   email,
   password,
   confirm_password: password,

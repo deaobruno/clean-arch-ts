@@ -1,11 +1,11 @@
-import User from "../../../domain/user/User";
-import IPresenter from "../IPresenter";
+import User from '../../../domain/user/User';
+import IPresenter from '../IPresenter';
 
 export default class CustomerPresenter implements IPresenter {
   constructor() {}
 
   toJson = (user: User) => {
-    const { userId, email, memos } = user;
+    const { userId, email } = user;
 
     return {
       id: userId,

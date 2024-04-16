@@ -9,7 +9,7 @@ import ControllerConfig from "../../../../src/adapters/controllers/ControllerCon
 class CustomController extends BaseController {
   statusCode = 200;
 
-  constructor(config: ControllerConfig<IUseCase<any, any>, ISchema>) {
+  constructor(config: ControllerConfig<IUseCase<unknown, unknown>, ISchema>) {
     super(config);
   }
 }

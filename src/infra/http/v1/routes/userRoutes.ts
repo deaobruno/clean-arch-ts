@@ -1,6 +1,11 @@
-import IServer from "../../../drivers/server/IServerDriver";
+import dependenciesContainer from '../../../../dependencies';
+import IServer from '../../../drivers/server/IServerDriver';
 
-export default (dependencies: any, server: IServer, prefix?: string): void => {
+export default (
+  dependencies: typeof dependenciesContainer,
+  server: IServer,
+  prefix?: string,
+): void => {
   const basePath = `${prefix}/users`;
   const {
     findUsersController,

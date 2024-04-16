@@ -1,4 +1,4 @@
-import IRefreshTokenData from "./IRefreshTokenData";
+import IRefreshTokenData from './IRefreshTokenData';
 
 export default class RefreshToken {
   readonly userId: string;

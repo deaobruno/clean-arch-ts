@@ -1,6 +1,6 @@
-import IMapper from "../IMapper";
-import Memo from "./Memo";
-import IDbMemo from "./IDbMemo";
+import IMapper from '../IMapper';
+import Memo from './Memo';
+import IDbMemo from './IDbMemo';
 
 export default class MemoMapper implements IMapper<Memo, IDbMemo> {
   entityToDb(memo: Memo): IDbMemo {

@@ -1,65 +1,69 @@
-import config from "./config";
-import CryptoDriver from "./infra/drivers/hash/CryptoDriver";
-import JwtDriver from "./infra/drivers/token/JwtDriver";
-import UserRepository from "./adapters/repositories/UserRepository";
-import RegisterCustomerSchema from "./infra/schemas/auth/RegisterCustomerSchema";
-import LoginSchema from "./infra/schemas/auth/LoginSchema";
-import RefreshAccessTokenSchema from "./infra/schemas/auth/RefreshAccessTokenSchema";
-import FindUsersSchema from "./infra/schemas/user/FindUsersSchema";
-import FindUserByIdSchema from "./infra/schemas/user/FindUserByIdSchema";
-import UpdateUserSchema from "./infra/schemas/user/UpdateUserSchema";
-import UpdateUserPasswordSchema from "./infra/schemas/user/UpdateUserPasswordSchema";
-import DeleteUserSchema from "./infra/schemas/user/DeleteUserSchema";
-import CreateMemoSchema from "./infra/schemas/memo/CreateMemoSchema";
-import FindMemoByIdSchema from "./infra/schemas/memo/FindMemoByIdSchema";
-import FindMemosByUserIdSchema from "./infra/schemas/memo/FindMemosByUserIdSchema";
-import UpdateMemoSchema from "./infra/schemas/memo/UpdateMemoSchema";
-import DeleteMemoSchema from "./infra/schemas/memo/DeleteMemoSchema";
-import RegisterCustomer from "./application/useCases/auth/RegisterCustomer";
-import Login from "./application/useCases/auth/Login";
-import ValidateAuthentication from "./application/useCases/auth/ValidateAuthentication";
-import FindUsers from "./application/useCases/user/FindUsers";
-import FindUserById from "./application/useCases/user/FindUserById";
-import UpdateUser from "./application/useCases/user/UpdateUser";
-import UpdateUserPassword from "./application/useCases/user/UpdateUserPassword";
-import DeleteUser from "./application/useCases/user/DeleteUser";
-import RegisterCustomerController from "./adapters/controllers/auth/RegisterCustomerController";
-import LoginController from "./adapters/controllers/auth/LoginController";
-import FindUsersController from "./adapters/controllers/user/FindUsersController";
-import FindUserByIdController from "./adapters/controllers/user/FindUserByIdController";
-import UpdateUserController from "./adapters/controllers/user/UpdateUserController";
-import UpdateUserPasswordController from "./adapters/controllers/user/UpdateUserPasswordController";
-import DeleteUserController from "./adapters/controllers/user/DeleteUserController";
-import CustomerPresenter from "./adapters/presenters/user/CustomerPresenter";
-import AdminPresenter from "./adapters/presenters/user/AdminPresenter";
-import MemoPresenter from "./adapters/presenters/memo/MemoPresenter";
-import ValidateAuthorization from "./application/useCases/auth/ValidateAuthorization";
-import RefreshTokenRepository from "./adapters/repositories/RefreshTokenRepository";
-import RefreshAccessTokenController from "./adapters/controllers/auth/RefreshAccessTokenController";
-import RefreshAccessToken from "./application/useCases/auth/RefreshAccessToken";
-import LogoutSchema from "./infra/schemas/auth/LogoutSchema";
-import DeleteRefreshToken from "./application/useCases/auth/Logout";
-import LogoutController from "./adapters/controllers/auth/LogoutController";
-import UserMapper from "./domain/user/UserMapper";
-import RefreshTokenMapper from "./domain/refreshToken/RefreshTokenMapper";
-import CreateRoot from "./application/useCases/user/CreateRoot";
-import PinoDriver from "./infra/drivers/logger/PinoDriver";
-import MongoDbDriver from "./infra/drivers/db/MongoDbDriver";
-import CreateRootUserEvent from "./adapters/events/user/CreateRootUserEvent";
-import MemoMapper from "./domain/memo/MemoMapper";
-import MemoRepository from "./adapters/repositories/MemoRepository";
-import CreateMemo from "./application/useCases/memo/CreateMemo";
-import FindMemoById from "./application/useCases/memo/FindMemoById";
-import FindMemosByUserId from "./application/useCases/memo/FindMemosByUserId";
-import UpdateMemo from "./application/useCases/memo/UpdateMemo";
-import DeleteMemo from "./application/useCases/memo/DeleteMemo";
-import CreateMemoController from "./adapters/controllers/memo/CreateMemoController";
-import FindMemoByIdController from "./adapters/controllers/memo/FindMemoByIdController";
-import FindMemosByUserIdController from "./adapters/controllers/memo/FindMemosByUserIdController";
-import UpdateMemoController from "./adapters/controllers/memo/UpdateMemoController";
-import DeleteMemoController from "./adapters/controllers/memo/DeleteMemoController";
-import RedisDriver from "./infra/drivers/cache/RedisDriver";
-import BcryptDriver from "./infra/drivers/encryption/BcryptDriver";
+import config from './config';
+import CryptoDriver from './infra/drivers/hash/CryptoDriver';
+import JwtDriver from './infra/drivers/token/JwtDriver';
+import UserRepository from './adapters/repositories/UserRepository';
+import RegisterCustomerSchema from './infra/schemas/auth/RegisterCustomerSchema';
+import LoginSchema from './infra/schemas/auth/LoginSchema';
+import RefreshAccessTokenSchema from './infra/schemas/auth/RefreshAccessTokenSchema';
+import FindUsersSchema from './infra/schemas/user/FindUsersSchema';
+import FindUserByIdSchema from './infra/schemas/user/FindUserByIdSchema';
+import UpdateUserSchema from './infra/schemas/user/UpdateUserSchema';
+import UpdateUserPasswordSchema from './infra/schemas/user/UpdateUserPasswordSchema';
+import DeleteUserSchema from './infra/schemas/user/DeleteUserSchema';
+import CreateMemoSchema from './infra/schemas/memo/CreateMemoSchema';
+import FindMemoByIdSchema from './infra/schemas/memo/FindMemoByIdSchema';
+import FindMemosByUserIdSchema from './infra/schemas/memo/FindMemosByUserIdSchema';
+import UpdateMemoSchema from './infra/schemas/memo/UpdateMemoSchema';
+import DeleteMemoSchema from './infra/schemas/memo/DeleteMemoSchema';
+import RegisterCustomer from './application/useCases/auth/RegisterCustomer';
+import Login from './application/useCases/auth/Login';
+import ValidateAuthentication from './application/useCases/auth/ValidateAuthentication';
+import FindUsers from './application/useCases/user/FindUsers';
+import FindUserById from './application/useCases/user/FindUserById';
+import UpdateUser from './application/useCases/user/UpdateUser';
+import UpdateUserPassword from './application/useCases/user/UpdateUserPassword';
+import DeleteUser from './application/useCases/user/DeleteUser';
+import RegisterCustomerController from './adapters/controllers/auth/RegisterCustomerController';
+import LoginController from './adapters/controllers/auth/LoginController';
+import FindUsersController from './adapters/controllers/user/FindUsersController';
+import FindUserByIdController from './adapters/controllers/user/FindUserByIdController';
+import UpdateUserController from './adapters/controllers/user/UpdateUserController';
+import UpdateUserPasswordController from './adapters/controllers/user/UpdateUserPasswordController';
+import DeleteUserController from './adapters/controllers/user/DeleteUserController';
+import CustomerPresenter from './adapters/presenters/user/CustomerPresenter';
+import AdminPresenter from './adapters/presenters/user/AdminPresenter';
+import MemoPresenter from './adapters/presenters/memo/MemoPresenter';
+import ValidateAuthorization from './application/useCases/auth/ValidateAuthorization';
+import RefreshTokenRepository from './adapters/repositories/RefreshTokenRepository';
+import RefreshAccessTokenController from './adapters/controllers/auth/RefreshAccessTokenController';
+import RefreshAccessToken from './application/useCases/auth/RefreshAccessToken';
+import LogoutSchema from './infra/schemas/auth/LogoutSchema';
+import DeleteRefreshToken from './application/useCases/auth/Logout';
+import LogoutController from './adapters/controllers/auth/LogoutController';
+import UserMapper from './domain/user/UserMapper';
+import RefreshTokenMapper from './domain/refreshToken/RefreshTokenMapper';
+import CreateRoot from './application/useCases/user/CreateRoot';
+import PinoDriver from './infra/drivers/logger/PinoDriver';
+import MongoDbDriver from './infra/drivers/db/MongoDbDriver';
+import CreateRootUserEvent from './adapters/events/user/CreateRootUserEvent';
+import MemoMapper from './domain/memo/MemoMapper';
+import MemoRepository from './adapters/repositories/MemoRepository';
+import CreateMemo from './application/useCases/memo/CreateMemo';
+import FindMemoById from './application/useCases/memo/FindMemoById';
+import FindMemosByUserId from './application/useCases/memo/FindMemosByUserId';
+import UpdateMemo from './application/useCases/memo/UpdateMemo';
+import DeleteMemo from './application/useCases/memo/DeleteMemo';
+import CreateMemoController from './adapters/controllers/memo/CreateMemoController';
+import FindMemoByIdController from './adapters/controllers/memo/FindMemoByIdController';
+import FindMemosByUserIdController from './adapters/controllers/memo/FindMemosByUserIdController';
+import UpdateMemoController from './adapters/controllers/memo/UpdateMemoController';
+import DeleteMemoController from './adapters/controllers/memo/DeleteMemoController';
+import RedisDriver from './infra/drivers/cache/RedisDriver';
+import BcryptDriver from './infra/drivers/encryption/BcryptDriver';
+import IDbDriver from './infra/drivers/db/IDbDriver';
+import IDbMemo from './domain/memo/IDbMemo';
+import IDbUser from './domain/user/IDbUser';
+import IDbRefreshToken from './domain/refreshToken/IDbRefreshToken';
 
 const {
   app: {
@@ -75,15 +79,9 @@ const {
     memoSource,
   },
   cache: {
-    redis: {
-      url: redisUrl,
-      password: redisPassword,
-    }
+    redis: { url: redisUrl, password: redisPassword },
   },
-  logger: {
-    infoFilePath,
-    errorFilePath,
-  },
+  logger: { infoFilePath, errorFilePath },
 } = config;
 // DRIVERS
 const loggerDriver = new PinoDriver(infoFilePath, errorFilePath);
@@ -96,7 +94,7 @@ const tokenDriver = new JwtDriver(
   refreshTokenExpirationTime,
 );
 const cacheDriver = new RedisDriver(redisUrl, redisPassword, loggerDriver);
-const encryptionDriver = new BcryptDriver()
+const encryptionDriver = new BcryptDriver();
 // MAPPERS
 const userMapper = new UserMapper();
 const refreshTokenMapper = new RefreshTokenMapper();
@@ -104,19 +102,19 @@ const memoMapper = new MemoMapper();
 // REPOSITORIES
 const memoRepository = new MemoRepository(
   memoSource,
-  dbDriver,
+  <IDbDriver<IDbMemo>>dbDriver,
   cacheDriver,
   memoMapper,
 );
 const userRepository = new UserRepository(
   usersSource,
-  dbDriver,
+  <IDbDriver<IDbUser>>dbDriver,
   cacheDriver,
   userMapper,
 );
 const refreshTokenRepository = new RefreshTokenRepository(
   refreshTokensSource,
-  dbDriver,
+  <IDbDriver<IDbRefreshToken>>dbDriver,
   cacheDriver,
   refreshTokenMapper,
   refreshTokenExpirationTime,
@@ -146,7 +144,11 @@ const validateAuthenticationUseCase = new ValidateAuthentication(
   userRepository,
 );
 const validateAuthorizationUseCase = new ValidateAuthorization();
-const createRootUseCase = new CreateRoot(hashDriver, encryptionDriver, userRepository);
+const createRootUseCase = new CreateRoot(
+  hashDriver,
+  encryptionDriver,
+  userRepository,
+);
 const findUsersUseCase = new FindUsers(userRepository);
 const findUserByIdUseCase = new FindUserById(userRepository);
 const updateUserUseCase = new UpdateUser(

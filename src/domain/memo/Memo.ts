@@ -1,4 +1,4 @@
-import IMemoData from "./IMemoData";
+import IMemoData from './IMemoData';
 
 export default class Memo {
   readonly memoId: string;
