@@ -57,7 +57,6 @@
     "joi": "^17.12.2",
     "jsonwebtoken": "^9.0.0",
     "mongodb": "^6.3.0",
-    "node-cache": "^5.1.2",
     "pino": "^8.16.2",
     "pino-pretty": "^10.2.3",
     "redis": "^4.6.13",
