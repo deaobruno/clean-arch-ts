@@ -14,7 +14,7 @@ describe("/src/infra/drivers/logger/PinoDriver.ts", () => {
 
   it("should log data at info level", () => {
     const pinoDriver = new PinoDriver(infoFilePath, errorFilePath);
-    const loggerStub = sinon.stub((pinoDriver as any)._logger);
+    const loggerStub = sinon.stub((pinoDriver as any).logger);
 
     loggerStub.info = infoSpy;
 
@@ -27,7 +27,7 @@ describe("/src/infra/drivers/logger/PinoDriver.ts", () => {
 
   it("should log data at error level", () => {
     const pinoDriver = new PinoDriver(infoFilePath, errorFilePath);
-    const loggerStub = sinon.stub((pinoDriver as any)._logger);
+    const loggerStub = sinon.stub((pinoDriver as any).logger);
 
     loggerStub.error = errorSpy;
 
@@ -40,7 +40,7 @@ describe("/src/infra/drivers/logger/PinoDriver.ts", () => {
 
   it("should log data at fatal level", () => {
     const pinoDriver = new PinoDriver(infoFilePath, errorFilePath);
-    const loggerStub = sinon.stub((pinoDriver as any)._logger);
+    const loggerStub = sinon.stub((pinoDriver as any).logger);
 
     loggerStub.fatal = fatalSpy;
 

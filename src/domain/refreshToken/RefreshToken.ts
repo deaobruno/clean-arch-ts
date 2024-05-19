@@ -11,17 +11,17 @@ export default class RefreshToken {
     this.token = token;
   }
 
-  static create(params: IRefreshTokenData): RefreshToken {
+  static create(params: IRefreshTokenData): RefreshToken | Error {
     const { userId, token } = params;
     const uuidRegex =
       /^[0-9a-f]{8}\b-[0-9a-f]{4}\b-[0-9a-f]{4}\b-[0-9a-f]{4}\b-[0-9a-f]{12}$/i;
 
-    if (!userId) throw new Error('RefreshToken: "userId" required');
+    if (!userId) return new Error('[RefreshToken] "userId" required');
 
     if (!uuidRegex.test(userId))
-      throw new Error('RefreshToken: Invalid "userId"');
+      return new Error('[RefreshToken] Invalid "userId"');
 
-    if (!token) throw new Error('RefreshToken: "token" required');
+    if (!token) return new Error('[RefreshToken] "token" required');
 
     return new RefreshToken(params);
   }

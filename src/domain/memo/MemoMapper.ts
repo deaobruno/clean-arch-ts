@@ -16,7 +16,7 @@ export default class MemoMapper implements IMapper<Memo, IDbMemo> {
     };
   }
 
-  dbToEntity(data: IDbMemo): Memo {
+  dbToEntity(data: IDbMemo): Memo | Error {
     const { memo_id, user_id, title, text, start, end } = data;
 
     return Memo.create({

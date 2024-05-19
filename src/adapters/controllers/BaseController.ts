@@ -4,6 +4,7 @@ import ValidateAuthentication from '../../application/useCases/auth/ValidateAuth
 import ValidateAuthorization from '../../application/useCases/auth/ValidateAuthorization';
 import RefreshToken from '../../domain/refreshToken/RefreshToken';
 import User from '../../domain/user/User';
+import ILoggerDriver from '../../infra/drivers/logger/ILoggerDriver';
 import ISchema from '../../infra/schemas/ISchema';
 import IPresenter from '../presenters/IPresenter';
 import ControllerConfig from './ControllerConfig';
@@ -26,61 +27,117 @@ export default abstract class BaseController {
   abstract readonly statusCode: number;
   protected authenticate = false;
   protected authorize = false;
-  private _useCase: IUseCase<unknown, unknown>;
-  private _validateAuthenticationUseCase?: ValidateAuthentication;
-  private _validateAuthorizationUseCase?: ValidateAuthorization;
-  private _schema?: ISchema;
-  private _presenter?: IPresenter;
+  private logger: ILoggerDriver;
+  private useCase: IUseCase<unknown, unknown>;
+  private validateAuthenticationUseCase?: ValidateAuthentication;
+  private validateAuthorizationUseCase?: ValidateAuthorization;
+  private schema?: ISchema;
+  private presenter?: IPresenter;
 
   constructor(config: ControllerConfig) {
-    this._useCase = config.useCase;
-    this._validateAuthenticationUseCase = config.validateAuthenticationUseCase;
-    this._validateAuthorizationUseCase = config.validateAuthorizationUseCase;
-    this._schema = config.schema;
-    this._presenter = config.presenter;
+    this.logger = config.logger;
+    this.useCase = config.useCase;
+    this.validateAuthenticationUseCase = config.validateAuthenticationUseCase;
+    this.validateAuthorizationUseCase = config.validateAuthorizationUseCase;
+    this.schema = config.schema;
+    this.presenter = config.presenter;
   }
 
   async handle(headers: Headers, payload: Payload): Promise<unknown> {
     const { authorization, 'content-type': contentType = 'application/json' } =
       headers;
-    let requestUser: User | undefined;
-    let requestRefreshToken: RefreshToken | undefined;
+    let user;
+    let refreshToken;
 
-    if (this.authenticate && this._validateAuthenticationUseCase) {
-      const authentication = await this._validateAuthenticationUseCase.exec({
+    if (this.authenticate && this.validateAuthenticationUseCase) {
+      const authentication = await this.validateAuthenticationUseCase.exec({
         authorization,
       });
 
-      if (authentication instanceof Error) return authentication;
+      if (authentication instanceof Error) {
+        this.logger.debug({
+          message: `[${this.constructor.name}] Authentication failed`,
+          headers,
+          payload,
+          error: authentication,
+        });
 
-      const { user, refreshToken } = authentication;
+        return authentication;
+      }
 
-      requestUser = user;
-      requestRefreshToken = refreshToken;
+      user = authentication.user;
+      refreshToken = authentication.refreshToken;
 
       if (
         authentication &&
         this.authorize &&
-        this._validateAuthorizationUseCase
+        this.validateAuthorizationUseCase
       ) {
-        const authorization = this._validateAuthorizationUseCase.exec({ user });
+        const authorization = this.validateAuthorizationUseCase.exec({ user });
 
-        if (authorization instanceof Error) return authorization;
+        if (authorization instanceof Error) {
+          this.logger.debug({
+            message: `[${this.constructor.name}] Authorization failed`,
+            headers,
+            payload,
+            error: authorization,
+          });
+
+          return authorization;
+        }
       }
     }
 
-    const error = this._schema?.validate(payload);
+    const error = this.schema?.validate(payload);
 
-    if (error) return new BadRequestError(error.message);
-    if (requestUser) payload.user = requestUser;
-    if (requestRefreshToken) payload.refreshToken = requestRefreshToken;
+    if (error) {
+      this.logger.debug({
+        message: `[${this.constructor.name}] Data validation error`,
+        headers,
+        payload,
+        error,
+      });
 
-    const data = await this._useCase.exec(payload);
+      return new BadRequestError(error.message);
+    }
 
-    if (data instanceof Error || !this._presenter) return data;
+    if (user) payload.user = user;
+    if (refreshToken) payload.refreshToken = refreshToken;
 
-    const presenter = this._presenter[ContentType[contentType]];
+    const data = await this.useCase.exec(payload);
 
-    return Array.isArray(data) ? data.map(presenter) : presenter(data);
+    if (data instanceof Error) {
+      this.logger.debug({
+        message: `[${this.constructor.name}] Use case error`,
+        headers,
+        payload,
+        error: data,
+      });
+
+      return data;
+    }
+
+    if (!this.presenter) {
+      this.logger.debug({
+        message: `[${this.constructor.name}] Use case success`,
+        headers,
+        payload,
+        data,
+      });
+
+      return data;
+    }
+
+    const presenter = this.presenter[ContentType[contentType]];
+    const output = Array.isArray(data) ? data.map(presenter) : presenter(data);
+
+    this.logger.debug({
+      message: `[${this.constructor.name}] Use case success`,
+      headers,
+      payload,
+      data: output,
+    });
+
+    return output;
   }
 }

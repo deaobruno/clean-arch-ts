@@ -14,7 +14,7 @@ export default class UserMapper implements IMapper<User, IDbUser> {
     };
   }
 
-  dbToEntity(data: IDbUser): User {
+  dbToEntity(data: IDbUser): User | Error {
     const { user_id, email, password, role } = data;
 
     return User.create({

@@ -15,11 +15,10 @@ const { dbDriver, loggerDriver, cacheDriver, createRootUserEvent } =
 
 (async () => {
   await dbDriver.connect();
-  await cacheDriver.connect();
-
   await dbDriver.createIndex(usersSource, 'user_id');
   await dbDriver.createIndex(usersSource, 'email');
   await dbDriver.createIndex(memoSource, 'memo_id');
+  await cacheDriver.connect();
 
   createRootUserEvent.trigger({
     email: rootUserEmail,
@@ -38,7 +37,6 @@ if (environment === 'production' && cluster.isPrimary) {
 const gracefulShutdown = (signal: string, code: number) => {
   server.stop(async () => {
     await cacheDriver.del(rootUserEmail);
-
     await dbDriver.disconnect();
     await cacheDriver.disconnect();
 

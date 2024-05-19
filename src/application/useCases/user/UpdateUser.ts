@@ -5,6 +5,8 @@ import BaseError from '../../errors/BaseError';
 import IUseCase from '../IUseCase';
 import NotFoundError from '../../errors/NotFoundError';
 import ConflictError from '../../errors/ConflictError';
+import ILoggerDriver from '../../../infra/drivers/logger/ILoggerDriver';
+import InternalServerError from '../../errors/InternalServerError';
 
 type UpdateUserInput = {
   user: User;
@@ -16,26 +18,55 @@ type Output = User | BaseError;
 
 export default class UpdateUser implements IUseCase<UpdateUserInput, Output> {
   constructor(
-    private _userRepository: IUserRepository,
-    private _refreshTokenRepository: IRefreshTokenRepository,
+    private loggerDriver: ILoggerDriver,
+    private userRepository: IUserRepository,
+    private refreshTokenRepository: IRefreshTokenRepository,
   ) {}
 
   async exec(input: UpdateUserInput): Promise<Output> {
     const { user: requestUser, user_id, ...userInput } = input;
     const { email } = userInput;
 
-    if (requestUser.isCustomer && requestUser.userId !== user_id)
-      return new NotFoundError('User not found');
+    if (requestUser.isCustomer && requestUser.userId !== user_id) {
+      const message = `[UpdateUser] User not found: ${user_id}`;
 
-    const user = await this._userRepository.findOneById(user_id);
+      this.loggerDriver.debug({
+        message,
+        input,
+      });
 
-    if (!user || user.isRoot) return new NotFoundError('User not found');
+      return new NotFoundError(message);
+    }
+
+    const user = await this.userRepository.findOneById(user_id);
+
+    if (!user || user.isRoot) {
+      const message = `[UpdateUser] User not found: ${user_id}`;
+
+      this.loggerDriver.debug({
+        message,
+        input,
+        user,
+      });
+
+      return new NotFoundError(message);
+    }
 
     if (email) {
-      const userByEmail = await this._userRepository.findOneByEmail(email);
+      const userByEmail = await this.userRepository.findOneByEmail(email);
 
-      if (userByEmail instanceof User && user.userId !== userByEmail.userId)
-        return new ConflictError('Email already in use');
+      if (userByEmail instanceof User && user.userId !== userByEmail.userId) {
+        const message = `[UpdateUser] Email already in use: ${email}`;
+
+        this.loggerDriver.debug({
+          message,
+          input,
+          user,
+          userByEmail,
+        });
+
+        return new ConflictError(message);
+      }
     }
 
     const updatedUser = User.create({
@@ -45,8 +76,26 @@ export default class UpdateUser implements IUseCase<UpdateUserInput, Output> {
       role: user.role,
     });
 
-    await this._userRepository.update(updatedUser);
-    await this._refreshTokenRepository.deleteAllByUser(updatedUser);
+    if (updatedUser instanceof Error) {
+      this.loggerDriver.debug({
+        message: '[UpdateUser] Unable to create User entity',
+        input,
+        user,
+        error: updatedUser,
+      });
+
+      return new InternalServerError(updatedUser.message);
+    }
+
+    await this.userRepository.update(updatedUser);
+    await this.refreshTokenRepository.deleteAllByUser(updatedUser);
+
+    this.loggerDriver.debug({
+      message: '[UpdateUser] User updated',
+      input,
+      before: user,
+      after: updatedUser,
+    });
 
     return updatedUser;
   }

@@ -14,7 +14,7 @@ export default class RefreshTokenMapper
     };
   }
 
-  dbToEntity(data: IDbRefreshToken): RefreshToken {
+  dbToEntity(data: IDbRefreshToken): RefreshToken | Error {
     const { user_id, token } = data;
 
     return RefreshToken.create({

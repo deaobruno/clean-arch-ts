@@ -5,41 +5,78 @@ import RefreshTokenMapper from '../../domain/refreshToken/RefreshTokenMapper';
 import ICacheDriver from '../../infra/drivers/cache/ICacheDriver';
 import User from '../../domain/user/User';
 import IDbRefreshToken from '../../domain/refreshToken/IDbRefreshToken';
+import ILoggerDriver from '../../infra/drivers/logger/ILoggerDriver';
 
 export default class RefreshTokenRepository implements IRefreshTokenRepository {
   constructor(
-    private _source: string,
-    private _dbDriver: IDbDriver<IDbRefreshToken>,
-    private _cacheDriver: ICacheDriver,
-    private _mapper: RefreshTokenMapper,
-    private _refreshTokenExpirationTime: number,
+    private source: string,
+    private logger: ILoggerDriver,
+    private db: IDbDriver<IDbRefreshToken>,
+    private cache: ICacheDriver,
+    private mapper: RefreshTokenMapper,
+    private refreshTokenExpirationTime: number,
   ) {}
 
   async create(refreshToken: RefreshToken): Promise<void> {
-    const dbRefreshToken = this._mapper.entityToDb(refreshToken);
+    const dbRefreshToken = this.mapper.entityToDb(refreshToken);
 
-    await this._dbDriver.create(this._source, dbRefreshToken);
+    await this.db.create(this.source, dbRefreshToken);
+
+    this.logger.debug({
+      message: '[RefreshTokenRepository/create] Refresh token created',
+      refreshToken,
+      dbRefreshToken,
+    });
   }
 
   async find(filters?: object, options = {}): Promise<RefreshToken[]> {
-    const refreshTokens = await this._dbDriver.find(
-      this._source,
+    const dbRefreshTokens = await this.db.find(this.source, filters, options);
+    const refreshTokens = dbRefreshTokens.map(
+      (refreshToken) => <RefreshToken>this.mapper.dbToEntity(refreshToken),
+    );
+    const message =
+      refreshTokens.length > 0
+        ? '[RefreshTokenRepository/find] Refresh token(s) found'
+        : '[RefreshTokenRepository/find] Refresh tokens not found';
+
+    this.logger.debug({
+      message,
       filters,
       options,
-    );
+      dbRefreshTokens,
+      refreshTokens,
+    });
 
-    return refreshTokens.map(this._mapper.dbToEntity);
+    return refreshTokens;
   }
 
   async findOne(filters: object): Promise<RefreshToken | undefined> {
-    const refreshToken = await this._dbDriver.findOne(this._source, filters);
+    const dbRefreshToken = await this.db.findOne(this.source, filters);
 
-    if (refreshToken) return this._mapper.dbToEntity(refreshToken);
+    if (!dbRefreshToken) {
+      this.logger.debug({
+        message: '[RefreshTokenRepository/findOne] Refresh token not found',
+        filters,
+      });
+
+      return;
+    }
+
+    const refreshToken = <RefreshToken>this.mapper.dbToEntity(dbRefreshToken);
+
+    this.logger.debug({
+      message: '[RefreshTokenRepository/findOne] Refresh token found',
+      filters,
+      dbRefreshToken,
+      refreshToken,
+    });
+
+    return refreshToken;
   }
 
   async findOneByUserId(user_id: string): Promise<RefreshToken | undefined> {
     const cachedRefreshToken = <RefreshToken>(
-      await this._cacheDriver.get(`token-${user_id}`)
+      await this.cache.get(`token-${user_id}`)
     );
 
     if (cachedRefreshToken) return cachedRefreshToken;
@@ -47,10 +84,10 @@ export default class RefreshTokenRepository implements IRefreshTokenRepository {
     const refreshToken = await this.findOne({ user_id });
 
     if (refreshToken) {
-      await this._cacheDriver.set(
+      await this.cache.set(
         `token-${user_id}`,
         refreshToken,
-        this._refreshTokenExpirationTime,
+        this.refreshTokenExpirationTime,
       );
 
       return refreshToken;
@@ -60,15 +97,25 @@ export default class RefreshTokenRepository implements IRefreshTokenRepository {
   async deleteOne(refreshToken: RefreshToken): Promise<void> {
     const { userId, token } = refreshToken;
 
-    await this._dbDriver.delete(this._source, { token });
+    await this.db.delete(this.source, { token });
+    await this.cache.del(`token-${userId}`);
 
-    await this._cacheDriver.del(`token-${userId}`);
+    this.logger.debug({
+      message: '[RefreshTokenRepository/delete] Refresh token deleted',
+      refreshToken,
+    });
   }
 
   async deleteAllByUser(user: User): Promise<void> {
     const { userId: user_id } = user;
-    await this._dbDriver.deleteMany(this._source, { user_id });
 
-    await this._cacheDriver.del(`token-${user_id}`);
+    await this.db.deleteMany(this.source, { user_id });
+    await this.cache.del(`token-${user_id}`);
+
+    this.logger.debug({
+      message:
+        '[RefreshTokenRepository/deleteAllByUser] Refresh tokens deleted',
+      userId: user_id,
+    });
   }
 }

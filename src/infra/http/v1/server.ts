@@ -3,8 +3,8 @@ import dependencies from '../../../dependencies';
 import routes from './routes/routes';
 import config from '../../../config';
 
-const { loggerDriver } = dependencies;
-const server = new ExpressDriver(loggerDriver, config.cors);
+const { loggerDriver, hashDriver } = dependencies;
+const server = new ExpressDriver(loggerDriver, hashDriver, config.cors);
 
 routes(server);
 

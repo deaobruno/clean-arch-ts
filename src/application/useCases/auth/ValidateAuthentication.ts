@@ -5,9 +5,9 @@ import BaseError from '../../errors/BaseError';
 import IUseCase from '../IUseCase';
 import UnauthorizedError from '../../errors/UnauthorizedError';
 import IUserRepository from '../../../domain/user/IUserRepository';
-import NotFoundError from '../../errors/NotFoundError';
 import RefreshToken from '../../../domain/refreshToken/RefreshToken';
 import ForbiddenError from '../../errors/ForbiddenError';
+import ILoggerDriver from '../../../infra/drivers/logger/ILoggerDriver';
 
 type Input = {
   authorization?: string;
@@ -22,47 +22,120 @@ type Output =
 
 export default class ValidateAuthentication implements IUseCase<Input, Output> {
   constructor(
-    private _tokenDriver: ITokenDriver,
-    private _refreshTokenRepository: IRefreshTokenRepository,
-    private _userRepository: IUserRepository,
+    private loggerDriver: ILoggerDriver,
+    private tokenDriver: ITokenDriver,
+    private refreshTokenRepository: IRefreshTokenRepository,
+    private userRepository: IUserRepository,
   ) {}
 
   async exec(input: Input): Promise<Output> {
     const { authorization } = input;
 
-    if (!authorization) return new UnauthorizedError('No token provided');
+    if (!authorization) {
+      const message = '[ValidateAuthentication] No token provided';
+
+      this.loggerDriver.debug({
+        message,
+        input,
+      });
+
+      return new UnauthorizedError(message);
+    }
 
     const [type, token] = authorization.split(' ');
 
-    if (type !== 'Bearer')
-      return new UnauthorizedError('Invalid authentication type');
+    if (type !== 'Bearer') {
+      const message = `[ValidateAuthentication] Invalid authentication type: ${type}`;
 
-    if (!token) return new UnauthorizedError('No token provided');
+      this.loggerDriver.debug({
+        message,
+        input,
+      });
+
+      return new UnauthorizedError(message);
+    }
+
+    if (!token) {
+      const message = '[ValidateAuthentication] No token provided';
+
+      this.loggerDriver.debug({
+        message,
+        input,
+      });
+
+      return new UnauthorizedError(message);
+    }
 
     let userData;
 
     try {
-      userData = this._tokenDriver.validateAccessToken(token);
+      userData = this.tokenDriver.validateAccessToken(token);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
-      if (error.name === 'TokenExpiredError')
-        return new UnauthorizedError('Token expired');
+      const message =
+        error.name === 'TokenExpiredError'
+          ? `[ValidateAuthentication] Access token expired: ${token}`
+          : `[ValidateAuthentication] Invalid access token: ${token}`;
 
-      return new UnauthorizedError('Invalid token');
+      this.loggerDriver.debug({
+        message,
+        input,
+        error,
+      });
+
+      return new ForbiddenError(message);
     }
 
     const { id: userId } = userData;
     const refreshToken =
-      await this._refreshTokenRepository.findOneByUserId(userId);
+      await this.refreshTokenRepository.findOneByUserId(userId);
 
-    if (!refreshToken) return new UnauthorizedError();
+    if (!refreshToken) {
+      const message = '[ValidateAuthentication] Refresh token not found';
 
-    const user = await this._userRepository.findOneById(userId);
+      this.loggerDriver.debug({
+        message,
+        input,
+        userId,
+      });
 
-    if (!user) return new NotFoundError('User not found');
+      return new UnauthorizedError(message);
+    }
 
-    if (userId !== refreshToken.userId)
-      return new ForbiddenError('Token does not belong to user');
+    const user = await this.userRepository.findOneById(userId);
+
+    if (!user) {
+      const message = `[ValidateAuthentication] User not found: ${userId}`;
+
+      this.loggerDriver.debug({
+        message,
+        input,
+        userId,
+      });
+
+      return new ForbiddenError(message);
+    }
+
+    if (userId !== refreshToken.userId) {
+      const message =
+        '[ValidateAuthentication] Refresh token does not belong to user';
+
+      this.loggerDriver.debug({
+        message,
+        input,
+        userId,
+        refreshToken,
+      });
+
+      return new ForbiddenError(message);
+    }
+
+    this.loggerDriver.debug({
+      message: '[ValidateAuthentication] Successful authentication',
+      input,
+      userId,
+      refreshToken,
+    });
 
     return { user, refreshToken };
   }

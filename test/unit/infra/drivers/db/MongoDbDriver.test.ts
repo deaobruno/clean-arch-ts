@@ -66,7 +66,7 @@ describe("/src/infra/drivers/db/MongoDbDriver.ts", () => {
 
     await dbDriver.connect();
 
-    expect(loggerInfoStub.calledOnceWith('[MongoDb] Client connected')).equal(true)
+    expect(loggerInfoStub.calledOnceWith('[MongoDbDriver] Client connected')).equal(true)
   });
 
   it.skip("should log a message after client throws an error", async () => {
@@ -75,7 +75,7 @@ describe("/src/infra/drivers/db/MongoDbDriver.ts", () => {
     await dbDriver.connect();
     await dbDriver.createIndex('collectionName', 'id', 0)
 
-    expect(logger.error.calledOnceWith('[Redis] Client connected')).equal(true)
+    expect(logger.error.calledOnceWith('[RedisDriver] Client connected')).equal(true)
   });
 
   it.skip("should log a message after ending client connection", async () => {
@@ -85,7 +85,7 @@ describe("/src/infra/drivers/db/MongoDbDriver.ts", () => {
     await dbDriver.connect();
     await dbDriver.disconnect();
 
-    expect(loggerInfoStub.calledOnceWith('[MongoDb] Client disconnected')).equal(true)
+    expect(loggerInfoStub.calledOnceWith('[MongoDbDriver] Client disconnected')).equal(true)
   });
 
   it("should connect to a mongoDb server", async () => {

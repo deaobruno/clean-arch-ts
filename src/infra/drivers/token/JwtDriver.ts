@@ -1,22 +1,25 @@
 import jwt, { JwtPayload } from 'jsonwebtoken';
 import ITokenDriver from './ITokenDriver';
-import TokenUserData from './ITokenUserData';
+import ITokenUserData from './ITokenUserData';
+import ILoggerDriver from '../logger/ILoggerDriver';
+import ITokenRefreshTokenData from './ITokenRefreshTokenData';
 
 export default class JwtDriver implements ITokenDriver {
   constructor(
-    private _accessTokenSecret: string,
-    private _accessTokenExpirationTime: number,
-    private _refreshTokenSecret: string,
-    private _refreshTokenExpirationTime: number,
+    private logger: ILoggerDriver,
+    private accessTokenSecret: string,
+    private accessTokenExpirationTime: number,
+    private refreshTokenSecret: string,
+    private refreshTokenExpirationTime: number,
   ) {}
 
-  private _generateToken = (
+  private generateToken = (
     data: string | object,
     secret: string,
     expiresIn: number,
   ): string => jwt.sign(data, secret, { expiresIn });
 
-  private _validateToken = (token: string, secret: string): unknown => {
+  private validateToken = (token: string, secret: string): unknown => {
     const result = <JwtPayload>jwt.verify(token, secret);
 
     delete result.exp;
@@ -27,23 +30,65 @@ export default class JwtDriver implements ITokenDriver {
 
   generateAccessToken(
     data: string | object,
-    expiresIn = this._accessTokenExpirationTime,
+    expiresIn = this.accessTokenExpirationTime,
   ): string {
-    return this._generateToken(data, this._accessTokenSecret, expiresIn);
+    const secret = this.accessTokenSecret;
+    const token = this.generateToken(data, secret, expiresIn);
+
+    this.logger.debug({
+      message: '[JwtDriver] Access token generated',
+      data,
+      secret,
+      expiresIn,
+      token,
+    });
+
+    return token;
   }
 
   generateRefreshToken(
     data: string | object,
-    expiresIn = this._refreshTokenExpirationTime,
+    expiresIn = this.refreshTokenExpirationTime,
   ): string {
-    return this._generateToken(data, this._refreshTokenSecret, expiresIn);
+    const secret = this.refreshTokenSecret;
+    const token = this.generateToken(data, secret, expiresIn);
+
+    this.logger.debug({
+      message: '[JwtDriver] Refresh token generated',
+      data,
+      secret,
+      expiresIn,
+      token,
+    });
+
+    return token;
   }
 
-  validateAccessToken(token: string): TokenUserData {
-    return <TokenUserData>this._validateToken(token, this._accessTokenSecret);
+  validateAccessToken(token: string): ITokenUserData {
+    const validation = <ITokenUserData>(
+      this.validateToken(token, this.accessTokenSecret)
+    );
+
+    this.logger.debug({
+      message: '[JwtDriver] Access token validation',
+      token,
+      validation,
+    });
+
+    return validation;
   }
 
-  validateRefreshToken(token: string) {
-    return this._validateToken(token, this._refreshTokenSecret);
+  validateRefreshToken(token: string): ITokenRefreshTokenData {
+    const validation = <ITokenRefreshTokenData>(
+      this.validateToken(token, this.refreshTokenSecret)
+    );
+
+    this.logger.debug({
+      message: '[JwtDriver] Refresh token validation',
+      token,
+      validation,
+    });
+
+    return validation;
   }
 }

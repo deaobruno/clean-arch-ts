@@ -36,7 +36,7 @@ describe('/src/infra/drivers/cache/RedisDriver.ts', () => {
     const result = await redisDriver.connect()
 
     expect(result).equal(undefined)
-    expect(logger.info.calledWith('[Redis] Client connected')).equal(true)
+    expect(logger.info.calledWith('[RedisDriver] Client connected')).equal(true)
   })
 
   it('should stop Redis client connection', async () => {
@@ -48,7 +48,7 @@ describe('/src/infra/drivers/cache/RedisDriver.ts', () => {
     const result = await redisDriver.disconnect()
 
     expect(result).equal(undefined)
-    expect(logger.info.calledWith('[Redis] Client disconnected')).equal(true)
+    expect(logger.info.calledWith('[RedisDriver] Client disconnected')).equal(true)
   })
 
   it('should store an object in Redis cache', async () => {

@@ -5,6 +5,7 @@ import IHashDriver from '../../../infra/drivers/hash/IHashDriver';
 import BaseError from '../../errors/BaseError';
 import IUseCase from '../IUseCase';
 import IEncryptionDriver from '../../../infra/drivers/encryption/IEncryptionDriver';
+import ILoggerDriver from '../../../infra/drivers/logger/ILoggerDriver';
 
 type CreateRootInput = {
   email: string;
@@ -15,24 +16,49 @@ type Output = void | BaseError;
 
 export default class CreateRoot implements IUseCase<CreateRootInput, Output> {
   constructor(
-    private _cryptoDriver: IHashDriver,
-    private _encryptionDriver: IEncryptionDriver,
-    private _userRepository: IUserRepository,
+    private loggerDriver: ILoggerDriver,
+    private cryptoDriver: IHashDriver,
+    private encryptionDriver: IEncryptionDriver,
+    private userRepository: IUserRepository,
   ) {}
 
   async exec(input: CreateRootInput): Promise<Output> {
     const { email, password } = input;
-    const userByEmail = await this._userRepository.findOneByEmail(email);
+    const userByEmail = await this.userRepository.findOneByEmail(email);
 
-    if (!userByEmail) {
-      const user = User.create({
-        userId: this._cryptoDriver.generateID(),
-        email,
-        password: await this._encryptionDriver.encrypt(password),
-        role: UserRole.ROOT,
+    if (userByEmail) {
+      this.loggerDriver.debug({
+        message: '[CreateRoot] Root user found',
+        input,
+        user: userByEmail,
       });
 
-      await this._userRepository.create(user);
+      return;
     }
+
+    const user = User.create({
+      userId: this.cryptoDriver.generateID(),
+      email,
+      password: await this.encryptionDriver.encrypt(password),
+      role: UserRole.ROOT,
+    });
+
+    if (user instanceof Error) {
+      this.loggerDriver.debug({
+        message: '[CreateRoot] Unable to create User entity',
+        input,
+        error: user,
+      });
+
+      return;
+    }
+
+    await this.userRepository.create(user);
+
+    this.loggerDriver.debug({
+      message: '[CreateRoot] Root user created',
+      input,
+      user,
+    });
   }
 }
