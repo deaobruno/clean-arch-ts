@@ -98,9 +98,9 @@ const tokenDriver = new JwtDriver(
 const cacheDriver = new RedisDriver(redisUrl, redisPassword, loggerDriver);
 const encryptionDriver = new BcryptDriver(loggerDriver);
 // MAPPERS
-const userMapper = new UserMapper();
-const refreshTokenMapper = new RefreshTokenMapper();
-const memoMapper = new MemoMapper();
+const userMapper = new UserMapper(loggerDriver);
+const refreshTokenMapper = new RefreshTokenMapper(loggerDriver);
+const memoMapper = new MemoMapper(loggerDriver);
 // REPOSITORIES
 const memoRepository = new MemoRepository(
   memoSource,
