@@ -1,10 +1,11 @@
 import sinon from "sinon";
 import { faker } from "@faker-js/faker";
 import { expect } from "chai";
+import PinoDriver from '../../../../src/infra/drivers/logger/PinoDriver'
 import Memo from "../../../../src/domain/memo/Memo";
 import MemoMapper from "../../../../src/domain/memo/MemoMapper";
 
-const memoMapper = new MemoMapper();
+const memoMapper = new MemoMapper(sinon.createStubInstance(PinoDriver));
 
 describe("/src/domain/memo/MemoMapper.ts", () => {
   it("should map an memo entity to memo db data", () => {
@@ -16,7 +17,7 @@ describe("/src/domain/memo/MemoMapper.ts", () => {
       start: new Date(new Date().getTime() + 3.6e6).toISOString(),
       end: new Date(new Date().getTime() + 3.6e6 * 2).toISOString(),
     };
-    const memo = Memo.create(memoData);
+    const memo = <Memo>Memo.create(memoData);
     const memoDbData = memoMapper.entityToDb(memo);
 
     expect(memoDbData.memo_id).equal(memo.memoId);
@@ -52,7 +53,7 @@ describe("/src/domain/memo/MemoMapper.ts", () => {
       start,
       end,
     };
-    const memo = memoMapper.dbToEntity(memoDbData);
+    const memo = <Memo>memoMapper.dbToEntity(memoDbData);
 
     expect(memo.memoId).equal(memoDbData.memo_id);
     expect(memo.userId).equal(memoDbData.user_id);

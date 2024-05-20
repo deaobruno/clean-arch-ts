@@ -124,9 +124,7 @@ export default class ExpressDriver implements IServerDriver {
         ?.on('close', () =>
           this.loggerDriver.fatal('[ExpressDriver] HTTP Server stopped'),
         )
-        .on('error', (error) => {
-          this.loggerDriver.error(error);
-        });
+        .on('error', (error) => this.loggerDriver.fatal(error));
     });
   }
 
