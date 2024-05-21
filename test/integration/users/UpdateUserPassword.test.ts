@@ -9,9 +9,11 @@ import MongoDbDriver from '../../../src/infra/drivers/db/MongoDbDriver';
 import JwtDriver from '../../../src/infra/drivers/token/JwtDriver';
 import UserRepository from '../../../src/adapters/repositories/UserRepository';
 import User from '../../../src/domain/user/User';
+import PinoDriver from '../../../src/infra/drivers/logger/PinoDriver';
 
 const sandbox = sinon.createSandbox();
-const hashDriver = new CryptoDriver();
+const loggerDriver = sinon.createStubInstance(PinoDriver);
+const hashDriver = new CryptoDriver(loggerDriver);
 const email = faker.internet.email();
 const password = faker.internet.password();
 const role = UserRole.CUSTOMER;
@@ -239,8 +241,10 @@ describe('PUT /users/:user_id/update-password', () => {
     await axios
       .put(url, payload, { headers: { Authorization } })
       .catch(({ response: { status, data } }) => {
-        expect(status).equal(404);
-        expect(data.error).equal('User not found');
+        expect(status).equal(403);
+        expect(data.error).equal(
+          `[ValidateAuthentication] User not found: ${userId}`,
+        );
       });
   });
 
@@ -259,7 +263,7 @@ describe('PUT /users/:user_id/update-password', () => {
       .stub(UserRepository.prototype, 'findOneById')
       .onCall(0)
       .resolves(
-        User.create({
+        <User>User.create({
           userId,
           email,
           password: hashDriver.hashString(password),
@@ -279,7 +283,9 @@ describe('PUT /users/:user_id/update-password', () => {
       .put(url, payload, { headers: { Authorization } })
       .catch(({ response: { status, data } }) => {
         expect(status).equal(404);
-        expect(data.error).equal('User not found');
+        expect(data.error).equal(
+          `[UpdateUserPassword] User not found: ${userId}`,
+        );
       });
   });
 });

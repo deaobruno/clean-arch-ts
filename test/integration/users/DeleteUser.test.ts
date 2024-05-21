@@ -9,9 +9,11 @@ import MongoDbDriver from '../../../src/infra/drivers/db/MongoDbDriver';
 import JwtDriver from '../../../src/infra/drivers/token/JwtDriver';
 import UserRepository from '../../../src/adapters/repositories/UserRepository';
 import User from '../../../src/domain/user/User';
+import PinoDriver from '../../../src/infra/drivers/logger/PinoDriver';
 
 const sandbox = sinon.createSandbox();
-const hashDriver = new CryptoDriver();
+const loggerDriver = sinon.createStubInstance(PinoDriver);
+const hashDriver = new CryptoDriver(loggerDriver);
 const url = 'http://localhost:8080/api/v1/users';
 const userId = faker.string.uuid();
 const Authorization = 'Bearer token';
@@ -110,7 +112,7 @@ describe('DELETE /users', () => {
       .stub(UserRepository.prototype, 'findOneById')
       .onCall(0)
       .resolves(
-        User.create({
+        <User>User.create({
           userId,
           email: faker.internet.email(),
           password: hashDriver.hashString(faker.internet.password()),
@@ -120,11 +122,13 @@ describe('DELETE /users', () => {
       .onCall(1)
       .resolves();
 
+    const wrongUserId = faker.string.uuid();
+
     await axios
-      .delete(`${url}/${faker.string.uuid()}`, { headers: { Authorization } })
+      .delete(`${url}/${wrongUserId}`, { headers: { Authorization } })
       .catch(({ response: { status, data } }) => {
         expect(status).equal(404);
-        expect(data.error).equal('User not found');
+        expect(data.error).equal(`[DeleteUser] User not found: ${wrongUserId}`);
       });
   });
 });

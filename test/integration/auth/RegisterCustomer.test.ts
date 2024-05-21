@@ -6,9 +6,11 @@ import MongoDbDriver from '../../../src/infra/drivers/db/MongoDbDriver';
 import server from '../../../src/infra/http/v1/server';
 import CryptoDriver from '../../../src/infra/drivers/hash/CryptoDriver';
 import UserRole from '../../../src/domain/user/UserRole';
+import PinoDriver from '../../../src/infra/drivers/logger/PinoDriver';
 
 const sandbox = sinon.createSandbox();
-const cryptoDriver = new CryptoDriver();
+const loggerDriver = sinon.createStubInstance(PinoDriver);
+const cryptoDriver = new CryptoDriver(loggerDriver);
 const url = 'http://localhost:8080/api/v1/auth/register';
 
 describe('POST /auth/register', () => {
@@ -132,7 +134,9 @@ describe('POST /auth/register', () => {
 
     await axios.post(url, payload).catch(({ response: { status, data } }) => {
       expect(status).equal(409);
-      expect(data.error).equal('Email already in use');
+      expect(data.error).equal(
+        `[RegisterCustomer] Email already in use: ${email}`,
+      );
     });
   });
 });

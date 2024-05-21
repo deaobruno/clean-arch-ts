@@ -7,9 +7,11 @@ import CryptoDriver from '../../../src/infra/drivers/hash/CryptoDriver';
 import server from '../../../src/infra/http/v1/server';
 import MongoDbDriver from '../../../src/infra/drivers/db/MongoDbDriver';
 import JwtDriver from '../../../src/infra/drivers/token/JwtDriver';
+import PinoDriver from '../../../src/infra/drivers/logger/PinoDriver';
 
 const sandbox = sinon.createSandbox();
-const hashDriver = new CryptoDriver();
+const loggerDriver = sinon.createStubInstance(PinoDriver);
+const hashDriver = new CryptoDriver(loggerDriver);
 const url = 'http://localhost:8080/api/v1/users';
 const email = faker.internet.email();
 const password = faker.internet.password();
@@ -206,6 +208,7 @@ describe('GET /users', () => {
 
   it('should get 404 status code when no users are found', async () => {
     const userId = faker.string.uuid();
+    const email = 'test@test.com';
 
     sandbox
       .stub(JwtDriver.prototype, 'validateAccessToken')
@@ -227,12 +230,14 @@ describe('GET /users', () => {
     sandbox.stub(MongoDbDriver.prototype, 'find').resolves([]);
 
     await axios
-      .get(`${url}?email=test@test.com`, {
+      .get(`${url}?email=${email}`, {
         headers: { Authorization, 'Content-Type': 'application/json' },
       })
       .catch(({ response: { status, data } }) => {
         expect(status).equal(404);
-        expect(data.error).equal('Users not found');
+        expect(data.error).equal(
+          `[FindUsers] Users not found: ${JSON.stringify({ role: UserRole.CUSTOMER, email })}`,
+        );
       });
   });
 });

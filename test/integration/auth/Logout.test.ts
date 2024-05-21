@@ -7,9 +7,11 @@ import CryptoDriver from '../../../src/infra/drivers/hash/CryptoDriver';
 import UserRole from '../../../src/domain/user/UserRole';
 import server from '../../../src/infra/http/v1/server';
 import JwtDriver from '../../../src/infra/drivers/token/JwtDriver';
+import PinoDriver from '../../../src/infra/drivers/logger/PinoDriver';
 
 const sandbox = sinon.createSandbox();
-const hashDriver = new CryptoDriver();
+const loggerDriver = sinon.createStubInstance(PinoDriver);
+const hashDriver = new CryptoDriver(loggerDriver);
 const url = 'http://localhost:8080/api/v1/auth/logout';
 const user_id = faker.string.uuid();
 const email = faker.internet.email();

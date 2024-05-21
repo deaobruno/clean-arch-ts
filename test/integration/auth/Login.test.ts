@@ -7,9 +7,11 @@ import CryptoDriver from '../../../src/infra/drivers/hash/CryptoDriver';
 import UserRole from '../../../src/domain/user/UserRole';
 import MongoDbDriver from '../../../src/infra/drivers/db/MongoDbDriver';
 import BcryptDriver from '../../../src/infra/drivers/encryption/BcryptDriver';
+import PinoDriver from '../../../src/infra/drivers/logger/PinoDriver';
 
 const sandbox = sinon.createSandbox();
-const hashDriver = new CryptoDriver();
+const loggerDriver = sinon.createStubInstance(PinoDriver);
+const hashDriver = new CryptoDriver(loggerDriver);
 const url = 'http://localhost:8080/api/v1/auth/login';
 const email = faker.internet.email();
 const password = faker.internet.password();

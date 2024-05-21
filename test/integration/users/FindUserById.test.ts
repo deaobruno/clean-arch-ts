@@ -9,9 +9,11 @@ import MongoDbDriver from '../../../src/infra/drivers/db/MongoDbDriver';
 import JwtDriver from '../../../src/infra/drivers/token/JwtDriver';
 import UserRepository from '../../../src/adapters/repositories/UserRepository';
 import User from '../../../src/domain/user/User';
+import PinoDriver from '../../../src/infra/drivers/logger/PinoDriver';
 
 const sandbox = sinon.createSandbox();
-const hashDriver = new CryptoDriver();
+const loggerDriver = sinon.createStubInstance(PinoDriver);
+const hashDriver = new CryptoDriver(loggerDriver);
 const url = 'http://localhost:8080/api/v1/users';
 const email = faker.internet.email();
 const password = faker.internet.password();
@@ -37,7 +39,7 @@ describe('GET /users/:user_id', () => {
       token,
     });
     sandbox.stub(UserRepository.prototype, 'findOneById').resolves(
-      User.create({
+      <User>User.create({
         userId,
         email,
         password: hashDriver.hashString(password),
@@ -97,7 +99,7 @@ describe('GET /users/:user_id', () => {
       .stub(UserRepository.prototype, 'findOneById')
       .onCall(0)
       .resolves(
-        User.create({
+        <User>User.create({
           userId,
           email,
           password: hashDriver.hashString(password),
@@ -107,11 +109,15 @@ describe('GET /users/:user_id', () => {
       .onCall(1)
       .resolves();
 
+    const wrongUserId = faker.string.uuid();
+
     await axios
-      .get(`${url}/${faker.string.uuid()}`, { headers: { Authorization } })
+      .get(`${url}/${wrongUserId}`, { headers: { Authorization } })
       .catch(({ response: { status, data } }) => {
         expect(status).equal(404);
-        expect(data.error).equal('User not found');
+        expect(data.error).equal(
+          `[FindUserById] User not found: ${wrongUserId}`,
+        );
       });
   });
 
@@ -129,7 +135,7 @@ describe('GET /users/:user_id', () => {
       .stub(UserRepository.prototype, 'findOneById')
       .onCall(0)
       .resolves(
-        User.create({
+        <User>User.create({
           userId: faker.string.uuid(),
           email: faker.internet.email(),
           password: hashDriver.hashString(faker.internet.password()),
@@ -143,7 +149,7 @@ describe('GET /users/:user_id', () => {
       .get(`${url}/${userId}`, { headers: { Authorization } })
       .catch(({ response: { status, data } }) => {
         expect(status).equal(404);
-        expect(data.error).equal('User not found');
+        expect(data.error).equal(`[FindUserById] User not found: ${userId}`);
       });
   });
 });

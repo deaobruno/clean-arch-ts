@@ -75,7 +75,9 @@ describe('POST /auth/refresh-token', () => {
       .post(url, { refresh_token: token }, { headers: { Authorization } })
       .catch(({ response: { status, data } }) => {
         expect(status).equal(401);
-        expect(data.error).equal('Unauthorized');
+        expect(data.error).equal(
+          '[ValidateAuthentication] Refresh token not found',
+        );
       });
   });
 
@@ -104,7 +106,9 @@ describe('POST /auth/refresh-token', () => {
       .post(url, { refresh_token: token }, { headers: { Authorization } })
       .catch(({ response: { status, data } }) => {
         expect(status).equal(403);
-        expect(data.error).equal('Token does not belong to user');
+        expect(data.error).equal(
+          '[ValidateAuthentication] Refresh token does not belong to user',
+        );
       });
   });
 
@@ -148,7 +152,9 @@ describe('POST /auth/refresh-token', () => {
       )
       .catch(({ response: { status, data } }) => {
         expect(status).equal(403);
-        expect(data.error).equal('Refresh token expired');
+        expect(data.error).equal(
+          `[RefreshAccessToken] Refresh token expired: ${expiredToken}`,
+        );
       });
   });
 
@@ -191,7 +197,9 @@ describe('POST /auth/refresh-token', () => {
       )
       .catch(({ response: { status, data } }) => {
         expect(status).equal(403);
-        expect(data.error).equal('Invalid refresh token');
+        expect(data.error).equal(
+          `[RefreshAccessToken] Invalid refresh token: ${invalidToken}`,
+        );
       });
   });
 });

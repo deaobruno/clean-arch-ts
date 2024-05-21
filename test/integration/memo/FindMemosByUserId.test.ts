@@ -7,9 +7,11 @@ import CryptoDriver from '../../../src/infra/drivers/hash/CryptoDriver';
 import server from '../../../src/infra/http/v1/server';
 import MongoDbDriver from '../../../src/infra/drivers/db/MongoDbDriver';
 import JwtDriver from '../../../src/infra/drivers/token/JwtDriver';
+import PinoDriver from '../../../src/infra/drivers/logger/PinoDriver';
 
 const sandbox = sinon.createSandbox();
-const hashDriver = new CryptoDriver();
+const loggerDriver = sinon.createStubInstance(PinoDriver);
+const hashDriver = new CryptoDriver(loggerDriver);
 const email = faker.internet.email();
 const password = faker.internet.password();
 const role = UserRole.ROOT;
@@ -151,7 +153,9 @@ describe('GET /memos/user/:memo_id', () => {
       .get(url, { headers: { Authorization } })
       .catch(({ response: { status, data } }) => {
         expect(status).equal(404);
-        expect(data.error).equal('Memos not found');
+        expect(data.error).equal(
+          `[FindMemosByUserId] Memos not found for user: ${userId}`,
+        );
       });
   });
 });

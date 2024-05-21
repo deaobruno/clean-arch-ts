@@ -7,9 +7,11 @@ import CryptoDriver from '../../../src/infra/drivers/hash/CryptoDriver';
 import server from '../../../src/infra/http/v1/server';
 import MongoDbDriver from '../../../src/infra/drivers/db/MongoDbDriver';
 import JwtDriver from '../../../src/infra/drivers/token/JwtDriver';
+import PinoDriver from '../../../src/infra/drivers/logger/PinoDriver';
 
 const sandbox = sinon.createSandbox();
-const hashDriver = new CryptoDriver();
+const loggerDriver = sinon.createStubInstance(PinoDriver);
+const hashDriver = new CryptoDriver(loggerDriver);
 const url = 'http://localhost:8080/api/v1/memos';
 const memoId = faker.string.uuid();
 const email = faker.internet.email();
@@ -94,6 +96,7 @@ describe('DELETE /memos', () => {
 
   it('should get 404 status code when trying to delete a memo with wrong memo_id', async () => {
     const userId = faker.string.uuid();
+    const memoId = faker.string.uuid();
 
     sandbox
       .stub(JwtDriver.prototype, 'validateAccessToken')
@@ -114,10 +117,10 @@ describe('DELETE /memos', () => {
       });
 
     await axios
-      .delete(`${url}/${faker.string.uuid()}`, { headers: { Authorization } })
+      .delete(`${url}/${memoId}`, { headers: { Authorization } })
       .catch(({ response: { status, data } }) => {
         expect(status).equal(404);
-        expect(data.error).equal('Memo not found');
+        expect(data.error).equal(`[DeleteMemo] Memo not found: ${memoId}`);
       });
   });
 });
