@@ -5,6 +5,8 @@ import BaseError from '../../errors/BaseError';
 import IUseCase from '../IUseCase';
 import User from '../../../domain/user/User';
 import ForbiddenError from '../../errors/ForbiddenError';
+import ILoggerDriver from '../../../infra/drivers/logger/ILoggerDriver';
+import InternalServerError from '../../errors/InternalServerError';
 
 type Input = {
   user: User;
@@ -20,39 +22,64 @@ type Output =
 
 export default class RefreshAccessToken implements IUseCase<Input, Output> {
   constructor(
-    private _tokenDriver: ITokenDriver,
-    private _refreshTokenRepository: IRefreshTokenRepository,
+    private loggerDriver: ILoggerDriver,
+    private tokenDriver: ITokenDriver,
+    private refreshTokenRepository: IRefreshTokenRepository,
   ) {}
 
-  async exec(payload: Input) {
+  async exec(input: Input) {
     const {
       user: { userId },
       refreshToken: oldToken,
-    } = payload;
+    } = input;
     const { token } = oldToken;
     let userData;
 
     try {
-      userData = this._tokenDriver.validateRefreshToken(token);
+      userData = this.tokenDriver.validateRefreshToken(token);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
-      return new ForbiddenError(
+      const message =
         error.name === 'TokenExpiredError'
-          ? 'Refresh token expired'
-          : 'Invalid refresh token',
-      );
+          ? `[RefreshAccessToken] Refresh token expired: ${token}`
+          : `[RefreshAccessToken] Invalid refresh token: ${token}`;
+
+      this.loggerDriver.debug({
+        message,
+        input,
+        error,
+      });
+
+      return new ForbiddenError(message);
     }
 
-    await this._refreshTokenRepository.deleteOne(oldToken);
+    await this.refreshTokenRepository.deleteOne(oldToken);
 
-    const accessToken = this._tokenDriver.generateAccessToken(userData);
-    const refreshToken = this._tokenDriver.generateRefreshToken(userData);
+    const accessToken = this.tokenDriver.generateAccessToken(userData);
+    const refreshToken = this.tokenDriver.generateRefreshToken(userData);
     const refreshTokenEntity = RefreshToken.create({
       userId,
       token: refreshToken,
     });
 
-    await this._refreshTokenRepository.create(refreshTokenEntity);
+    if (refreshTokenEntity instanceof Error) {
+      this.loggerDriver.debug({
+        message: '[RefreshAccessToken] Unable to create RefreshToken entity',
+        input,
+        error: refreshTokenEntity,
+      });
+
+      return new InternalServerError(refreshTokenEntity.message);
+    }
+
+    await this.refreshTokenRepository.create(refreshTokenEntity);
+
+    this.loggerDriver.debug({
+      message: '[RefreshAccessToken] User refreshed access token',
+      input,
+      accessToken,
+      refreshToken,
+    });
 
     return {
       accessToken,

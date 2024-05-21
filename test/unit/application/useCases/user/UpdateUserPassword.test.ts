@@ -1,42 +1,45 @@
-import sinon from "sinon";
-import { faker } from "@faker-js/faker";
-import { expect } from "chai";
-import UserRole from "../../../../../src/domain/user/UserRole";
-import User from "../../../../../src/domain/user/User";
-import UpdateUserPassword from "../../../../../src/application/useCases/user/UpdateUserPassword";
-import NotFoundError from "../../../../../src/application/errors/NotFoundError";
-import BaseError from "../../../../../src/application/errors/BaseError";
-import UserRepository from "../../../../../src/adapters/repositories/UserRepository";
-import RefreshTokenRepository from "../../../../../src/adapters/repositories/RefreshTokenRepository";
-import BcryptDriver from "../../../../../src/infra/drivers/encryption/BcryptDriver";
+import sinon from 'sinon';
+import { faker } from '@faker-js/faker';
+import { expect } from 'chai';
+import UserRole from '../../../../../src/domain/user/UserRole';
+import User from '../../../../../src/domain/user/User';
+import UpdateUserPassword from '../../../../../src/application/useCases/user/UpdateUserPassword';
+import NotFoundError from '../../../../../src/application/errors/NotFoundError';
+import BaseError from '../../../../../src/application/errors/BaseError';
+import UserRepository from '../../../../../src/adapters/repositories/UserRepository';
+import RefreshTokenRepository from '../../../../../src/adapters/repositories/RefreshTokenRepository';
+import BcryptDriver from '../../../../../src/infra/drivers/encryption/BcryptDriver';
+import PinoDriver from '../../../../../src/infra/drivers/logger/PinoDriver';
 
 const sandbox = sinon.createSandbox();
 const userId = faker.string.uuid();
 const email = faker.internet.email();
 const password = faker.internet.password();
-const fakeUser = User.create({
+const fakeUser = <User>User.create({
   userId,
   email,
   password,
   role: UserRole.CUSTOMER,
 });
 
-describe("/application/useCases/user/UpdateUserPassword.ts", () => {
+describe('/application/useCases/user/UpdateUserPassword.ts', () => {
   afterEach(() => sandbox.restore());
 
-  it("should update the password of an existing user", async () => {
+  it('should update the password of an existing user', async () => {
+    const loggerDriver = sandbox.createStubInstance(PinoDriver);
     const bcryptDriver = sandbox.createStubInstance(BcryptDriver);
     const userRepository = sandbox.createStubInstance(UserRepository);
     const refreshTokenRepository = sandbox.createStubInstance(
-      RefreshTokenRepository
+      RefreshTokenRepository,
     );
     const updateUserPassword = new UpdateUserPassword(
+      loggerDriver,
       bcryptDriver,
       userRepository,
-      refreshTokenRepository
+      refreshTokenRepository,
     );
 
-    bcryptDriver.encrypt.resolves("hash");
+    bcryptDriver.encrypt.resolves('hash');
     userRepository.findOneById.resolves(fakeUser);
 
     const newPassword = faker.internet.password();
@@ -63,26 +66,28 @@ describe("/application/useCases/user/UpdateUserPassword.ts", () => {
     expect(user.isRoot).equal(false);
   });
 
-  it("should return same user when input password is empty", async () => {
+  it('should return same user when input password is empty', async () => {
+    const loggerDriver = sandbox.createStubInstance(PinoDriver);
     const bcryptDriver = sandbox.createStubInstance(BcryptDriver);
     const userRepository = sandbox.createStubInstance(UserRepository);
     const refreshTokenRepository = sandbox.createStubInstance(
-      RefreshTokenRepository
+      RefreshTokenRepository,
     );
     const updateUserPassword = new UpdateUserPassword(
+      loggerDriver,
       bcryptDriver,
       userRepository,
-      refreshTokenRepository
+      refreshTokenRepository,
     );
 
-    bcryptDriver.encrypt.resolves("hash");
+    bcryptDriver.encrypt.resolves('hash');
     userRepository.findOneById.resolves(fakeUser);
     userRepository.update.resolves();
     refreshTokenRepository.deleteAllByUser.resolves();
 
     const updateData = {
       user_id: userId,
-      password: "",
+      password: '',
     };
 
     const user = <User>(
@@ -97,37 +102,44 @@ describe("/application/useCases/user/UpdateUserPassword.ts", () => {
     expect(user.isRoot).equal(false);
   });
 
-  it("should return a NotFoundError when authenticated user is different from request user", async () => {
+  it('should return a NotFoundError when authenticated user is different from request user', async () => {
+    const loggerDriver = sandbox.createStubInstance(PinoDriver);
     const bcryptDriver = sandbox.createStubInstance(BcryptDriver);
     const userRepository = sandbox.createStubInstance(UserRepository);
     const refreshTokenRepository = sandbox.createStubInstance(
-      RefreshTokenRepository
+      RefreshTokenRepository,
     );
     const updateUserPassword = new UpdateUserPassword(
+      loggerDriver,
       bcryptDriver,
       userRepository,
-      refreshTokenRepository
+      refreshTokenRepository,
     );
 
+    const user_id = 'test';
     const error = <BaseError>await updateUserPassword.exec({
       user: fakeUser,
-      user_id: "test",
+      user_id,
       password: faker.internet.password(),
     });
 
-    expect(error).deep.equal(new NotFoundError("User not found"));
+    expect(error).deep.equal(
+      new NotFoundError(`[UpdateUserPassword] User not found: ${user_id}`),
+    );
   });
 
-  it("should return a NotFoundError when trying to update an user password passing wrong ID", async () => {
+  it('should return a NotFoundError when trying to update an user password passing wrong ID', async () => {
+    const loggerDriver = sandbox.createStubInstance(PinoDriver);
     const bcryptDriver = sandbox.createStubInstance(BcryptDriver);
     const userRepository = sandbox.createStubInstance(UserRepository);
     const refreshTokenRepository = sandbox.createStubInstance(
-      RefreshTokenRepository
+      RefreshTokenRepository,
     );
     const updateUserPassword = new UpdateUserPassword(
+      loggerDriver,
       bcryptDriver,
       userRepository,
-      refreshTokenRepository
+      refreshTokenRepository,
     );
 
     userRepository.findOneById.resolves();
@@ -135,9 +147,11 @@ describe("/application/useCases/user/UpdateUserPassword.ts", () => {
     const error = <BaseError>await updateUserPassword.exec({
       user: fakeUser,
       user_id: userId,
-      password: "",
+      password: '',
     });
 
-    expect(error).deep.equal(new NotFoundError("User not found"));
+    expect(error).deep.equal(
+      new NotFoundError(`[UpdateUserPassword] User not found: ${userId}`),
+    );
   });
 });

@@ -1,24 +1,26 @@
-import sinon from "sinon";
-import { faker } from "@faker-js/faker";
-import { expect } from "chai";
-import config from "../../../../src/config";
-import MemoRepository from "../../../../src/adapters/repositories/MemoRepository";
-import MemoMapper from "../../../../src/domain/memo/MemoMapper";
-import MongoDbDriver from "../../../../src/infra/drivers/db/MongoDbDriver";
-import RedisDriver from "../../../../src/infra/drivers/cache/RedisDriver";
-import Memo from "../../../../src/domain/memo/Memo";
-import UserRole from "../../../../src/domain/user/UserRole";
+import sinon from 'sinon';
+import { faker } from '@faker-js/faker';
+import { expect } from 'chai';
+import config from '../../../../src/config';
+import PinoDriver from '../../../../src/infra/drivers/logger/PinoDriver';
+import MongoDbDriver from '../../../../src/infra/drivers/db/MongoDbDriver';
+import MemoRepository from '../../../../src/adapters/repositories/MemoRepository';
+import MemoMapper from '../../../../src/domain/memo/MemoMapper';
+import RedisDriver from '../../../../src/infra/drivers/cache/RedisDriver';
+import Memo from '../../../../src/domain/memo/Memo';
+import UserRole from '../../../../src/domain/user/UserRole';
+import IDbMemo from '../../../../src/domain/memo/IDbMemo';
 
 const sandbox = sinon.createSandbox();
 
-describe("/adapters/repositories/MemoRepository", () => {
+describe('/adapters/repositories/MemoRepository', () => {
   afterEach(() => sandbox.restore());
 
-  it("should save an User entity", async () => {
+  it('should save an User entity', async () => {
     const memoId = faker.string.uuid();
     const userId = faker.string.uuid();
-    const title = "New Memo";
-    const text = "Lorem ipsum";
+    const title = 'New Memo';
+    const text = 'Lorem ipsum';
     const start = new Date(new Date().getTime() + 3.6e6).toISOString();
     const end = new Date(new Date().getTime() + 3.6e6 * 2).toISOString();
     const fakeMemo = {
@@ -29,17 +31,20 @@ describe("/adapters/repositories/MemoRepository", () => {
       start,
       end,
     };
+    const loggerDriver = sandbox.createStubInstance(PinoDriver);
     const dbDriver = sandbox.createStubInstance(MongoDbDriver);
     const cacheDriver = sandbox.createStubInstance(RedisDriver);
     const memoMapper = sandbox.createStubInstance(MemoMapper);
     const memoRepository = new MemoRepository(
       config.db.memoSource,
+      loggerDriver,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       <any>dbDriver,
       cacheDriver,
-      memoMapper
+      memoMapper,
     );
 
-    sandbox.stub(Memo, "create").returns(fakeMemo);
+    sandbox.stub(Memo, 'create').returns(fakeMemo);
     memoMapper.entityToDb.returns({
       memo_id: memoId,
       user_id: userId,
@@ -55,41 +60,44 @@ describe("/adapters/repositories/MemoRepository", () => {
     expect(result).equal(undefined);
   });
 
-  it("should return all memos from DB when no filter is passed", async () => {
+  it('should return all memos from DB when no filter is passed', async () => {
     const dbMemos = [
       {
         memo_id: faker.string.uuid(),
         user_id: faker.string.uuid(),
-        title: "Memo 1",
-        text: "Lorem ipsum 1",
+        title: 'Memo 1',
+        text: 'Lorem ipsum 1',
         start: new Date(new Date().getTime() + 3.6e6).toISOString(),
         end: new Date(new Date().getTime() + 3.6e6 * 2).toISOString(),
       },
       {
         memo_id: faker.string.uuid(),
         user_id: faker.string.uuid(),
-        title: "Memo 2",
-        text: "Lorem ipsum 2",
+        title: 'Memo 2',
+        text: 'Lorem ipsum 2',
         start: new Date(new Date().getTime() + 3.6e6).toISOString(),
         end: new Date(new Date().getTime() + 3.6e6 * 2).toISOString(),
       },
       {
         memo_id: faker.string.uuid(),
         user_id: faker.string.uuid(),
-        title: "Memo 3",
-        text: "Lorem ipsum 3",
+        title: 'Memo 3',
+        text: 'Lorem ipsum 3',
         start: new Date(new Date().getTime() + 3.6e6).toISOString(),
         end: new Date(new Date().getTime() + 3.6e6 * 2).toISOString(),
       },
     ];
+    const loggerDriver = sandbox.createStubInstance(PinoDriver);
     const dbDriver = sandbox.createStubInstance(MongoDbDriver);
     const cacheDriver = sandbox.createStubInstance(RedisDriver);
     const memoMapper = sandbox.createStubInstance(MemoMapper);
     const memoRepository = new MemoRepository(
       config.db.memoSource,
+      loggerDriver,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       <any>dbDriver,
       cacheDriver,
-      memoMapper
+      memoMapper,
     );
 
     dbDriver.find.resolves(dbMemos);
@@ -145,42 +153,45 @@ describe("/adapters/repositories/MemoRepository", () => {
     expect(memos[2].end).equal(dbMemos[2].end);
   });
 
-  it("should return filtered memos from DB when some filter is passed", async () => {
+  it('should return filtered memos from DB when some filter is passed', async () => {
     const userId = faker.string.uuid();
     const dbMemos = [
       {
         memo_id: faker.string.uuid(),
         user_id: userId,
-        title: "Memo 1",
-        text: "Lorem ipsum 1",
+        title: 'Memo 1',
+        text: 'Lorem ipsum 1',
         start: new Date(new Date().getTime() + 3.6e6).toISOString(),
         end: new Date(new Date().getTime() + 3.6e6 * 2).toISOString(),
       },
       {
         memo_id: faker.string.uuid(),
         user_id: userId,
-        title: "Memo 2",
-        text: "Lorem ipsum 2",
+        title: 'Memo 2',
+        text: 'Lorem ipsum 2',
         start: new Date(new Date().getTime() + 3.6e6).toISOString(),
         end: new Date(new Date().getTime() + 3.6e6 * 2).toISOString(),
       },
       {
         memo_id: faker.string.uuid(),
         user_id: userId,
-        title: "Memo 3",
-        text: "Lorem ipsum 3",
+        title: 'Memo 3',
+        text: 'Lorem ipsum 3',
         start: new Date(new Date().getTime() + 3.6e6).toISOString(),
         end: new Date(new Date().getTime() + 3.6e6 * 2).toISOString(),
       },
     ];
+    const loggerDriver = sandbox.createStubInstance(PinoDriver);
     const dbDriver = sandbox.createStubInstance(MongoDbDriver);
     const cacheDriver = sandbox.createStubInstance(RedisDriver);
     const memoMapper = sandbox.createStubInstance(MemoMapper);
     const memoRepository = new MemoRepository(
       config.db.memoSource,
+      loggerDriver,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       <any>dbDriver,
       cacheDriver,
-      memoMapper
+      memoMapper,
     );
 
     dbDriver.find.resolves(dbMemos);
@@ -221,16 +232,19 @@ describe("/adapters/repositories/MemoRepository", () => {
     expect(memos[1].end).equal(dbMemos[1].end);
   });
 
-  it("should return an empty array when no memos are found", async () => {
-    const dbMemos: any[] = [];
+  it('should return an empty array when no memos are found', async () => {
+    const dbMemos: IDbMemo[] = [];
+    const loggerDriver = sandbox.createStubInstance(PinoDriver);
     const dbDriver = sandbox.createStubInstance(MongoDbDriver);
     const cacheDriver = sandbox.createStubInstance(RedisDriver);
     const memoMapper = sandbox.createStubInstance(MemoMapper);
     const memoRepository = new MemoRepository(
       config.db.memoSource,
+      loggerDriver,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       <any>dbDriver,
       cacheDriver,
-      memoMapper
+      memoMapper,
     );
 
     dbDriver.find.resolves(dbMemos);
@@ -240,23 +254,26 @@ describe("/adapters/repositories/MemoRepository", () => {
     expect(users.length).equal(0);
   });
 
-  it("should return a memo from DB when some filter is passed", async () => {
+  it('should return a memo from DB when some filter is passed', async () => {
     const dbMemo = {
       memo_id: faker.string.uuid(),
       user_id: faker.string.uuid(),
-      title: "New Memo",
-      text: "Lorem ipsum",
+      title: 'New Memo',
+      text: 'Lorem ipsum',
       start: new Date(new Date().getTime() + 3.6e6).toISOString(),
       end: new Date(new Date().getTime() + 3.6e6 * 2).toISOString(),
     };
+    const loggerDriver = sandbox.createStubInstance(PinoDriver);
     const dbDriver = sandbox.createStubInstance(MongoDbDriver);
     const cacheDriver = sandbox.createStubInstance(RedisDriver);
     const memoMapper = sandbox.createStubInstance(MemoMapper);
     const memoRepository = new MemoRepository(
       config.db.memoSource,
+      loggerDriver,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       <any>dbDriver,
       cacheDriver,
-      memoMapper
+      memoMapper,
     );
 
     dbDriver.findOne.resolves(dbMemo);
@@ -279,41 +296,47 @@ describe("/adapters/repositories/MemoRepository", () => {
     expect(memo?.end).equal(dbMemo.end);
   });
 
-  it("should return undefined when no memo is found", async () => {
+  it('should return undefined when no memo is found', async () => {
+    const loggerDriver = sandbox.createStubInstance(PinoDriver);
     const dbDriver = sandbox.createStubInstance(MongoDbDriver);
     const cacheDriver = sandbox.createStubInstance(RedisDriver);
     const memoMapper = sandbox.createStubInstance(MemoMapper);
     const memoRepository = new MemoRepository(
       config.db.memoSource,
+      loggerDriver,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       <any>dbDriver,
       cacheDriver,
-      memoMapper
+      memoMapper,
     );
 
     dbDriver.findOne.resolves();
 
-    const memo = await memoRepository.findOne({ memo_id: "test" });
+    const memo = await memoRepository.findOne({ memo_id: 'test' });
 
     expect(memo).equal(undefined);
   });
 
-  it("should return a memo from db passing memo_id as a filter", async () => {
+  it('should return a memo from db passing memo_id as a filter', async () => {
     const dbMemo = {
       memo_id: faker.string.uuid(),
       user_id: faker.string.uuid(),
-      title: "New Memo",
-      text: "Lorem ipsum",
+      title: 'New Memo',
+      text: 'Lorem ipsum',
       start: new Date(new Date().getTime() + 3.6e6).toISOString(),
       end: new Date(new Date().getTime() + 3.6e6 * 2).toISOString(),
     };
+    const loggerDriver = sandbox.createStubInstance(PinoDriver);
     const dbDriver = sandbox.createStubInstance(MongoDbDriver);
     const cacheDriver = sandbox.createStubInstance(RedisDriver);
     const memoMapper = sandbox.createStubInstance(MemoMapper);
     const memoRepository = new MemoRepository(
       config.db.memoSource,
+      loggerDriver,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       <any>dbDriver,
       cacheDriver,
-      memoMapper
+      memoMapper,
     );
 
     dbDriver.findOne.resolves(dbMemo);
@@ -336,23 +359,26 @@ describe("/adapters/repositories/MemoRepository", () => {
     expect(memo?.end).equal(dbMemo.end);
   });
 
-  it("should return a memo from cache passing memo_id as a filter", async () => {
+  it('should return a memo from cache passing memo_id as a filter', async () => {
     const memoData = {
       memoId: faker.string.uuid(),
       userId: faker.string.uuid(),
-      title: "New Memo",
-      text: "Lorem ipsum",
+      title: 'New Memo',
+      text: 'Lorem ipsum',
       start: new Date(new Date().getTime() + 3.6e6).toISOString(),
       end: new Date(new Date().getTime() + 3.6e6 * 2).toISOString(),
     };
+    const loggerDriver = sandbox.createStubInstance(PinoDriver);
     const dbDriver = sandbox.createStubInstance(MongoDbDriver);
     const cacheDriver = sandbox.createStubInstance(RedisDriver);
     const memoMapper = sandbox.createStubInstance(MemoMapper);
     const memoRepository = new MemoRepository(
       config.db.memoSource,
+      loggerDriver,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       <any>dbDriver,
       cacheDriver,
-      memoMapper
+      memoMapper,
     );
 
     cacheDriver.get.resolves(Memo.create(memoData));
@@ -367,41 +393,47 @@ describe("/adapters/repositories/MemoRepository", () => {
     expect(memo?.end).equal(memoData.end);
   });
 
-  it("should return undefined when passing an invalid memo_id as a filter", async () => {
+  it('should return undefined when passing an invalid memo_id as a filter', async () => {
+    const loggerDriver = sandbox.createStubInstance(PinoDriver);
     const dbDriver = sandbox.createStubInstance(MongoDbDriver);
     const cacheDriver = sandbox.createStubInstance(RedisDriver);
     const memoMapper = sandbox.createStubInstance(MemoMapper);
     const memoRepository = new MemoRepository(
       config.db.memoSource,
+      loggerDriver,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       <any>dbDriver,
       cacheDriver,
-      memoMapper
+      memoMapper,
     );
 
     dbDriver.findOne.resolves();
 
-    const memo = await memoRepository.findOneById("");
+    const memo = await memoRepository.findOneById('');
 
     expect(memo).equal(undefined);
   });
 
-  it("should return an array of memos passing user_id as a filter", async () => {
+  it('should return an array of memos passing user_id as a filter', async () => {
     const dbMemo = {
       memo_id: faker.string.uuid(),
       user_id: faker.string.uuid(),
-      title: "New Memo",
-      text: "Lorem ipsum",
+      title: 'New Memo',
+      text: 'Lorem ipsum',
       start: new Date(new Date().getTime() + 3.6e6).toISOString(),
       end: new Date(new Date().getTime() + 3.6e6 * 2).toISOString(),
     };
+    const loggerDriver = sandbox.createStubInstance(PinoDriver);
     const dbDriver = sandbox.createStubInstance(MongoDbDriver);
     const cacheDriver = sandbox.createStubInstance(RedisDriver);
     const memoMapper = sandbox.createStubInstance(MemoMapper);
     const memoRepository = new MemoRepository(
       config.db.memoSource,
+      loggerDriver,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       <any>dbDriver,
       cacheDriver,
-      memoMapper
+      memoMapper,
     );
 
     dbDriver.find.resolves([dbMemo]);
@@ -424,29 +456,32 @@ describe("/adapters/repositories/MemoRepository", () => {
     expect(memos[0].end).equal(dbMemo.end);
   });
 
-  it("should return an empty array when passing an invalid user_id as a filter", async () => {
+  it('should return an empty array when passing an invalid user_id as a filter', async () => {
+    const loggerDriver = sandbox.createStubInstance(PinoDriver);
     const dbDriver = sandbox.createStubInstance(MongoDbDriver);
     const cacheDriver = sandbox.createStubInstance(RedisDriver);
     const memoMapper = sandbox.createStubInstance(MemoMapper);
     const memoRepository = new MemoRepository(
       config.db.memoSource,
+      loggerDriver,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       <any>dbDriver,
       cacheDriver,
-      memoMapper
+      memoMapper,
     );
 
     dbDriver.find.resolves([]);
 
-    const memos = await memoRepository.findByUserId("");
+    const memos = await memoRepository.findByUserId('');
 
     expect(memos).deep.equal([]);
   });
 
-  it("should update a memo from DB", async () => {
+  it('should update a memo from DB', async () => {
     const memoId = faker.string.uuid();
     const userId = faker.string.uuid();
-    const title = "New Memo";
-    const text = "Lorem ipsum";
+    const title = 'New Memo';
+    const text = 'Lorem ipsum';
     const start = new Date(new Date().getTime() + 3.6e6).toISOString();
     const end = new Date(new Date().getTime() + 3.6e6 * 2).toISOString();
     const fakeMemo = {
@@ -457,14 +492,17 @@ describe("/adapters/repositories/MemoRepository", () => {
       start,
       end,
     };
+    const loggerDriver = sandbox.createStubInstance(PinoDriver);
     const dbDriver = sandbox.createStubInstance(MongoDbDriver);
     const cacheDriver = sandbox.createStubInstance(RedisDriver);
     const memoMapper = sandbox.createStubInstance(MemoMapper);
     const memoRepository = new MemoRepository(
       config.db.memoSource,
+      loggerDriver,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       <any>dbDriver,
       cacheDriver,
-      memoMapper
+      memoMapper,
     );
 
     dbDriver.update.resolves();
@@ -474,11 +512,11 @@ describe("/adapters/repositories/MemoRepository", () => {
     expect(result).equal(undefined);
   });
 
-  it("should delete a memo from DB", async () => {
+  it('should delete a memo from DB', async () => {
     const memoId = faker.string.uuid();
     const userId = faker.string.uuid();
-    const title = "New Memo";
-    const text = "Lorem ipsum";
+    const title = 'New Memo';
+    const text = 'Lorem ipsum';
     const start = new Date(new Date().getTime() + 3.6e6).toISOString();
     const end = new Date(new Date().getTime() + 3.6e6 * 2).toISOString();
     const fakeMemo = {
@@ -489,14 +527,17 @@ describe("/adapters/repositories/MemoRepository", () => {
       start,
       end,
     };
+    const loggerDriver = sandbox.createStubInstance(PinoDriver);
     const dbDriver = sandbox.createStubInstance(MongoDbDriver);
     const cacheDriver = sandbox.createStubInstance(RedisDriver);
     const memoMapper = sandbox.createStubInstance(MemoMapper);
     const memoRepository = new MemoRepository(
       config.db.memoSource,
+      loggerDriver,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       <any>dbDriver,
       cacheDriver,
-      memoMapper
+      memoMapper,
     );
 
     dbDriver.delete.resolves();
@@ -506,7 +547,7 @@ describe("/adapters/repositories/MemoRepository", () => {
     expect(result).equal(undefined);
   });
 
-  it("should delete all memos passing user_id from DB", async () => {
+  it('should delete all memos passing user_id from DB', async () => {
     const userId = faker.string.uuid();
     const email = faker.internet.email();
     const password = faker.internet.password();
@@ -521,14 +562,17 @@ describe("/adapters/repositories/MemoRepository", () => {
       memos: [],
       addMemo: () => {},
     };
+    const loggerDriver = sandbox.createStubInstance(PinoDriver);
     const dbDriver = sandbox.createStubInstance(MongoDbDriver);
     const cacheDriver = sandbox.createStubInstance(RedisDriver);
     const memoMapper = sandbox.createStubInstance(MemoMapper);
     const memoRepository = new MemoRepository(
       config.db.memoSource,
+      loggerDriver,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       <any>dbDriver,
       cacheDriver,
-      memoMapper
+      memoMapper,
     );
 
     dbDriver.deleteMany.resolves();

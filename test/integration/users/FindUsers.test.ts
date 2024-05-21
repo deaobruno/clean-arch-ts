@@ -1,16 +1,18 @@
-import sinon from "sinon";
-import axios from "axios";
-import { faker } from "@faker-js/faker";
-import { expect } from "chai";
-import UserRole from "../../../src/domain/user/UserRole";
-import CryptoDriver from "../../../src/infra/drivers/hash/CryptoDriver";
-import server from "../../../src/infra/http/v1/server";
-import MongoDbDriver from "../../../src/infra/drivers/db/MongoDbDriver";
-import JwtDriver from "../../../src/infra/drivers/token/JwtDriver";
+import sinon from 'sinon';
+import axios from 'axios';
+import { faker } from '@faker-js/faker';
+import { expect } from 'chai';
+import UserRole from '../../../src/domain/user/UserRole';
+import CryptoDriver from '../../../src/infra/drivers/hash/CryptoDriver';
+import server from '../../../src/infra/http/v1/server';
+import MongoDbDriver from '../../../src/infra/drivers/db/MongoDbDriver';
+import JwtDriver from '../../../src/infra/drivers/token/JwtDriver';
+import PinoDriver from '../../../src/infra/drivers/logger/PinoDriver';
 
 const sandbox = sinon.createSandbox();
-const hashDriver = new CryptoDriver();
-const url = "http://localhost:8080/api/v1/users";
+const loggerDriver = sinon.createStubInstance(PinoDriver);
+const hashDriver = new CryptoDriver(loggerDriver);
+const url = 'http://localhost:8080/api/v1/users';
 const email = faker.internet.email();
 const password = faker.internet.password();
 const role = UserRole.ROOT;
@@ -34,23 +36,24 @@ const usersData = [
     role: UserRole.CUSTOMER,
   },
 ];
-const Authorization = "Bearer token";
-const token = "refresh-token";
+const Authorization = 'Bearer token';
+const token = 'refresh-token';
 
-describe("GET /users", () => {
+describe('GET /users', () => {
   before(() => server.start(8080));
 
   afterEach(() => sandbox.restore());
 
   after(() => server.stop());
 
-  it("should get 200 status code and an array with users data when trying to find users without filters", async () => {
+  it('should get 200 status code and an array with users data when trying to find users without filters', async () => {
     const userId = faker.string.uuid();
 
     sandbox
-      .stub(JwtDriver.prototype, "validateAccessToken")
+      .stub(JwtDriver.prototype, 'validateAccessToken')
       .returns({ id: userId });
-    sandbox.stub(MongoDbDriver.prototype, "findOne")
+    sandbox
+      .stub(MongoDbDriver.prototype, 'findOne')
       .onCall(0)
       .resolves({
         user_id: userId,
@@ -63,10 +66,10 @@ describe("GET /users", () => {
         password,
         role,
       });
-    sandbox.stub(MongoDbDriver.prototype, "find").resolves(usersData);
+    sandbox.stub(MongoDbDriver.prototype, 'find').resolves(usersData);
 
     const { status, data } = await axios.get(`${url}`, {
-      headers: { Authorization, "Content-Type": "application/json" },
+      headers: { Authorization, 'Content-Type': 'application/json' },
     });
 
     expect(status).equal(200);
@@ -82,13 +85,14 @@ describe("GET /users", () => {
     expect(data[2].role).equal(UserRole[usersData[2].role]);
   });
 
-  it("should get 200 status code and an array with users data when trying to find users with filters", async () => {
+  it('should get 200 status code and an array with users data when trying to find users with filters', async () => {
     const userId = faker.string.uuid();
 
     sandbox
-      .stub(JwtDriver.prototype, "validateAccessToken")
+      .stub(JwtDriver.prototype, 'validateAccessToken')
       .returns({ id: userId });
-    sandbox.stub(MongoDbDriver.prototype, "findOne")
+    sandbox
+      .stub(MongoDbDriver.prototype, 'findOne')
       .onCall(0)
       .resolves({
         user_id: userId,
@@ -101,11 +105,11 @@ describe("GET /users", () => {
         password,
         role,
       });
-    sandbox.stub(MongoDbDriver.prototype, "find").resolves([usersData[0]]);
+    sandbox.stub(MongoDbDriver.prototype, 'find').resolves([usersData[0]]);
 
     const { status, data } = await axios.get(
       `${url}?email=${usersData[0].email}`,
-      { headers: { Authorization, "Content-Type": "application/json" } }
+      { headers: { Authorization, 'Content-Type': 'application/json' } },
     );
 
     expect(status).equal(200);
@@ -119,9 +123,10 @@ describe("GET /users", () => {
     const userId = faker.string.uuid();
 
     sandbox
-      .stub(JwtDriver.prototype, "validateAccessToken")
+      .stub(JwtDriver.prototype, 'validateAccessToken')
       .returns({ id: userId });
-    sandbox.stub(MongoDbDriver.prototype, "findOne")
+    sandbox
+      .stub(MongoDbDriver.prototype, 'findOne')
       .onCall(0)
       .resolves({
         user_id: userId,
@@ -147,9 +152,10 @@ describe("GET /users", () => {
     const userId = faker.string.uuid();
 
     sandbox
-      .stub(JwtDriver.prototype, "validateAccessToken")
+      .stub(JwtDriver.prototype, 'validateAccessToken')
       .returns({ id: userId });
-    sandbox.stub(MongoDbDriver.prototype, "findOne")
+    sandbox
+      .stub(MongoDbDriver.prototype, 'findOne')
       .onCall(0)
       .resolves({
         user_id: userId,
@@ -171,13 +177,14 @@ describe("GET /users", () => {
       });
   });
 
-  it("should get 400 status code when trying to find users passing invalid param as filter", async () => {
+  it('should get 400 status code when trying to find users passing invalid param as filter', async () => {
     const userId = faker.string.uuid();
 
     sandbox
-      .stub(JwtDriver.prototype, "validateAccessToken")
+      .stub(JwtDriver.prototype, 'validateAccessToken')
       .returns({ id: userId });
-    sandbox.stub(MongoDbDriver.prototype, "findOne")
+    sandbox
+      .stub(MongoDbDriver.prototype, 'findOne')
       .onCall(0)
       .resolves({
         user_id: userId,
@@ -199,13 +206,15 @@ describe("GET /users", () => {
       });
   });
 
-  it("should get 404 status code when no users are found", async () => {
+  it('should get 404 status code when no users are found', async () => {
     const userId = faker.string.uuid();
+    const email = 'test@test.com';
 
     sandbox
-      .stub(JwtDriver.prototype, "validateAccessToken")
+      .stub(JwtDriver.prototype, 'validateAccessToken')
       .returns({ id: userId });
-    sandbox.stub(MongoDbDriver.prototype, "findOne")
+    sandbox
+      .stub(MongoDbDriver.prototype, 'findOne')
       .onCall(0)
       .resolves({
         user_id: userId,
@@ -218,15 +227,17 @@ describe("GET /users", () => {
         password,
         role,
       });
-    sandbox.stub(MongoDbDriver.prototype, "find").resolves([]);
+    sandbox.stub(MongoDbDriver.prototype, 'find').resolves([]);
 
     await axios
-      .get(`${url}?email=test@test.com`, {
-        headers: { Authorization, "Content-Type": "application/json" },
+      .get(`${url}?email=${email}`, {
+        headers: { Authorization, 'Content-Type': 'application/json' },
       })
       .catch(({ response: { status, data } }) => {
         expect(status).equal(404);
-        expect(data.error).equal("Users not found");
+        expect(data.error).equal(
+          `[FindUsers] Users not found: ${JSON.stringify({ role: UserRole.CUSTOMER, email })}`,
+        );
       });
   });
 });

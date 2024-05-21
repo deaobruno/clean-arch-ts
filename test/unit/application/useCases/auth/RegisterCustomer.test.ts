@@ -1,14 +1,15 @@
-import sinon from "sinon";
-import { faker } from "@faker-js/faker";
-import { expect } from "chai";
-import RegisterCustomer from "../../../../../src/application/useCases/auth/RegisterCustomer";
-import UserRole from "../../../../../src/domain/user/UserRole";
-import User from "../../../../../src/domain/user/User";
-import CryptoDriver from "../../../../../src/infra/drivers/hash/CryptoDriver";
-import BcryptDriver from "../../../../../src/infra/drivers/encryption/BcryptDriver";
-import ConflictError from "../../../../../src/application/errors/ConflictError";
-import BaseError from "../../../../../src/application/errors/BaseError";
-import UserRepository from "../../../../../src/adapters/repositories/UserRepository";
+import sinon from 'sinon';
+import { faker } from '@faker-js/faker';
+import { expect } from 'chai';
+import RegisterCustomer from '../../../../../src/application/useCases/auth/RegisterCustomer';
+import UserRole from '../../../../../src/domain/user/UserRole';
+import User from '../../../../../src/domain/user/User';
+import CryptoDriver from '../../../../../src/infra/drivers/hash/CryptoDriver';
+import BcryptDriver from '../../../../../src/infra/drivers/encryption/BcryptDriver';
+import ConflictError from '../../../../../src/application/errors/ConflictError';
+import BaseError from '../../../../../src/application/errors/BaseError';
+import UserRepository from '../../../../../src/adapters/repositories/UserRepository';
+import PinoDriver from '../../../../../src/infra/drivers/logger/PinoDriver';
 
 const sandbox = sinon.createSandbox();
 const email = faker.internet.email();
@@ -26,20 +27,26 @@ const userParams = {
   role: UserRole.CUSTOMER,
 };
 
-describe("/application/useCases/auth/RegisterCustomer.ts", () => {
+describe('/application/useCases/auth/RegisterCustomer.ts', () => {
   afterEach(() => sandbox.restore());
 
-  it("should successfully create a Customer User", async () => {
+  it('should successfully create a Customer User', async () => {
+    const loggerDriver = sandbox.createStubInstance(PinoDriver);
     const cryptoDriver = sandbox.createStubInstance(CryptoDriver);
     const encryptionDriver = sandbox.createStubInstance(BcryptDriver);
     const userRepository = sandbox.createStubInstance(UserRepository);
-    const registerCustomer = new RegisterCustomer(cryptoDriver, encryptionDriver, userRepository);
+    const registerCustomer = new RegisterCustomer(
+      loggerDriver,
+      cryptoDriver,
+      encryptionDriver,
+      userRepository,
+    );
 
     userRepository.findOneByEmail.resolves();
     cryptoDriver.generateID.returns(faker.string.uuid());
-    encryptionDriver.encrypt.resolves("hash");
+    encryptionDriver.encrypt.resolves('hash');
     userRepository.create.resolves();
-    sandbox.stub(User, "create").returns(fakeUser);
+    sandbox.stub(User, 'create').returns(fakeUser);
 
     const user = <User>await registerCustomer.exec(userParams);
 
@@ -51,16 +58,24 @@ describe("/application/useCases/auth/RegisterCustomer.ts", () => {
     expect(user.isRoot).equal(false);
   });
 
-  it("should fail when trying to create a Customer User with repeated email", async () => {
+  it('should fail when trying to create a Customer User with repeated email', async () => {
+    const loggerDriver = sandbox.createStubInstance(PinoDriver);
     const cryptoDriver = sandbox.createStubInstance(CryptoDriver);
     const encryptionDriver = sandbox.createStubInstance(BcryptDriver);
     const userRepository = sandbox.createStubInstance(UserRepository);
-    const registerCustomer = new RegisterCustomer(cryptoDriver, encryptionDriver, userRepository);
+    const registerCustomer = new RegisterCustomer(
+      loggerDriver,
+      cryptoDriver,
+      encryptionDriver,
+      userRepository,
+    );
 
     userRepository.findOneByEmail.resolves(fakeUser);
 
     const error = <BaseError>await registerCustomer.exec(userParams);
 
-    expect(error).deep.equal(new ConflictError("Email already in use"));
+    expect(error).deep.equal(
+      new ConflictError(`[RegisterCustomer] Email already in use: ${email}`),
+    );
   });
 });

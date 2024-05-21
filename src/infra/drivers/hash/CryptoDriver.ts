@@ -1,8 +1,18 @@
 import crypto, { BinaryToTextEncoding } from 'node:crypto';
+import ILoggerDriver from '../logger/ILoggerDriver';
 
 export default class CryptoDriver {
+  constructor(private logger: ILoggerDriver) {}
+
   generateID(): string {
-    return crypto.randomUUID();
+    const uuid = crypto.randomUUID();
+
+    this.logger.debug({
+      message: '[CryptoDriver] UUID generated',
+      uuid,
+    });
+
+    return uuid;
   }
 
   hashString(
@@ -10,6 +20,16 @@ export default class CryptoDriver {
     algorithm = 'sha256',
     encoding: BinaryToTextEncoding = 'hex',
   ): string {
-    return crypto.createHash(algorithm).update(text).digest(encoding);
+    const hash = crypto.createHash(algorithm).update(text).digest(encoding);
+
+    this.logger.debug({
+      message: '[CryptoDriver] String hashed',
+      text,
+      algorithm,
+      encoding,
+      hash,
+    });
+
+    return hash;
   }
 }

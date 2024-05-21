@@ -5,6 +5,6 @@ export default interface IServer {
   post(path: string, controller: BaseController): unknown;
   put(path: string, controller: BaseController): unknown;
   delete(path: string, controller: BaseController): unknown;
-  start(httpPort: string | number, routes: unknown[]): void;
+  start(httpPort: string | number): void;
   stop(callback?: (error?: Error) => void): void;
 }

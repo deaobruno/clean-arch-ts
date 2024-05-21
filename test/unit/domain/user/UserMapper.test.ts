@@ -1,21 +1,22 @@
-import sinon from "sinon";
-import { faker } from "@faker-js/faker";
-import { expect } from "chai";
-import UserRole from "../../../../src/domain/user/UserRole";
-import User from "../../../../src/domain/user/User";
-import UserMapper from "../../../../src/domain/user/UserMapper";
+import sinon from 'sinon';
+import { faker } from '@faker-js/faker';
+import { expect } from 'chai';
+import PinoDriver from '../../../../src/infra/drivers/logger/PinoDriver';
+import UserRole from '../../../../src/domain/user/UserRole';
+import User from '../../../../src/domain/user/User';
+import UserMapper from '../../../../src/domain/user/UserMapper';
 
-const userMapper = new UserMapper();
+const userMapper = new UserMapper(sinon.createStubInstance(PinoDriver));
 
-describe("/src/domain/user/UserMapper.ts", () => {
-  it("should map an user entity to user db data", () => {
+describe('/src/domain/user/UserMapper.ts', () => {
+  it('should map an user entity to user db data', () => {
     const userData = {
       userId: faker.string.uuid(),
       email: faker.internet.email(),
       password: faker.internet.password(),
       role: UserRole.CUSTOMER,
     };
-    const user = User.create(userData);
+    const user = <User>User.create(userData);
     const userDbData = userMapper.entityToDb(user);
 
     expect(userDbData.user_id).equal(user.userId);
@@ -24,13 +25,13 @@ describe("/src/domain/user/UserMapper.ts", () => {
     expect(userDbData.role).equal(user.role);
   });
 
-  it("should map user db data to an user entity", () => {
+  it('should map user db data to an user entity', () => {
     const userId = faker.string.uuid();
     const email = faker.internet.email();
     const password = faker.internet.password();
     const role = UserRole.CUSTOMER;
 
-    sinon.stub(User, "create").returns({
+    sinon.stub(User, 'create').returns({
       userId,
       email,
       password,
@@ -47,7 +48,7 @@ describe("/src/domain/user/UserMapper.ts", () => {
       password,
       role,
     };
-    const user = userMapper.dbToEntity(userDbData);
+    const user = <User>userMapper.dbToEntity(userDbData);
 
     expect(user.userId).equal(userDbData.user_id);
     expect(user.email).equal(userDbData.email);

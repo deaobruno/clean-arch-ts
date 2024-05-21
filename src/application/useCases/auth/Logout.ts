@@ -2,6 +2,7 @@ import IRefreshTokenRepository from '../../../domain/refreshToken/IRefreshTokenR
 import BaseError from '../../errors/BaseError';
 import IUseCase from '../IUseCase';
 import RefreshToken from '../../../domain/refreshToken/RefreshToken';
+import ILoggerDriver from '../../../infra/drivers/logger/ILoggerDriver';
 
 type Input = {
   refreshToken: RefreshToken;
@@ -10,9 +11,22 @@ type Input = {
 type Output = void | BaseError;
 
 export default class DeleteRefreshToken implements IUseCase<Input, Output> {
-  constructor(private _refreshTokenRepository: IRefreshTokenRepository) {}
+  constructor(
+    private loggerDriver: ILoggerDriver,
+    private refreshTokenRepository: IRefreshTokenRepository,
+  ) {}
 
-  async exec(payload: Input): Promise<Output> {
-    await this._refreshTokenRepository.deleteOne(payload.refreshToken);
+  async exec(input: Input): Promise<Output> {
+    const { refreshToken } = input;
+
+    await this.refreshTokenRepository.deleteOne(refreshToken);
+
+    // TODO: add userId to log
+    this.loggerDriver.debug({
+      message: '[Logout] User logged out',
+      input,
+      userId: '',
+      refreshToken,
+    });
   }
 }

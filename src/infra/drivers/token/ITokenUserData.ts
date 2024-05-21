@@ -1,3 +1,3 @@
-export default interface TokenUserData {
+export default interface ITokenUserData {
   id: string;
 }

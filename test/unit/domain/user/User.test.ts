@@ -1,22 +1,22 @@
-import { faker } from "@faker-js/faker";
-import { expect } from "chai";
-import UserRole from "../../../../src/domain/user/UserRole";
-import User from "../../../../src/domain/user/User";
-import Memo from "../../../../src/domain/memo/Memo";
+import { faker } from '@faker-js/faker';
+import { expect } from 'chai';
+import UserRole from '../../../../src/domain/user/UserRole';
+import User from '../../../../src/domain/user/User';
+import Memo from '../../../../src/domain/memo/Memo';
 
 const userId = faker.string.uuid();
 const email = faker.internet.email();
 const password = faker.internet.password();
 
-describe("/domain/user/User.ts", () => {
-  it("should create a root User entity object", () => {
+describe('/domain/user/User.ts', () => {
+  it('should create a root User entity object', () => {
     const userData = {
       userId,
       email,
       password,
       role: UserRole.ROOT,
     };
-    const user = User.create(userData);
+    const user = <User>User.create(userData);
 
     expect(user.userId).equal(userData.userId);
     expect(user.email).equal(userData.email);
@@ -25,14 +25,14 @@ describe("/domain/user/User.ts", () => {
     expect(user.isRoot).equal(true);
   });
 
-  it("should create a customer User entity object", () => {
+  it('should create a customer User entity object', () => {
     const userData = {
       userId,
       email,
       password,
       role: UserRole.CUSTOMER,
     };
-    const user = User.create(userData);
+    const user = <User>User.create(userData);
 
     expect(user.userId).equal(userData.userId);
     expect(user.email).equal(userData.email);
@@ -41,62 +41,64 @@ describe("/domain/user/User.ts", () => {
     expect(user.isCustomer).equal(true);
   });
 
-  it("should fail when trying to create an User entity with empty userId", () => {
+  it('should fail when trying to create an User entity with empty userId', () => {
     const userData = {
-      userId: "",
+      userId: '',
       email,
       password,
       role: UserRole.CUSTOMER,
     };
 
-    expect(() => User.create(userData)).throw('User: "userId" required');
+    expect(User.create(userData)).deep.equal(Error('[User] "userId" required'));
   });
 
-  it("should fail when trying to create an User entity with invalid userId", () => {
+  it('should fail when trying to create an User entity with invalid userId', () => {
     const userData = {
-      userId: "test",
+      userId: 'test',
       email,
       password,
       role: UserRole.CUSTOMER,
     };
 
-    expect(() => User.create(userData)).throw('User: Invalid "userId"');
+    expect(User.create(userData)).deep.equal(Error('[User] Invalid "userId"'));
   });
 
-  it("should fail when trying to create an User entity with empty email", () => {
+  it('should fail when trying to create an User entity with empty email', () => {
     const userData = {
       userId,
-      email: "",
+      email: '',
       password,
       role: UserRole.ROOT,
     };
 
-    expect(() => User.create(userData)).throw('User: "email" required');
+    expect(User.create(userData)).deep.equal(Error('[User] "email" required'));
   });
 
-  it("should fail when trying to create an User entity with invalid email", () => {
+  it('should fail when trying to create an User entity with invalid email', () => {
     const userData = {
       userId,
-      email: "email",
+      email: 'email',
       password,
       role: UserRole.ROOT,
     };
 
-    expect(() => User.create(userData)).throw('User: Invalid "email"');
+    expect(User.create(userData)).deep.equal(Error('[User] Invalid "email"'));
   });
 
-  it("should fail when trying to create an User entity with empty password", () => {
+  it('should fail when trying to create an User entity with empty password', () => {
     const userData = {
       userId,
       email,
-      password: "",
+      password: '',
       role: UserRole.ROOT,
     };
 
-    expect(() => User.create(userData)).throw('User: "password" required');
+    expect(User.create(userData)).deep.equal(
+      Error('[User] "password" required'),
+    );
   });
 
-  it("should fail when trying to create an User entity with invalid role", () => {
+  it('should fail when trying to create an User entity with invalid role', () => {
     const userData = {
       userId,
       email,
@@ -104,26 +106,26 @@ describe("/domain/user/User.ts", () => {
       role: -1,
     };
 
-    expect(() => User.create(userData)).throw('User: Invalid "role"');
+    expect(User.create(userData)).deep.equal(Error('[User] Invalid "role"'));
   });
 
-  it("should add a memo to an user", () => {
+  it('should add a memo to an user', () => {
     const userData = {
       userId,
       email,
       password,
       role: UserRole.CUSTOMER,
     };
-    const user = User.create(userData);
+    const user = <User>User.create(userData);
     const memoData = {
       memoId: faker.string.uuid(),
       userId,
-      title: "New Memo",
-      text: "Lorem ipsum",
+      title: 'New Memo',
+      text: 'Lorem ipsum',
       start: new Date(new Date().getTime() + 3.6e6).toISOString(),
       end: new Date(new Date().getTime() + 3.6e6 * 2).toISOString(),
     };
-    const memo = Memo.create(memoData);
+    const memo = <Memo>Memo.create(memoData);
 
     user.addMemo(memo);
 
@@ -131,28 +133,28 @@ describe("/domain/user/User.ts", () => {
     expect(user.memos[0]).deep.equal(memo);
   });
 
-  it("should get an error when trying to add the same memo to an user", () => {
+  it('should get an error when trying to add the same memo to an user', () => {
     const userData = {
       userId,
       email,
       password,
       role: UserRole.CUSTOMER,
     };
-    const user = User.create(userData);
+    const user = <User>User.create(userData);
     const memoData = {
       memoId: faker.string.uuid(),
       userId,
-      title: "New Memo",
-      text: "Lorem ipsum",
+      title: 'New Memo',
+      text: 'Lorem ipsum',
       start: new Date(new Date().getTime() + 3.6e6).toISOString(),
       end: new Date(new Date().getTime() + 3.6e6 * 2).toISOString(),
     };
-    const memo = Memo.create(memoData);
+    const memo = <Memo>Memo.create(memoData);
 
     user.addMemo(memo);
 
-    expect(() => user.addMemo(memo)).to.throw(
-      "User: memo already added to user"
+    expect(user.addMemo(memo)).deep.equal(
+      Error('[User] Memo already added to user'),
     );
   });
 });

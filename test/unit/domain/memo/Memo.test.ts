@@ -1,16 +1,16 @@
-import { faker } from "@faker-js/faker";
-import { expect } from "chai";
-import Memo from "../../../../src/domain/memo/Memo";
+import { faker } from '@faker-js/faker';
+import { expect } from 'chai';
+import Memo from '../../../../src/domain/memo/Memo';
 
 const memoId = faker.string.uuid();
 const userId = faker.string.uuid();
-const title = "New Memo";
-const text = "Lorem ipsum";
+const title = 'New Memo';
+const text = 'Lorem ipsum';
 const start = new Date(new Date().getTime() + 3.6e6).toISOString();
 const end = new Date(new Date().getTime() + 3.6e6 * 2).toISOString();
 
-describe("/domain/memo/Memo.ts", () => {
-  it("should create a Memo entity object", () => {
+describe('/domain/memo/Memo.ts', () => {
+  it('should create a Memo entity object', () => {
     const memoData = {
       memoId,
       userId,
@@ -19,7 +19,7 @@ describe("/domain/memo/Memo.ts", () => {
       start,
       end,
     };
-    const memo = Memo.create(memoData);
+    const memo = <Memo>Memo.create(memoData);
 
     expect(memo.memoId).equal(memoData.memoId);
     expect(memo.userId).equal(memoData.userId);
@@ -29,9 +29,9 @@ describe("/domain/memo/Memo.ts", () => {
     expect(memo.end).equal(memoData.end);
   });
 
-  it("should fail when trying to create a Memo entity with empty memoId", () => {
+  it('should fail when trying to create a Memo entity with empty memoId', () => {
     const memoData = {
-      memoId: "",
+      memoId: '',
       userId,
       title,
       text,
@@ -39,12 +39,12 @@ describe("/domain/memo/Memo.ts", () => {
       end,
     };
 
-    expect(() => Memo.create(memoData)).throw('Memo: "memoId" required');
+    expect(Memo.create(memoData)).deep.equal(Error('[Memo] "memoId" required'));
   });
 
-  it("should fail when trying to create an User entity with empty memoId", () => {
+  it('should fail when trying to create an User entity with empty memoId', () => {
     const memoData = {
-      memoId: "test",
+      memoId: 'test',
       userId,
       title,
       text,
@@ -52,88 +52,88 @@ describe("/domain/memo/Memo.ts", () => {
       end,
     };
 
-    expect(() => Memo.create(memoData)).throw('Memo: Invalid "memoId"');
+    expect(Memo.create(memoData)).deep.equal(Error('[Memo] Invalid "memoId"'));
   });
 
-  it("should fail when trying to create a Memo entity with empty userId", () => {
+  it('should fail when trying to create a Memo entity with empty userId', () => {
     const memoData = {
       memoId,
-      userId: "",
+      userId: '',
       title,
       text,
       start,
       end,
     };
 
-    expect(() => Memo.create(memoData)).throw('Memo: "userId" required');
+    expect(Memo.create(memoData)).deep.equal(Error('[Memo] "userId" required'));
   });
 
-  it("should fail when trying to create an User entity with empty userId", () => {
+  it('should fail when trying to create an User entity with empty userId', () => {
     const memoData = {
       memoId,
-      userId: "test",
+      userId: 'test',
       title,
       text,
       start,
       end,
     };
 
-    expect(() => Memo.create(memoData)).throw('Memo: Invalid "userId"');
+    expect(Memo.create(memoData)).deep.equal(Error('[Memo] Invalid "userId"'));
   });
 
-  it("should fail when trying to create a Memo entity with empty title", () => {
+  it('should fail when trying to create a Memo entity with empty title', () => {
     const memoData = {
       memoId,
       userId,
-      title: "",
+      title: '',
       text,
       start,
       end,
     };
 
-    expect(() => Memo.create(memoData)).throw('Memo: "title" required');
+    expect(Memo.create(memoData)).deep.equal(Error('[Memo] "title" required'));
   });
 
-  it("should fail when trying to create a Memo entity with empty text", () => {
+  it('should fail when trying to create a Memo entity with empty text', () => {
     const memoData = {
       memoId,
       userId,
       title,
-      text: "",
+      text: '',
       start,
       end,
     };
 
-    expect(() => Memo.create(memoData)).throw('Memo: "text" required');
+    expect(Memo.create(memoData)).deep.equal(Error('[Memo] "text" required'));
   });
 
-  it("should fail when trying to create a Memo entity with empty start date", () => {
+  it('should fail when trying to create a Memo entity with empty start date', () => {
     const memoData = {
       memoId,
       userId,
       title,
       text,
-      start: "",
+      start: '',
       end,
     };
 
-    expect(() => Memo.create(memoData)).throw('Memo: "start" required');
+    expect(Memo.create(memoData)).deep.equal(Error('[Memo] "start" required'));
   });
 
-  it("should fail when trying to create a Memo entity with invalid start date", () => {
+  it('should fail when trying to create a Memo entity with invalid start date', () => {
     const memoData = {
       memoId,
       userId,
       title,
       text,
-      start: "test",
+      start: 'test',
       end,
     };
 
-    expect(() => Memo.create(memoData)).throw('Memo: Invalid "start"');
+    expect(Memo.create(memoData)).deep.equal(Error('[Memo] Invalid "start"'));
   });
 
-  it("should fail when trying to create a Memo entity with past start date", () => {
+  it('should fail when trying to create a Memo entity with past start date', () => {
     const memoData = {
       memoId,
       userId,
@@ -143,38 +143,38 @@ describe("/domain/memo/Memo.ts", () => {
       end,
     };
 
-    expect(() => Memo.create(memoData)).throw(
-      'Memo: "start" must be a future date'
+    expect(Memo.create(memoData)).deep.equal(
+      Error('[Memo] "start" must be a future date'),
     );
   });
 
-  it("should fail when trying to create a Memo entity with empty end date", () => {
+  it('should fail when trying to create a Memo entity with empty end date', () => {
     const memoData = {
       memoId,
       userId,
       title,
       text,
       start,
-      end: "",
+      end: '',
     };
 
-    expect(() => Memo.create(memoData)).throw('Memo: "end" required');
+    expect(Memo.create(memoData)).deep.equal(Error('[Memo] "end" required'));
   });
 
-  it("should fail when trying to create a Memo entity with invalid end date", () => {
+  it('should fail when trying to create a Memo entity with invalid end date', () => {
     const memoData = {
       memoId,
       userId,
       title,
       text,
       start,
-      end: "test",
+      end: 'test',
     };
 
-    expect(() => Memo.create(memoData)).throw('Memo: Invalid "end"');
+    expect(Memo.create(memoData)).deep.equal(Error('[Memo] Invalid "end"'));
   });
 
-  it("should fail when trying to create a Memo entity with past end date", () => {
+  it('should fail when trying to create a Memo entity with past end date', () => {
     const memoData = {
       memoId,
       userId,
@@ -184,12 +184,12 @@ describe("/domain/memo/Memo.ts", () => {
       end: new Date().toISOString(),
     };
 
-    expect(() => Memo.create(memoData)).throw(
-      'Memo: "end" must be a future date'
+    expect(Memo.create(memoData)).deep.equal(
+      Error('[Memo] "end" must be a future date'),
     );
   });
 
-  it("should fail when trying to create a Memo entity with end date before start date", () => {
+  it('should fail when trying to create a Memo entity with end date before start date', () => {
     const memoData = {
       memoId,
       userId,
@@ -199,8 +199,8 @@ describe("/domain/memo/Memo.ts", () => {
       end,
     };
 
-    expect(() => Memo.create(memoData)).throw(
-      'Memo: "end" must be after "start"'
+    expect(Memo.create(memoData)).deep.equal(
+      Error('[Memo] "end" must be after "start"'),
     );
   });
 });

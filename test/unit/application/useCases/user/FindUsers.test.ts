@@ -1,41 +1,39 @@
-import sinon from "sinon";
-import { faker } from "@faker-js/faker";
-import UserRole from "../../../../../src/domain/user/UserRole";
-import User from "../../../../../src/domain/user/User";
-import FindUsers from "../../../../../src/application/useCases/user/FindUsers";
-import { expect } from "chai";
-import NotFoundError from "../../../../../src/application/errors/NotFoundError";
-import BaseError from "../../../../../src/application/errors/BaseError";
-import UserRepository from "../../../../../src/adapters/repositories/UserRepository";
+import sinon from 'sinon';
+import { faker } from '@faker-js/faker';
+import UserRole from '../../../../../src/domain/user/UserRole';
+import User from '../../../../../src/domain/user/User';
+import FindUsers from '../../../../../src/application/useCases/user/FindUsers';
+import { expect } from 'chai';
+import NotFoundError from '../../../../../src/application/errors/NotFoundError';
+import BaseError from '../../../../../src/application/errors/BaseError';
+import UserRepository from '../../../../../src/adapters/repositories/UserRepository';
+import PinoDriver from '../../../../../src/infra/drivers/logger/PinoDriver';
 
 const sandbox = sinon.createSandbox();
-const fakeUsers = [
-  User.create({
+const fakeUsers = [<User>User.create({
     userId: faker.string.uuid(),
     email: faker.internet.email(),
     password: faker.internet.password(),
     role: UserRole.CUSTOMER,
-  }),
-  User.create({
+  }), <User>User.create({
     userId: faker.string.uuid(),
     email: faker.internet.email(),
     password: faker.internet.password(),
     role: UserRole.CUSTOMER,
-  }),
-  User.create({
+  }), <User>User.create({
     userId: faker.string.uuid(),
     email: faker.internet.email(),
     password: faker.internet.password(),
     role: UserRole.CUSTOMER,
-  }),
-];
+  })];
 
-describe("/application/useCases/user/FindUsers.ts", () => {
+describe('/application/useCases/user/FindUsers.ts', () => {
   afterEach(() => sandbox.restore());
 
-  it("should return an array with all users when no filter is passed", async () => {
+  it('should return an array with all users when no filter is passed', async () => {
+    const loggerDriver = sandbox.createStubInstance(PinoDriver);
     const userRepository = sandbox.createStubInstance(UserRepository);
-    const findUsers = new FindUsers(userRepository);
+    const findUsers = new FindUsers(loggerDriver, userRepository);
 
     userRepository.find.resolves(fakeUsers);
 
@@ -62,13 +60,16 @@ describe("/application/useCases/user/FindUsers.ts", () => {
     expect(users[2].isRoot).equal(false);
   });
 
-  it("should return an array with all users with pagination when no filter is passed", async () => {
+  it('should return an array with all users with pagination when no filter is passed', async () => {
+    const loggerDriver = sandbox.createStubInstance(PinoDriver);
     const userRepository = sandbox.createStubInstance(UserRepository);
-    const findUsers = new FindUsers(userRepository);
+    const findUsers = new FindUsers(loggerDriver, userRepository);
 
     userRepository.find.resolves(fakeUsers);
 
-    const users = <User[]>await findUsers.exec({ user: fakeUsers[0], limit: '2', page: '0' });
+    const users = <User[]>(
+      await findUsers.exec({ user: fakeUsers[0], limit: '2', page: '0' })
+    );
 
     expect(users.length).equal(3);
     expect(users[0].userId).equal(fakeUsers[0].userId);
@@ -85,9 +86,10 @@ describe("/application/useCases/user/FindUsers.ts", () => {
     expect(users[1].isRoot).equal(false);
   });
 
-  it("should return an array with filtered users", async () => {
+  it('should return an array with filtered users', async () => {
+    const loggerDriver = sandbox.createStubInstance(PinoDriver);
     const userRepository = sandbox.createStubInstance(UserRepository);
-    const findUsers = new FindUsers(userRepository);
+    const findUsers = new FindUsers(loggerDriver, userRepository);
 
     userRepository.find.resolves([fakeUsers[0]]);
 
@@ -104,29 +106,35 @@ describe("/application/useCases/user/FindUsers.ts", () => {
     expect(users[0].isRoot).equal(false);
   });
 
-  it("should return a NotFoundError when no users are found", async () => {
+  it('should return a NotFoundError when no users are found', async () => {
+    const loggerDriver = sandbox.createStubInstance(PinoDriver);
     const userRepository = sandbox.createStubInstance(UserRepository);
-    const findUsers = new FindUsers(userRepository);
+    const findUsers = new FindUsers(loggerDriver, userRepository);
 
     userRepository.find.resolves([]);
 
     const error = <BaseError>await findUsers.exec({ user: fakeUsers[0] });
 
     expect(error instanceof NotFoundError).equal(true);
-    expect(error.message).equal("Users not found");
+    expect(error.message).equal(
+      `[FindUsers] Users not found: ${JSON.stringify({ role: UserRole.CUSTOMER })}`,
+    );
     expect(error.statusCode).equal(404);
   });
 
-  it("should return a NotFoundError when no users are found", async () => {
+  it('should return a NotFoundError when no users are found', async () => {
+    const loggerDriver = sandbox.createStubInstance(PinoDriver);
     const userRepository = sandbox.createStubInstance(UserRepository);
-    const findUsers = new FindUsers(userRepository);
+    const findUsers = new FindUsers(loggerDriver, userRepository);
 
     userRepository.find.resolves([]);
 
     const error = <BaseError>await findUsers.exec({ user: fakeUsers[0] });
 
     expect(error instanceof NotFoundError).equal(true);
-    expect(error.message).equal("Users not found");
+    expect(error.message).equal(
+      `[FindUsers] Users not found: ${JSON.stringify({ role: UserRole.CUSTOMER })}`,
+    );
     expect(error.statusCode).equal(404);
   });
 });

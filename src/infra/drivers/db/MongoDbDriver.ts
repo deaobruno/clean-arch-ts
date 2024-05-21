@@ -48,15 +48,15 @@ export default class MongoDbDriver implements IDbDriver<unknown> {
         client ?? (await MongoClient.connect(MongoDbDriver.dbUrl));
       MongoDbDriver.connected = true;
 
-      this.logger.info('[MongoDb] Client connected');
+      this.logger.info('[MongoDbDriver] Client connected');
 
-      MongoDbDriver.client.on('serverClosed', () => {
-        this.logger.info('[MongoDb] Client disconnected');
-      });
-
-      MongoDbDriver.client.on('error', (error) => {
-        this.logger.error(`[MongoDb] Error: ${error}`);
-      });
+      MongoDbDriver.client
+        .on('serverClosed', () => {
+          this.logger.fatal('[MongoDbDriver] Client disconnected');
+        })
+        .on('error', (error) => {
+          this.logger.error(`[MongoDbDriver] Error: ${error}`);
+        });
     }
   }
 
@@ -78,9 +78,7 @@ export default class MongoDbDriver implements IDbDriver<unknown> {
     const session = MongoDbDriver.client.startSession();
 
     try {
-      return await session.withTransaction(async () => {
-        return await operation();
-      });
+      return session.withTransaction(async () => await operation());
     } finally {
       if (session) await session.endSession();
     }
@@ -88,6 +86,13 @@ export default class MongoDbDriver implements IDbDriver<unknown> {
 
   async createIndex(source: string, column: string, order = 1): Promise<void> {
     await MongoDbDriver.getCollection(source).createIndex({ [column]: order });
+
+    this.logger.debug({
+      message: '[MongoDbDriver] Index created',
+      source,
+      column,
+      order,
+    });
   }
 
   async create(
@@ -99,6 +104,13 @@ export default class MongoDbDriver implements IDbDriver<unknown> {
       data.created_at = new Date().toISOString();
 
       await MongoDbDriver.getCollection(source).insertOne(data, options);
+
+      this.logger.debug({
+        message: '[MongoDbDriver] Document created',
+        source,
+        data,
+        options,
+      });
     });
   }
 
@@ -113,9 +125,22 @@ export default class MongoDbDriver implements IDbDriver<unknown> {
       options.limit = limit;
       options.skip = (options.skip ?? 0) * limit;
 
-      return await MongoDbDriver.getCollection(source)
+      const documents = await MongoDbDriver.getCollection(source)
         .find(filters, options)
         .toArray();
+
+      this.logger.debug({
+        message:
+          documents.length > 0
+            ? '[MongoDbDriver] Document(s) found'
+            : '[MongoDbDriver] Documents not found',
+        source,
+        filters,
+        options,
+        documents,
+      });
+
+      return documents;
     });
   }
 
@@ -125,10 +150,22 @@ export default class MongoDbDriver implements IDbDriver<unknown> {
     options?: FindOptions,
   ): Promise<Document | null> {
     return <Document | null>await this.transact(async () => {
-      return await MongoDbDriver.getCollection(source).findOne(
+      const document = await MongoDbDriver.getCollection(source).findOne(
         filters,
         options,
       );
+
+      this.logger.debug({
+        message: document
+          ? '[MongoDbDriver] Document found'
+          : '[MongoDbDriver] Document not found',
+        source,
+        filters,
+        options,
+        document,
+      });
+
+      return document;
     });
   }
 
@@ -146,6 +183,14 @@ export default class MongoDbDriver implements IDbDriver<unknown> {
         { $set: data },
         options,
       );
+
+      this.logger.debug({
+        message: '[MongoDbDriver] Document updated',
+        source,
+        data,
+        filters,
+        options,
+      });
     });
   }
 
@@ -156,6 +201,13 @@ export default class MongoDbDriver implements IDbDriver<unknown> {
   ): Promise<void> {
     await this.transact(async () => {
       await MongoDbDriver.getCollection(source).deleteOne(filters, options);
+
+      this.logger.debug({
+        message: '[MongoDbDriver] Document deleted',
+        source,
+        filters,
+        options,
+      });
     });
   }
 
@@ -166,6 +218,13 @@ export default class MongoDbDriver implements IDbDriver<unknown> {
   ): Promise<void> {
     await this.transact(async () => {
       await MongoDbDriver.getCollection(source).deleteMany(filters, options);
+
+      this.logger.debug({
+        message: '[MongoDbDriver] Documents deleted',
+        source,
+        filters,
+        options,
+      });
     });
   }
 }

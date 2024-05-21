@@ -5,27 +5,47 @@ import User from '../../domain/user/User';
 import ICacheDriver from '../../infra/drivers/cache/ICacheDriver';
 import IDbDriver from '../../infra/drivers/db/IDbDriver';
 import IDbMemo from '../../domain/memo/IDbMemo';
+import ILoggerDriver from '../../infra/drivers/logger/ILoggerDriver';
 
 export default class MemoRepository implements IMemoRepository {
   constructor(
-    private _source: string,
-    private _dbDriver: IDbDriver<IDbMemo>,
-    private _cacheDriver: ICacheDriver,
-    private _mapper: MemoMapper,
+    private source: string,
+    private logger: ILoggerDriver,
+    private db: IDbDriver<IDbMemo>,
+    private cache: ICacheDriver,
+    private mapper: MemoMapper,
   ) {}
 
   async create(memo: Memo): Promise<void> {
-    const dbMemo = this._mapper.entityToDb(memo);
+    const dbMemo = this.mapper.entityToDb(memo);
 
-    await this._dbDriver.create(this._source, dbMemo);
+    await this.db.create(this.source, dbMemo);
+    await this.cache.del(memo.userId);
 
-    await this._cacheDriver.del(memo.userId);
+    this.logger.debug({
+      message: '[MemoRepository/create] Memo created',
+      memo,
+      dbMemo,
+    });
   }
 
   async find(filters?: object, options = {}): Promise<Memo[]> {
-    const memos = await this._dbDriver.find(this._source, filters, options);
+    const dbMemos = await this.db.find(this.source, filters, options);
+    const memos = dbMemos.map((memo) => <Memo>this.mapper.dbToEntity(memo));
+    const message =
+      memos.length > 0
+        ? '[MemoRepository/find] Memo(s) found'
+        : '[MemoRepository/find] Memos not found';
 
-    return memos.map(this._mapper.dbToEntity);
+    this.logger.debug({
+      message,
+      filters,
+      options,
+      dbMemos,
+      memos,
+    });
+
+    return memos;
   }
 
   async findByUserId(user_id: string, options = {}): Promise<Memo[]> {
@@ -33,44 +53,70 @@ export default class MemoRepository implements IMemoRepository {
   }
 
   async findOne(filters: object): Promise<Memo | undefined> {
-    const memo = await this._dbDriver.findOne(this._source, filters);
+    const dbMemo = await this.db.findOne(this.source, filters);
 
-    if (memo) return this._mapper.dbToEntity(memo);
+    if (!dbMemo) {
+      this.logger.debug({
+        message: '[MemoRepository/findOne] Memo not found',
+        filters,
+      });
+
+      return;
+    }
+
+    const memo = <Memo>this.mapper.dbToEntity(dbMemo);
+
+    this.logger.debug({
+      message: '[MemoRepository/findOne] Memo found',
+      filters,
+      dbMemo,
+      memo,
+    });
+
+    return memo;
   }
 
   async findOneById(memo_id: string): Promise<Memo | undefined> {
-    const cachedMemo = <Memo>await this._cacheDriver.get(memo_id);
+    const cachedMemo = <Memo>await this.cache.get(memo_id);
 
     if (cachedMemo) return cachedMemo;
 
     const memo = await this.findOne({ memo_id });
 
-    if (memo) {
-      await this._cacheDriver.set(memo_id, memo);
-    }
+    if (memo) await this.cache.set(memo_id, memo);
 
     return memo;
   }
 
   async update(memo: Memo): Promise<void> {
     const { memoId: memo_id, userId } = memo;
-    const dbMemo = this._mapper.entityToDb(memo);
+    const dbMemo = this.mapper.entityToDb(memo);
 
-    await this._dbDriver.update(this._source, dbMemo, {
+    await this.db.update(this.source, dbMemo, {
       memo_id,
     });
 
-    await this._cacheDriver.del(memo_id);
-    await this._cacheDriver.del(userId);
+    await this.cache.del(memo_id);
+    await this.cache.del(userId);
+
+    this.logger.debug({
+      message: '[MemoRepository/update] Memo updated',
+      memo,
+      dbMemo,
+    });
   }
 
   async deleteOne(memo: Memo): Promise<void> {
     const { memoId: memo_id, userId } = memo;
 
-    await this._dbDriver.delete(this._source, { memo_id });
+    await this.db.delete(this.source, { memo_id });
+    await this.cache.del(memo_id);
+    await this.cache.del(userId);
 
-    await this._cacheDriver.del(memo_id);
-    await this._cacheDriver.del(userId);
+    this.logger.debug({
+      message: '[MemoRepository/delete] Memo deleted',
+      memo,
+    });
   }
 
   async deleteAllByUser(user: User): Promise<void> {
