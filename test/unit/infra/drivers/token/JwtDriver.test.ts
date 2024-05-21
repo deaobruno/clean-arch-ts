@@ -1,7 +1,11 @@
+import sinon from 'sinon';
 import { expect } from 'chai';
 import JwtDriver from '../../../../../src/infra/drivers/token/JwtDriver';
+import PinoDriver from '../../../../../src/infra/drivers/logger/PinoDriver';
 
+const loggerDriver = sinon.createStubInstance(PinoDriver);
 const jwtDriver = new JwtDriver(
+  loggerDriver,
   'access-token-key',
   300,
   'refresh-token-key',

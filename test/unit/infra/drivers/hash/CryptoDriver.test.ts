@@ -2,8 +2,10 @@ import sinon from 'sinon';
 import crypto from 'node:crypto';
 import { expect } from 'chai';
 import CryptoDriver from '../../../../../src/infra/drivers/hash/CryptoDriver';
+import PinoDriver from '../../../../../src/infra/drivers/logger/PinoDriver';
 
-const cryptoDriver = new CryptoDriver();
+const loggerDriver = sinon.createStubInstance(PinoDriver);
+const cryptoDriver = new CryptoDriver(loggerDriver);
 
 describe('/infra/drivers/CryptoDriver.ts', () => {
   it('should return an UUID', () => {

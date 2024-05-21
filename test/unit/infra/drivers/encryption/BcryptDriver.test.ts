@@ -1,7 +1,10 @@
+import sinon from 'sinon';
 import { expect } from 'chai';
 import BcryptDriver from '../../../../../src/infra/drivers/encryption/BcryptDriver';
+import PinoDriver from '../../../../../src/infra/drivers/logger/PinoDriver';
 
-const bcryptDriver = new BcryptDriver();
+const loggerDriver = sinon.createStubInstance(PinoDriver);
+const bcryptDriver = new BcryptDriver(loggerDriver);
 
 describe('/src/infra/drivers/encryption/BcryptDriver.ts', () => {
   it('should return a hashed string using bcrypt algorithm', async () => {

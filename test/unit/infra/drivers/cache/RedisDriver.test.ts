@@ -12,6 +12,7 @@ describe('/src/infra/drivers/cache/RedisDriver.ts', () => {
 
   it('should start Redis client connection with custom client', async () => {
     const logger = sandbox.createStubInstance(PinoDriver);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const redisClient: any = {
       on: sandbox.stub(),
       connect: sandbox.stub(),
@@ -50,13 +51,14 @@ describe('/src/infra/drivers/cache/RedisDriver.ts', () => {
     const result = await redisDriver.disconnect();
 
     expect(result).equal(undefined);
-    expect(logger.info.calledWith('[RedisDriver] Client disconnected')).equal(
+    expect(logger.error.calledWith('[RedisDriver] Client disconnected')).equal(
       true,
     );
   });
 
   it('should store an object in Redis cache', async () => {
     const logger = sandbox.createStubInstance(PinoDriver);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const redisClient: any = {
       on: sandbox.stub(),
       connect: sandbox.stub(),
@@ -82,6 +84,7 @@ describe('/src/infra/drivers/cache/RedisDriver.ts', () => {
 
   it('should get undefined when data does not exist in Redis cache', async () => {
     const logger = sandbox.createStubInstance(PinoDriver);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const redisClient: any = {
       on: sandbox.stub(),
       connect: sandbox.stub(),
@@ -104,6 +107,7 @@ describe('/src/infra/drivers/cache/RedisDriver.ts', () => {
 
   it('should get data from Redis cache', async () => {
     const logger = sandbox.createStubInstance(PinoDriver);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const redisClient: any = {
       on: sandbox.stub(),
       connect: sandbox.stub(),
@@ -119,7 +123,7 @@ describe('/src/infra/drivers/cache/RedisDriver.ts', () => {
 
     redisClient.get.resolves(JSON.stringify(data));
 
-    const result = <any>await redisDriver.get(key);
+    const result = <{ key: unknown }>await redisDriver.get(key);
 
     expect(result.key).equal(data.key);
     expect(redisClient.get.calledOnceWith(key)).equal(true);
@@ -127,6 +131,7 @@ describe('/src/infra/drivers/cache/RedisDriver.ts', () => {
 
   it('should delete data in Redis cache', async () => {
     const logger = sandbox.createStubInstance(PinoDriver);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const redisClient: any = {
       on: sandbox.stub(),
       connect: sandbox.stub(),
@@ -149,6 +154,7 @@ describe('/src/infra/drivers/cache/RedisDriver.ts', () => {
 
   it('should return undefined when trying to save data to cache but client is not ready', async () => {
     const logger = sandbox.createStubInstance(PinoDriver);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const redisClient: any = {
       on: sandbox.stub(),
       connect: sandbox.stub(),
@@ -167,6 +173,7 @@ describe('/src/infra/drivers/cache/RedisDriver.ts', () => {
 
   it('should return undefined when trying to get data from cache but client is not ready', async () => {
     const logger = sandbox.createStubInstance(PinoDriver);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const redisClient: any = {
       on: sandbox.stub(),
       connect: sandbox.stub(),
@@ -185,6 +192,7 @@ describe('/src/infra/drivers/cache/RedisDriver.ts', () => {
 
   it('should return undefined when trying to delete data from cache but client is not ready', async () => {
     const logger = sandbox.createStubInstance(PinoDriver);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const redisClient: any = {
       on: sandbox.stub(),
       connect: sandbox.stub(),

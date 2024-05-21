@@ -8,7 +8,7 @@ const loggerDriver = sandbox.createStubInstance(PinoDriver);
 const eventsDriver = new EventsDriver(loggerDriver);
 const topic = 'test';
 const event = {
-  trigger: (data: any) => {
+  trigger: (data: unknown) => {
     return data;
   },
 };

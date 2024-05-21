@@ -11,7 +11,6 @@ import {
   Db,
   FindCursor,
   MongoClient,
-  Transaction,
 } from 'mongodb';
 
 const sandbox = sinon.createSandbox();
@@ -36,9 +35,11 @@ describe('/src/infra/drivers/db/MongoDbDriver.ts', () => {
     const mongoDbCollection = sandbox.createStubInstance(Collection);
 
     mongoDbClient.db.returns(mongoDb);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     mongoDbSession.withTransaction = <any>(
       ClientSession.prototype.withTransaction
     );
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     mongoDbSession.transaction = <any>sinon.stub();
     mongoDbSession.commitTransaction.resolves();
     mongoDbClient.startSession.returns(mongoDbSession);
@@ -58,9 +59,11 @@ describe('/src/infra/drivers/db/MongoDbDriver.ts', () => {
     const mongoDbCollection = sandbox.createStubInstance(Collection);
 
     mongoDbClient.db.returns(mongoDb);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     mongoDbSession.withTransaction = <any>(
       ClientSession.prototype.withTransaction
     );
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     mongoDbSession.transaction = <any>sinon.stub();
     mongoDbSession.commitTransaction.resolves();
     mongoDbClient.startSession.returns(mongoDbSession);
@@ -112,9 +115,12 @@ describe('/src/infra/drivers/db/MongoDbDriver.ts', () => {
     const mongoDbCollection = sandbox.createStubInstance(Collection);
 
     mongoDbClient.db.returns(mongoDb);
+    mongoDbClient.on.returns(mongoDbClient);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     mongoDbSession.withTransaction = <any>(
       ClientSession.prototype.withTransaction
     );
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     mongoDbSession.transaction = <any>sinon.stub();
     mongoDbSession.commitTransaction.resolves();
     mongoDbClient.startSession.returns(mongoDbSession);
@@ -133,9 +139,11 @@ describe('/src/infra/drivers/db/MongoDbDriver.ts', () => {
     const mongoDbCollection = sandbox.createStubInstance(Collection);
 
     mongoDbClient.db.returns(mongoDb);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     mongoDbSession.withTransaction = <any>(
       ClientSession.prototype.withTransaction
     );
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     mongoDbSession.transaction = <any>sinon.stub();
     mongoDbSession.commitTransaction.resolves();
     mongoDbClient.startSession.returns(mongoDbSession);
@@ -154,9 +162,11 @@ describe('/src/infra/drivers/db/MongoDbDriver.ts', () => {
     const mongoDbCollection = sandbox.createStubInstance(Collection);
 
     mongoDbClient.db.returns(mongoDb);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     mongoDbSession.withTransaction = <any>(
       ClientSession.prototype.withTransaction
     );
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     mongoDbSession.transaction = <any>sinon.stub();
     mongoDbSession.commitTransaction.resolves();
     mongoDbClient.startSession.returns(mongoDbSession);
@@ -175,9 +185,11 @@ describe('/src/infra/drivers/db/MongoDbDriver.ts', () => {
     const mongoDbCollection = sandbox.createStubInstance(Collection);
 
     mongoDbClient.db.returns(mongoDb);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     mongoDbSession.withTransaction = <any>(
       ClientSession.prototype.withTransaction
     );
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     mongoDbSession.transaction = <any>sinon.stub();
     mongoDbSession.commitTransaction.resolves();
     mongoDbClient.startSession.returns(mongoDbSession);
@@ -197,9 +209,12 @@ describe('/src/infra/drivers/db/MongoDbDriver.ts', () => {
       const mongoDbCollection = sandbox.createStubInstance(Collection);
 
       mongoDbClient.db.returns(mongoDb);
+      mongoDbClient.on.returns(mongoDbClient);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       mongoDbSession.withTransaction = <any>(
         ClientSession.prototype.withTransaction
       );
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       mongoDbSession.transaction = <any>sinon.stub();
       mongoDbSession.commitTransaction.resolves();
       mongoDbClient.startSession.returns(mongoDbSession);
@@ -224,9 +239,12 @@ describe('/src/infra/drivers/db/MongoDbDriver.ts', () => {
       const mongoDbCollection = sandbox.createStubInstance(Collection);
 
       mongoDbClient.db.returns(mongoDb);
+      mongoDbClient.on.returns(mongoDbClient);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       mongoDbSession.withTransaction = <any>(
         ClientSession.prototype.withTransaction
       );
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       mongoDbSession.transaction = <any>sinon.stub();
       mongoDbSession.commitTransaction.resolves();
       mongoDbClient.startSession.returns(mongoDbSession);
@@ -251,9 +269,12 @@ describe('/src/infra/drivers/db/MongoDbDriver.ts', () => {
       const mongoDbCollection = sandbox.createStubInstance(Collection);
 
       mongoDbClient.db.returns(mongoDb);
+      mongoDbClient.on.returns(mongoDbClient);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       mongoDbSession.withTransaction = <any>(
         ClientSession.prototype.withTransaction
       );
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       mongoDbSession.transaction = <any>sinon.stub();
       mongoDbSession.commitTransaction.resolves();
       mongoDbClient.startSession.returns(mongoDbSession);
@@ -277,9 +298,12 @@ describe('/src/infra/drivers/db/MongoDbDriver.ts', () => {
       const mongoDbCursor = sandbox.createStubInstance(FindCursor);
 
       mongoDbClient.db.returns(mongoDb);
+      mongoDbClient.on.returns(mongoDbClient);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       mongoDbSession.withTransaction = <any>(
         ClientSession.prototype.withTransaction
       );
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       mongoDbSession.transaction = <any>sinon.stub();
       mongoDbSession.commitTransaction.resolves();
       mongoDbClient.startSession.returns(mongoDbSession);
@@ -290,6 +314,7 @@ describe('/src/infra/drivers/db/MongoDbDriver.ts', () => {
 
       await instance.connect(mongoDbClient);
 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const result = <any>await instance.find(collectionName);
 
       await instance.disconnect();
@@ -310,9 +335,12 @@ describe('/src/infra/drivers/db/MongoDbDriver.ts', () => {
       const mongoDbCursor = sandbox.createStubInstance(FindCursor);
 
       mongoDbClient.db.returns(mongoDb);
+      mongoDbClient.on.returns(mongoDbClient);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       mongoDbSession.withTransaction = <any>(
         ClientSession.prototype.withTransaction
       );
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       mongoDbSession.transaction = <any>sinon.stub();
       mongoDbSession.commitTransaction.resolves();
       mongoDbClient.startSession.returns(mongoDbSession);
@@ -323,6 +351,7 @@ describe('/src/infra/drivers/db/MongoDbDriver.ts', () => {
       await instance.connect(mongoDbClient);
 
       const filter = { id: data.id };
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const result = <any>await instance.find(collectionName, filter);
 
       await instance.disconnect();
@@ -342,9 +371,12 @@ describe('/src/infra/drivers/db/MongoDbDriver.ts', () => {
       const mongoDbCollection = sandbox.createStubInstance(Collection);
 
       mongoDbClient.db.returns(mongoDb);
+      mongoDbClient.on.returns(mongoDbClient);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       mongoDbSession.withTransaction = <any>(
         ClientSession.prototype.withTransaction
       );
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       mongoDbSession.transaction = <any>sinon.stub();
       mongoDbSession.commitTransaction.resolves();
       mongoDbClient.startSession.returns(mongoDbSession);
@@ -354,6 +386,7 @@ describe('/src/infra/drivers/db/MongoDbDriver.ts', () => {
       await instance.connect(mongoDbClient);
 
       const filter = { id: data.id };
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const result = <any>await instance.findOne(collectionName, filter);
 
       await instance.disconnect();
@@ -371,9 +404,12 @@ describe('/src/infra/drivers/db/MongoDbDriver.ts', () => {
       const mongoDbCollection = sandbox.createStubInstance(Collection);
 
       mongoDbClient.db.returns(mongoDb);
+      mongoDbClient.on.returns(mongoDbClient);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       mongoDbSession.withTransaction = <any>(
         ClientSession.prototype.withTransaction
       );
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       mongoDbSession.transaction = <any>sinon.stub();
       mongoDbSession.commitTransaction.resolves();
       mongoDbClient.startSession.returns(mongoDbSession);
@@ -398,9 +434,12 @@ describe('/src/infra/drivers/db/MongoDbDriver.ts', () => {
       const mongoDbCollection = sandbox.createStubInstance(Collection);
 
       mongoDbClient.db.returns(mongoDb);
+      mongoDbClient.on.returns(mongoDbClient);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       mongoDbSession.withTransaction = <any>(
         ClientSession.prototype.withTransaction
       );
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       mongoDbSession.transaction = <any>sinon.stub();
       mongoDbSession.commitTransaction.resolves();
       mongoDbClient.startSession.returns(mongoDbSession);
@@ -424,9 +463,12 @@ describe('/src/infra/drivers/db/MongoDbDriver.ts', () => {
       const mongoDbCollection = sandbox.createStubInstance(Collection);
 
       mongoDbClient.db.returns(mongoDb);
+      mongoDbClient.on.returns(mongoDbClient);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       mongoDbSession.withTransaction = <any>(
         ClientSession.prototype.withTransaction
       );
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       mongoDbSession.transaction = <any>sinon.stub();
       mongoDbSession.commitTransaction.resolves();
       mongoDbClient.startSession.returns(mongoDbSession);
