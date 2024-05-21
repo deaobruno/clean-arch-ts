@@ -36,7 +36,7 @@ export default class FindUsers implements IUseCase<FindUsersInput, Output> {
     const users = await this.userRepository.find(findFilters, findOptions);
 
     if (!users || users.length <= 0) {
-      const message = `[FindUsers] Users not found: ${JSON.stringify(filters)}`;
+      const message = `[FindUsers] Users not found: ${JSON.stringify(findFilters)}`;
 
       this.loggerDriver.debug({
         message,

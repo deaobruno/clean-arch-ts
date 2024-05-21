@@ -1,20 +1,20 @@
-import sinon from "sinon";
-import { faker } from "@faker-js/faker";
-import { expect } from "chai";
-import config from "../../../../src/config";
-import UserRepository from "../../../../src/adapters/repositories/UserRepository";
-import UserMapper from "../../../../src/domain/user/UserMapper";
-import UserRole from "../../../../src/domain/user/UserRole";
-import User from "../../../../src/domain/user/User";
-import MongoDbDriver from "../../../../src/infra/drivers/db/MongoDbDriver";
-import RedisDriver from "../../../../src/infra/drivers/cache/RedisDriver";
+import sinon from 'sinon';
+import { faker } from '@faker-js/faker';
+import { expect } from 'chai';
+import config from '../../../../src/config';
+import UserRepository from '../../../../src/adapters/repositories/UserRepository';
+import UserMapper from '../../../../src/domain/user/UserMapper';
+import UserRole from '../../../../src/domain/user/UserRole';
+import User from '../../../../src/domain/user/User';
+import MongoDbDriver from '../../../../src/infra/drivers/db/MongoDbDriver';
+import RedisDriver from '../../../../src/infra/drivers/cache/RedisDriver';
 
 const sandbox = sinon.createSandbox();
 
-describe("/adapters/repositories/UserRepository", () => {
+describe('/adapters/repositories/UserRepository', () => {
   afterEach(() => sandbox.restore());
 
-  it("should save an User entity", async () => {
+  it('should save an User entity', async () => {
     const userId = faker.string.uuid();
     const email = faker.internet.email();
     const password = faker.internet.password();
@@ -36,10 +36,10 @@ describe("/adapters/repositories/UserRepository", () => {
       config.db.usersSource,
       <any>dbDriver,
       cacheDriver,
-      userMapper
+      userMapper,
     );
 
-    sandbox.stub(User, "create").returns(fakeUser);
+    sandbox.stub(User, 'create').returns(fakeUser);
     userMapper.entityToDb.returns({
       user_id: userId,
       email,
@@ -53,7 +53,7 @@ describe("/adapters/repositories/UserRepository", () => {
     expect(result).equal(undefined);
   });
 
-  it("should return all users from DB when no filter is passed", async () => {
+  it('should return all users from DB when no filter is passed', async () => {
     const dbUsers = [
       {
         user_id: faker.string.uuid(),
@@ -81,7 +81,7 @@ describe("/adapters/repositories/UserRepository", () => {
       config.db.usersSource,
       <any>dbDriver,
       cacheDriver,
-      userMapper
+      userMapper,
     );
 
     dbDriver.find.resolves(dbUsers);
@@ -142,7 +142,7 @@ describe("/adapters/repositories/UserRepository", () => {
     expect(users[2].isCustomer).equal(true);
   });
 
-  it("should return filtered Users from DB when some filter is passed", async () => {
+  it('should return filtered Users from DB when some filter is passed', async () => {
     const dbUsers = [
       {
         user_id: faker.string.uuid(),
@@ -164,7 +164,7 @@ describe("/adapters/repositories/UserRepository", () => {
       config.db.usersSource,
       <any>dbDriver,
       cacheDriver,
-      userMapper
+      userMapper,
     );
 
     dbDriver.find.resolves(dbUsers);
@@ -208,7 +208,7 @@ describe("/adapters/repositories/UserRepository", () => {
     expect(users[1].isCustomer).equal(true);
   });
 
-  it("should return an empty array when no Users are found", async () => {
+  it('should return an empty array when no Users are found', async () => {
     const dbUsers: any[] = [];
     const dbDriver = sandbox.createStubInstance(MongoDbDriver);
     const cacheDriver = sandbox.createStubInstance(RedisDriver);
@@ -217,7 +217,7 @@ describe("/adapters/repositories/UserRepository", () => {
       config.db.usersSource,
       <any>dbDriver,
       cacheDriver,
-      userMapper
+      userMapper,
     );
 
     dbDriver.find.resolves(dbUsers);
@@ -227,7 +227,7 @@ describe("/adapters/repositories/UserRepository", () => {
     expect(users.length).equal(0);
   });
 
-  it("should return an User from DB when some filter is passed", async () => {
+  it('should return an User from DB when some filter is passed', async () => {
     const dbUser = {
       user_id: faker.string.uuid(),
       email: faker.internet.email(),
@@ -241,7 +241,7 @@ describe("/adapters/repositories/UserRepository", () => {
       config.db.usersSource,
       <any>dbDriver,
       cacheDriver,
-      userMapper
+      userMapper,
     );
 
     dbDriver.findOne.resolves(dbUser);
@@ -266,7 +266,7 @@ describe("/adapters/repositories/UserRepository", () => {
     expect(user?.isCustomer).equal(true);
   });
 
-  it("should return undefined when no User is found", async () => {
+  it('should return undefined when no User is found', async () => {
     const dbDriver = sandbox.createStubInstance(MongoDbDriver);
     const cacheDriver = sandbox.createStubInstance(RedisDriver);
     const userMapper = sandbox.createStubInstance(UserMapper);
@@ -274,17 +274,17 @@ describe("/adapters/repositories/UserRepository", () => {
       config.db.usersSource,
       <any>dbDriver,
       cacheDriver,
-      userMapper
+      userMapper,
     );
 
     dbDriver.findOne.resolves();
 
-    const user = await userRepository.findOne({ user_id: "test" });
+    const user = await userRepository.findOne({ user_id: 'test' });
 
     expect(user).equal(undefined);
   });
 
-  it("should return an User from db passing user_id as a filter", async () => {
+  it('should return an User from db passing user_id as a filter', async () => {
     const dbUser = {
       user_id: faker.string.uuid(),
       email: faker.internet.email(),
@@ -298,12 +298,12 @@ describe("/adapters/repositories/UserRepository", () => {
       config.db.usersSource,
       <any>dbDriver,
       cacheDriver,
-      userMapper
+      userMapper,
     );
 
     dbDriver.findOne.resolves(dbUser);
     userMapper.dbToEntity.returns(
-      User.create({ ...dbUser, userId: dbUser.user_id })
+      User.create({ ...dbUser, userId: dbUser.user_id }),
     );
 
     const user = <User>await userRepository.findOneById(dbUser.user_id);
@@ -316,7 +316,7 @@ describe("/adapters/repositories/UserRepository", () => {
     expect(user.isCustomer).equal(true);
   });
 
-  it("should return an User from cache passing user_id as a filter", async () => {
+  it('should return an User from cache passing user_id as a filter', async () => {
     const userEntity = User.create({
       userId: faker.string.uuid(),
       email: faker.internet.email(),
@@ -330,7 +330,7 @@ describe("/adapters/repositories/UserRepository", () => {
       config.db.usersSource,
       <any>dbDriver,
       cacheDriver,
-      userMapper
+      userMapper,
     );
 
     cacheDriver.get.resolves(userEntity);
@@ -345,7 +345,7 @@ describe("/adapters/repositories/UserRepository", () => {
     expect(user.isCustomer).equal(true);
   });
 
-  it("should return undefined when passing an invalid user_id as a filter", async () => {
+  it('should return undefined when passing an invalid user_id as a filter', async () => {
     const dbDriver = sandbox.createStubInstance(MongoDbDriver);
     const cacheDriver = sandbox.createStubInstance(RedisDriver);
     const userMapper = sandbox.createStubInstance(UserMapper);
@@ -353,17 +353,17 @@ describe("/adapters/repositories/UserRepository", () => {
       config.db.usersSource,
       <any>dbDriver,
       cacheDriver,
-      userMapper
+      userMapper,
     );
 
     dbDriver.findOne.resolves();
 
-    const user = await userRepository.findOneById("");
+    const user = await userRepository.findOneById('');
 
     expect(user).equal(undefined);
   });
 
-  it("should return an User from db passing an email as a filter", async () => {
+  it('should return an User from db passing an email as a filter', async () => {
     const dbUser = {
       user_id: faker.string.uuid(),
       email: faker.internet.email(),
@@ -377,12 +377,12 @@ describe("/adapters/repositories/UserRepository", () => {
       config.db.usersSource,
       <any>dbDriver,
       cacheDriver,
-      userMapper
+      userMapper,
     );
 
     dbDriver.findOne.resolves(dbUser);
     userMapper.dbToEntity.returns(
-      User.create({ ...dbUser, userId: dbUser.user_id })
+      User.create({ ...dbUser, userId: dbUser.user_id }),
     );
 
     const user = <User>await userRepository.findOneByEmail(dbUser.email);
@@ -395,7 +395,7 @@ describe("/adapters/repositories/UserRepository", () => {
     expect(user.isCustomer).equal(true);
   });
 
-  it("should return an User from cache passing an email as a filter", async () => {
+  it('should return an User from cache passing an email as a filter', async () => {
     const userEntity = User.create({
       userId: faker.string.uuid(),
       email: faker.internet.email(),
@@ -409,7 +409,7 @@ describe("/adapters/repositories/UserRepository", () => {
       config.db.usersSource,
       <any>dbDriver,
       cacheDriver,
-      userMapper
+      userMapper,
     );
 
     cacheDriver.get.resolves(userEntity);
@@ -424,7 +424,7 @@ describe("/adapters/repositories/UserRepository", () => {
     expect(user.isCustomer).equal(true);
   });
 
-  it("should return undefined when passing an invalid email as a filter", async () => {
+  it('should return undefined when passing an invalid email as a filter', async () => {
     const dbDriver = sandbox.createStubInstance(MongoDbDriver);
     const cacheDriver = sandbox.createStubInstance(RedisDriver);
     const userMapper = sandbox.createStubInstance(UserMapper);
@@ -432,17 +432,17 @@ describe("/adapters/repositories/UserRepository", () => {
       config.db.usersSource,
       <any>dbDriver,
       cacheDriver,
-      userMapper
+      userMapper,
     );
 
     dbDriver.findOne.resolves();
 
-    const user = await userRepository.findOneByEmail("");
+    const user = await userRepository.findOneByEmail('');
 
     expect(user).equal(undefined);
   });
 
-  it("should return an array of customer Users", async () => {
+  it('should return an array of customer Users', async () => {
     const dbUsers = [
       {
         user_id: faker.string.uuid(),
@@ -470,7 +470,7 @@ describe("/adapters/repositories/UserRepository", () => {
       config.db.usersSource,
       <any>dbDriver,
       cacheDriver,
-      userMapper
+      userMapper,
     );
 
     dbDriver.find.resolves(dbUsers);
@@ -505,7 +505,7 @@ describe("/adapters/repositories/UserRepository", () => {
     expect(customers[2].isRoot).equal(false);
   });
 
-  it("should return an empty array of customer Users", async () => {
+  it('should return an empty array of customer Users', async () => {
     const dbDriver = sandbox.createStubInstance(MongoDbDriver);
     const cacheDriver = sandbox.createStubInstance(RedisDriver);
     const userMapper = sandbox.createStubInstance(UserMapper);
@@ -513,7 +513,7 @@ describe("/adapters/repositories/UserRepository", () => {
       config.db.usersSource,
       <any>dbDriver,
       cacheDriver,
-      userMapper
+      userMapper,
     );
 
     dbDriver.find.resolves([]);
@@ -523,7 +523,7 @@ describe("/adapters/repositories/UserRepository", () => {
     expect(customers).length(0);
   });
 
-  it("should update an User from DB", async () => {
+  it('should update an User from DB', async () => {
     const userId = faker.string.uuid();
     const email = faker.internet.email();
     const password = faker.internet.password();
@@ -545,7 +545,7 @@ describe("/adapters/repositories/UserRepository", () => {
       config.db.usersSource,
       <any>dbDriver,
       cacheDriver,
-      userMapper
+      userMapper,
     );
 
     dbDriver.update.resolves();
@@ -555,7 +555,7 @@ describe("/adapters/repositories/UserRepository", () => {
     expect(result).equal(undefined);
   });
 
-  it("should delete an User from DB", async () => {
+  it('should delete an User from DB', async () => {
     const userId = faker.string.uuid();
     const email = faker.internet.email();
     const password = faker.internet.password();
@@ -577,7 +577,7 @@ describe("/adapters/repositories/UserRepository", () => {
       config.db.usersSource,
       <any>dbDriver,
       cacheDriver,
-      userMapper
+      userMapper,
     );
 
     dbDriver.delete.resolves();

@@ -23,7 +23,7 @@ export default class DeleteMemo implements IUseCase<Input, Output> {
     const memo = await this.memoRepository.findOneById(memo_id);
 
     if (!memo || (memo.userId !== user.userId && user.isCustomer)) {
-      const message = `[DeleteMemo] Memo not found ${memo_id}`;
+      const message = `[DeleteMemo] Memo not found: ${memo_id}`;
 
       this.loggerDriver.debug({
         message,

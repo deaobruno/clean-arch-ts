@@ -1,8 +1,8 @@
-import sinon from "sinon";
-import { expect } from "chai";
-import userRoutes from "../../../../../../src/infra/http/v1/routes/userRoutes";
-import BaseController from "../../../../../../src/adapters/controllers/BaseController";
-import ExpressDriver from "../../../../../../src/infra/drivers/server/ExpressDriver";
+import sinon from 'sinon';
+import { expect } from 'chai';
+import userRoutes from '../../../../../../src/infra/http/v1/routes/userRoutes';
+import BaseController from '../../../../../../src/adapters/controllers/BaseController';
+import ExpressDriver from '../../../../../../src/infra/drivers/server/ExpressDriver';
 
 class CustomController extends BaseController {
   statusCode = 200;
@@ -25,8 +25,8 @@ server.get = sinon.stub();
 server.put = sinon.stub();
 server.delete = sinon.stub();
 
-describe("/infra/http/v1/userRoutes.ts", () => {
-  it("should return an array of user routes", () => {
+describe('/infra/http/v1/userRoutes.ts', () => {
+  it('should return an array of user routes', () => {
     const routes = userRoutes(<any>dependencies, server);
 
     expect(routes).equal(undefined);

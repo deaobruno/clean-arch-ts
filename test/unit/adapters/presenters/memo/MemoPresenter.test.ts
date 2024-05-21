@@ -1,17 +1,17 @@
-import { faker } from "@faker-js/faker";
-import { expect } from "chai";
-import MemoPresenter from "../../../../../src/adapters/presenters/memo/MemoPresenter";
-import Memo from "../../../../../src/domain/memo/Memo";
+import { faker } from '@faker-js/faker';
+import { expect } from 'chai';
+import MemoPresenter from '../../../../../src/adapters/presenters/memo/MemoPresenter';
+import Memo from '../../../../../src/domain/memo/Memo';
 
 const memoPresenter = new MemoPresenter();
 
-describe("/application/presenters/memo/MemoPresenter.ts", () => {
-  it("should return an external representation of a memo object", () => {
+describe('/application/presenters/memo/MemoPresenter.ts', () => {
+  it('should return an external representation of a memo object', () => {
     const memoData = {
       memoId: faker.string.uuid(),
       userId: faker.string.uuid(),
-      title: "New Title",
-      text: "Lorem ipsum",
+      title: 'New Title',
+      text: 'Lorem ipsum',
       start: new Date(new Date().getTime() + 3.6e6).toISOString(),
       end: new Date(new Date().getTime() + 3.6e6 * 2).toISOString(),
     };

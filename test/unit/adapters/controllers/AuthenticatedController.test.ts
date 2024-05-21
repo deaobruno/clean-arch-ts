@@ -1,16 +1,16 @@
-import sinon from "sinon";
-import { faker } from "@faker-js/faker";
-import { expect } from "chai";
-import AuthenticatedController from "../../../../src/adapters/controllers/AuthenticatedController";
-import BadRequestError from "../../../../src/application/errors/BadRequestError";
-import ValidateAuthentication from "../../../../src/application/useCases/auth/ValidateAuthentication";
-import JwtDriver from "../../../../src/infra/drivers/token/JwtDriver";
-import UserRole from "../../../../src/domain/user/UserRole";
-import RefreshTokenRepository from "../../../../src/adapters/repositories/RefreshTokenRepository";
-import UserRepository from "../../../../src/adapters/repositories/UserRepository";
-import User from "../../../../src/domain/user/User";
-import RefreshToken from "../../../../src/domain/refreshToken/RefreshToken";
-import BaseError from "../../../../src/application/errors/BaseError";
+import sinon from 'sinon';
+import { faker } from '@faker-js/faker';
+import { expect } from 'chai';
+import AuthenticatedController from '../../../../src/adapters/controllers/AuthenticatedController';
+import BadRequestError from '../../../../src/application/errors/BadRequestError';
+import ValidateAuthentication from '../../../../src/application/useCases/auth/ValidateAuthentication';
+import JwtDriver from '../../../../src/infra/drivers/token/JwtDriver';
+import UserRole from '../../../../src/domain/user/UserRole';
+import RefreshTokenRepository from '../../../../src/adapters/repositories/RefreshTokenRepository';
+import UserRepository from '../../../../src/adapters/repositories/UserRepository';
+import User from '../../../../src/domain/user/User';
+import RefreshToken from '../../../../src/domain/refreshToken/RefreshToken';
+import BaseError from '../../../../src/application/errors/BaseError';
 
 class CustomController extends AuthenticatedController {
   statusCode = 200;
@@ -18,22 +18,22 @@ class CustomController extends AuthenticatedController {
 
 const sandbox = sinon.createSandbox();
 const refreshTokenRepository = sandbox.createStubInstance(
-  RefreshTokenRepository
+  RefreshTokenRepository,
 );
 const userRepository = sandbox.createStubInstance(UserRepository);
 const validateAuthenticationUseCase = new ValidateAuthentication(
   sandbox.createStubInstance(JwtDriver),
   refreshTokenRepository,
-  userRepository
+  userRepository,
 );
 
-describe("/adapters/controllers/AuthenticatedController.ts", () => {
+describe('/adapters/controllers/AuthenticatedController.ts', () => {
   afterEach(() => sandbox.restore());
 
-  it("should return successfully when authenticated", async () => {
+  it('should return successfully when authenticated', async () => {
     const userId = faker.string.uuid();
 
-    sandbox.stub(validateAuthenticationUseCase, "exec").resolves({
+    sandbox.stub(validateAuthenticationUseCase, 'exec').resolves({
       user: User.create({
         userId,
         email: faker.internet.email(),
@@ -42,7 +42,7 @@ describe("/adapters/controllers/AuthenticatedController.ts", () => {
       }),
       refreshToken: RefreshToken.create({
         userId,
-        token: "refresh-token",
+        token: 'refresh-token',
       }),
     });
 
@@ -56,16 +56,16 @@ describe("/adapters/controllers/AuthenticatedController.ts", () => {
       validateAuthenticationUseCase,
     });
     const result = await customerController.handle(
-      { authorization: "Bearer token" },
-      {}
+      { authorization: 'Bearer token' },
+      {},
     );
 
     expect(result).equal(undefined);
   });
 
-  it("should return error when not authenticated", async () => {
+  it('should return error when not authenticated', async () => {
     sandbox
-      .stub(validateAuthenticationUseCase, "exec")
+      .stub(validateAuthenticationUseCase, 'exec')
       .resolves(new BadRequestError());
 
     const useCase = {
@@ -77,16 +77,15 @@ describe("/adapters/controllers/AuthenticatedController.ts", () => {
       useCase,
       validateAuthenticationUseCase,
     });
-    const result = <BaseError>await customerController.handle(
-      { authorization: "Bearer token" },
-      {}
+    const result = <BaseError>(
+      await customerController.handle({ authorization: 'Bearer token' }, {})
     );
 
-    expect(result.message).equal("Bad Request");
+    expect(result.message).equal('Bad Request');
     expect(result.statusCode).equal(400);
   });
 
-  it("should throw error when ValidateAuthenticationUseCase is not passed to AuthenticatedController", async () => {
+  it('should throw error when ValidateAuthenticationUseCase is not passed to AuthenticatedController', async () => {
     const useCase = {
       exec: async (data: any) => {
         return;
@@ -94,7 +93,7 @@ describe("/adapters/controllers/AuthenticatedController.ts", () => {
     };
 
     expect(() => new CustomController({ useCase })).throw(
-      "[CustomController] Authentication use case is required"
+      '[CustomController] Authentication use case is required',
     );
   });
 });
