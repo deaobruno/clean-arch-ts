@@ -12,22 +12,21 @@ import UserRepository from '../../../../src/adapters/repositories/UserRepository
 import User from '../../../../src/domain/user/User';
 import RefreshToken from '../../../../src/domain/refreshToken/RefreshToken';
 import BaseError from '../../../../src/application/errors/BaseError';
+import PinoDriver from '../../../../src/infra/drivers/logger/PinoDriver';
 
 class CustomController extends AuthorizedController {
   statusCode = 200;
 }
 
 const sandbox = sinon.createSandbox();
-const refreshTokenRepository = sandbox.createStubInstance(
-  RefreshTokenRepository,
-);
-const userRepository = sandbox.createStubInstance(UserRepository);
+const logger = sandbox.createStubInstance(PinoDriver);
 const validateAuthenticationUseCase = new ValidateAuthentication(
+  logger,
   sandbox.createStubInstance(JwtDriver),
-  refreshTokenRepository,
-  userRepository,
+  sandbox.createStubInstance(RefreshTokenRepository),
+  sandbox.createStubInstance(UserRepository),
 );
-const validateAuthorizationUseCase = new ValidateAuthorization();
+const validateAuthorizationUseCase = new ValidateAuthorization(logger);
 
 describe('/adapters/controllers/AuthorizedController.ts', () => {
   afterEach(() => sandbox.restore());
@@ -36,13 +35,13 @@ describe('/adapters/controllers/AuthorizedController.ts', () => {
     const userId = faker.string.uuid();
 
     sandbox.stub(validateAuthenticationUseCase, 'exec').resolves({
-      user: User.create({
+      user: <User>User.create({
         userId,
         email: faker.internet.email(),
         password: faker.internet.password(),
         role: UserRole.CUSTOMER,
       }),
-      refreshToken: RefreshToken.create({
+      refreshToken: <RefreshToken>RefreshToken.create({
         userId,
         token: 'refresh-token',
       }),
@@ -50,11 +49,10 @@ describe('/adapters/controllers/AuthorizedController.ts', () => {
     sandbox.stub(validateAuthorizationUseCase, 'exec').returns();
 
     const useCase = {
-      exec: async (data: any) => {
-        return;
-      },
+      exec: async () => {},
     };
     const customController = new CustomController({
+      logger,
       useCase,
       validateAuthenticationUseCase,
       validateAuthorizationUseCase,
@@ -71,13 +69,13 @@ describe('/adapters/controllers/AuthorizedController.ts', () => {
     const userId = faker.string.uuid();
 
     sandbox.stub(validateAuthenticationUseCase, 'exec').resolves({
-      user: User.create({
+      user: <User>User.create({
         userId,
         email: faker.internet.email(),
         password: faker.internet.password(),
         role: UserRole.CUSTOMER,
       }),
-      refreshToken: RefreshToken.create({
+      refreshToken: <RefreshToken>RefreshToken.create({
         userId,
         token: 'refresh-token',
       }),
@@ -87,11 +85,12 @@ describe('/adapters/controllers/AuthorizedController.ts', () => {
       .returns(new ForbiddenError());
 
     const useCase = {
-      exec: async (data: any) => {
-        return;
+      exec: async (data: unknown) => {
+        return data;
       },
     };
     const customController = new CustomController({
+      logger,
       useCase,
       validateAuthenticationUseCase,
       validateAuthorizationUseCase,
@@ -106,13 +105,18 @@ describe('/adapters/controllers/AuthorizedController.ts', () => {
 
   it('should throw error when ValidateAuthorizationUseCase is not passed to authorized Controller', async () => {
     const useCase = {
-      exec: async (data: any) => {
-        return;
+      exec: async (data: unknown) => {
+        return data;
       },
     };
 
     expect(
-      () => new CustomController({ useCase, validateAuthenticationUseCase }),
+      () =>
+        new CustomController({
+          logger,
+          useCase,
+          validateAuthenticationUseCase,
+        }),
     ).throw('[CustomController] Authorization use case is required');
   });
 });

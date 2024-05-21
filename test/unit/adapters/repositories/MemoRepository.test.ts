@@ -2,12 +2,14 @@ import sinon from 'sinon';
 import { faker } from '@faker-js/faker';
 import { expect } from 'chai';
 import config from '../../../../src/config';
+import PinoDriver from '../../../../src/infra/drivers/logger/PinoDriver';
+import MongoDbDriver from '../../../../src/infra/drivers/db/MongoDbDriver';
 import MemoRepository from '../../../../src/adapters/repositories/MemoRepository';
 import MemoMapper from '../../../../src/domain/memo/MemoMapper';
-import MongoDbDriver from '../../../../src/infra/drivers/db/MongoDbDriver';
 import RedisDriver from '../../../../src/infra/drivers/cache/RedisDriver';
 import Memo from '../../../../src/domain/memo/Memo';
 import UserRole from '../../../../src/domain/user/UserRole';
+import IDbMemo from '../../../../src/domain/memo/IDbMemo';
 
 const sandbox = sinon.createSandbox();
 
@@ -29,11 +31,14 @@ describe('/adapters/repositories/MemoRepository', () => {
       start,
       end,
     };
+    const loggerDriver = sandbox.createStubInstance(PinoDriver);
     const dbDriver = sandbox.createStubInstance(MongoDbDriver);
     const cacheDriver = sandbox.createStubInstance(RedisDriver);
     const memoMapper = sandbox.createStubInstance(MemoMapper);
     const memoRepository = new MemoRepository(
       config.db.memoSource,
+      loggerDriver,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       <any>dbDriver,
       cacheDriver,
       memoMapper,
@@ -82,11 +87,14 @@ describe('/adapters/repositories/MemoRepository', () => {
         end: new Date(new Date().getTime() + 3.6e6 * 2).toISOString(),
       },
     ];
+    const loggerDriver = sandbox.createStubInstance(PinoDriver);
     const dbDriver = sandbox.createStubInstance(MongoDbDriver);
     const cacheDriver = sandbox.createStubInstance(RedisDriver);
     const memoMapper = sandbox.createStubInstance(MemoMapper);
     const memoRepository = new MemoRepository(
       config.db.memoSource,
+      loggerDriver,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       <any>dbDriver,
       cacheDriver,
       memoMapper,
@@ -173,11 +181,14 @@ describe('/adapters/repositories/MemoRepository', () => {
         end: new Date(new Date().getTime() + 3.6e6 * 2).toISOString(),
       },
     ];
+    const loggerDriver = sandbox.createStubInstance(PinoDriver);
     const dbDriver = sandbox.createStubInstance(MongoDbDriver);
     const cacheDriver = sandbox.createStubInstance(RedisDriver);
     const memoMapper = sandbox.createStubInstance(MemoMapper);
     const memoRepository = new MemoRepository(
       config.db.memoSource,
+      loggerDriver,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       <any>dbDriver,
       cacheDriver,
       memoMapper,
@@ -222,12 +233,15 @@ describe('/adapters/repositories/MemoRepository', () => {
   });
 
   it('should return an empty array when no memos are found', async () => {
-    const dbMemos: any[] = [];
+    const dbMemos: IDbMemo[] = [];
+    const loggerDriver = sandbox.createStubInstance(PinoDriver);
     const dbDriver = sandbox.createStubInstance(MongoDbDriver);
     const cacheDriver = sandbox.createStubInstance(RedisDriver);
     const memoMapper = sandbox.createStubInstance(MemoMapper);
     const memoRepository = new MemoRepository(
       config.db.memoSource,
+      loggerDriver,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       <any>dbDriver,
       cacheDriver,
       memoMapper,
@@ -249,11 +263,14 @@ describe('/adapters/repositories/MemoRepository', () => {
       start: new Date(new Date().getTime() + 3.6e6).toISOString(),
       end: new Date(new Date().getTime() + 3.6e6 * 2).toISOString(),
     };
+    const loggerDriver = sandbox.createStubInstance(PinoDriver);
     const dbDriver = sandbox.createStubInstance(MongoDbDriver);
     const cacheDriver = sandbox.createStubInstance(RedisDriver);
     const memoMapper = sandbox.createStubInstance(MemoMapper);
     const memoRepository = new MemoRepository(
       config.db.memoSource,
+      loggerDriver,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       <any>dbDriver,
       cacheDriver,
       memoMapper,
@@ -280,11 +297,14 @@ describe('/adapters/repositories/MemoRepository', () => {
   });
 
   it('should return undefined when no memo is found', async () => {
+    const loggerDriver = sandbox.createStubInstance(PinoDriver);
     const dbDriver = sandbox.createStubInstance(MongoDbDriver);
     const cacheDriver = sandbox.createStubInstance(RedisDriver);
     const memoMapper = sandbox.createStubInstance(MemoMapper);
     const memoRepository = new MemoRepository(
       config.db.memoSource,
+      loggerDriver,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       <any>dbDriver,
       cacheDriver,
       memoMapper,
@@ -306,11 +326,14 @@ describe('/adapters/repositories/MemoRepository', () => {
       start: new Date(new Date().getTime() + 3.6e6).toISOString(),
       end: new Date(new Date().getTime() + 3.6e6 * 2).toISOString(),
     };
+    const loggerDriver = sandbox.createStubInstance(PinoDriver);
     const dbDriver = sandbox.createStubInstance(MongoDbDriver);
     const cacheDriver = sandbox.createStubInstance(RedisDriver);
     const memoMapper = sandbox.createStubInstance(MemoMapper);
     const memoRepository = new MemoRepository(
       config.db.memoSource,
+      loggerDriver,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       <any>dbDriver,
       cacheDriver,
       memoMapper,
@@ -345,11 +368,14 @@ describe('/adapters/repositories/MemoRepository', () => {
       start: new Date(new Date().getTime() + 3.6e6).toISOString(),
       end: new Date(new Date().getTime() + 3.6e6 * 2).toISOString(),
     };
+    const loggerDriver = sandbox.createStubInstance(PinoDriver);
     const dbDriver = sandbox.createStubInstance(MongoDbDriver);
     const cacheDriver = sandbox.createStubInstance(RedisDriver);
     const memoMapper = sandbox.createStubInstance(MemoMapper);
     const memoRepository = new MemoRepository(
       config.db.memoSource,
+      loggerDriver,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       <any>dbDriver,
       cacheDriver,
       memoMapper,
@@ -368,11 +394,14 @@ describe('/adapters/repositories/MemoRepository', () => {
   });
 
   it('should return undefined when passing an invalid memo_id as a filter', async () => {
+    const loggerDriver = sandbox.createStubInstance(PinoDriver);
     const dbDriver = sandbox.createStubInstance(MongoDbDriver);
     const cacheDriver = sandbox.createStubInstance(RedisDriver);
     const memoMapper = sandbox.createStubInstance(MemoMapper);
     const memoRepository = new MemoRepository(
       config.db.memoSource,
+      loggerDriver,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       <any>dbDriver,
       cacheDriver,
       memoMapper,
@@ -394,11 +423,14 @@ describe('/adapters/repositories/MemoRepository', () => {
       start: new Date(new Date().getTime() + 3.6e6).toISOString(),
       end: new Date(new Date().getTime() + 3.6e6 * 2).toISOString(),
     };
+    const loggerDriver = sandbox.createStubInstance(PinoDriver);
     const dbDriver = sandbox.createStubInstance(MongoDbDriver);
     const cacheDriver = sandbox.createStubInstance(RedisDriver);
     const memoMapper = sandbox.createStubInstance(MemoMapper);
     const memoRepository = new MemoRepository(
       config.db.memoSource,
+      loggerDriver,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       <any>dbDriver,
       cacheDriver,
       memoMapper,
@@ -425,11 +457,14 @@ describe('/adapters/repositories/MemoRepository', () => {
   });
 
   it('should return an empty array when passing an invalid user_id as a filter', async () => {
+    const loggerDriver = sandbox.createStubInstance(PinoDriver);
     const dbDriver = sandbox.createStubInstance(MongoDbDriver);
     const cacheDriver = sandbox.createStubInstance(RedisDriver);
     const memoMapper = sandbox.createStubInstance(MemoMapper);
     const memoRepository = new MemoRepository(
       config.db.memoSource,
+      loggerDriver,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       <any>dbDriver,
       cacheDriver,
       memoMapper,
@@ -457,11 +492,14 @@ describe('/adapters/repositories/MemoRepository', () => {
       start,
       end,
     };
+    const loggerDriver = sandbox.createStubInstance(PinoDriver);
     const dbDriver = sandbox.createStubInstance(MongoDbDriver);
     const cacheDriver = sandbox.createStubInstance(RedisDriver);
     const memoMapper = sandbox.createStubInstance(MemoMapper);
     const memoRepository = new MemoRepository(
       config.db.memoSource,
+      loggerDriver,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       <any>dbDriver,
       cacheDriver,
       memoMapper,
@@ -489,11 +527,14 @@ describe('/adapters/repositories/MemoRepository', () => {
       start,
       end,
     };
+    const loggerDriver = sandbox.createStubInstance(PinoDriver);
     const dbDriver = sandbox.createStubInstance(MongoDbDriver);
     const cacheDriver = sandbox.createStubInstance(RedisDriver);
     const memoMapper = sandbox.createStubInstance(MemoMapper);
     const memoRepository = new MemoRepository(
       config.db.memoSource,
+      loggerDriver,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       <any>dbDriver,
       cacheDriver,
       memoMapper,
@@ -521,11 +562,14 @@ describe('/adapters/repositories/MemoRepository', () => {
       memos: [],
       addMemo: () => {},
     };
+    const loggerDriver = sandbox.createStubInstance(PinoDriver);
     const dbDriver = sandbox.createStubInstance(MongoDbDriver);
     const cacheDriver = sandbox.createStubInstance(RedisDriver);
     const memoMapper = sandbox.createStubInstance(MemoMapper);
     const memoRepository = new MemoRepository(
       config.db.memoSource,
+      loggerDriver,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       <any>dbDriver,
       cacheDriver,
       memoMapper,

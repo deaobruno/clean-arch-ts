@@ -2,12 +2,14 @@ import sinon from 'sinon';
 import { faker } from '@faker-js/faker';
 import { expect } from 'chai';
 import config from '../../../../src/config';
+import PinoDriver from '../../../../src/infra/drivers/logger/PinoDriver';
+import MongoDbDriver from '../../../../src/infra/drivers/db/MongoDbDriver';
+import RedisDriver from '../../../../src/infra/drivers/cache/RedisDriver';
 import UserRepository from '../../../../src/adapters/repositories/UserRepository';
 import UserMapper from '../../../../src/domain/user/UserMapper';
 import UserRole from '../../../../src/domain/user/UserRole';
 import User from '../../../../src/domain/user/User';
-import MongoDbDriver from '../../../../src/infra/drivers/db/MongoDbDriver';
-import RedisDriver from '../../../../src/infra/drivers/cache/RedisDriver';
+import IDbUser from '../../../../src/domain/user/IDbUser';
 
 const sandbox = sinon.createSandbox();
 
@@ -29,11 +31,14 @@ describe('/adapters/repositories/UserRepository', () => {
       memos: [],
       addMemo: () => {},
     };
+    const loggerDriver = sandbox.createStubInstance(PinoDriver);
     const dbDriver = sandbox.createStubInstance(MongoDbDriver);
     const cacheDriver = sandbox.createStubInstance(RedisDriver);
     const userMapper = sandbox.createStubInstance(UserMapper);
     const userRepository = new UserRepository(
       config.db.usersSource,
+      loggerDriver,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       <any>dbDriver,
       cacheDriver,
       userMapper,
@@ -74,11 +79,14 @@ describe('/adapters/repositories/UserRepository', () => {
         role: UserRole.CUSTOMER,
       },
     ];
+    const loggerDriver = sandbox.createStubInstance(PinoDriver);
     const dbDriver = sandbox.createStubInstance(MongoDbDriver);
     const cacheDriver = sandbox.createStubInstance(RedisDriver);
     const userMapper = sandbox.createStubInstance(UserMapper);
     const userRepository = new UserRepository(
       config.db.usersSource,
+      loggerDriver,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       <any>dbDriver,
       cacheDriver,
       userMapper,
@@ -157,11 +165,14 @@ describe('/adapters/repositories/UserRepository', () => {
         role: UserRole.CUSTOMER,
       },
     ];
+    const loggerDriver = sandbox.createStubInstance(PinoDriver);
     const dbDriver = sandbox.createStubInstance(MongoDbDriver);
     const cacheDriver = sandbox.createStubInstance(RedisDriver);
     const userMapper = sandbox.createStubInstance(UserMapper);
     const userRepository = new UserRepository(
       config.db.usersSource,
+      loggerDriver,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       <any>dbDriver,
       cacheDriver,
       userMapper,
@@ -209,12 +220,15 @@ describe('/adapters/repositories/UserRepository', () => {
   });
 
   it('should return an empty array when no Users are found', async () => {
-    const dbUsers: any[] = [];
+    const dbUsers: IDbUser[] = [];
+    const loggerDriver = sandbox.createStubInstance(PinoDriver);
     const dbDriver = sandbox.createStubInstance(MongoDbDriver);
     const cacheDriver = sandbox.createStubInstance(RedisDriver);
     const userMapper = sandbox.createStubInstance(UserMapper);
     const userRepository = new UserRepository(
       config.db.usersSource,
+      loggerDriver,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       <any>dbDriver,
       cacheDriver,
       userMapper,
@@ -234,11 +248,14 @@ describe('/adapters/repositories/UserRepository', () => {
       password: faker.internet.password(),
       role: UserRole.CUSTOMER,
     };
+    const loggerDriver = sandbox.createStubInstance(PinoDriver);
     const dbDriver = sandbox.createStubInstance(MongoDbDriver);
     const cacheDriver = sandbox.createStubInstance(RedisDriver);
     const userMapper = sandbox.createStubInstance(UserMapper);
     const userRepository = new UserRepository(
       config.db.usersSource,
+      loggerDriver,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       <any>dbDriver,
       cacheDriver,
       userMapper,
@@ -267,11 +284,14 @@ describe('/adapters/repositories/UserRepository', () => {
   });
 
   it('should return undefined when no User is found', async () => {
+    const loggerDriver = sandbox.createStubInstance(PinoDriver);
     const dbDriver = sandbox.createStubInstance(MongoDbDriver);
     const cacheDriver = sandbox.createStubInstance(RedisDriver);
     const userMapper = sandbox.createStubInstance(UserMapper);
     const userRepository = new UserRepository(
       config.db.usersSource,
+      loggerDriver,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       <any>dbDriver,
       cacheDriver,
       userMapper,
@@ -291,11 +311,14 @@ describe('/adapters/repositories/UserRepository', () => {
       password: faker.internet.password(),
       role: UserRole.CUSTOMER,
     };
+    const loggerDriver = sandbox.createStubInstance(PinoDriver);
     const dbDriver = sandbox.createStubInstance(MongoDbDriver);
     const cacheDriver = sandbox.createStubInstance(RedisDriver);
     const userMapper = sandbox.createStubInstance(UserMapper);
     const userRepository = new UserRepository(
       config.db.usersSource,
+      loggerDriver,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       <any>dbDriver,
       cacheDriver,
       userMapper,
@@ -317,17 +340,20 @@ describe('/adapters/repositories/UserRepository', () => {
   });
 
   it('should return an User from cache passing user_id as a filter', async () => {
-    const userEntity = User.create({
+    const userEntity = <User>User.create({
       userId: faker.string.uuid(),
       email: faker.internet.email(),
       password: faker.internet.password(),
       role: UserRole.CUSTOMER,
     });
+    const loggerDriver = sandbox.createStubInstance(PinoDriver);
     const dbDriver = sandbox.createStubInstance(MongoDbDriver);
     const cacheDriver = sandbox.createStubInstance(RedisDriver);
     const userMapper = sandbox.createStubInstance(UserMapper);
     const userRepository = new UserRepository(
       config.db.usersSource,
+      loggerDriver,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       <any>dbDriver,
       cacheDriver,
       userMapper,
@@ -346,11 +372,14 @@ describe('/adapters/repositories/UserRepository', () => {
   });
 
   it('should return undefined when passing an invalid user_id as a filter', async () => {
+    const loggerDriver = sandbox.createStubInstance(PinoDriver);
     const dbDriver = sandbox.createStubInstance(MongoDbDriver);
     const cacheDriver = sandbox.createStubInstance(RedisDriver);
     const userMapper = sandbox.createStubInstance(UserMapper);
     const userRepository = new UserRepository(
       config.db.usersSource,
+      loggerDriver,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       <any>dbDriver,
       cacheDriver,
       userMapper,
@@ -370,11 +399,14 @@ describe('/adapters/repositories/UserRepository', () => {
       password: faker.internet.password(),
       role: UserRole.CUSTOMER,
     };
+    const loggerDriver = sandbox.createStubInstance(PinoDriver);
     const dbDriver = sandbox.createStubInstance(MongoDbDriver);
     const cacheDriver = sandbox.createStubInstance(RedisDriver);
     const userMapper = sandbox.createStubInstance(UserMapper);
     const userRepository = new UserRepository(
       config.db.usersSource,
+      loggerDriver,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       <any>dbDriver,
       cacheDriver,
       userMapper,
@@ -396,17 +428,20 @@ describe('/adapters/repositories/UserRepository', () => {
   });
 
   it('should return an User from cache passing an email as a filter', async () => {
-    const userEntity = User.create({
+    const userEntity = <User>User.create({
       userId: faker.string.uuid(),
       email: faker.internet.email(),
       password: faker.internet.password(),
       role: UserRole.CUSTOMER,
     });
+    const loggerDriver = sandbox.createStubInstance(PinoDriver);
     const dbDriver = sandbox.createStubInstance(MongoDbDriver);
     const cacheDriver = sandbox.createStubInstance(RedisDriver);
     const userMapper = sandbox.createStubInstance(UserMapper);
     const userRepository = new UserRepository(
       config.db.usersSource,
+      loggerDriver,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       <any>dbDriver,
       cacheDriver,
       userMapper,
@@ -425,11 +460,14 @@ describe('/adapters/repositories/UserRepository', () => {
   });
 
   it('should return undefined when passing an invalid email as a filter', async () => {
+    const loggerDriver = sandbox.createStubInstance(PinoDriver);
     const dbDriver = sandbox.createStubInstance(MongoDbDriver);
     const cacheDriver = sandbox.createStubInstance(RedisDriver);
     const userMapper = sandbox.createStubInstance(UserMapper);
     const userRepository = new UserRepository(
       config.db.usersSource,
+      loggerDriver,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       <any>dbDriver,
       cacheDriver,
       userMapper,
@@ -463,11 +501,14 @@ describe('/adapters/repositories/UserRepository', () => {
         role: UserRole.CUSTOMER,
       },
     ];
+    const loggerDriver = sandbox.createStubInstance(PinoDriver);
     const dbDriver = sandbox.createStubInstance(MongoDbDriver);
     const cacheDriver = sandbox.createStubInstance(RedisDriver);
     const userMapper = sandbox.createStubInstance(UserMapper);
     const userRepository = new UserRepository(
       config.db.usersSource,
+      loggerDriver,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       <any>dbDriver,
       cacheDriver,
       userMapper,
@@ -506,11 +547,14 @@ describe('/adapters/repositories/UserRepository', () => {
   });
 
   it('should return an empty array of customer Users', async () => {
+    const loggerDriver = sandbox.createStubInstance(PinoDriver);
     const dbDriver = sandbox.createStubInstance(MongoDbDriver);
     const cacheDriver = sandbox.createStubInstance(RedisDriver);
     const userMapper = sandbox.createStubInstance(UserMapper);
     const userRepository = new UserRepository(
       config.db.usersSource,
+      loggerDriver,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       <any>dbDriver,
       cacheDriver,
       userMapper,
@@ -538,11 +582,14 @@ describe('/adapters/repositories/UserRepository', () => {
       memos: [],
       addMemo: () => {},
     };
+    const loggerDriver = sandbox.createStubInstance(PinoDriver);
     const dbDriver = sandbox.createStubInstance(MongoDbDriver);
     const cacheDriver = sandbox.createStubInstance(RedisDriver);
     const userMapper = sandbox.createStubInstance(UserMapper);
     const userRepository = new UserRepository(
       config.db.usersSource,
+      loggerDriver,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       <any>dbDriver,
       cacheDriver,
       userMapper,
@@ -570,11 +617,14 @@ describe('/adapters/repositories/UserRepository', () => {
       memos: [],
       addMemo: () => {},
     };
+    const loggerDriver = sandbox.createStubInstance(PinoDriver);
     const dbDriver = sandbox.createStubInstance(MongoDbDriver);
     const cacheDriver = sandbox.createStubInstance(RedisDriver);
     const userMapper = sandbox.createStubInstance(UserMapper);
     const userRepository = new UserRepository(
       config.db.usersSource,
+      loggerDriver,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       <any>dbDriver,
       cacheDriver,
       userMapper,

@@ -2,13 +2,15 @@ import sinon from 'sinon';
 import { faker } from '@faker-js/faker';
 import { expect } from 'chai';
 import config from '../../../../src/config';
-import RefreshTokenRepository from '../../../../src/adapters/repositories/RefreshTokenRepository';
+import PinoDriver from '../../../../src/infra/drivers/logger/PinoDriver';
 import MongoDbDriver from '../../../../src/infra/drivers/db/MongoDbDriver';
 import RedisDriver from '../../../../src/infra/drivers/cache/RedisDriver';
+import RefreshTokenRepository from '../../../../src/adapters/repositories/RefreshTokenRepository';
 import RefreshTokenMapper from '../../../../src/domain/refreshToken/RefreshTokenMapper';
 import RefreshToken from '../../../../src/domain/refreshToken/RefreshToken';
 import User from '../../../../src/domain/user/User';
 import UserRole from '../../../../src/domain/user/UserRole';
+import IDbRefreshToken from '../../../../src/domain/refreshToken/IDbRefreshToken';
 
 const sandbox = sinon.createSandbox();
 
@@ -19,11 +21,14 @@ describe('/adapters/repositories/RefreshTokenRepository', () => {
     const userId = faker.string.uuid();
     const token = 'refresh-token';
     const fakeRefreshToken = { userId, token };
+    const loggerDriver = sandbox.createStubInstance(PinoDriver);
     const dbDriver = sandbox.createStubInstance(MongoDbDriver);
     const cacheDriver = sandbox.createStubInstance(RedisDriver);
     const refreshTokenMapper = sandbox.createStubInstance(RefreshTokenMapper);
     const refreshTokenRepository = new RefreshTokenRepository(
       config.db.refreshTokensSource,
+      loggerDriver,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       <any>dbDriver,
       cacheDriver,
       refreshTokenMapper,
@@ -60,11 +65,14 @@ describe('/adapters/repositories/RefreshTokenRepository', () => {
         token: 'refresh-token-3',
       },
     ];
+    const loggerDriver = sandbox.createStubInstance(PinoDriver);
     const dbDriver = sandbox.createStubInstance(MongoDbDriver);
     const cacheDriver = sandbox.createStubInstance(RedisDriver);
     const refreshTokenMapper = sandbox.createStubInstance(RefreshTokenMapper);
     const refreshTokenRepository = new RefreshTokenRepository(
       config.db.refreshTokensSource,
+      loggerDriver,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       <any>dbDriver,
       cacheDriver,
       refreshTokenMapper,
@@ -111,11 +119,14 @@ describe('/adapters/repositories/RefreshTokenRepository', () => {
         token: 'refresh-token-2',
       },
     ];
+    const loggerDriver = sandbox.createStubInstance(PinoDriver);
     const dbDriver = sandbox.createStubInstance(MongoDbDriver);
     const cacheDriver = sandbox.createStubInstance(RedisDriver);
     const refreshTokenMapper = sandbox.createStubInstance(RefreshTokenMapper);
     const refreshTokenRepository = new RefreshTokenRepository(
       config.db.refreshTokensSource,
+      loggerDriver,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       <any>dbDriver,
       cacheDriver,
       refreshTokenMapper,
@@ -146,12 +157,15 @@ describe('/adapters/repositories/RefreshTokenRepository', () => {
   });
 
   it('should return an empty array when no RefreshTokens are found', async () => {
-    const dbRefreshTokens: any[] = [];
+    const dbRefreshTokens: IDbRefreshToken[] = [];
+    const loggerDriver = sandbox.createStubInstance(PinoDriver);
     const dbDriver = sandbox.createStubInstance(MongoDbDriver);
     const cacheDriver = sandbox.createStubInstance(RedisDriver);
     const refreshTokenMapper = sandbox.createStubInstance(RefreshTokenMapper);
     const refreshTokenRepository = new RefreshTokenRepository(
       config.db.refreshTokensSource,
+      loggerDriver,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       <any>dbDriver,
       cacheDriver,
       refreshTokenMapper,
@@ -168,11 +182,14 @@ describe('/adapters/repositories/RefreshTokenRepository', () => {
   it('should return a RefreshToken from DB when some filter is passed', async () => {
     const userId = faker.string.uuid();
     const token = 'refresh-token';
+    const loggerDriver = sandbox.createStubInstance(PinoDriver);
     const dbDriver = sandbox.createStubInstance(MongoDbDriver);
     const cacheDriver = sandbox.createStubInstance(RedisDriver);
     const refreshTokenMapper = sandbox.createStubInstance(RefreshTokenMapper);
     const refreshTokenRepository = new RefreshTokenRepository(
       config.db.refreshTokensSource,
+      loggerDriver,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       <any>dbDriver,
       cacheDriver,
       refreshTokenMapper,
@@ -197,11 +214,14 @@ describe('/adapters/repositories/RefreshTokenRepository', () => {
   });
 
   it('should return undefined when no RefreshToken is found', async () => {
+    const loggerDriver = sandbox.createStubInstance(PinoDriver);
     const dbDriver = sandbox.createStubInstance(MongoDbDriver);
     const cacheDriver = sandbox.createStubInstance(RedisDriver);
     const refreshTokenMapper = sandbox.createStubInstance(RefreshTokenMapper);
     const refreshTokenRepository = new RefreshTokenRepository(
       config.db.refreshTokensSource,
+      loggerDriver,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       <any>dbDriver,
       cacheDriver,
       refreshTokenMapper,
@@ -220,11 +240,14 @@ describe('/adapters/repositories/RefreshTokenRepository', () => {
   it('should return a RefreshToken from DB passing "userId" as a filter', async () => {
     const userId = faker.string.uuid();
     const token = 'refresh-token';
+    const loggerDriver = sandbox.createStubInstance(PinoDriver);
     const dbDriver = sandbox.createStubInstance(MongoDbDriver);
     const cacheDriver = sandbox.createStubInstance(RedisDriver);
     const refreshTokenMapper = sandbox.createStubInstance(RefreshTokenMapper);
     const refreshTokenRepository = new RefreshTokenRepository(
       config.db.refreshTokensSource,
+      loggerDriver,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       <any>dbDriver,
       cacheDriver,
       refreshTokenMapper,
@@ -251,11 +274,14 @@ describe('/adapters/repositories/RefreshTokenRepository', () => {
   it('should return a RefreshToken from cache passing "userId" as a filter', async () => {
     const userId = faker.string.uuid();
     const token = 'refresh-token';
+    const loggerDriver = sandbox.createStubInstance(PinoDriver);
     const dbDriver = sandbox.createStubInstance(MongoDbDriver);
     const cacheDriver = sandbox.createStubInstance(RedisDriver);
     const refreshTokenMapper = sandbox.createStubInstance(RefreshTokenMapper);
     const refreshTokenRepository = new RefreshTokenRepository(
       config.db.refreshTokensSource,
+      loggerDriver,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       <any>dbDriver,
       cacheDriver,
       refreshTokenMapper,
@@ -276,11 +302,14 @@ describe('/adapters/repositories/RefreshTokenRepository', () => {
   });
 
   it('should return undefined when no RefreshToken is found passing "userId" as a filter', async () => {
+    const loggerDriver = sandbox.createStubInstance(PinoDriver);
     const dbDriver = sandbox.createStubInstance(MongoDbDriver);
     const cacheDriver = sandbox.createStubInstance(RedisDriver);
     const refreshTokenMapper = sandbox.createStubInstance(RefreshTokenMapper);
     const refreshTokenRepository = new RefreshTokenRepository(
       config.db.refreshTokensSource,
+      loggerDriver,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       <any>dbDriver,
       cacheDriver,
       refreshTokenMapper,
@@ -295,15 +324,18 @@ describe('/adapters/repositories/RefreshTokenRepository', () => {
   });
 
   it('should delete a RefreshToken from DB', async () => {
-    const refreshToken = RefreshToken.create({
+    const refreshToken = <RefreshToken>RefreshToken.create({
       userId: faker.string.uuid(),
       token: 'refresh-token',
     });
+    const loggerDriver = sandbox.createStubInstance(PinoDriver);
     const dbDriver = sandbox.createStubInstance(MongoDbDriver);
     const cacheDriver = sandbox.createStubInstance(RedisDriver);
     const refreshTokenMapper = sandbox.createStubInstance(RefreshTokenMapper);
     const refreshTokenRepository = new RefreshTokenRepository(
       config.db.refreshTokensSource,
+      loggerDriver,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       <any>dbDriver,
       cacheDriver,
       refreshTokenMapper,
@@ -318,17 +350,20 @@ describe('/adapters/repositories/RefreshTokenRepository', () => {
   });
 
   it('should delete a RefreshToken from DB', async () => {
-    const user = User.create({
+    const user = <User>User.create({
       userId: faker.string.uuid(),
       email: faker.internet.email(),
       password: faker.internet.password(),
       role: UserRole.CUSTOMER,
     });
+    const loggerDriver = sandbox.createStubInstance(PinoDriver);
     const dbDriver = sandbox.createStubInstance(MongoDbDriver);
     const cacheDriver = sandbox.createStubInstance(RedisDriver);
     const refreshTokenMapper = sandbox.createStubInstance(RefreshTokenMapper);
     const refreshTokenRepository = new RefreshTokenRepository(
       config.db.refreshTokensSource,
+      loggerDriver,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       <any>dbDriver,
       cacheDriver,
       refreshTokenMapper,
