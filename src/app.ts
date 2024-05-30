@@ -10,8 +10,13 @@ const {
   app: { environment, rootUserEmail, rootUserPassword },
   server: { httpPort },
 } = config;
-const { dbDriver, loggerDriver, cacheDriver, createRootUserEvent } =
-  dependencies;
+const {
+  dbDriver,
+  loggerDriver,
+  cacheDriver,
+  refreshTokenRepository,
+  createRootUserEvent,
+} = dependencies;
 
 (async () => {
   await dbDriver.connect();
@@ -36,6 +41,7 @@ if (environment === 'production' && cluster.isPrimary) {
 
 const gracefulShutdown = (signal: string, code: number) => {
   server.stop(async () => {
+    if (environment !== 'production') await refreshTokenRepository.deleteAll();
     await cacheDriver.del(rootUserEmail);
     await dbDriver.disconnect();
     await cacheDriver.disconnect();

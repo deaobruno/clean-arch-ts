@@ -38,7 +38,7 @@ import RefreshTokenRepository from './adapters/repositories/RefreshTokenReposito
 import RefreshAccessTokenController from './adapters/controllers/auth/RefreshAccessTokenController';
 import RefreshAccessToken from './application/useCases/auth/RefreshAccessToken';
 import LogoutSchema from './infra/schemas/auth/LogoutSchema';
-import DeleteRefreshToken from './application/useCases/auth/Logout';
+import Logout from './application/useCases/auth/Logout';
 import LogoutController from './adapters/controllers/auth/LogoutController';
 import UserMapper from './domain/user/UserMapper';
 import RefreshTokenMapper from './domain/refreshToken/RefreshTokenMapper';
@@ -143,10 +143,7 @@ const refreshAccessTokenUseCase = new RefreshAccessToken(
   tokenDriver,
   refreshTokenRepository,
 );
-const deleteRefreshTokenUseCase = new DeleteRefreshToken(
-  loggerDriver,
-  refreshTokenRepository,
-);
+const logoutUseCase = new Logout(loggerDriver, refreshTokenRepository);
 const validateAuthenticationUseCase = new ValidateAuthentication(
   loggerDriver,
   tokenDriver,
@@ -215,7 +212,7 @@ const refreshAccessTokenController = new RefreshAccessTokenController({
 });
 const logoutController = new LogoutController({
   logger: loggerDriver,
-  useCase: deleteRefreshTokenUseCase,
+  useCase: logoutUseCase,
   schema: LogoutSchema,
   validateAuthenticationUseCase,
 });
@@ -301,6 +298,7 @@ export default {
   loggerDriver,
   cacheDriver,
   hashDriver,
+  refreshTokenRepository,
   registerCustomerController,
   loginController,
   refreshAccessTokenController,
