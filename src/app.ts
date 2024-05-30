@@ -6,7 +6,7 @@ import config from './config';
 import dependencies from './dependencies';
 
 const {
-  db: { usersSource, memoSource },
+  db: { usersSource, memosSource },
   app: { environment, rootUserEmail, rootUserPassword },
   server: { httpPort },
 } = config;
@@ -22,7 +22,7 @@ const {
   await dbDriver.connect();
   await dbDriver.createIndex(usersSource, 'user_id');
   await dbDriver.createIndex(usersSource, 'email');
-  await dbDriver.createIndex(memoSource, 'memo_id');
+  await dbDriver.createIndex(memosSource, 'memo_id');
   await cacheDriver.connect();
 
   createRootUserEvent.trigger({

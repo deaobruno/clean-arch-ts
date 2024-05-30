@@ -77,7 +77,7 @@ const {
     mongo: { dbUrl, dbName },
     usersSource,
     refreshTokensSource,
-    memoSource,
+    memosSource,
   },
   cache: {
     redis: { url: redisUrl, password: redisPassword },
@@ -103,7 +103,7 @@ const refreshTokenMapper = new RefreshTokenMapper(loggerDriver);
 const memoMapper = new MemoMapper(loggerDriver);
 // REPOSITORIES
 const memoRepository = new MemoRepository(
-  memoSource,
+  memosSource,
   loggerDriver,
   <IDbDriver<IDbMemo>>dbDriver,
   cacheDriver,

@@ -36,7 +36,7 @@ describe('/adapters/repositories/MemoRepository', () => {
     const cacheDriver = sandbox.createStubInstance(RedisDriver);
     const memoMapper = sandbox.createStubInstance(MemoMapper);
     const memoRepository = new MemoRepository(
-      config.db.memoSource,
+      config.db.memosSource,
       loggerDriver,
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       <any>dbDriver,
@@ -92,7 +92,7 @@ describe('/adapters/repositories/MemoRepository', () => {
     const cacheDriver = sandbox.createStubInstance(RedisDriver);
     const memoMapper = sandbox.createStubInstance(MemoMapper);
     const memoRepository = new MemoRepository(
-      config.db.memoSource,
+      config.db.memosSource,
       loggerDriver,
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       <any>dbDriver,
@@ -186,7 +186,7 @@ describe('/adapters/repositories/MemoRepository', () => {
     const cacheDriver = sandbox.createStubInstance(RedisDriver);
     const memoMapper = sandbox.createStubInstance(MemoMapper);
     const memoRepository = new MemoRepository(
-      config.db.memoSource,
+      config.db.memosSource,
       loggerDriver,
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       <any>dbDriver,
@@ -239,7 +239,7 @@ describe('/adapters/repositories/MemoRepository', () => {
     const cacheDriver = sandbox.createStubInstance(RedisDriver);
     const memoMapper = sandbox.createStubInstance(MemoMapper);
     const memoRepository = new MemoRepository(
-      config.db.memoSource,
+      config.db.memosSource,
       loggerDriver,
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       <any>dbDriver,
@@ -268,7 +268,7 @@ describe('/adapters/repositories/MemoRepository', () => {
     const cacheDriver = sandbox.createStubInstance(RedisDriver);
     const memoMapper = sandbox.createStubInstance(MemoMapper);
     const memoRepository = new MemoRepository(
-      config.db.memoSource,
+      config.db.memosSource,
       loggerDriver,
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       <any>dbDriver,
@@ -302,7 +302,7 @@ describe('/adapters/repositories/MemoRepository', () => {
     const cacheDriver = sandbox.createStubInstance(RedisDriver);
     const memoMapper = sandbox.createStubInstance(MemoMapper);
     const memoRepository = new MemoRepository(
-      config.db.memoSource,
+      config.db.memosSource,
       loggerDriver,
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       <any>dbDriver,
@@ -331,7 +331,7 @@ describe('/adapters/repositories/MemoRepository', () => {
     const cacheDriver = sandbox.createStubInstance(RedisDriver);
     const memoMapper = sandbox.createStubInstance(MemoMapper);
     const memoRepository = new MemoRepository(
-      config.db.memoSource,
+      config.db.memosSource,
       loggerDriver,
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       <any>dbDriver,
@@ -373,7 +373,7 @@ describe('/adapters/repositories/MemoRepository', () => {
     const cacheDriver = sandbox.createStubInstance(RedisDriver);
     const memoMapper = sandbox.createStubInstance(MemoMapper);
     const memoRepository = new MemoRepository(
-      config.db.memoSource,
+      config.db.memosSource,
       loggerDriver,
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       <any>dbDriver,
@@ -399,7 +399,7 @@ describe('/adapters/repositories/MemoRepository', () => {
     const cacheDriver = sandbox.createStubInstance(RedisDriver);
     const memoMapper = sandbox.createStubInstance(MemoMapper);
     const memoRepository = new MemoRepository(
-      config.db.memoSource,
+      config.db.memosSource,
       loggerDriver,
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       <any>dbDriver,
@@ -428,7 +428,7 @@ describe('/adapters/repositories/MemoRepository', () => {
     const cacheDriver = sandbox.createStubInstance(RedisDriver);
     const memoMapper = sandbox.createStubInstance(MemoMapper);
     const memoRepository = new MemoRepository(
-      config.db.memoSource,
+      config.db.memosSource,
       loggerDriver,
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       <any>dbDriver,
@@ -462,7 +462,7 @@ describe('/adapters/repositories/MemoRepository', () => {
     const cacheDriver = sandbox.createStubInstance(RedisDriver);
     const memoMapper = sandbox.createStubInstance(MemoMapper);
     const memoRepository = new MemoRepository(
-      config.db.memoSource,
+      config.db.memosSource,
       loggerDriver,
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       <any>dbDriver,
@@ -497,7 +497,7 @@ describe('/adapters/repositories/MemoRepository', () => {
     const cacheDriver = sandbox.createStubInstance(RedisDriver);
     const memoMapper = sandbox.createStubInstance(MemoMapper);
     const memoRepository = new MemoRepository(
-      config.db.memoSource,
+      config.db.memosSource,
       loggerDriver,
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       <any>dbDriver,
@@ -532,7 +532,7 @@ describe('/adapters/repositories/MemoRepository', () => {
     const cacheDriver = sandbox.createStubInstance(RedisDriver);
     const memoMapper = sandbox.createStubInstance(MemoMapper);
     const memoRepository = new MemoRepository(
-      config.db.memoSource,
+      config.db.memosSource,
       loggerDriver,
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       <any>dbDriver,
@@ -567,7 +567,7 @@ describe('/adapters/repositories/MemoRepository', () => {
     const cacheDriver = sandbox.createStubInstance(RedisDriver);
     const memoMapper = sandbox.createStubInstance(MemoMapper);
     const memoRepository = new MemoRepository(
-      config.db.memoSource,
+      config.db.memosSource,
       loggerDriver,
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       <any>dbDriver,
