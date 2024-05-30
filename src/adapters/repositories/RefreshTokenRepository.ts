@@ -50,6 +50,17 @@ export default class RefreshTokenRepository implements IRefreshTokenRepository {
     return refreshTokens;
   }
 
+  async findByUserId(user_id: string, options = {}): Promise<RefreshToken[]> {
+    return this.find({ user_id }, options);
+  }
+
+  async findByDeviceId(
+    device_id: string,
+    options = {},
+  ): Promise<RefreshToken[]> {
+    return this.find({ device_id }, options);
+  }
+
   async findOne(filters: object): Promise<RefreshToken | undefined> {
     const dbRefreshToken = await this.db.findOne(this.source, filters);
 
@@ -74,24 +85,21 @@ export default class RefreshTokenRepository implements IRefreshTokenRepository {
     return refreshToken;
   }
 
-  async findOneByUserId(user_id: string): Promise<RefreshToken | undefined> {
+  async findOneByUserIdAndDeviceId(
+    user_id: string,
+    device_id: string,
+  ): Promise<RefreshToken | undefined> {
     const cachedRefreshToken = <RefreshToken>(
       await this.cache.get(`token-${user_id}`)
     );
 
     if (cachedRefreshToken) return cachedRefreshToken;
 
-    const refreshToken = await this.findOne({ user_id });
+    const refreshToken = await this.findOne({ user_id, device_id });
 
-    if (refreshToken) {
-      await this.cache.set(
-        `token-${user_id}`,
-        refreshToken,
-        this.refreshTokenExpirationTime,
-      );
+    if (refreshToken) await this.cache.set(`token-${user_id}`, refreshToken);
 
-      return refreshToken;
-    }
+    return refreshToken;
   }
 
   async deleteOne(refreshToken: RefreshToken): Promise<void> {

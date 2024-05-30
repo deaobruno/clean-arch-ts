@@ -64,6 +64,15 @@ import IDbDriver from './infra/drivers/db/IDbDriver';
 import IDbMemo from './domain/memo/IDbMemo';
 import IDbUser from './domain/user/IDbUser';
 import IDbRefreshToken from './domain/refreshToken/IDbRefreshToken';
+import FindUserByEmail from './application/useCases/user/FindUserByEmail';
+import GenerateTokens from './application/useCases/token/GenerateTokens';
+import FindDeviceById from './application/useCases/device/FindDeviceById';
+import CreateDevice from './application/useCases/device/CreateDevice';
+import ValidateDevice from './application/useCases/device/ValidateDevice';
+import UpdateDevice from './application/useCases/device/UpdateDevice';
+import IDbDevice from './domain/device/IDbDevice';
+import DeviceMapper from './domain/device/DeviceMapper';
+import DeviceRepository from './adapters/repositories/DeviceRepository';
 
 const {
   app: {
@@ -77,7 +86,8 @@ const {
     mongo: { dbUrl, dbName },
     usersSource,
     refreshTokensSource,
-    memoSource,
+    memosSource,
+    devicesSource,
   },
   cache: {
     redis: { url: redisUrl, password: redisPassword },
@@ -101,9 +111,10 @@ const encryptionDriver = new BcryptDriver(loggerDriver);
 const userMapper = new UserMapper(loggerDriver);
 const refreshTokenMapper = new RefreshTokenMapper(loggerDriver);
 const memoMapper = new MemoMapper(loggerDriver);
+const deviceMapper = new DeviceMapper(loggerDriver);
 // REPOSITORIES
 const memoRepository = new MemoRepository(
-  memoSource,
+  memosSource,
   loggerDriver,
   <IDbDriver<IDbMemo>>dbDriver,
   cacheDriver,
@@ -124,6 +135,13 @@ const refreshTokenRepository = new RefreshTokenRepository(
   refreshTokenMapper,
   refreshTokenExpirationTime,
 );
+const deviceRepository = new DeviceRepository(
+  devicesSource,
+  loggerDriver,
+  <IDbDriver<IDbDevice>>dbDriver,
+  cacheDriver,
+  deviceMapper,
+);
 // USE CASES
 const registerCustomerUseCase = new RegisterCustomer(
   loggerDriver,
@@ -131,12 +149,29 @@ const registerCustomerUseCase = new RegisterCustomer(
   encryptionDriver,
   userRepository,
 );
+const findUserByEmail = new FindUserByEmail(loggerDriver, userRepository);
+const generateTokens = new GenerateTokens(
+  loggerDriver,
+  tokenDriver,
+  refreshTokenRepository,
+);
+const createDevice = new CreateDevice(
+  loggerDriver,
+  hashDriver,
+  deviceRepository,
+);
+const findDeviceById = new FindDeviceById(loggerDriver, deviceRepository);
+const validateDevice = new ValidateDevice(loggerDriver);
+const updateDevice = new UpdateDevice(loggerDriver, deviceRepository);
 const loginUseCase = new Login(
   loggerDriver,
   encryptionDriver,
-  tokenDriver,
-  userRepository,
-  refreshTokenRepository,
+  findUserByEmail,
+  generateTokens,
+  findDeviceById,
+  createDevice,
+  validateDevice,
+  updateDevice,
 );
 const refreshAccessTokenUseCase = new RefreshAccessToken(
   loggerDriver,
@@ -146,12 +181,15 @@ const refreshAccessTokenUseCase = new RefreshAccessToken(
 const deleteRefreshTokenUseCase = new DeleteRefreshToken(
   loggerDriver,
   refreshTokenRepository,
+  deviceRepository,
+  updateDevice,
 );
 const validateAuthenticationUseCase = new ValidateAuthentication(
   loggerDriver,
   tokenDriver,
   refreshTokenRepository,
   userRepository,
+  deviceRepository,
 );
 const validateAuthorizationUseCase = new ValidateAuthorization(loggerDriver);
 const createRootUseCase = new CreateRoot(

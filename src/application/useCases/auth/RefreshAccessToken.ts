@@ -32,7 +32,7 @@ export default class RefreshAccessToken implements IUseCase<Input, Output> {
       user: { userId },
       refreshToken: oldToken,
     } = input;
-    const { token } = oldToken;
+    const { token, deviceId } = oldToken;
     let userData;
 
     try {
@@ -59,6 +59,7 @@ export default class RefreshAccessToken implements IUseCase<Input, Output> {
     const refreshToken = this.tokenDriver.generateRefreshToken(userData);
     const refreshTokenEntity = RefreshToken.create({
       userId,
+      deviceId,
       token: refreshToken,
     });
 

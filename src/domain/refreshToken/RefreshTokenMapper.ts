@@ -9,9 +9,10 @@ export default class RefreshTokenMapper
   constructor(private logger: ILoggerDriver) {}
 
   entityToDb(refreshToken: RefreshToken): IDbRefreshToken {
-    const { userId, token } = refreshToken;
+    const { userId, deviceId, token } = refreshToken;
     const dbRefreshToken = {
       user_id: userId,
+      device_id: deviceId,
       token,
     };
 
@@ -26,9 +27,10 @@ export default class RefreshTokenMapper
   }
 
   dbToEntity(dbRefreshToken: IDbRefreshToken): RefreshToken | Error {
-    const { user_id, token } = dbRefreshToken;
+    const { user_id, device_id, token } = dbRefreshToken;
     const refreshToken = RefreshToken.create({
       userId: user_id,
+      deviceId: device_id,
       token,
     });
 

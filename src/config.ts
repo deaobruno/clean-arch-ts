@@ -26,7 +26,8 @@ export default {
     },
     usersSource: process.env.USERS_SOURCE_NAME ?? '',
     refreshTokensSource: process.env.REFRESH_TOKENS_SOURCE_NAME ?? '',
-    memoSource: process.env.MEMO_SOURCE_NAME ?? '',
+    memosSource: process.env.MEMOS_SOURCE_NAME ?? '',
+    devicesSource: process.env.DEVICES_SOURCE_NAME ?? '',
   },
   cache: {
     redis: {

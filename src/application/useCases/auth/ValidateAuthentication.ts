@@ -8,17 +8,18 @@ import IUserRepository from '../../../domain/user/IUserRepository';
 import RefreshToken from '../../../domain/refreshToken/RefreshToken';
 import ForbiddenError from '../../errors/ForbiddenError';
 import ILoggerDriver from '../../../infra/drivers/logger/ILoggerDriver';
+import IDeviceRepository from '../../../domain/device/IDeviceRepository';
 
 type Input = {
   authorization?: string;
 };
 
-type Output =
-  | {
-      user: User;
-      refreshToken: RefreshToken;
-    }
-  | BaseError;
+type Response = {
+  user: User;
+  refreshToken: RefreshToken;
+};
+
+type Output = Response | BaseError;
 
 export default class ValidateAuthentication implements IUseCase<Input, Output> {
   constructor(
@@ -26,6 +27,7 @@ export default class ValidateAuthentication implements IUseCase<Input, Output> {
     private tokenDriver: ITokenDriver,
     private refreshTokenRepository: IRefreshTokenRepository,
     private userRepository: IUserRepository,
+    private deviceRepository: IDeviceRepository,
   ) {}
 
   async exec(input: Input): Promise<Output> {
@@ -86,22 +88,7 @@ export default class ValidateAuthentication implements IUseCase<Input, Output> {
       return new ForbiddenError(message);
     }
 
-    const { id: userId } = userData;
-    const refreshToken =
-      await this.refreshTokenRepository.findOneByUserId(userId);
-
-    if (!refreshToken) {
-      const message = '[ValidateAuthentication] Refresh token not found';
-
-      this.loggerDriver.debug({
-        message,
-        input,
-        userId,
-      });
-
-      return new UnauthorizedError(message);
-    }
-
+    const { id: userId, deviceId } = userData;
     const user = await this.userRepository.findOneById(userId);
 
     if (!user) {
@@ -116,18 +103,37 @@ export default class ValidateAuthentication implements IUseCase<Input, Output> {
       return new ForbiddenError(message);
     }
 
-    if (userId !== refreshToken.userId) {
-      const message =
-        '[ValidateAuthentication] Refresh token does not belong to user';
+    const device = await this.deviceRepository.findOneById(deviceId);
+
+    if (!device) {
+      const message = `[ValidateAuthentication] Device not found: ${deviceId}`;
 
       this.loggerDriver.debug({
         message,
         input,
         userId,
-        refreshToken,
+        deviceId,
       });
 
       return new ForbiddenError(message);
+    }
+
+    const refreshToken =
+      await this.refreshTokenRepository.findOneByUserIdAndDeviceId(
+        userId,
+        deviceId,
+      );
+
+    if (!refreshToken) {
+      const message = '[ValidateAuthentication] Refresh token not found';
+
+      this.loggerDriver.debug({
+        message,
+        input,
+        userId,
+      });
+
+      return new UnauthorizedError(message);
     }
 
     this.loggerDriver.debug({

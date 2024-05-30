@@ -1,5 +1,6 @@
 type IRefreshTokenData = {
   userId: string;
+  deviceId: string;
   token: string;
 };
 

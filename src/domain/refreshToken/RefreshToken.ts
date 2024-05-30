@@ -2,27 +2,34 @@ import IRefreshTokenData from './IRefreshTokenData';
 
 export default class RefreshToken {
   readonly userId: string;
+  readonly deviceId: string;
   readonly token: string;
 
-  private constructor(params: IRefreshTokenData) {
-    const { userId, token } = params;
+  private constructor(data: IRefreshTokenData) {
+    const { userId, deviceId, token } = data;
 
     this.userId = userId;
+    this.deviceId = deviceId;
     this.token = token;
   }
 
-  static create(params: IRefreshTokenData): RefreshToken | Error {
-    const { userId, token } = params;
+  static create(data: IRefreshTokenData): RefreshToken | Error {
+    const { userId, deviceId, token } = data;
     const uuidRegex =
       /^[0-9a-f]{8}\b-[0-9a-f]{4}\b-[0-9a-f]{4}\b-[0-9a-f]{4}\b-[0-9a-f]{12}$/i;
 
-    if (!userId) return new Error('[RefreshToken] "userId" required');
+    if (!userId) return Error('[RefreshToken] "userId" required');
 
     if (!uuidRegex.test(userId))
-      return new Error('[RefreshToken] Invalid "userId"');
+      return Error('[RefreshToken] Invalid "userId"');
 
-    if (!token) return new Error('[RefreshToken] "token" required');
+    if (!deviceId) return Error('[RefreshToken] "deviceId" required');
 
-    return new RefreshToken(params);
+    if (!uuidRegex.test(deviceId))
+      return Error('[RefreshToken] Invalid "deviceId"');
+
+    if (!token) return Error('[RefreshToken] "token" required');
+
+    return new RefreshToken(data);
   }
 }
