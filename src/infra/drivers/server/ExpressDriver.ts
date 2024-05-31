@@ -105,27 +105,26 @@ export default class ExpressDriver implements IServerDriver {
   };
 
   start(httpPort: string | number): void {
-    this.httpServer = this.app.listen(httpPort, () => {
-      const serverAddress = this.httpServer?.address();
-      let address = 'localhost';
+    this.httpServer = this.app
+      .listen(httpPort, () => {
+        const serverAddress = this.httpServer?.address();
+        let address = 'localhost';
 
-      if (
-        serverAddress &&
-        typeof serverAddress === 'object' &&
-        serverAddress.address !== '::'
-      )
-        address = serverAddress.address;
-
-      this.loggerDriver.info(
-        `[ExpressDriver] HTTP Server started: http://${address}:${httpPort}.`,
-      );
-
-      this.httpServer
-        ?.on('close', () =>
-          this.loggerDriver.fatal('[ExpressDriver] HTTP Server stopped'),
+        if (
+          serverAddress &&
+          typeof serverAddress === 'object' &&
+          serverAddress.address !== '::'
         )
-        .on('error', (error) => this.loggerDriver.fatal(error));
-    });
+          address = serverAddress.address;
+
+        this.loggerDriver.info(
+          `[ExpressDriver] HTTP Server started: http://${address}:${httpPort}.`,
+        );
+      })
+      .on('close', () =>
+        this.loggerDriver.fatal('[ExpressDriver] HTTP Server stopped'),
+      )
+      .on('error', (error) => this.loggerDriver.fatal(error));
   }
 
   stop(callback?: (error?: Error) => void): void {
@@ -143,21 +142,19 @@ export default class ExpressDriver implements IServerDriver {
         if (result instanceof Error) return next(result);
 
         res.on('finish', () => {
-          if (statusCode >= 200 && statusCode < 300) {
-            const info = {
-              method: req.method.toLowerCase(),
-              path: req.url,
-              statusCode,
-              requestId: req.headers['request-id'],
-              duration: `${Date.now() - new Date(<string>req.headers.start).getTime()}ms`,
-              headers: req.headers,
-              payload,
-            };
+          const info = {
+            method: req.method.toLowerCase(),
+            path: req.url,
+            statusCode,
+            requestId: req.headers['request-id'],
+            duration: `${Date.now() - new Date(<string>req.headers.start).getTime()}ms`,
+            headers: req.headers,
+            payload,
+          };
 
-            if (req.body.user) info['userId'] = req.body.user.userId;
+          if (req.body.user) info['userId'] = req.body.user.userId;
 
-            this.loggerDriver.info(info);
-          }
+          this.loggerDriver.info(info);
         });
 
         res.status(statusCode).send(result);

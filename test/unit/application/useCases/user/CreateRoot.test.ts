@@ -18,7 +18,7 @@ const fakeUser = <User>User.create({
   password,
   role: UserRole.ROOT,
 });
-const userParams = {
+const userData = {
   email,
   password,
   confirm_password: password,
@@ -46,7 +46,7 @@ describe('/application/useCases/user/CreateRoot.ts', () => {
     userRepository.create.resolves();
     sandbox.stub(User, 'create').returns(fakeUser);
 
-    const result = await createRoot.exec(userParams);
+    const result = await createRoot.exec(userData);
 
     expect(result).equal(undefined);
   });
@@ -65,7 +65,24 @@ describe('/application/useCases/user/CreateRoot.ts', () => {
 
     userRepository.findOneByEmail.resolves(fakeUser);
 
-    const result = await createRoot.exec(userParams);
+    const result = await createRoot.exec(userData);
+
+    expect(result).equal(undefined);
+  });
+
+  it('should return void when User entity returns error', async () => {
+    const loggerDriver = sandbox.createStubInstance(PinoDriver);
+    const cryptoDriver = sandbox.createStubInstance(CryptoDriver);
+    const encryptionDriver = sandbox.createStubInstance(BcryptDriver);
+    const userRepository = sandbox.createStubInstance(UserRepository);
+    const createRoot = new CreateRoot(
+      loggerDriver,
+      cryptoDriver,
+      encryptionDriver,
+      userRepository,
+    );
+
+    const result = await createRoot.exec({ ...userData, email: '' });
 
     expect(result).equal(undefined);
   });

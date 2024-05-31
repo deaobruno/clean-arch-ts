@@ -10,6 +10,7 @@ import UserRepository from '../../../../../src/adapters/repositories/UserReposit
 import RefreshTokenRepository from '../../../../../src/adapters/repositories/RefreshTokenRepository';
 import BcryptDriver from '../../../../../src/infra/drivers/encryption/BcryptDriver';
 import PinoDriver from '../../../../../src/infra/drivers/logger/PinoDriver';
+import InternalServerError from '../../../../../src/application/errors/InternalServerError';
 
 const sandbox = sinon.createSandbox();
 const userId = faker.string.uuid();
@@ -153,5 +154,41 @@ describe('/application/useCases/user/UpdateUserPassword.ts', () => {
     expect(error).deep.equal(
       new NotFoundError(`[UpdateUserPassword] User not found: ${userId}`),
     );
+  });
+
+  it('should return an InternalServerError when User entity returns error', async () => {
+    const loggerDriver = sandbox.createStubInstance(PinoDriver);
+    const bcryptDriver = sandbox.createStubInstance(BcryptDriver);
+    const userRepository = sandbox.createStubInstance(UserRepository);
+    const refreshTokenRepository = sandbox.createStubInstance(
+      RefreshTokenRepository,
+    );
+    const updateUserPassword = new UpdateUserPassword(
+      loggerDriver,
+      bcryptDriver,
+      userRepository,
+      refreshTokenRepository,
+    );
+
+    bcryptDriver.encrypt.resolves('hash');
+    userRepository.findOneById.resolves(<any>{ ...fakeUser, userId: '' });
+
+    const newPassword = faker.internet.password();
+
+    fakeUser.password = await bcryptDriver.encrypt(newPassword);
+
+    userRepository.update.resolves();
+    refreshTokenRepository.deleteAllByUser.resolves();
+
+    const updateData = {
+      user_id: userId,
+      password: faker.internet.password(),
+    };
+
+    const user = <User>(
+      await updateUserPassword.exec({ user: fakeUser, ...updateData })
+    );
+
+    expect(user).deep.equal(new InternalServerError('[User] "userId" required'));
   });
 });

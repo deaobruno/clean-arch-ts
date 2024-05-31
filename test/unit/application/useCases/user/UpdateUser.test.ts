@@ -10,6 +10,7 @@ import UserRepository from '../../../../../src/adapters/repositories/UserReposit
 import RefreshTokenRepository from '../../../../../src/adapters/repositories/RefreshTokenRepository';
 import ConflictError from '../../../../../src/application/errors/ConflictError';
 import PinoDriver from '../../../../../src/infra/drivers/logger/PinoDriver';
+import InternalServerError from '../../../../../src/application/errors/InternalServerError';
 
 const sandbox = sinon.createSandbox();
 const userId = faker.string.uuid();
@@ -246,5 +247,36 @@ describe('/application/useCases/user/UpdateUser.ts', () => {
     expect(error).deep.equal(
       new ConflictError(`[UpdateUser] Email already in use: ${newEmail}`),
     );
+  });
+
+  it('should return an InternalServerError when User entity returns error', async () => {
+    const loggerDriver = sandbox.createStubInstance(PinoDriver);
+    const userRepository = sandbox.createStubInstance(UserRepository);
+    const refreshTokenRepository = sandbox.createStubInstance(
+      RefreshTokenRepository,
+    );
+    const updateUser = new UpdateUser(
+      loggerDriver,
+      userRepository,
+      refreshTokenRepository,
+    );
+
+    userRepository.findOneById.resolves(<any>{ ...fakeUser, userId: '' });
+    userRepository.update.resolves();
+    refreshTokenRepository.deleteAllByUser.resolves();
+
+    const newEmail = faker.internet.email();
+
+    fakeUser.email = newEmail;
+
+    userRepository.update.resolves();
+
+    const updateData = {
+      user_id: userId,
+      email: newEmail,
+    };
+    const user = <User>await updateUser.exec({ user: fakeUser, ...updateData });
+
+    expect(user).deep.equal(new InternalServerError('[User] "userId" required'));
   });
 });

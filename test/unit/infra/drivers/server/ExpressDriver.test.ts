@@ -58,8 +58,8 @@ describe('/infra/drivers/server/ExpressDriver.ts', () => {
   afterEach(() => sandbox.restore());
 
   it('should register a get route', () => {
-    const logger = sinon.createStubInstance(PinoDriver);
-    const hashDriver = sinon.createStubInstance(CryptoDriver);
+    const logger = sandbox.createStubInstance(PinoDriver);
+    const hashDriver = sandbox.createStubInstance(CryptoDriver);
     const server = new ExpressDriver(logger, hashDriver, cors);
     const { get } = server;
     const getController = new GetController({ logger, useCase });
@@ -69,8 +69,8 @@ describe('/infra/drivers/server/ExpressDriver.ts', () => {
   });
 
   it('should register a post route', () => {
-    const logger = sinon.createStubInstance(PinoDriver);
-    const hashDriver = sinon.createStubInstance(CryptoDriver);
+    const logger = sandbox.createStubInstance(PinoDriver);
+    const hashDriver = sandbox.createStubInstance(CryptoDriver);
     const server = new ExpressDriver(logger, hashDriver, cors);
     const { post } = server;
     const postController = new PostController({ logger, useCase });
@@ -80,8 +80,8 @@ describe('/infra/drivers/server/ExpressDriver.ts', () => {
   });
 
   it('should register a put route', () => {
-    const logger = sinon.createStubInstance(PinoDriver);
-    const hashDriver = sinon.createStubInstance(CryptoDriver);
+    const logger = sandbox.createStubInstance(PinoDriver);
+    const hashDriver = sandbox.createStubInstance(CryptoDriver);
     const server = new ExpressDriver(logger, hashDriver, cors);
     const { put } = server;
     const putController = new PutController({ logger, useCase });
@@ -91,8 +91,8 @@ describe('/infra/drivers/server/ExpressDriver.ts', () => {
   });
 
   it('should register a delete route', () => {
-    const logger = sinon.createStubInstance(PinoDriver);
-    const hashDriver = sinon.createStubInstance(CryptoDriver);
+    const logger = sandbox.createStubInstance(PinoDriver);
+    const hashDriver = sandbox.createStubInstance(CryptoDriver);
     const server = new ExpressDriver(logger, hashDriver, cors);
     const { delete: del } = server;
     const deleteController = new DeleteController({ logger, useCase });
@@ -101,13 +101,13 @@ describe('/infra/drivers/server/ExpressDriver.ts', () => {
     expect(result).equal(undefined);
   });
 
-  it('should start the server passing an array of Routes', () => {
-    const logger = sinon.createStubInstance(PinoDriver);
-    const hashDriver = sinon.createStubInstance(CryptoDriver);
+  it('should start the server', () => {
+    const logger = sandbox.createStubInstance(PinoDriver);
+    const hashDriver = sandbox.createStubInstance(CryptoDriver);
     const server = new ExpressDriver(logger, hashDriver, cors);
 
     sandbox.stub(Server.prototype, 'address').returns({
-      address: '0.0.0.0',
+      address: '::',
       family: 'family',
       port,
     });
@@ -116,12 +116,12 @@ describe('/infra/drivers/server/ExpressDriver.ts', () => {
 
     expect(result).equal(undefined);
 
-    server.stop();
+    setTimeout(() => server.stop());
   });
 
   it('should stop the server', () => {
-    const logger = sinon.createStubInstance(PinoDriver);
-    const hashDriver = sinon.createStubInstance(CryptoDriver);
+    const logger = sandbox.createStubInstance(PinoDriver);
+    const hashDriver = sandbox.createStubInstance(CryptoDriver);
     const server = new ExpressDriver(logger, hashDriver, cors);
 
     sandbox.stub(Server.prototype, 'address').returns({
@@ -135,6 +135,43 @@ describe('/infra/drivers/server/ExpressDriver.ts', () => {
     const result = server.stop();
 
     expect(result).equal(undefined);
+  });
+
+  it('should log server error', () => {
+    const logger = sandbox.createStubInstance(PinoDriver);
+    const hashDriver = sandbox.createStubInstance(CryptoDriver);
+    const server = new ExpressDriver(logger, hashDriver, cors);
+    const error = new Error('test')
+
+    sandbox.stub(Server.prototype, 'address').returns({
+      address: '0.0.0.0',
+      family: 'family',
+      port,
+    });
+
+    const serverClose = Server.prototype.close
+
+    Server.prototype.close = (callback?: (error?: Error) => void): Server => {
+      const any: any = {}
+
+      server.httpServer?.emit('error', error)
+
+      return any
+    }
+
+    server.start(port);
+
+    try {
+      server.stop();
+    } finally {
+      expect(logger.fatal.calledOnceWith(error)).equal(
+        true,
+      );
+
+      Server.prototype.close = serverClose
+
+      server.stop()
+    }
   });
 
   describe('Endpoints', () => {
@@ -175,7 +212,7 @@ describe('/infra/drivers/server/ExpressDriver.ts', () => {
 
       server.post('/post', postController);
 
-      const payload = { test: 'ok' };
+      const payload = { test: 'ok', user: { userId: faker.string.uuid() } };
       const result = await axios.post('http://localhost:8080/post', payload);
 
       expect(result.status).equal(201);

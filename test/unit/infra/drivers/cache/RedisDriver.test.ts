@@ -37,7 +37,7 @@ describe('/src/infra/drivers/cache/RedisDriver.ts', () => {
     const result = await redisDriver.connect();
 
     expect(result).equal(undefined);
-    expect(logger.info.calledWith('[RedisDriver] Client connected')).equal(
+    expect(logger.info.calledOnceWith('[RedisDriver] Client connected')).equal(
       true,
     );
   });
@@ -51,7 +51,7 @@ describe('/src/infra/drivers/cache/RedisDriver.ts', () => {
     const result = await redisDriver.disconnect();
 
     expect(result).equal(undefined);
-    expect(logger.error.calledWith('[RedisDriver] Client disconnected')).equal(
+    expect(logger.error.calledOnceWith('[RedisDriver] Client disconnected')).equal(
       true,
     );
   });
