@@ -10,6 +10,7 @@ import JwtDriver from '../../../../../src/infra/drivers/token/JwtDriver';
 import RefreshToken from '../../../../../src/domain/refreshToken/RefreshToken';
 import User from '../../../../../src/domain/user/User';
 import PinoDriver from '../../../../../src/infra/drivers/logger/PinoDriver';
+import InternalServerError from '../../../../../src/application/errors/InternalServerError';
 
 const sandbox = sinon.createSandbox();
 const userId = faker.string.uuid();
@@ -120,5 +121,32 @@ describe('/application/useCases/auth/RefreshAccessToken.ts', () => {
       `[RefreshAccessToken] Invalid refresh token: ${refreshToken.token}`,
     );
     expect(error.statusCode).equal(403);
+  });
+
+  it('should return an InternalServerError when RefreshToken entity returns error', async () => {
+    const refreshToken = <RefreshToken>RefreshToken.create({
+      userId,
+      token: '',
+    });
+    const loggerDriver = sandbox.createStubInstance(PinoDriver);
+    const tokenDriver = sandbox.createStubInstance(JwtDriver);
+    const refreshTokenRepository = sandbox.createStubInstance(
+      RefreshTokenRepository,
+    );
+    const refreshAccessToken = new RefreshAccessToken(
+      loggerDriver,
+      tokenDriver,
+      refreshTokenRepository,
+    );
+
+    tokenDriver.validateRefreshToken.returns({ id: userId });
+
+    const error = <BaseError>(
+      await refreshAccessToken.exec({ user, refreshToken })
+    );
+
+    expect(error instanceof InternalServerError).equal(true);
+    expect(error.message).equal('[RefreshToken] "token" required');
+    expect(error.statusCode).equal(500);
   });
 });

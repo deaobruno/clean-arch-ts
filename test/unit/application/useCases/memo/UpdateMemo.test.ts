@@ -9,6 +9,7 @@ import BaseError from '../../../../../src/application/errors/BaseError';
 import MemoRepository from '../../../../../src/adapters/repositories/MemoRepository';
 import Memo from '../../../../../src/domain/memo/Memo';
 import PinoDriver from '../../../../../src/infra/drivers/logger/PinoDriver';
+import InternalServerError from '../../../../../src/application/errors/InternalServerError';
 
 const sandbox = sinon.createSandbox();
 const memoId = faker.string.uuid();
@@ -109,5 +110,21 @@ describe('/application/useCases/memo/UpdateMemo.ts', () => {
     expect(result).deep.equal(
       new NotFoundError(`[UpdateMemo] Memo not found: ${memoId}`),
     );
+  });
+
+  it('should return an InternalServerError when Memo entity returns error', async () => {
+    const loggerDriver = sandbox.createStubInstance(PinoDriver);
+    const memoRepository = sandbox.createStubInstance(MemoRepository);
+    const updateMemo = new UpdateMemo(loggerDriver, memoRepository);
+
+    memoRepository.findOneById.resolves({ ...fakeMemo, memoId: '' });
+    memoRepository.update.resolves();
+
+    const memo = <Memo>await updateMemo.exec({
+      user,
+      memo_id: memoId,
+    });
+
+    expect(memo).deep.equal(new InternalServerError('[Memo] "memoId" required'));
   });
 });

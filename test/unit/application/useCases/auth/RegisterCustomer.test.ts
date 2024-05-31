@@ -10,6 +10,7 @@ import ConflictError from '../../../../../src/application/errors/ConflictError';
 import BaseError from '../../../../../src/application/errors/BaseError';
 import UserRepository from '../../../../../src/adapters/repositories/UserRepository';
 import PinoDriver from '../../../../../src/infra/drivers/logger/PinoDriver';
+import InternalServerError from '../../../../../src/application/errors/InternalServerError';
 
 const sandbox = sinon.createSandbox();
 const email = faker.internet.email();
@@ -20,7 +21,7 @@ const fakeUser = <User>User.create({
   password,
   role: UserRole.CUSTOMER,
 });
-const userParams = {
+const userData = {
   email,
   password,
   confirm_password: password,
@@ -48,11 +49,11 @@ describe('/application/useCases/auth/RegisterCustomer.ts', () => {
     userRepository.create.resolves();
     sandbox.stub(User, 'create').returns(fakeUser);
 
-    const user = <User>await registerCustomer.exec(userParams);
+    const user = <User>await registerCustomer.exec(userData);
 
     expect(user.userId).equal(fakeUser.userId);
-    expect(user.email).equal(userParams.email);
-    expect(user.password).equal(userParams.password);
+    expect(user.email).equal(userData.email);
+    expect(user.password).equal(userData.password);
     expect(user.role).equal(UserRole.CUSTOMER);
     expect(user.isCustomer).equal(true);
     expect(user.isRoot).equal(false);
@@ -72,10 +73,29 @@ describe('/application/useCases/auth/RegisterCustomer.ts', () => {
 
     userRepository.findOneByEmail.resolves(fakeUser);
 
-    const error = <BaseError>await registerCustomer.exec(userParams);
+    const error = <BaseError>await registerCustomer.exec(userData);
 
     expect(error).deep.equal(
       new ConflictError(`[RegisterCustomer] Email already in use: ${email}`),
+    );
+  });
+
+  it('should return an InternalServerError when User entity returns error', async () => {
+    const loggerDriver = sandbox.createStubInstance(PinoDriver);
+    const cryptoDriver = sandbox.createStubInstance(CryptoDriver);
+    const encryptionDriver = sandbox.createStubInstance(BcryptDriver);
+    const userRepository = sandbox.createStubInstance(UserRepository);
+    const registerCustomer = new RegisterCustomer(
+      loggerDriver,
+      cryptoDriver,
+      encryptionDriver,
+      userRepository,
+    );
+
+    const error = <BaseError>await registerCustomer.exec({ ...userData, email: '' });
+
+    expect(error).deep.equal(
+      new InternalServerError('[User] "userId" required'),
     );
   });
 });
