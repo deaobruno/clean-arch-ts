@@ -101,7 +101,25 @@ describe('/infra/drivers/server/ExpressDriver.ts', () => {
     expect(result).equal(undefined);
   });
 
-  it('should start the server', () => {
+  it('should start the server with default cors options and port', () => {
+    const logger = sandbox.createStubInstance(PinoDriver);
+    const hashDriver = sandbox.createStubInstance(CryptoDriver);
+    const server = new ExpressDriver(logger, hashDriver);
+
+    sandbox.stub(Server.prototype, 'address').returns({
+      address: '0.0.0.0',
+      family: 'family',
+      port,
+    });
+
+    const result = server.start();
+
+    expect(result).equal(undefined);
+
+    setTimeout(() => server.stop());
+  });
+
+  it('should start the server with custom cors options and port', () => {
     const logger = sandbox.createStubInstance(PinoDriver);
     const hashDriver = sandbox.createStubInstance(CryptoDriver);
     const server = new ExpressDriver(logger, hashDriver, cors);
@@ -141,7 +159,7 @@ describe('/infra/drivers/server/ExpressDriver.ts', () => {
     const logger = sandbox.createStubInstance(PinoDriver);
     const hashDriver = sandbox.createStubInstance(CryptoDriver);
     const server = new ExpressDriver(logger, hashDriver, cors);
-    const error = new Error('test')
+    const error = new Error('test');
 
     sandbox.stub(Server.prototype, 'address').returns({
       address: '0.0.0.0',
@@ -149,14 +167,14 @@ describe('/infra/drivers/server/ExpressDriver.ts', () => {
       port,
     });
 
-    const serverClose = Server.prototype.close
+    const serverClose = Server.prototype.close;
 
     Server.prototype.close = (callback?: (error?: Error) => void): Server => {
       const any: any = {}
 
-      server.httpServer?.emit('error', error)
+      server.httpServer?.emit('error', error);
 
-      return any
+      return any;
     }
 
     server.start(port);
