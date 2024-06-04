@@ -24,6 +24,8 @@ const data = {
 const logger = sinon.createStubInstance(PinoDriver);
 
 describe('/src/infra/drivers/db/MongoDbDriver.ts', () => {
+  MongoDbDriver['instance'] = <any>undefined;
+
   let instance: IDbDriver<unknown>;
 
   afterEach(() => sandbox.restore());
@@ -74,37 +76,49 @@ describe('/src/infra/drivers/db/MongoDbDriver.ts', () => {
     expect(dbDriver).deep.equal(instance);
   });
 
-  it.skip('should log a message after starting client connection', async () => {
+  it('should log a message after starting client connection', async () => {
     const dbDriver = MongoDbDriver.getInstance(dbUrl, dbName, logger);
-    const loggerInfoStub = sandbox.stub(PinoDriver.prototype, 'info');
 
     await dbDriver.connect();
 
     expect(
-      loggerInfoStub.calledOnceWith('[MongoDbDriver] Client connected'),
+      logger.info.calledOnceWith('[MongoDbDriver] Client connected'),
     ).equal(true);
   });
 
   it.skip('should log a message after client throws an error', async () => {
     const dbDriver = MongoDbDriver.getInstance(dbUrl, dbName, logger);
+    const error = new Error('test');
+
+    const clientClose = MongoClient.prototype.close;
+
+    MongoClient.prototype.close = async (force?: boolean): Promise<void> => {
+      MongoClient.prototype.emit('error', error);
+    }
 
     await dbDriver.connect();
-    await dbDriver.createIndex('collectionName', 'id', 0);
 
-    expect(logger.error.calledOnceWith('[RedisDriver] Client connected')).equal(
-      true,
-    );
+    try {
+      await dbDriver.disconnect();
+    } catch(e) {
+      console.log(e)
+    } finally {
+      expect(logger.error.calledOnceWith(`[MongoDbDriver] Error: ${error}`)).equal(
+        true,
+      );
+  
+      MongoClient.prototype.close = clientClose
+    }
   });
 
-  it.skip('should log a message after ending client connection', async () => {
+  it('should log a message after ending client connection', async () => {
     const dbDriver = MongoDbDriver.getInstance(dbUrl, dbName, logger);
-    const loggerInfoStub = sandbox.stub(PinoDriver.prototype, 'info');
 
     await dbDriver.connect();
     await dbDriver.disconnect();
 
     expect(
-      loggerInfoStub.calledOnceWith('[MongoDbDriver] Client disconnected'),
+      logger.fatal.calledOnceWith('[MongoDbDriver] Client disconnected'),
     ).equal(true);
   });
 

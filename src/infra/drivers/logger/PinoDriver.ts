@@ -5,7 +5,7 @@ import EventEmitter from 'events';
 export default class PinoDriver extends EventEmitter implements ILoggerDriver {
   private logger: Logger;
 
-  constructor(level: string) {
+  constructor(level = 'debug') {
     super();
 
     this.logger = pino({

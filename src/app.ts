@@ -7,7 +7,7 @@ import dependencies from './dependencies';
 
 const {
   db: { usersSource, memosSource },
-  app: { environment, rootUserEmail, rootUserPassword },
+  app: { environment = 'production', rootUserEmail, rootUserPassword },
   server: { httpPort },
 } = config;
 const {
