@@ -85,7 +85,25 @@ export default class MongoDbDriver implements IDbDriver<unknown> {
   }
 
   async createIndex(source: string, column: string, order = 1): Promise<void> {
-    await MongoDbDriver.getCollection(source).createIndex({ [column]: order });
+    const collection = MongoDbDriver.getCollection(source);
+    const newIndex = { [column]: order };
+    const indexes = await collection.listIndexes().toArray();
+    const exists = indexes.filter(
+      (index) => JSON.stringify(index.key) === JSON.stringify(newIndex),
+    )[0];
+
+    if (exists) {
+      this.logger.debug({
+        message: '[MongoDbDriver] Index already exists',
+        source,
+        column,
+        order,
+      });
+
+      return;
+    }
+
+    await collection.createIndex(newIndex);
 
     this.logger.debug({
       message: '[MongoDbDriver] Index created',

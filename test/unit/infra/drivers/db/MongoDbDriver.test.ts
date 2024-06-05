@@ -9,6 +9,7 @@ import {
   Collection,
   Db,
   FindCursor,
+  ListIndexesCursor,
   MongoClient,
 } from 'mongodb';
 
@@ -223,10 +224,11 @@ describe('/src/infra/drivers/db/MongoDbDriver.ts', () => {
   });
 
   describe('I/O methods', () => {
-    it('should create an index in given collection', async () => {
+    it('should not create an index when it already exists in given collection', async () => {
       const mongoDbClient = sandbox.createStubInstance(MongoClient);
       const mongoDb = sandbox.createStubInstance(Db);
       const mongoDbSession = sandbox.createStubInstance(ClientSession);
+      const cursor = sandbox.createStubInstance(ListIndexesCursor);
       const mongoDbCollection = sandbox.createStubInstance(Collection);
 
       mongoDbClient.db.returns(mongoDb);
@@ -239,6 +241,41 @@ describe('/src/infra/drivers/db/MongoDbDriver.ts', () => {
       mongoDbSession.transaction = <any>sinon.stub();
       mongoDbSession.commitTransaction.resolves();
       mongoDbClient.startSession.returns(mongoDbSession);
+      cursor.toArray.resolves([{ key: { id: 1 } }]);
+      mongoDbCollection.listIndexes.returns(cursor);
+      mongoDb.collection.returns(mongoDbCollection);
+
+      await instance.connect(mongoDbClient);
+
+      const result = await instance.createIndex(collectionName, 'id');
+
+      await instance.disconnect();
+
+      expect(result).equal(undefined);
+      expect(mongoDbCollection.createIndex.notCalled).equal(
+        true,
+      );
+    });
+
+    it('should create an index in given collection', async () => {
+      const mongoDbClient = sandbox.createStubInstance(MongoClient);
+      const mongoDb = sandbox.createStubInstance(Db);
+      const mongoDbSession = sandbox.createStubInstance(ClientSession);
+      const cursor = sandbox.createStubInstance(ListIndexesCursor);
+      const mongoDbCollection = sandbox.createStubInstance(Collection);
+
+      mongoDbClient.db.returns(mongoDb);
+      mongoDbClient.on.returns(mongoDbClient);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      mongoDbSession.withTransaction = <any>(
+        ClientSession.prototype.withTransaction
+      );
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      mongoDbSession.transaction = <any>sinon.stub();
+      mongoDbSession.commitTransaction.resolves();
+      mongoDbClient.startSession.returns(mongoDbSession);
+      cursor.toArray.resolves([]);
+      mongoDbCollection.listIndexes.returns(cursor);
       mongoDb.collection.returns(mongoDbCollection);
 
       await instance.connect(mongoDbClient);
