@@ -12,6 +12,7 @@ import {
   FindCursor,
   MongoClient,
 } from 'mongodb';
+import ILoggerDriver from '../../../../../src/infra/drivers/logger/ILoggerDriver';
 
 const sandbox = sinon.createSandbox();
 const { dbUrl } = config.db.mongo;
@@ -21,7 +22,16 @@ const data = {
   id: faker.string.uuid(),
   test: 'ok',
 };
-const logger = sinon.createStubInstance(PinoDriver);
+// const logger = sinon.createStubInstance(PinoDriver);
+const logger = {
+  obfuscate: sinon.stub(),
+  obfuscateData: sinon.stub(),
+  debug: sinon.stub(),
+  info: sinon.stub(),
+  warn: sinon.stub(),
+  error: sinon.stub(),
+  fatal: sinon.stub(),
+}
 
 describe('/src/infra/drivers/db/MongoDbDriver.ts', () => {
   MongoDbDriver['instance'] = <any>undefined;
