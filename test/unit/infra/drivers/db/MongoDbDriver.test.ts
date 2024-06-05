@@ -4,7 +4,6 @@ import { expect } from 'chai';
 import config from '../../../../../src/config';
 import MongoDbDriver from '../../../../../src/infra/drivers/db/MongoDbDriver';
 import IDbDriver from '../../../../../src/infra/drivers/db/IDbDriver';
-import PinoDriver from '../../../../../src/infra/drivers/logger/PinoDriver';
 import {
   ClientSession,
   Collection,
@@ -12,7 +11,6 @@ import {
   FindCursor,
   MongoClient,
 } from 'mongodb';
-import ILoggerDriver from '../../../../../src/infra/drivers/logger/ILoggerDriver';
 
 const sandbox = sinon.createSandbox();
 const { dbUrl } = config.db.mongo;
@@ -22,7 +20,6 @@ const data = {
   id: faker.string.uuid(),
   test: 'ok',
 };
-// const logger = sinon.createStubInstance(PinoDriver);
 const logger = {
   obfuscate: sinon.stub(),
   obfuscateData: sinon.stub(),

@@ -1,14 +1,11 @@
-import pino, { Logger } from 'pino';
+import pino from 'pino';
 import ILoggerDriver from './ILoggerDriver';
 import EventEmitter from 'events';
 
 export default class PinoDriver extends EventEmitter implements ILoggerDriver {
-  private logger: Logger;
-
-  constructor(level = 'debug') {
-    super();
-
-    this.logger = pino({
+  constructor(
+    level = 'debug',
+    private logger = pino({
       level,
       transport: {
         targets: [
@@ -21,7 +18,9 @@ export default class PinoDriver extends EventEmitter implements ILoggerDriver {
           },
         ],
       },
-    });
+    }),
+  ) {
+    super();
 
     this.on('debug', (data) => this.logger.debug(data));
     this.on('info', (data) => this.logger.info(data));
