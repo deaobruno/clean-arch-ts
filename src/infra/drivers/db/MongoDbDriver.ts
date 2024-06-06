@@ -80,7 +80,7 @@ export default class MongoDbDriver implements IDbDriver<unknown> {
     try {
       return session.withTransaction(async () => await operation());
     } finally {
-      if (session) await session.endSession();
+      await session.endSession();
     }
   }
 
@@ -166,8 +166,8 @@ export default class MongoDbDriver implements IDbDriver<unknown> {
     source: string,
     filters: Filter<Document>,
     options?: FindOptions,
-  ): Promise<Document | null> {
-    return <Document | null>await this.transact(async () => {
+  ): Promise<Document | undefined> {
+    return <Document | undefined>await this.transact(async () => {
       const document = await MongoDbDriver.getCollection(source).findOne(
         filters,
         options,
