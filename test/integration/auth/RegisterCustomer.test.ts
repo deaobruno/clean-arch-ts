@@ -3,15 +3,21 @@ import axios from 'axios';
 import { faker } from '@faker-js/faker';
 import { expect } from 'chai';
 import MongoDbDriver from '../../../src/infra/drivers/db/MongoDbDriver';
-import server from '../../../src/infra/http/v1/server';
+import ExpressDriver from '../../../src/infra/drivers/server/ExpressDriver';
 import CryptoDriver from '../../../src/infra/drivers/hash/CryptoDriver';
 import UserRole from '../../../src/domain/user/UserRole';
 import PinoDriver from '../../../src/infra/drivers/logger/PinoDriver';
+import dependencies from '../../../src/dependencies';
+import routes from '../../../src/routes/routes';
+import config from '../../../src/config';
 
 const sandbox = sinon.createSandbox();
 const loggerDriver = sinon.createStubInstance(PinoDriver);
-const cryptoDriver = new CryptoDriver(loggerDriver);
+const hashDriver = new CryptoDriver(loggerDriver);
+const server = new ExpressDriver(loggerDriver, hashDriver, config.cors);
 const url = 'http://localhost:8080/api/v1/auth/register';
+
+routes(dependencies, server);
 
 describe('POST /auth/register', () => {
   before(() => server.start(8080));
@@ -127,7 +133,7 @@ describe('POST /auth/register', () => {
     sandbox.stub(MongoDbDriver.prototype, 'findOne').resolves({
       user_id: faker.string.uuid(),
       email,
-      password: cryptoDriver.hashString(password),
+      password: hashDriver.hashString(password),
       role: UserRole.CUSTOMER,
     });
     sandbox.stub(MongoDbDriver.prototype, 'create').resolves();

@@ -4,14 +4,18 @@ import { faker } from '@faker-js/faker';
 import { expect } from 'chai';
 import UserRole from '../../../src/domain/user/UserRole';
 import CryptoDriver from '../../../src/infra/drivers/hash/CryptoDriver';
-import server from '../../../src/infra/http/v1/server';
+import ExpressDriver from '../../../src/infra/drivers/server/ExpressDriver';
 import MongoDbDriver from '../../../src/infra/drivers/db/MongoDbDriver';
 import JwtDriver from '../../../src/infra/drivers/token/JwtDriver';
 import PinoDriver from '../../../src/infra/drivers/logger/PinoDriver';
+import dependencies from '../../../src/dependencies';
+import routes from '../../../src/routes/routes';
+import config from '../../../src/config';
 
 const sandbox = sinon.createSandbox();
 const loggerDriver = sinon.createStubInstance(PinoDriver);
 const hashDriver = new CryptoDriver(loggerDriver);
+const server = new ExpressDriver(loggerDriver, hashDriver, config.cors);
 const url = 'http://localhost:8080/api/v1/users';
 const email = faker.internet.email();
 const password = faker.internet.password();
@@ -38,6 +42,8 @@ const usersData = [
 ];
 const Authorization = 'Bearer token';
 const token = 'refresh-token';
+
+routes(dependencies, server);
 
 describe('GET /users', () => {
   before(() => server.start(8080));

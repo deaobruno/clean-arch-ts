@@ -7,15 +7,24 @@ import JwtDriver from '../../../src/infra/drivers/token/JwtDriver';
 import config from '../../../src/config';
 import UserRole from '../../../src/domain/user/UserRole';
 import MongoDbDriver from '../../../src/infra/drivers/db/MongoDbDriver';
-import server from '../../../src/infra/http/v1/server';
+import ExpressDriver from '../../../src/infra/drivers/server/ExpressDriver';
+import PinoDriver from '../../../src/infra/drivers/logger/PinoDriver';
+import CryptoDriver from '../../../src/infra/drivers/hash/CryptoDriver';
+import dependencies from '../../../src/dependencies';
+import routes from '../../../src/routes/routes';
 
 const sandbox = sinon.createSandbox();
 const url = 'http://localhost:8080/api/v1/auth/refresh-token';
+const loggerDriver = sinon.createStubInstance(PinoDriver);
+const hashDriver = new CryptoDriver(loggerDriver);
+const server = new ExpressDriver(loggerDriver, hashDriver, config.cors);
 const email = faker.internet.email();
 const password = faker.internet.password();
 const role = UserRole.CUSTOMER;
 const Authorization = 'Bearer token';
 const token = 'refresh-token';
+
+routes(dependencies, server);
 
 describe('POST /auth/refresh-token', () => {
   before(() => server.start(8080));

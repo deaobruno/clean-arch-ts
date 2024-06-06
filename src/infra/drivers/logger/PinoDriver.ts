@@ -4,7 +4,7 @@ import EventEmitter from 'events';
 
 export default class PinoDriver extends EventEmitter implements ILoggerDriver {
   constructor(
-    level = 'debug',
+    level: string,
     private logger = pino({
       level,
       transport: {

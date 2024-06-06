@@ -130,7 +130,7 @@ describe('/src/infra/drivers/logger/PinoDriver.ts', () => {
   });
 
   it('should map "message" to "msg" in data object', () => {
-    const pinoDriver = new PinoDriver(undefined, loggerStub);
+    const pinoDriver = new PinoDriver('development', loggerStub);
 
     loggerStub.debug = sandbox.spy();
 

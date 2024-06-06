@@ -1,9 +1,9 @@
 import sinon from 'sinon';
 import { expect } from 'chai';
-import userRoutes from '../../../../../../src/infra/http/v1/routes/userRoutes';
-import BaseController from '../../../../../../src/adapters/controllers/BaseController';
-import ExpressDriver from '../../../../../../src/infra/drivers/server/ExpressDriver';
-import PinoDriver from '../../../../../../src/infra/drivers/logger/PinoDriver';
+import userRoutes from '../../../src/routes/userRoutes';
+import BaseController from '../../../src/adapters/controllers/BaseController';
+import ExpressDriver from '../../../src/infra/drivers/server/ExpressDriver';
+import PinoDriver from '../../../src/infra/drivers/logger/PinoDriver';
 
 class CustomController extends BaseController {
   statusCode = 200;

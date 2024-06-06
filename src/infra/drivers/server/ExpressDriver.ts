@@ -26,9 +26,7 @@ export default class ExpressDriver implements IServerDriver {
   constructor(
     private loggerDriver: ILoggerDriver,
     hashDriver: IHashDriver,
-    corsOpts: CorsOptions = {
-      origin: '*',
-    },
+    corsOpts: CorsOptions,
   ) {
     this.app.use((req: Request, res: Response, next: NextFunction) => {
       req.headers.start = new Date().toISOString();
@@ -106,7 +104,7 @@ export default class ExpressDriver implements IServerDriver {
     this.router.delete(path, this.adaptHandler(controller));
   };
 
-  start(httpPort: string | number = 8080): void {
+  start(httpPort: string | number): void {
     this.httpServer = this.app
       .listen(httpPort, () => {
         const serverAddress = this.httpServer?.address();

@@ -101,24 +101,6 @@ describe('/infra/drivers/server/ExpressDriver.ts', () => {
     expect(result).equal(undefined);
   });
 
-  it('should start the server with default cors options and port', () => {
-    const logger = sandbox.createStubInstance(PinoDriver);
-    const hashDriver = sandbox.createStubInstance(CryptoDriver);
-    const server = new ExpressDriver(logger, hashDriver);
-
-    sandbox.stub(Server.prototype, 'address').returns({
-      address: '0.0.0.0',
-      family: 'family',
-      port,
-    });
-
-    const result = server.start();
-
-    expect(result).equal(undefined);
-
-    setTimeout(() => server.stop());
-  });
-
   it('should start the server with custom cors options and port', () => {
     const logger = sandbox.createStubInstance(PinoDriver);
     const hashDriver = sandbox.createStubInstance(CryptoDriver);

@@ -4,10 +4,10 @@ config();
 
 export default {
   server: {
-    httpPort: `${process.env.HTTP_PORT}`,
+    httpPort: `${process.env.HTTP_PORT ?? 8080}`,
   },
   app: {
-    environment: `${process.env.NODE_ENV}`,
+    environment: `${process.env.NODE_ENV ?? 'production'}`,
     rootUserEmail: `${process.env.ROOT_USER_EMAIL}`,
     rootUserPassword: `${process.env.ROOT_USER_PASSWORD}`,
     accessTokenSecret: `${process.env.ACCESS_TOKEN_SECRET}`,
@@ -35,9 +35,10 @@ export default {
     },
   },
   cors: {
-    origin: `${process.env.CORS_ORIGIN}`,
+    origin: `${process.env.CORS_ORIGIN ?? '*'}`,
   },
   logger: {
+    level: `${process.env.NODE_ENV === 'debug' ? 'debug' : 'info'}`,
     infoFilePath: `${process.env.INFO_LOG_FILE_PATH}`,
     errorFilePath: `${process.env.ERROR_LOG_FILE_PATH}`,
   },
