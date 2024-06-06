@@ -50,6 +50,7 @@ describe('/application/useCases/auth/RefreshAccessToken.ts', () => {
       .returns({ userId: faker.string.uuid(), token: 'new-refresh-token' });
     refreshTokenRepository.create.resolves();
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { accessToken } = <any>(
       await refreshAccessToken.exec({ user, refreshToken })
     );

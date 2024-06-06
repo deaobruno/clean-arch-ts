@@ -4,6 +4,7 @@ import pino from 'pino';
 import PinoDriver from '../../../../../src/infra/drivers/logger/PinoDriver';
 
 const sandbox = sinon.createSandbox();
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const loggerStub: any = sandbox.stub(pino);
 
 describe('/src/infra/drivers/logger/PinoDriver.ts', () => {
@@ -150,7 +151,9 @@ describe('/src/infra/drivers/logger/PinoDriver.ts', () => {
     const result = pinoDriver.debug(obj);
 
     expect(result).equal(undefined);
-    expect(loggerStub.debug.calledOnceWith({ password: '********' })).equal(true);
+    expect(loggerStub.debug.calledOnceWith({ password: '********' })).equal(
+      true,
+    );
   });
 
   it('should obfuscate "confirm_password" in data object', () => {
@@ -162,7 +165,9 @@ describe('/src/infra/drivers/logger/PinoDriver.ts', () => {
     const result = pinoDriver.debug(obj);
 
     expect(result).equal(undefined);
-    expect(loggerStub.debug.calledOnceWith({ confirm_password: '********' })).equal(true);
+    expect(
+      loggerStub.debug.calledOnceWith({ confirm_password: '********' }),
+    ).equal(true);
   });
 
   it('should obfuscate "email" in data object', () => {
@@ -174,7 +179,9 @@ describe('/src/infra/drivers/logger/PinoDriver.ts', () => {
     const result = pinoDriver.debug(obj);
 
     expect(result).equal(undefined);
-    expect(loggerStub.debug.calledOnceWith({ email: '****@email.com' })).equal(true);
+    expect(loggerStub.debug.calledOnceWith({ email: '****@email.com' })).equal(
+      true,
+    );
   });
 
   it('should obfuscate data when start is lesser than 0', () => {
@@ -214,7 +221,7 @@ describe('/src/infra/drivers/logger/PinoDriver.ts', () => {
 
   it('should not obfuscate when object attribute is empty', () => {
     const pinoDriver = new PinoDriver('debug', loggerStub);
-    const data = { test: '' }
+    const data = { test: '' };
     const result = pinoDriver.obfuscateData(data);
 
     expect(result).equal(undefined);
@@ -222,7 +229,7 @@ describe('/src/infra/drivers/logger/PinoDriver.ts', () => {
 
   it('should not obfuscate when object attribute inside data is empty', () => {
     const pinoDriver = new PinoDriver('debug', loggerStub);
-    const data = { test: { test: '' } }
+    const data = { test: { test: '' } };
     const result = pinoDriver.obfuscateData(data);
 
     expect(result).equal(undefined);

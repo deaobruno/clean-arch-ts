@@ -151,26 +151,25 @@ describe('/infra/drivers/server/ExpressDriver.ts', () => {
 
     const serverClose = Server.prototype.close;
 
-    Server.prototype.close = (callback?: (error?: Error) => void): Server => {
-      const any: any = {}
+    Server.prototype.close = (): Server => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const any: any = {};
 
       server.httpServer?.emit('error', error);
 
       return any;
-    }
+    };
 
     server.start(port);
 
     try {
       server.stop();
     } finally {
-      expect(logger.fatal.calledOnceWith(error)).equal(
-        true,
-      );
+      expect(logger.fatal.calledOnceWith(error)).equal(true);
 
-      Server.prototype.close = serverClose
+      Server.prototype.close = serverClose;
 
-      server.stop()
+      server.stop();
     }
   });
 

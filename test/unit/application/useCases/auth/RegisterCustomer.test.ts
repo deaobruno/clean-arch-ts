@@ -92,7 +92,9 @@ describe('/application/useCases/auth/RegisterCustomer.ts', () => {
       userRepository,
     );
 
-    const error = <BaseError>await registerCustomer.exec({ ...userData, email: '' });
+    const error = <BaseError>(
+      await registerCustomer.exec({ ...userData, email: '' })
+    );
 
     expect(error).deep.equal(
       new InternalServerError('[User] "userId" required'),

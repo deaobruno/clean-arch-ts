@@ -73,6 +73,8 @@ describe('/application/useCases/memo/CreateMemo.ts', () => {
 
     const result = await createRoot.exec(memoData);
 
-    expect(result).deep.equal(new InternalServerError('[Memo] "memoId" required'));
+    expect(result).deep.equal(
+      new InternalServerError('[Memo] "memoId" required'),
+    );
   });
 });

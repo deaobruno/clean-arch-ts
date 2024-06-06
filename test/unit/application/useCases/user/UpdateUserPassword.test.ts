@@ -171,6 +171,7 @@ describe('/application/useCases/user/UpdateUserPassword.ts', () => {
     );
 
     bcryptDriver.encrypt.resolves('hash');
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     userRepository.findOneById.resolves(<any>{ ...fakeUser, userId: '' });
 
     const newPassword = faker.internet.password();
@@ -189,6 +190,8 @@ describe('/application/useCases/user/UpdateUserPassword.ts', () => {
       await updateUserPassword.exec({ user: fakeUser, ...updateData })
     );
 
-    expect(user).deep.equal(new InternalServerError('[User] "userId" required'));
+    expect(user).deep.equal(
+      new InternalServerError('[User] "userId" required'),
+    );
   });
 });

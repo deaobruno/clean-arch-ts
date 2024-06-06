@@ -59,6 +59,7 @@ describe('/application/useCases/auth/Login.ts', () => {
       refreshTokenRepository,
     );
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { accessToken, refreshToken } = <any>await login.exec(userData);
 
     expect(accessToken).equal('access-token');
@@ -126,7 +127,7 @@ describe('/application/useCases/auth/Login.ts', () => {
     );
 
     encryptionDriver.compare.resolves(true);
-    userRepository.findOneByEmail.resolves(<User>User.create(userData))
+    userRepository.findOneByEmail.resolves(<User>User.create(userData));
 
     const login = new Login(
       loggerDriver,

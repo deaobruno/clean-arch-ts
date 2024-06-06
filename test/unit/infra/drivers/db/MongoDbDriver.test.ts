@@ -29,9 +29,10 @@ const logger = {
   warn: sinon.stub(),
   error: sinon.stub(),
   fatal: sinon.stub(),
-}
+};
 
 describe('/src/infra/drivers/db/MongoDbDriver.ts', () => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   MongoDbDriver['instance'] = <any>undefined;
 
   let instance: IDbDriver<unknown>;
@@ -100,22 +101,22 @@ describe('/src/infra/drivers/db/MongoDbDriver.ts', () => {
 
     const clientClose = MongoClient.prototype.close;
 
-    MongoClient.prototype.close = async (force?: boolean): Promise<void> => {
+    MongoClient.prototype.close = async (): Promise<void> => {
       MongoClient.prototype.emit('error', error);
-    }
+    };
 
     await dbDriver.connect();
 
     try {
       await dbDriver.disconnect();
-    } catch(e) {
-      console.log(e)
+    } catch (e) {
+      console.log(e);
     } finally {
-      expect(logger.error.calledOnceWith(`[MongoDbDriver] Error: ${error}`)).equal(
-        true,
-      );
-  
-      MongoClient.prototype.close = clientClose
+      expect(
+        logger.error.calledOnceWith(`[MongoDbDriver] Error: ${error}`),
+      ).equal(true);
+
+      MongoClient.prototype.close = clientClose;
     }
   });
 
@@ -252,9 +253,7 @@ describe('/src/infra/drivers/db/MongoDbDriver.ts', () => {
       await instance.disconnect();
 
       expect(result).equal(undefined);
-      expect(mongoDbCollection.createIndex.notCalled).equal(
-        true,
-      );
+      expect(mongoDbCollection.createIndex.notCalled).equal(true);
     });
 
     it('should create an index in given collection', async () => {

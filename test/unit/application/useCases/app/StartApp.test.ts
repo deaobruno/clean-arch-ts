@@ -16,14 +16,25 @@ const rootUserPassword = 'password';
 const port = 8080;
 
 describe('/src/application/useCases/app/StartApp.ts', () => {
-  afterEach(() => sandbox.restore())
+  afterEach(() => sandbox.restore());
 
   it('should start the application in "production" environment', async () => {
     const server = sandbox.createStubInstance(ExpressDriver);
     const db = sandbox.createStubInstance(MongoDbDriver);
     const cache = sandbox.createStubInstance(RedisDriver);
     const createRootUserEvent = sandbox.createStubInstance(CreateRootUserEvent);
-    const startAppUseCase = new StartApp(server, db, cache, createRootUserEvent, usersSource, memosSource, rootUserEmail, rootUserPassword, port, 'production');
+    const startAppUseCase = new StartApp(
+      server,
+      db,
+      cache,
+      createRootUserEvent,
+      usersSource,
+      memosSource,
+      rootUserEmail,
+      rootUserPassword,
+      port,
+      'production',
+    );
     const clusterStub = sandbox.stub(cluster);
     const result = await startAppUseCase.exec({
       cluster: clusterStub,
@@ -33,14 +44,25 @@ describe('/src/application/useCases/app/StartApp.ts', () => {
     });
 
     expect(result).equal(undefined);
-  })
+  });
 
   it('should start the application in environment different than "production"', async () => {
     const server = sandbox.createStubInstance(ExpressDriver);
     const db = sandbox.createStubInstance(MongoDbDriver);
     const cache = sandbox.createStubInstance(RedisDriver);
     const createRootUserEvent = sandbox.createStubInstance(CreateRootUserEvent);
-    const startAppUseCase = new StartApp(server, db, cache, createRootUserEvent, usersSource, memosSource, rootUserEmail, rootUserPassword, port, 'development');
+    const startAppUseCase = new StartApp(
+      server,
+      db,
+      cache,
+      createRootUserEvent,
+      usersSource,
+      memosSource,
+      rootUserEmail,
+      rootUserPassword,
+      port,
+      'development',
+    );
     const clusterStub = sandbox.stub(cluster);
     const result = await startAppUseCase.exec({
       cluster: clusterStub,
@@ -50,5 +72,5 @@ describe('/src/application/useCases/app/StartApp.ts', () => {
     });
 
     expect(result).equal(undefined);
-  })
-})
+  });
+});

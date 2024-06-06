@@ -4,12 +4,12 @@ import bcrypt from 'bcrypt';
 import BcryptDriver from '../../../../../src/infra/drivers/encryption/BcryptDriver';
 import PinoDriver from '../../../../../src/infra/drivers/logger/PinoDriver';
 
-const sandbox = sinon.createSandbox()
+const sandbox = sinon.createSandbox();
 const loggerDriver = sinon.createStubInstance(PinoDriver);
 const bcryptDriver = new BcryptDriver(loggerDriver);
 
 describe('/src/infra/drivers/encryption/BcryptDriver.ts', () => {
-  afterEach(() => sandbox.restore())
+  afterEach(() => sandbox.restore());
 
   it('should return a hashed string using bcrypt algorithm', async () => {
     sandbox.stub(bcrypt, 'hash').resolves('hash');

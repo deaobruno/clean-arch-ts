@@ -261,6 +261,7 @@ describe('/application/useCases/user/UpdateUser.ts', () => {
       refreshTokenRepository,
     );
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     userRepository.findOneById.resolves(<any>{ ...fakeUser, userId: '' });
     userRepository.update.resolves();
     refreshTokenRepository.deleteAllByUser.resolves();
@@ -277,6 +278,8 @@ describe('/application/useCases/user/UpdateUser.ts', () => {
     };
     const user = <User>await updateUser.exec({ user: fakeUser, ...updateData });
 
-    expect(user).deep.equal(new InternalServerError('[User] "userId" required'));
+    expect(user).deep.equal(
+      new InternalServerError('[User] "userId" required'),
+    );
   });
 });

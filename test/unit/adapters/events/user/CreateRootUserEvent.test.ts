@@ -29,7 +29,7 @@ describe('/src/adapters/events/user/CreateRootUserEvent.ts', () => {
       createRootUserUseCase,
     );
 
-    createRootUserUseCase.exec.throws(Error())
+    createRootUserUseCase.exec.throws(Error());
 
     const result = createRootUserEvent.trigger({
       email: faker.internet.email(),

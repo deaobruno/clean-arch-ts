@@ -125,6 +125,8 @@ describe('/application/useCases/memo/UpdateMemo.ts', () => {
       memo_id: memoId,
     });
 
-    expect(memo).deep.equal(new InternalServerError('[Memo] "memoId" required'));
+    expect(memo).deep.equal(
+      new InternalServerError('[Memo] "memoId" required'),
+    );
   });
 });
