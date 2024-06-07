@@ -3,7 +3,6 @@ import sinon from 'sinon';
 import { expect } from 'chai';
 import config from '../../../../../src/config';
 import MongoDbDriver from '../../../../../src/infra/drivers/db/MongoDbDriver';
-import IDbDriver from '../../../../../src/infra/drivers/db/IDbDriver';
 import {
   ClientSession,
   Collection,
@@ -34,14 +33,12 @@ class CustomClient extends EventEmitter {
 }
 
 describe('/src/infra/drivers/db/MongoDbDriver.ts', () => {
-  let instance: IDbDriver<unknown>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  beforeEach(() => (MongoDbDriver['instance'] = <any>undefined));
 
   afterEach(() => sandbox.restore());
 
   it('should return a MongoDbDriver instance when there is no previous instance', () => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    MongoDbDriver['instance'] = <any>undefined;
-
     const logger = {
       obfuscate: sandbox.stub(),
       obfuscateData: sandbox.stub(),
@@ -68,8 +65,6 @@ describe('/src/infra/drivers/db/MongoDbDriver.ts', () => {
     mongoDb.collection.returns(mongoDbCollection);
 
     const dbDriver = MongoDbDriver.getInstance(dbUrl, dbName, logger);
-
-    instance = dbDriver;
 
     expect(dbDriver instanceof MongoDbDriver).equal(true);
   });
@@ -101,11 +96,21 @@ describe('/src/infra/drivers/db/MongoDbDriver.ts', () => {
     mongoDb.collection.returns(mongoDbCollection);
 
     const dbDriver = MongoDbDriver.getInstance(dbUrl, dbName, logger);
+    const instance = MongoDbDriver.getInstance(dbUrl, dbName, logger);
 
-    expect(dbDriver).deep.equal(instance);
+    expect(instance).deep.equal(dbDriver);
   });
 
   it('should connect to a mongoDb server', async () => {
+    const logger = {
+      obfuscate: sandbox.stub(),
+      obfuscateData: sandbox.stub(),
+      debug: sandbox.stub(),
+      info: sandbox.stub(),
+      warn: sandbox.stub(),
+      error: sandbox.stub(),
+      fatal: sandbox.stub(),
+    };
     const mongoDbClient = sandbox.createStubInstance(MongoClient);
     const mongoDb = sandbox.createStubInstance(Db);
     const mongoDbSession = sandbox.createStubInstance(ClientSession);
@@ -123,6 +128,7 @@ describe('/src/infra/drivers/db/MongoDbDriver.ts', () => {
     mongoDbClient.startSession.returns(mongoDbSession);
     mongoDb.collection.returns(mongoDbCollection);
 
+    const instance = MongoDbDriver.getInstance(dbUrl, dbName, logger);
     const result = await instance.connect(mongoDbClient);
 
     expect(result).equal(undefined);
@@ -130,6 +136,15 @@ describe('/src/infra/drivers/db/MongoDbDriver.ts', () => {
   });
 
   it('should return undefined when already connected to a mongoDb server with same db url', async () => {
+    const logger = {
+      obfuscate: sandbox.stub(),
+      obfuscateData: sandbox.stub(),
+      debug: sandbox.stub(),
+      info: sandbox.stub(),
+      warn: sandbox.stub(),
+      error: sandbox.stub(),
+      fatal: sandbox.stub(),
+    };
     const mongoDbClient = sandbox.createStubInstance(MongoClient);
     const mongoDb = sandbox.createStubInstance(Db);
     const mongoDbSession = sandbox.createStubInstance(ClientSession);
@@ -146,6 +161,7 @@ describe('/src/infra/drivers/db/MongoDbDriver.ts', () => {
     mongoDbClient.startSession.returns(mongoDbSession);
     mongoDb.collection.returns(mongoDbCollection);
 
+    const instance = MongoDbDriver.getInstance(dbUrl, dbName, logger);
     const result = await instance.connect(mongoDbClient);
 
     expect(result).equal(undefined);
@@ -153,6 +169,15 @@ describe('/src/infra/drivers/db/MongoDbDriver.ts', () => {
   });
 
   it('should disconnect from connected mongoDb server', async () => {
+    const logger = {
+      obfuscate: sandbox.stub(),
+      obfuscateData: sandbox.stub(),
+      debug: sandbox.stub(),
+      info: sandbox.stub(),
+      warn: sandbox.stub(),
+      error: sandbox.stub(),
+      fatal: sandbox.stub(),
+    };
     const mongoDbClient = sandbox.createStubInstance(MongoClient);
     const mongoDb = sandbox.createStubInstance(Db);
     const mongoDbSession = sandbox.createStubInstance(ClientSession);
@@ -169,6 +194,7 @@ describe('/src/infra/drivers/db/MongoDbDriver.ts', () => {
     mongoDbClient.startSession.returns(mongoDbSession);
     mongoDb.collection.returns(mongoDbCollection);
 
+    const instance = MongoDbDriver.getInstance(dbUrl, dbName, logger);
     const result = await instance.disconnect();
 
     expect(result).equal(undefined);
@@ -176,6 +202,15 @@ describe('/src/infra/drivers/db/MongoDbDriver.ts', () => {
   });
 
   it('should return undefined when no mongoDb server is connected', async () => {
+    const logger = {
+      obfuscate: sandbox.stub(),
+      obfuscateData: sandbox.stub(),
+      debug: sandbox.stub(),
+      info: sandbox.stub(),
+      warn: sandbox.stub(),
+      error: sandbox.stub(),
+      fatal: sandbox.stub(),
+    };
     const mongoDbClient = sandbox.createStubInstance(MongoClient);
     const mongoDb = sandbox.createStubInstance(Db);
     const mongoDbSession = sandbox.createStubInstance(ClientSession);
@@ -192,6 +227,7 @@ describe('/src/infra/drivers/db/MongoDbDriver.ts', () => {
     mongoDbClient.startSession.returns(mongoDbSession);
     mongoDb.collection.returns(mongoDbCollection);
 
+    const instance = MongoDbDriver.getInstance(dbUrl, dbName, logger);
     const result = await instance.disconnect();
 
     expect(result).equal(undefined);
@@ -199,9 +235,6 @@ describe('/src/infra/drivers/db/MongoDbDriver.ts', () => {
   });
 
   it('should log a message after starting client connection', async () => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    MongoDbDriver['instance'] = <any>undefined;
-
     const logger = {
       obfuscate: sandbox.stub(),
       obfuscateData: sandbox.stub(),
@@ -223,9 +256,6 @@ describe('/src/infra/drivers/db/MongoDbDriver.ts', () => {
   });
 
   it('should log a message after client throws an error', async () => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    MongoDbDriver['instance'] = <any>undefined;
-
     const logger = {
       obfuscate: sandbox.stub(),
       obfuscateData: sandbox.stub(),
@@ -247,9 +277,6 @@ describe('/src/infra/drivers/db/MongoDbDriver.ts', () => {
   });
 
   it('should log a message after ending client connection', async () => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    MongoDbDriver['instance'] = <any>undefined;
-
     const logger = {
       obfuscate: sandbox.stub(),
       obfuscateData: sandbox.stub(),
@@ -271,6 +298,15 @@ describe('/src/infra/drivers/db/MongoDbDriver.ts', () => {
 
   describe('I/O methods', () => {
     it('should not create an index when it already exists in given collection', async () => {
+      const logger = {
+        obfuscate: sandbox.stub(),
+        obfuscateData: sandbox.stub(),
+        debug: sandbox.stub(),
+        info: sandbox.stub(),
+        warn: sandbox.stub(),
+        error: sandbox.stub(),
+        fatal: sandbox.stub(),
+      };
       const mongoDbClient = sandbox.createStubInstance(MongoClient);
       const mongoDb = sandbox.createStubInstance(Db);
       const mongoDbSession = sandbox.createStubInstance(ClientSession);
@@ -291,6 +327,8 @@ describe('/src/infra/drivers/db/MongoDbDriver.ts', () => {
       mongoDbCollection.listIndexes.returns(cursor);
       mongoDb.collection.returns(mongoDbCollection);
 
+      const instance = MongoDbDriver.getInstance(dbUrl, dbName, logger);
+
       await instance.connect(mongoDbClient);
 
       const result = await instance.createIndex(collectionName, 'id');
@@ -302,6 +340,15 @@ describe('/src/infra/drivers/db/MongoDbDriver.ts', () => {
     });
 
     it('should create an index in given collection', async () => {
+      const logger = {
+        obfuscate: sandbox.stub(),
+        obfuscateData: sandbox.stub(),
+        debug: sandbox.stub(),
+        info: sandbox.stub(),
+        warn: sandbox.stub(),
+        error: sandbox.stub(),
+        fatal: sandbox.stub(),
+      };
       const mongoDbClient = sandbox.createStubInstance(MongoClient);
       const mongoDb = sandbox.createStubInstance(Db);
       const mongoDbSession = sandbox.createStubInstance(ClientSession);
@@ -322,6 +369,8 @@ describe('/src/infra/drivers/db/MongoDbDriver.ts', () => {
       mongoDbCollection.listIndexes.returns(cursor);
       mongoDb.collection.returns(mongoDbCollection);
 
+      const instance = MongoDbDriver.getInstance(dbUrl, dbName, logger);
+
       await instance.connect(mongoDbClient);
 
       const result = await instance.createIndex(collectionName, 'id');
@@ -335,6 +384,17 @@ describe('/src/infra/drivers/db/MongoDbDriver.ts', () => {
     });
 
     it('should get an error when db is not connected when trying to create a document passing collection name and data', async () => {
+      const logger = {
+        obfuscate: sandbox.stub(),
+        obfuscateData: sandbox.stub(),
+        debug: sandbox.stub(),
+        info: sandbox.stub(),
+        warn: sandbox.stub(),
+        error: sandbox.stub(),
+        fatal: sandbox.stub(),
+      };
+      const instance = MongoDbDriver.getInstance(dbUrl, dbName, logger);
+
       await instance
         .createIndex(collectionName, 'test')
         .catch(async (error) => {
@@ -343,6 +403,15 @@ describe('/src/infra/drivers/db/MongoDbDriver.ts', () => {
     });
 
     it('should create a document passing collection name and data', async () => {
+      const logger = {
+        obfuscate: sandbox.stub(),
+        obfuscateData: sandbox.stub(),
+        debug: sandbox.stub(),
+        info: sandbox.stub(),
+        warn: sandbox.stub(),
+        error: sandbox.stub(),
+        fatal: sandbox.stub(),
+      };
       const mongoDbClient = sandbox.createStubInstance(MongoClient);
       const mongoDb = sandbox.createStubInstance(Db);
       const mongoDbSession = sandbox.createStubInstance(ClientSession);
@@ -360,6 +429,8 @@ describe('/src/infra/drivers/db/MongoDbDriver.ts', () => {
       mongoDbClient.startSession.returns(mongoDbSession);
       mongoDb.collection.returns(mongoDbCollection);
 
+      const instance = MongoDbDriver.getInstance(dbUrl, dbName, logger);
+
       await instance.connect(mongoDbClient);
 
       const result = await instance.create(collectionName, data);
@@ -371,6 +442,15 @@ describe('/src/infra/drivers/db/MongoDbDriver.ts', () => {
     });
 
     it('should return all documents with no filter and passing collection name', async () => {
+      const logger = {
+        obfuscate: sandbox.stub(),
+        obfuscateData: sandbox.stub(),
+        debug: sandbox.stub(),
+        info: sandbox.stub(),
+        warn: sandbox.stub(),
+        error: sandbox.stub(),
+        fatal: sandbox.stub(),
+      };
       const mongoDbClient = sandbox.createStubInstance(MongoClient);
       const mongoDb = sandbox.createStubInstance(Db);
       const mongoDbSession = sandbox.createStubInstance(ClientSession);
@@ -391,6 +471,8 @@ describe('/src/infra/drivers/db/MongoDbDriver.ts', () => {
 
       mongoDbCursor.toArray.resolves([data]);
       mongoDbCollection.find.returns(mongoDbCursor);
+
+      const instance = MongoDbDriver.getInstance(dbUrl, dbName, logger);
 
       await instance.connect(mongoDbClient);
 
@@ -408,6 +490,15 @@ describe('/src/infra/drivers/db/MongoDbDriver.ts', () => {
     });
 
     it('should return all documents attending filter and passing collection name', async () => {
+      const logger = {
+        obfuscate: sandbox.stub(),
+        obfuscateData: sandbox.stub(),
+        debug: sandbox.stub(),
+        info: sandbox.stub(),
+        warn: sandbox.stub(),
+        error: sandbox.stub(),
+        fatal: sandbox.stub(),
+      };
       const mongoDbClient = sandbox.createStubInstance(MongoClient);
       const mongoDb = sandbox.createStubInstance(Db);
       const mongoDbSession = sandbox.createStubInstance(ClientSession);
@@ -427,6 +518,8 @@ describe('/src/infra/drivers/db/MongoDbDriver.ts', () => {
       mongoDb.collection.returns(mongoDbCollection);
       mongoDbCursor.toArray.resolves([data]);
       mongoDbCollection.find.returns(mongoDbCursor);
+
+      const instance = MongoDbDriver.getInstance(dbUrl, dbName, logger);
 
       await instance.connect(mongoDbClient);
 
@@ -445,6 +538,15 @@ describe('/src/infra/drivers/db/MongoDbDriver.ts', () => {
     });
 
     it('should return an empty array when no documents are found', async () => {
+      const logger = {
+        obfuscate: sandbox.stub(),
+        obfuscateData: sandbox.stub(),
+        debug: sandbox.stub(),
+        info: sandbox.stub(),
+        warn: sandbox.stub(),
+        error: sandbox.stub(),
+        fatal: sandbox.stub(),
+      };
       const mongoDbClient = sandbox.createStubInstance(MongoClient);
       const mongoDb = sandbox.createStubInstance(Db);
       const mongoDbSession = sandbox.createStubInstance(ClientSession);
@@ -466,6 +568,8 @@ describe('/src/infra/drivers/db/MongoDbDriver.ts', () => {
       mongoDbCursor.toArray.resolves([]);
       mongoDbCollection.find.returns(mongoDbCursor);
 
+      const instance = MongoDbDriver.getInstance(dbUrl, dbName, logger);
+
       await instance.connect(mongoDbClient);
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -480,6 +584,15 @@ describe('/src/infra/drivers/db/MongoDbDriver.ts', () => {
     });
 
     it('should return one document passing collection name and attending filter', async () => {
+      const logger = {
+        obfuscate: sandbox.stub(),
+        obfuscateData: sandbox.stub(),
+        debug: sandbox.stub(),
+        info: sandbox.stub(),
+        warn: sandbox.stub(),
+        error: sandbox.stub(),
+        fatal: sandbox.stub(),
+      };
       const mongoDbClient = sandbox.createStubInstance(MongoClient);
       const mongoDb = sandbox.createStubInstance(Db);
       const mongoDbSession = sandbox.createStubInstance(ClientSession);
@@ -498,6 +611,8 @@ describe('/src/infra/drivers/db/MongoDbDriver.ts', () => {
       mongoDb.collection.returns(mongoDbCollection);
       mongoDbCollection.findOne.resolves(data);
 
+      const instance = MongoDbDriver.getInstance(dbUrl, dbName, logger);
+
       await instance.connect(mongoDbClient);
 
       const filter = { id: data.id };
@@ -513,6 +628,15 @@ describe('/src/infra/drivers/db/MongoDbDriver.ts', () => {
     });
 
     it('should return undefined when no document is found', async () => {
+      const logger = {
+        obfuscate: sandbox.stub(),
+        obfuscateData: sandbox.stub(),
+        debug: sandbox.stub(),
+        info: sandbox.stub(),
+        warn: sandbox.stub(),
+        error: sandbox.stub(),
+        fatal: sandbox.stub(),
+      };
       const mongoDbClient = sandbox.createStubInstance(MongoClient);
       const mongoDb = sandbox.createStubInstance(Db);
       const mongoDbSession = sandbox.createStubInstance(ClientSession);
@@ -531,6 +655,8 @@ describe('/src/infra/drivers/db/MongoDbDriver.ts', () => {
       mongoDb.collection.returns(mongoDbCollection);
       mongoDbCollection.findOne.resolves();
 
+      const instance = MongoDbDriver.getInstance(dbUrl, dbName, logger);
+
       await instance.connect(mongoDbClient);
 
       const filter = { id: data.id };
@@ -544,6 +670,15 @@ describe('/src/infra/drivers/db/MongoDbDriver.ts', () => {
     });
 
     it('should update a document passing collection name, data and filter', async () => {
+      const logger = {
+        obfuscate: sandbox.stub(),
+        obfuscateData: sandbox.stub(),
+        debug: sandbox.stub(),
+        info: sandbox.stub(),
+        warn: sandbox.stub(),
+        error: sandbox.stub(),
+        fatal: sandbox.stub(),
+      };
       const mongoDbClient = sandbox.createStubInstance(MongoClient);
       const mongoDb = sandbox.createStubInstance(Db);
       const mongoDbSession = sandbox.createStubInstance(ClientSession);
@@ -560,6 +695,8 @@ describe('/src/infra/drivers/db/MongoDbDriver.ts', () => {
       mongoDbSession.commitTransaction.resolves();
       mongoDbClient.startSession.returns(mongoDbSession);
       mongoDb.collection.returns(mongoDbCollection);
+
+      const instance = MongoDbDriver.getInstance(dbUrl, dbName, logger);
 
       await instance.connect(mongoDbClient);
 
@@ -574,6 +711,15 @@ describe('/src/infra/drivers/db/MongoDbDriver.ts', () => {
     });
 
     it('should delete a document passing collection name and filter', async () => {
+      const logger = {
+        obfuscate: sandbox.stub(),
+        obfuscateData: sandbox.stub(),
+        debug: sandbox.stub(),
+        info: sandbox.stub(),
+        warn: sandbox.stub(),
+        error: sandbox.stub(),
+        fatal: sandbox.stub(),
+      };
       const mongoDbClient = sandbox.createStubInstance(MongoClient);
       const mongoDb = sandbox.createStubInstance(Db);
       const mongoDbSession = sandbox.createStubInstance(ClientSession);
@@ -590,6 +736,8 @@ describe('/src/infra/drivers/db/MongoDbDriver.ts', () => {
       mongoDbSession.commitTransaction.resolves();
       mongoDbClient.startSession.returns(mongoDbSession);
       mongoDb.collection.returns(mongoDbCollection);
+
+      const instance = MongoDbDriver.getInstance(dbUrl, dbName, logger);
 
       await instance.connect(mongoDbClient);
 
@@ -603,6 +751,15 @@ describe('/src/infra/drivers/db/MongoDbDriver.ts', () => {
     });
 
     it('should delete all documents attending filter and passing collection name', async () => {
+      const logger = {
+        obfuscate: sandbox.stub(),
+        obfuscateData: sandbox.stub(),
+        debug: sandbox.stub(),
+        info: sandbox.stub(),
+        warn: sandbox.stub(),
+        error: sandbox.stub(),
+        fatal: sandbox.stub(),
+      };
       const mongoDbClient = sandbox.createStubInstance(MongoClient);
       const mongoDb = sandbox.createStubInstance(Db);
       const mongoDbSession = sandbox.createStubInstance(ClientSession);
@@ -619,6 +776,8 @@ describe('/src/infra/drivers/db/MongoDbDriver.ts', () => {
       mongoDbSession.commitTransaction.resolves();
       mongoDbClient.startSession.returns(mongoDbSession);
       mongoDb.collection.returns(mongoDbCollection);
+
+      const instance = MongoDbDriver.getInstance(dbUrl, dbName, logger);
 
       await instance.connect(mongoDbClient);
 
