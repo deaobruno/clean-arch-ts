@@ -16,6 +16,7 @@ const loggerDriver = sinon.createStubInstance(PinoDriver);
 const hashDriver = new CryptoDriver(loggerDriver);
 const server = new ExpressDriver(loggerDriver, hashDriver, config.cors);
 const url = 'http://localhost:8080/api/v1/auth/register';
+const password = `${faker.string.alpha({ length: 2, casing: 'lower' })}${faker.string.alpha({ length: 2, casing: 'upper' })}${faker.string.numeric({ length: 2 })}${faker.string.fromCharacters('!@#$&*', 2)}`;
 
 routes(dependencies, server);
 
@@ -32,8 +33,8 @@ describe('POST /auth/register', () => {
 
     const payload = {
       email: faker.internet.email(),
-      password: '12345678',
-      confirm_password: '12345678',
+      password,
+      confirm_password: password,
     };
     const { status, data } = await axios.post(url, payload);
 
@@ -45,8 +46,8 @@ describe('POST /auth/register', () => {
   it('should get status 400 when trying to register a customer without "email"', async () => {
     const payload = {
       email: '',
-      password: '12345678',
-      confirm_password: '12345678',
+      password,
+      confirm_password: password,
     };
 
     await axios.post(url, payload).catch(({ response: { status, data } }) => {
@@ -58,8 +59,21 @@ describe('POST /auth/register', () => {
   it('should get status 400 when trying to register a customer with invalid "email"', async () => {
     const payload = {
       email: 'test',
-      password: '12345678',
-      confirm_password: '12345678',
+      password,
+      confirm_password: password,
+    };
+
+    await axios.post(url, payload).catch(({ response: { status, data } }) => {
+      expect(status).equal(400);
+      expect(data.error).equal('"email" must be a valid email');
+    });
+  });
+
+  it('should get status 400 when "email" length is greater than 100', async () => {
+    const payload = {
+      email: `${faker.string.alphanumeric(100)}@email.com`,
+      password,
+      confirm_password: password,
     };
 
     await axios.post(url, payload).catch(({ response: { status, data } }) => {
@@ -72,7 +86,7 @@ describe('POST /auth/register', () => {
     const payload = {
       email: faker.internet.email(),
       password: '',
-      confirm_password: '12345678',
+      confirm_password: password,
     };
 
     await axios.post(url, payload).catch(({ response: { status, data } }) => {
@@ -81,10 +95,104 @@ describe('POST /auth/register', () => {
     });
   });
 
+  it('should get status 400 when "password" length is lower than 8', async () => {
+    const payload = {
+      email: faker.internet.email(),
+      password: `${faker.string.alpha(7)}`,
+      confirm_password: password,
+    };
+
+    await axios.post(url, payload).catch(({ response: { status, data } }) => {
+      expect(status).equal(400);
+      expect(data.error).equal(
+        '"password" length must be at least 8 characters long',
+      );
+    });
+  });
+
+  it('should get status 400 when "password" is greater than 64', async () => {
+    const payload = {
+      email: faker.internet.email(),
+      password: `${faker.string.alpha(65)}`,
+      confirm_password: password,
+    };
+
+    await axios.post(url, payload).catch(({ response: { status, data } }) => {
+      expect(status).equal(400);
+      expect(data.error).equal(
+        '"password" length must be less than or equal to 64 characters long',
+      );
+    });
+  });
+
+  it('should get status 400 when "password" does not have a lower case character', async () => {
+    const wrongPassword = `${faker.string.alpha({ length: 4, casing: 'upper' })}${faker.string.numeric({ length: 2 })}${faker.string.fromCharacters('!@#$&*', 2)}`;
+    const payload = {
+      email: faker.internet.email(),
+      password: wrongPassword,
+      confirm_password: password,
+    };
+
+    await axios.post(url, payload).catch(({ response: { status, data } }) => {
+      expect(status).equal(400);
+      expect(data.error).equal(
+        `"password" with value "${wrongPassword}" fails to match the required pattern: /.*[a-z]/`,
+      );
+    });
+  });
+
+  it('should get status 400 when "password" does not have an upper case character', async () => {
+    const wrongPassword = `${faker.string.alpha({ length: 4, casing: 'lower' })}${faker.string.numeric({ length: 2 })}${faker.string.fromCharacters('!@#$&*', 2)}`;
+    const payload = {
+      email: faker.internet.email(),
+      password: wrongPassword,
+      confirm_password: password,
+    };
+
+    await axios.post(url, payload).catch(({ response: { status, data } }) => {
+      expect(status).equal(400);
+      expect(data.error).equal(
+        `"password" with value "${wrongPassword}" fails to match the required pattern: /.*[A-Z]/`,
+      );
+    });
+  });
+
+  it('should get status 400 when "password" does not have a number character', async () => {
+    const wrongPassword = `${faker.string.alpha({ length: 2, casing: 'lower' })}${faker.string.alpha({ length: 2, casing: 'upper' })}${faker.string.fromCharacters('!@#$&*', 4)}`;
+    const payload = {
+      email: faker.internet.email(),
+      password: wrongPassword,
+      confirm_password: password,
+    };
+
+    await axios.post(url, payload).catch(({ response: { status, data } }) => {
+      expect(status).equal(400);
+      expect(data.error).equal(
+        `"password" with value "${wrongPassword}" fails to match the required pattern: /.*[0-9]/`,
+      );
+    });
+  });
+
+  it('should get status 400 when "password" does not have a special character', async () => {
+    const wrongPassword = `${faker.string.alpha({ length: 2, casing: 'lower' })}${faker.string.alpha({ length: 2, casing: 'upper' })}${faker.string.numeric({ length: 4 })}`;
+    const payload = {
+      email: faker.internet.email(),
+      password: wrongPassword,
+      confirm_password: password,
+    };
+
+    await axios.post(url, payload).catch(({ response: { status, data } }) => {
+      expect(status).equal(400);
+      expect(data.error).equal(
+        `"password" with value "${wrongPassword}" fails to match the required pattern: /.*[!@#$&*]/`,
+      );
+    });
+  });
+
   it('should get status 400 when trying to register a customer without "confirm_password"', async () => {
     const payload = {
       email: faker.internet.email(),
-      password: '12345678',
+      password,
       confirm_password: '',
     };
 
@@ -95,10 +203,11 @@ describe('POST /auth/register', () => {
   });
 
   it('should get status 400 when trying to register a customer with different "password" and "confirm_password"', async () => {
+    const confirm_password = `${faker.string.alpha({ length: 2, casing: 'lower' })}${faker.string.alpha({ length: 2, casing: 'upper' })}${faker.string.numeric({ length: 2 })}${faker.string.fromCharacters('!@#$&*', 2)}`;
     const payload = {
       email: faker.internet.email(),
-      password: '12345678',
-      confirm_password: '12345679',
+      password,
+      confirm_password,
     };
 
     await axios.post(url, payload).catch(({ response: { status, data } }) => {
@@ -110,8 +219,8 @@ describe('POST /auth/register', () => {
   it('should get status 400 when trying to register a customer with invalid param', async () => {
     const payload = {
       email: faker.internet.email(),
-      password: '12345678',
-      confirm_password: '12345678',
+      password,
+      confirm_password: password,
       test: true,
     };
 
@@ -123,7 +232,6 @@ describe('POST /auth/register', () => {
 
   it('should get status 409 when trying to register a customer with an previously registered email', async () => {
     const email = faker.internet.email();
-    const password = '12345678';
     const payload = {
       email,
       password,
