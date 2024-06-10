@@ -234,6 +234,29 @@ describe('/src/infra/drivers/db/MongoDbDriver.ts', () => {
     expect(MongoDbDriver.connected).equal(false);
   });
 
+  it('should create a collection', async () => {
+    const logger = {
+      obfuscate: sandbox.stub(),
+      obfuscateData: sandbox.stub(),
+      debug: sandbox.stub(),
+      info: sandbox.stub(),
+      warn: sandbox.stub(),
+      error: sandbox.stub(),
+      fatal: sandbox.stub(),
+    };
+    const mongoDbClient = sandbox.createStubInstance(MongoClient);
+    const mongoDb = sandbox.createStubInstance(Db);
+
+    mongoDbClient.db.returns(mongoDb);
+
+    MongoDbDriver['client'] = mongoDbClient;
+
+    const instance = MongoDbDriver.getInstance(dbUrl, dbName, logger);
+    const result = await instance.createCollection('test');
+
+    expect(result).equal(undefined);
+  });
+
   it('should log a message after starting client connection', async () => {
     const logger = {
       obfuscate: sandbox.stub(),

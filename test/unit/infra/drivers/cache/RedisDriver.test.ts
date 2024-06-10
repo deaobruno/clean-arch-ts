@@ -37,6 +37,13 @@ describe('/src/infra/drivers/cache/RedisDriver.ts', () => {
   it('should start Redis client connection with default client', async () => {
     const logger = sandbox.createStubInstance(PinoDriver);
     const redisDriver = new RedisDriver(url, password, logger);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const connect: any = async () => {
+      redisDriver['client'].emit('connect');
+    };
+
+    redisDriver['client'].connect = connect;
+
     const result = await redisDriver.connect();
 
     expect(result).equal(undefined);
@@ -66,8 +73,12 @@ describe('/src/infra/drivers/cache/RedisDriver.ts', () => {
   it('should stop Redis client connection', async () => {
     const logger = sandbox.createStubInstance(PinoDriver);
     const redisDriver = new RedisDriver(url, password, logger);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const disconnect: any = async () => {
+      redisDriver['client'].emit('end');
+    };
 
-    await redisDriver.connect();
+    redisDriver['client'].disconnect = disconnect;
 
     const result = await redisDriver.disconnect();
 
