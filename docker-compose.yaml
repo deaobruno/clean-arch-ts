@@ -1,0 +1,40 @@
+services:
+  app:
+    image: node:alpine
+    command: sh -c "npm install && npm start"
+    ports:
+      - 8080:8080
+    working_dir: /usr/app
+    volumes:
+      - ./:/usr/app
+      - /usr/app/node_modules
+    depends_on:
+      - db
+      - cache
+    environment:
+      MONGO_DB_URL: mongodb://db:27017/
+      REDIS_URL: redis://cache:6379
+      REDIS_PASSWORD: eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81
+
+  db:
+    image: mongo
+    restart: always
+    ports:
+      - 27017:27017
+    volumes:
+      - db:/data/db
+
+  cache:
+    image: redis:alpine
+    restart: always
+    ports:
+      - 6379:6379
+    command: redis-server --save 20 1 --loglevel warning --requirepass eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81
+    volumes:
+      - cache:/data
+
+volumes:
+  db:
+    driver: local
+  cache:
+    driver: local

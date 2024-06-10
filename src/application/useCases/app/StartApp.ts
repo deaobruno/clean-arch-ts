@@ -32,6 +32,8 @@ export default class StartApp implements IUseCase<Input, void> {
     const { cluster, numCPUs, dependencies, routes } = input;
 
     await this.dbDriver.connect();
+    await this.dbDriver.createCollection(this.usersSource);
+    await this.dbDriver.createCollection(this.memosSource);
     await this.dbDriver.createIndex(this.usersSource, 'user_id');
     await this.dbDriver.createIndex(this.usersSource, 'email');
     await this.dbDriver.createIndex(this.memosSource, 'memo_id');
