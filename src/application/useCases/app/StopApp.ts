@@ -15,13 +15,13 @@ export default class StopApp implements IUseCase<void, void> {
   ) {}
 
   async exec(): Promise<void> {
-    this.serverDriver.stop(async () => {
-      if (this.environment !== 'production')
-        await this.refreshTokenRepository.deleteAll();
+    if (this.environment !== 'production')
+      await this.refreshTokenRepository.deleteAll();
 
-      await this.cacheDriver.del(this.rootUserEmail);
-      await this.dbDriver.disconnect();
-      await this.cacheDriver.disconnect();
-    });
+    await this.cacheDriver.del(this.rootUserEmail);
+    await this.dbDriver.disconnect();
+    await this.cacheDriver.disconnect();
+
+    this.serverDriver.stop();
   }
 }

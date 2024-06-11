@@ -28,13 +28,6 @@ describe('/src/application/useCases/app/StopApp.ts', () => {
       'production',
     );
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const stop: any = (callback?: (error?: Error) => void) => {
-      if (callback) callback();
-    };
-
-    server.stop = stop;
-
     const result = await stopAppUseCase.exec();
 
     expect(result).equal(undefined);
@@ -55,13 +48,6 @@ describe('/src/application/useCases/app/StopApp.ts', () => {
       rootUserEmail,
       'development',
     );
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const stop: any = (callback?: (error?: Error) => void) => {
-      if (callback) callback();
-    };
-
-    server.stop = stop;
 
     const result = await stopAppUseCase.exec();
 

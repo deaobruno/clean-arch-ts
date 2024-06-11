@@ -216,7 +216,7 @@ describe('/src/infra/drivers/logger/PinoDriver.ts', () => {
     const pinoDriver = new PinoDriver('debug', loggerStub);
     const result = pinoDriver.obfuscateData('test');
 
-    expect(result).equal('test');
+    expect(result).equal(undefined);
   });
 
   it('should not obfuscate when object attribute is empty', () => {

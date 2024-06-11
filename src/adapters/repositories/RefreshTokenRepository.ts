@@ -107,11 +107,9 @@ export default class RefreshTokenRepository implements IRefreshTokenRepository {
   }
 
   async deleteAll(): Promise<void> {
-    this.logger.debug({
-      message: '[RefreshTokenRepository/deleteAll] All refresh tokens deleted',
-    });
-
-    await this.db.deleteMany(this.source);
+    (await this.find()).forEach(
+      async (refreshToken) => await this.deleteOne(refreshToken),
+    );
   }
 
   async deleteAllByUser(user: User): Promise<void> {

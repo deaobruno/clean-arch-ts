@@ -54,7 +54,7 @@ export default class PinoDriver extends EventEmitter implements ILoggerDriver {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   obfuscateData(data: any): void {
-    if (typeof data !== 'object') return data;
+    if (typeof data !== 'object') return;
 
     Object.keys(data).forEach((attribute) => {
       const value = data[attribute];
@@ -70,9 +70,6 @@ export default class PinoDriver extends EventEmitter implements ILoggerDriver {
 
         case 'email':
           data[attribute] = this.obfuscate(value, value.indexOf('@'));
-          break;
-
-        default:
           break;
       }
     });

@@ -363,8 +363,23 @@ describe('/adapters/repositories/RefreshTokenRepository', () => {
       refreshTokenMapper,
       config.app.refreshTokenExpirationTime,
     );
+    const dbRefreshTokens = [
+      {
+        user_id: faker.string.uuid(),
+        token: 'refresh-token-1',
+      },
+      {
+        user_id: faker.string.uuid(),
+        token: 'refresh-token-2',
+      },
+      {
+        user_id: faker.string.uuid(),
+        token: 'refresh-token-3',
+      },
+    ];
 
-    dbDriver.deleteMany.resolves();
+    dbDriver.find.resolves(dbRefreshTokens);
+    dbDriver.delete.resolves();
 
     const result = await refreshTokenRepository.deleteAll();
 
