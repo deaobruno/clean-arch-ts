@@ -73,6 +73,7 @@ export default class RefreshAccessToken implements IUseCase<Input, Output> {
     }
 
     await this.refreshTokenRepository.create(refreshTokenEntity);
+    await this.refreshTokenRepository.deleteOne(oldToken);
 
     this.loggerDriver.debug({
       message: '[RefreshAccessToken] User refreshed access token',

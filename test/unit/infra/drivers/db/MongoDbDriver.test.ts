@@ -3,15 +3,15 @@ import sinon from 'sinon';
 import { expect } from 'chai';
 import config from '../../../../../src/config';
 import MongoDbDriver from '../../../../../src/infra/drivers/db/MongoDbDriver';
-import IDbDriver from '../../../../../src/infra/drivers/db/IDbDriver';
-import PinoDriver from '../../../../../src/infra/drivers/logger/PinoDriver';
 import {
   ClientSession,
   Collection,
   Db,
   FindCursor,
+  ListIndexesCursor,
   MongoClient,
 } from 'mongodb';
+import EventEmitter from 'events';
 
 const sandbox = sinon.createSandbox();
 const { dbUrl } = config.db.mongo;
@@ -21,14 +21,33 @@ const data = {
   id: faker.string.uuid(),
   test: 'ok',
 };
-const logger = sinon.createStubInstance(PinoDriver);
+
+class CustomClient extends EventEmitter {
+  constructor() {
+    super();
+  }
+
+  async close(): Promise<void> {
+    this.emit('error', 'Test');
+  }
+}
 
 describe('/src/infra/drivers/db/MongoDbDriver.ts', () => {
-  let instance: IDbDriver<unknown>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  beforeEach(() => (MongoDbDriver['instance'] = <any>undefined));
 
   afterEach(() => sandbox.restore());
 
   it('should return a MongoDbDriver instance when there is no previous instance', () => {
+    const logger = {
+      obfuscate: sandbox.stub(),
+      obfuscateData: sandbox.stub(),
+      debug: sandbox.stub(),
+      info: sandbox.stub(),
+      warn: sandbox.stub(),
+      error: sandbox.stub(),
+      fatal: sandbox.stub(),
+    };
     const mongoDbClient = sandbox.createStubInstance(MongoClient);
     const mongoDb = sandbox.createStubInstance(Db);
     const mongoDbSession = sandbox.createStubInstance(ClientSession);
@@ -40,19 +59,26 @@ describe('/src/infra/drivers/db/MongoDbDriver.ts', () => {
       ClientSession.prototype.withTransaction
     );
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    mongoDbSession.transaction = <any>sinon.stub();
+    mongoDbSession.transaction = <any>sandbox.stub();
     mongoDbSession.commitTransaction.resolves();
     mongoDbClient.startSession.returns(mongoDbSession);
     mongoDb.collection.returns(mongoDbCollection);
 
     const dbDriver = MongoDbDriver.getInstance(dbUrl, dbName, logger);
-
-    instance = dbDriver;
 
     expect(dbDriver instanceof MongoDbDriver).equal(true);
   });
 
   it('should return a MongoDbDriver when there is a previous instance', () => {
+    const logger = {
+      obfuscate: sandbox.stub(),
+      obfuscateData: sandbox.stub(),
+      debug: sandbox.stub(),
+      info: sandbox.stub(),
+      warn: sandbox.stub(),
+      error: sandbox.stub(),
+      fatal: sandbox.stub(),
+    };
     const mongoDbClient = sandbox.createStubInstance(MongoClient);
     const mongoDb = sandbox.createStubInstance(Db);
     const mongoDbSession = sandbox.createStubInstance(ClientSession);
@@ -64,51 +90,27 @@ describe('/src/infra/drivers/db/MongoDbDriver.ts', () => {
       ClientSession.prototype.withTransaction
     );
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    mongoDbSession.transaction = <any>sinon.stub();
+    mongoDbSession.transaction = <any>sandbox.stub();
     mongoDbSession.commitTransaction.resolves();
     mongoDbClient.startSession.returns(mongoDbSession);
     mongoDb.collection.returns(mongoDbCollection);
 
     const dbDriver = MongoDbDriver.getInstance(dbUrl, dbName, logger);
+    const instance = MongoDbDriver.getInstance(dbUrl, dbName, logger);
 
-    expect(dbDriver).deep.equal(instance);
-  });
-
-  it.skip('should log a message after starting client connection', async () => {
-    const dbDriver = MongoDbDriver.getInstance(dbUrl, dbName, logger);
-    const loggerInfoStub = sandbox.stub(PinoDriver.prototype, 'info');
-
-    await dbDriver.connect();
-
-    expect(
-      loggerInfoStub.calledOnceWith('[MongoDbDriver] Client connected'),
-    ).equal(true);
-  });
-
-  it.skip('should log a message after client throws an error', async () => {
-    const dbDriver = MongoDbDriver.getInstance(dbUrl, dbName, logger);
-
-    await dbDriver.connect();
-    await dbDriver.createIndex('collectionName', 'id', 0);
-
-    expect(logger.error.calledOnceWith('[RedisDriver] Client connected')).equal(
-      true,
-    );
-  });
-
-  it.skip('should log a message after ending client connection', async () => {
-    const dbDriver = MongoDbDriver.getInstance(dbUrl, dbName, logger);
-    const loggerInfoStub = sandbox.stub(PinoDriver.prototype, 'info');
-
-    await dbDriver.connect();
-    await dbDriver.disconnect();
-
-    expect(
-      loggerInfoStub.calledOnceWith('[MongoDbDriver] Client disconnected'),
-    ).equal(true);
+    expect(instance).deep.equal(dbDriver);
   });
 
   it('should connect to a mongoDb server', async () => {
+    const logger = {
+      obfuscate: sandbox.stub(),
+      obfuscateData: sandbox.stub(),
+      debug: sandbox.stub(),
+      info: sandbox.stub(),
+      warn: sandbox.stub(),
+      error: sandbox.stub(),
+      fatal: sandbox.stub(),
+    };
     const mongoDbClient = sandbox.createStubInstance(MongoClient);
     const mongoDb = sandbox.createStubInstance(Db);
     const mongoDbSession = sandbox.createStubInstance(ClientSession);
@@ -121,11 +123,12 @@ describe('/src/infra/drivers/db/MongoDbDriver.ts', () => {
       ClientSession.prototype.withTransaction
     );
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    mongoDbSession.transaction = <any>sinon.stub();
+    mongoDbSession.transaction = <any>sandbox.stub();
     mongoDbSession.commitTransaction.resolves();
     mongoDbClient.startSession.returns(mongoDbSession);
     mongoDb.collection.returns(mongoDbCollection);
 
+    const instance = MongoDbDriver.getInstance(dbUrl, dbName, logger);
     const result = await instance.connect(mongoDbClient);
 
     expect(result).equal(undefined);
@@ -133,6 +136,15 @@ describe('/src/infra/drivers/db/MongoDbDriver.ts', () => {
   });
 
   it('should return undefined when already connected to a mongoDb server with same db url', async () => {
+    const logger = {
+      obfuscate: sandbox.stub(),
+      obfuscateData: sandbox.stub(),
+      debug: sandbox.stub(),
+      info: sandbox.stub(),
+      warn: sandbox.stub(),
+      error: sandbox.stub(),
+      fatal: sandbox.stub(),
+    };
     const mongoDbClient = sandbox.createStubInstance(MongoClient);
     const mongoDb = sandbox.createStubInstance(Db);
     const mongoDbSession = sandbox.createStubInstance(ClientSession);
@@ -144,11 +156,12 @@ describe('/src/infra/drivers/db/MongoDbDriver.ts', () => {
       ClientSession.prototype.withTransaction
     );
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    mongoDbSession.transaction = <any>sinon.stub();
+    mongoDbSession.transaction = <any>sandbox.stub();
     mongoDbSession.commitTransaction.resolves();
     mongoDbClient.startSession.returns(mongoDbSession);
     mongoDb.collection.returns(mongoDbCollection);
 
+    const instance = MongoDbDriver.getInstance(dbUrl, dbName, logger);
     const result = await instance.connect(mongoDbClient);
 
     expect(result).equal(undefined);
@@ -156,6 +169,15 @@ describe('/src/infra/drivers/db/MongoDbDriver.ts', () => {
   });
 
   it('should disconnect from connected mongoDb server', async () => {
+    const logger = {
+      obfuscate: sandbox.stub(),
+      obfuscateData: sandbox.stub(),
+      debug: sandbox.stub(),
+      info: sandbox.stub(),
+      warn: sandbox.stub(),
+      error: sandbox.stub(),
+      fatal: sandbox.stub(),
+    };
     const mongoDbClient = sandbox.createStubInstance(MongoClient);
     const mongoDb = sandbox.createStubInstance(Db);
     const mongoDbSession = sandbox.createStubInstance(ClientSession);
@@ -167,11 +189,12 @@ describe('/src/infra/drivers/db/MongoDbDriver.ts', () => {
       ClientSession.prototype.withTransaction
     );
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    mongoDbSession.transaction = <any>sinon.stub();
+    mongoDbSession.transaction = <any>sandbox.stub();
     mongoDbSession.commitTransaction.resolves();
     mongoDbClient.startSession.returns(mongoDbSession);
     mongoDb.collection.returns(mongoDbCollection);
 
+    const instance = MongoDbDriver.getInstance(dbUrl, dbName, logger);
     const result = await instance.disconnect();
 
     expect(result).equal(undefined);
@@ -179,6 +202,15 @@ describe('/src/infra/drivers/db/MongoDbDriver.ts', () => {
   });
 
   it('should return undefined when no mongoDb server is connected', async () => {
+    const logger = {
+      obfuscate: sandbox.stub(),
+      obfuscateData: sandbox.stub(),
+      debug: sandbox.stub(),
+      info: sandbox.stub(),
+      warn: sandbox.stub(),
+      error: sandbox.stub(),
+      fatal: sandbox.stub(),
+    };
     const mongoDbClient = sandbox.createStubInstance(MongoClient);
     const mongoDb = sandbox.createStubInstance(Db);
     const mongoDbSession = sandbox.createStubInstance(ClientSession);
@@ -190,22 +222,118 @@ describe('/src/infra/drivers/db/MongoDbDriver.ts', () => {
       ClientSession.prototype.withTransaction
     );
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    mongoDbSession.transaction = <any>sinon.stub();
+    mongoDbSession.transaction = <any>sandbox.stub();
     mongoDbSession.commitTransaction.resolves();
     mongoDbClient.startSession.returns(mongoDbSession);
     mongoDb.collection.returns(mongoDbCollection);
 
+    const instance = MongoDbDriver.getInstance(dbUrl, dbName, logger);
     const result = await instance.disconnect();
 
     expect(result).equal(undefined);
     expect(MongoDbDriver.connected).equal(false);
   });
 
+  it('should create a collection', async () => {
+    const logger = {
+      obfuscate: sandbox.stub(),
+      obfuscateData: sandbox.stub(),
+      debug: sandbox.stub(),
+      info: sandbox.stub(),
+      warn: sandbox.stub(),
+      error: sandbox.stub(),
+      fatal: sandbox.stub(),
+    };
+    const mongoDbClient = sandbox.createStubInstance(MongoClient);
+    const mongoDb = sandbox.createStubInstance(Db);
+
+    mongoDbClient.db.returns(mongoDb);
+
+    MongoDbDriver['client'] = mongoDbClient;
+
+    const instance = MongoDbDriver.getInstance(dbUrl, dbName, logger);
+    const result = await instance.createCollection('test');
+
+    expect(result).equal(undefined);
+  });
+
+  it('should log a message after starting client connection', async () => {
+    const logger = {
+      obfuscate: sandbox.stub(),
+      obfuscateData: sandbox.stub(),
+      debug: sandbox.stub(),
+      info: sandbox.stub(),
+      warn: sandbox.stub(),
+      error: sandbox.stub(),
+      fatal: sandbox.stub(),
+    };
+    const dbDriver = MongoDbDriver.getInstance(dbUrl, dbName, logger);
+
+    await dbDriver.connect();
+
+    expect(
+      logger.info.calledOnceWith('[MongoDbDriver] Client connected'),
+    ).equal(true);
+
+    await dbDriver.disconnect();
+  });
+
+  it('should log a message after client throws an error', async () => {
+    const logger = {
+      obfuscate: sandbox.stub(),
+      obfuscateData: sandbox.stub(),
+      debug: sandbox.stub(),
+      info: sandbox.stub(),
+      warn: sandbox.stub(),
+      error: sandbox.stub(),
+      fatal: sandbox.stub(),
+    };
+    const dbDriver = MongoDbDriver.getInstance(dbUrl, dbName, logger);
+    const client = new CustomClient();
+
+    await dbDriver.connect(client);
+    await dbDriver.disconnect();
+
+    expect(logger.error.calledOnceWith(`[MongoDbDriver] Error: Test`)).equal(
+      true,
+    );
+  });
+
+  it('should log a message after ending client connection', async () => {
+    const logger = {
+      obfuscate: sandbox.stub(),
+      obfuscateData: sandbox.stub(),
+      debug: sandbox.stub(),
+      info: sandbox.stub(),
+      warn: sandbox.stub(),
+      error: sandbox.stub(),
+      fatal: sandbox.stub(),
+    };
+    const dbDriver = MongoDbDriver.getInstance(dbUrl, dbName, logger);
+
+    await dbDriver.connect();
+    await dbDriver.disconnect();
+
+    expect(
+      logger.fatal.calledOnceWith('[MongoDbDriver] Client disconnected'),
+    ).equal(true);
+  });
+
   describe('I/O methods', () => {
-    it('should create an index in given collection', async () => {
+    it('should not create an index when it already exists in given collection', async () => {
+      const logger = {
+        obfuscate: sandbox.stub(),
+        obfuscateData: sandbox.stub(),
+        debug: sandbox.stub(),
+        info: sandbox.stub(),
+        warn: sandbox.stub(),
+        error: sandbox.stub(),
+        fatal: sandbox.stub(),
+      };
       const mongoDbClient = sandbox.createStubInstance(MongoClient);
       const mongoDb = sandbox.createStubInstance(Db);
       const mongoDbSession = sandbox.createStubInstance(ClientSession);
+      const cursor = sandbox.createStubInstance(ListIndexesCursor);
       const mongoDbCollection = sandbox.createStubInstance(Collection);
 
       mongoDbClient.db.returns(mongoDb);
@@ -215,10 +343,56 @@ describe('/src/infra/drivers/db/MongoDbDriver.ts', () => {
         ClientSession.prototype.withTransaction
       );
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      mongoDbSession.transaction = <any>sinon.stub();
+      mongoDbSession.transaction = <any>sandbox.stub();
       mongoDbSession.commitTransaction.resolves();
       mongoDbClient.startSession.returns(mongoDbSession);
+      cursor.toArray.resolves([{ key: { id: 1 } }]);
+      mongoDbCollection.listIndexes.returns(cursor);
       mongoDb.collection.returns(mongoDbCollection);
+
+      const instance = MongoDbDriver.getInstance(dbUrl, dbName, logger);
+
+      await instance.connect(mongoDbClient);
+
+      const result = await instance.createIndex(collectionName, 'id');
+
+      await instance.disconnect();
+
+      expect(result).equal(undefined);
+      expect(mongoDbCollection.createIndex.notCalled).equal(true);
+    });
+
+    it('should create an index in given collection', async () => {
+      const logger = {
+        obfuscate: sandbox.stub(),
+        obfuscateData: sandbox.stub(),
+        debug: sandbox.stub(),
+        info: sandbox.stub(),
+        warn: sandbox.stub(),
+        error: sandbox.stub(),
+        fatal: sandbox.stub(),
+      };
+      const mongoDbClient = sandbox.createStubInstance(MongoClient);
+      const mongoDb = sandbox.createStubInstance(Db);
+      const mongoDbSession = sandbox.createStubInstance(ClientSession);
+      const cursor = sandbox.createStubInstance(ListIndexesCursor);
+      const mongoDbCollection = sandbox.createStubInstance(Collection);
+
+      mongoDbClient.db.returns(mongoDb);
+      mongoDbClient.on.returns(mongoDbClient);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      mongoDbSession.withTransaction = <any>(
+        ClientSession.prototype.withTransaction
+      );
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      mongoDbSession.transaction = <any>sandbox.stub();
+      mongoDbSession.commitTransaction.resolves();
+      mongoDbClient.startSession.returns(mongoDbSession);
+      cursor.toArray.resolves([]);
+      mongoDbCollection.listIndexes.returns(cursor);
+      mongoDb.collection.returns(mongoDbCollection);
+
+      const instance = MongoDbDriver.getInstance(dbUrl, dbName, logger);
 
       await instance.connect(mongoDbClient);
 
@@ -232,37 +406,35 @@ describe('/src/infra/drivers/db/MongoDbDriver.ts', () => {
       );
     });
 
-    it.skip('should get an error when db is not connected when trying to create a document passing collection name and data', async () => {
-      const mongoDbClient = sandbox.createStubInstance(MongoClient);
-      const mongoDb = sandbox.createStubInstance(Db);
-      const mongoDbSession = sandbox.createStubInstance(ClientSession);
-      const mongoDbCollection = sandbox.createStubInstance(Collection);
-
-      mongoDbClient.db.returns(mongoDb);
-      mongoDbClient.on.returns(mongoDbClient);
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      mongoDbSession.withTransaction = <any>(
-        ClientSession.prototype.withTransaction
-      );
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      mongoDbSession.transaction = <any>sinon.stub();
-      mongoDbSession.commitTransaction.resolves();
-      mongoDbClient.startSession.returns(mongoDbSession);
-      sandbox.stub(MongoDbDriver, 'connected').returns(false);
-      // instance['getCollection'] = () => new Error("MongoDB driver not connected")
-
-      await instance.connect(mongoDbClient);
+    it('should get an error when db is not connected when trying to create a document passing collection name and data', async () => {
+      const logger = {
+        obfuscate: sandbox.stub(),
+        obfuscateData: sandbox.stub(),
+        debug: sandbox.stub(),
+        info: sandbox.stub(),
+        warn: sandbox.stub(),
+        error: sandbox.stub(),
+        fatal: sandbox.stub(),
+      };
+      const instance = MongoDbDriver.getInstance(dbUrl, dbName, logger);
 
       await instance
-        .create(collectionName, data)
+        .createIndex(collectionName, 'test')
         .catch(async (error) => {
           expect(error.message).equal('MongoDB driver not connected');
-          expect(mongoDbCollection.insertOne.notCalled).equal(true);
-        })
-        .finally(async () => await instance.disconnect());
+        });
     });
 
     it('should create a document passing collection name and data', async () => {
+      const logger = {
+        obfuscate: sandbox.stub(),
+        obfuscateData: sandbox.stub(),
+        debug: sandbox.stub(),
+        info: sandbox.stub(),
+        warn: sandbox.stub(),
+        error: sandbox.stub(),
+        fatal: sandbox.stub(),
+      };
       const mongoDbClient = sandbox.createStubInstance(MongoClient);
       const mongoDb = sandbox.createStubInstance(Db);
       const mongoDbSession = sandbox.createStubInstance(ClientSession);
@@ -275,10 +447,12 @@ describe('/src/infra/drivers/db/MongoDbDriver.ts', () => {
         ClientSession.prototype.withTransaction
       );
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      mongoDbSession.transaction = <any>sinon.stub();
+      mongoDbSession.transaction = <any>sandbox.stub();
       mongoDbSession.commitTransaction.resolves();
       mongoDbClient.startSession.returns(mongoDbSession);
       mongoDb.collection.returns(mongoDbCollection);
+
+      const instance = MongoDbDriver.getInstance(dbUrl, dbName, logger);
 
       await instance.connect(mongoDbClient);
 
@@ -291,6 +465,15 @@ describe('/src/infra/drivers/db/MongoDbDriver.ts', () => {
     });
 
     it('should return all documents with no filter and passing collection name', async () => {
+      const logger = {
+        obfuscate: sandbox.stub(),
+        obfuscateData: sandbox.stub(),
+        debug: sandbox.stub(),
+        info: sandbox.stub(),
+        warn: sandbox.stub(),
+        error: sandbox.stub(),
+        fatal: sandbox.stub(),
+      };
       const mongoDbClient = sandbox.createStubInstance(MongoClient);
       const mongoDb = sandbox.createStubInstance(Db);
       const mongoDbSession = sandbox.createStubInstance(ClientSession);
@@ -304,13 +487,15 @@ describe('/src/infra/drivers/db/MongoDbDriver.ts', () => {
         ClientSession.prototype.withTransaction
       );
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      mongoDbSession.transaction = <any>sinon.stub();
+      mongoDbSession.transaction = <any>sandbox.stub();
       mongoDbSession.commitTransaction.resolves();
       mongoDbClient.startSession.returns(mongoDbSession);
       mongoDb.collection.returns(mongoDbCollection);
 
       mongoDbCursor.toArray.resolves([data]);
       mongoDbCollection.find.returns(mongoDbCursor);
+
+      const instance = MongoDbDriver.getInstance(dbUrl, dbName, logger);
 
       await instance.connect(mongoDbClient);
 
@@ -328,6 +513,15 @@ describe('/src/infra/drivers/db/MongoDbDriver.ts', () => {
     });
 
     it('should return all documents attending filter and passing collection name', async () => {
+      const logger = {
+        obfuscate: sandbox.stub(),
+        obfuscateData: sandbox.stub(),
+        debug: sandbox.stub(),
+        info: sandbox.stub(),
+        warn: sandbox.stub(),
+        error: sandbox.stub(),
+        fatal: sandbox.stub(),
+      };
       const mongoDbClient = sandbox.createStubInstance(MongoClient);
       const mongoDb = sandbox.createStubInstance(Db);
       const mongoDbSession = sandbox.createStubInstance(ClientSession);
@@ -341,12 +535,14 @@ describe('/src/infra/drivers/db/MongoDbDriver.ts', () => {
         ClientSession.prototype.withTransaction
       );
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      mongoDbSession.transaction = <any>sinon.stub();
+      mongoDbSession.transaction = <any>sandbox.stub();
       mongoDbSession.commitTransaction.resolves();
       mongoDbClient.startSession.returns(mongoDbSession);
       mongoDb.collection.returns(mongoDbCollection);
       mongoDbCursor.toArray.resolves([data]);
       mongoDbCollection.find.returns(mongoDbCursor);
+
+      const instance = MongoDbDriver.getInstance(dbUrl, dbName, logger);
 
       await instance.connect(mongoDbClient);
 
@@ -364,7 +560,62 @@ describe('/src/infra/drivers/db/MongoDbDriver.ts', () => {
       ).equal(true);
     });
 
+    it('should return an empty array when no documents are found', async () => {
+      const logger = {
+        obfuscate: sandbox.stub(),
+        obfuscateData: sandbox.stub(),
+        debug: sandbox.stub(),
+        info: sandbox.stub(),
+        warn: sandbox.stub(),
+        error: sandbox.stub(),
+        fatal: sandbox.stub(),
+      };
+      const mongoDbClient = sandbox.createStubInstance(MongoClient);
+      const mongoDb = sandbox.createStubInstance(Db);
+      const mongoDbSession = sandbox.createStubInstance(ClientSession);
+      const mongoDbCollection = sandbox.createStubInstance(Collection);
+      const mongoDbCursor = sandbox.createStubInstance(FindCursor);
+
+      mongoDbClient.db.returns(mongoDb);
+      mongoDbClient.on.returns(mongoDbClient);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      mongoDbSession.withTransaction = <any>(
+        ClientSession.prototype.withTransaction
+      );
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      mongoDbSession.transaction = <any>sandbox.stub();
+      mongoDbSession.commitTransaction.resolves();
+      mongoDbClient.startSession.returns(mongoDbSession);
+      mongoDb.collection.returns(mongoDbCollection);
+
+      mongoDbCursor.toArray.resolves([]);
+      mongoDbCollection.find.returns(mongoDbCursor);
+
+      const instance = MongoDbDriver.getInstance(dbUrl, dbName, logger);
+
+      await instance.connect(mongoDbClient);
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const result = <any>await instance.find(collectionName);
+
+      await instance.disconnect();
+
+      expect(result).deep.equal([]);
+      expect(
+        mongoDbCollection.find.calledOnceWith({}, { limit: 10, skip: 0 }),
+      ).equal(true);
+    });
+
     it('should return one document passing collection name and attending filter', async () => {
+      const logger = {
+        obfuscate: sandbox.stub(),
+        obfuscateData: sandbox.stub(),
+        debug: sandbox.stub(),
+        info: sandbox.stub(),
+        warn: sandbox.stub(),
+        error: sandbox.stub(),
+        fatal: sandbox.stub(),
+      };
       const mongoDbClient = sandbox.createStubInstance(MongoClient);
       const mongoDb = sandbox.createStubInstance(Db);
       const mongoDbSession = sandbox.createStubInstance(ClientSession);
@@ -377,11 +628,13 @@ describe('/src/infra/drivers/db/MongoDbDriver.ts', () => {
         ClientSession.prototype.withTransaction
       );
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      mongoDbSession.transaction = <any>sinon.stub();
+      mongoDbSession.transaction = <any>sandbox.stub();
       mongoDbSession.commitTransaction.resolves();
       mongoDbClient.startSession.returns(mongoDbSession);
       mongoDb.collection.returns(mongoDbCollection);
       mongoDbCollection.findOne.resolves(data);
+
+      const instance = MongoDbDriver.getInstance(dbUrl, dbName, logger);
 
       await instance.connect(mongoDbClient);
 
@@ -397,7 +650,16 @@ describe('/src/infra/drivers/db/MongoDbDriver.ts', () => {
       expect(mongoDbCollection.findOne.calledOnceWith(filter)).equal(true);
     });
 
-    it('should update a document passing collection name, data and filter', async () => {
+    it('should return undefined when no document is found', async () => {
+      const logger = {
+        obfuscate: sandbox.stub(),
+        obfuscateData: sandbox.stub(),
+        debug: sandbox.stub(),
+        info: sandbox.stub(),
+        warn: sandbox.stub(),
+        error: sandbox.stub(),
+        fatal: sandbox.stub(),
+      };
       const mongoDbClient = sandbox.createStubInstance(MongoClient);
       const mongoDb = sandbox.createStubInstance(Db);
       const mongoDbSession = sandbox.createStubInstance(ClientSession);
@@ -410,10 +672,54 @@ describe('/src/infra/drivers/db/MongoDbDriver.ts', () => {
         ClientSession.prototype.withTransaction
       );
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      mongoDbSession.transaction = <any>sinon.stub();
+      mongoDbSession.transaction = <any>sandbox.stub();
       mongoDbSession.commitTransaction.resolves();
       mongoDbClient.startSession.returns(mongoDbSession);
       mongoDb.collection.returns(mongoDbCollection);
+      mongoDbCollection.findOne.resolves();
+
+      const instance = MongoDbDriver.getInstance(dbUrl, dbName, logger);
+
+      await instance.connect(mongoDbClient);
+
+      const filter = { id: data.id };
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const result = <any>await instance.findOne(collectionName, filter);
+
+      await instance.disconnect();
+
+      expect(result).equal(undefined);
+      expect(mongoDbCollection.findOne.calledOnceWith(filter)).equal(true);
+    });
+
+    it('should update a document passing collection name, data and filter', async () => {
+      const logger = {
+        obfuscate: sandbox.stub(),
+        obfuscateData: sandbox.stub(),
+        debug: sandbox.stub(),
+        info: sandbox.stub(),
+        warn: sandbox.stub(),
+        error: sandbox.stub(),
+        fatal: sandbox.stub(),
+      };
+      const mongoDbClient = sandbox.createStubInstance(MongoClient);
+      const mongoDb = sandbox.createStubInstance(Db);
+      const mongoDbSession = sandbox.createStubInstance(ClientSession);
+      const mongoDbCollection = sandbox.createStubInstance(Collection);
+
+      mongoDbClient.db.returns(mongoDb);
+      mongoDbClient.on.returns(mongoDbClient);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      mongoDbSession.withTransaction = <any>(
+        ClientSession.prototype.withTransaction
+      );
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      mongoDbSession.transaction = <any>sandbox.stub();
+      mongoDbSession.commitTransaction.resolves();
+      mongoDbClient.startSession.returns(mongoDbSession);
+      mongoDb.collection.returns(mongoDbCollection);
+
+      const instance = MongoDbDriver.getInstance(dbUrl, dbName, logger);
 
       await instance.connect(mongoDbClient);
 
@@ -428,6 +734,15 @@ describe('/src/infra/drivers/db/MongoDbDriver.ts', () => {
     });
 
     it('should delete a document passing collection name and filter', async () => {
+      const logger = {
+        obfuscate: sandbox.stub(),
+        obfuscateData: sandbox.stub(),
+        debug: sandbox.stub(),
+        info: sandbox.stub(),
+        warn: sandbox.stub(),
+        error: sandbox.stub(),
+        fatal: sandbox.stub(),
+      };
       const mongoDbClient = sandbox.createStubInstance(MongoClient);
       const mongoDb = sandbox.createStubInstance(Db);
       const mongoDbSession = sandbox.createStubInstance(ClientSession);
@@ -440,10 +755,12 @@ describe('/src/infra/drivers/db/MongoDbDriver.ts', () => {
         ClientSession.prototype.withTransaction
       );
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      mongoDbSession.transaction = <any>sinon.stub();
+      mongoDbSession.transaction = <any>sandbox.stub();
       mongoDbSession.commitTransaction.resolves();
       mongoDbClient.startSession.returns(mongoDbSession);
       mongoDb.collection.returns(mongoDbCollection);
+
+      const instance = MongoDbDriver.getInstance(dbUrl, dbName, logger);
 
       await instance.connect(mongoDbClient);
 
@@ -457,6 +774,15 @@ describe('/src/infra/drivers/db/MongoDbDriver.ts', () => {
     });
 
     it('should delete all documents attending filter and passing collection name', async () => {
+      const logger = {
+        obfuscate: sandbox.stub(),
+        obfuscateData: sandbox.stub(),
+        debug: sandbox.stub(),
+        info: sandbox.stub(),
+        warn: sandbox.stub(),
+        error: sandbox.stub(),
+        fatal: sandbox.stub(),
+      };
       const mongoDbClient = sandbox.createStubInstance(MongoClient);
       const mongoDb = sandbox.createStubInstance(Db);
       const mongoDbSession = sandbox.createStubInstance(ClientSession);
@@ -469,10 +795,12 @@ describe('/src/infra/drivers/db/MongoDbDriver.ts', () => {
         ClientSession.prototype.withTransaction
       );
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      mongoDbSession.transaction = <any>sinon.stub();
+      mongoDbSession.transaction = <any>sandbox.stub();
       mongoDbSession.commitTransaction.resolves();
       mongoDbClient.startSession.returns(mongoDbSession);
       mongoDb.collection.returns(mongoDbCollection);
+
+      const instance = MongoDbDriver.getInstance(dbUrl, dbName, logger);
 
       await instance.connect(mongoDbClient);
 

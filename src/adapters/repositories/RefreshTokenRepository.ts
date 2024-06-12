@@ -106,6 +106,12 @@ export default class RefreshTokenRepository implements IRefreshTokenRepository {
     });
   }
 
+  async deleteAll(): Promise<void> {
+    (await this.find()).forEach(
+      async (refreshToken) => await this.deleteOne(refreshToken),
+    );
+  }
+
   async deleteAllByUser(user: User): Promise<void> {
     const { userId: user_id } = user;
 

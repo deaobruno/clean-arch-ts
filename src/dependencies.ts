@@ -38,7 +38,7 @@ import RefreshTokenRepository from './adapters/repositories/RefreshTokenReposito
 import RefreshAccessTokenController from './adapters/controllers/auth/RefreshAccessTokenController';
 import RefreshAccessToken from './application/useCases/auth/RefreshAccessToken';
 import LogoutSchema from './infra/schemas/auth/LogoutSchema';
-import DeleteRefreshToken from './application/useCases/auth/Logout';
+import Logout from './application/useCases/auth/Logout';
 import LogoutController from './adapters/controllers/auth/LogoutController';
 import UserMapper from './domain/user/UserMapper';
 import RefreshTokenMapper from './domain/refreshToken/RefreshTokenMapper';
@@ -64,28 +64,35 @@ import IDbDriver from './infra/drivers/db/IDbDriver';
 import IDbMemo from './domain/memo/IDbMemo';
 import IDbUser from './domain/user/IDbUser';
 import IDbRefreshToken from './domain/refreshToken/IDbRefreshToken';
+import StartApp from './application/useCases/app/StartApp';
+import StopApp from './application/useCases/app/StopApp';
+import ExpressDriver from './infra/drivers/server/ExpressDriver';
 
 const {
+  server: { httpPort },
+  cors,
   app: {
     environment,
     accessTokenSecret,
     accessTokenExpirationTime,
     refreshTokenSecret,
     refreshTokenExpirationTime,
+    rootUserEmail,
+    rootUserPassword,
   },
   db: {
     mongo: { dbUrl, dbName },
     usersSource,
     refreshTokensSource,
-    memoSource,
+    memosSource,
   },
   cache: {
     redis: { url: redisUrl, password: redisPassword },
   },
+  logger: { level },
 } = config;
-const loggerLevel = environment === 'debug' ? 'debug' : 'info';
 // DRIVERS
-const loggerDriver = new PinoDriver(loggerLevel);
+const loggerDriver = new PinoDriver(level);
 const dbDriver = MongoDbDriver.getInstance(dbUrl, dbName, loggerDriver);
 const hashDriver = new CryptoDriver(loggerDriver);
 const tokenDriver = new JwtDriver(
@@ -97,13 +104,14 @@ const tokenDriver = new JwtDriver(
 );
 const cacheDriver = new RedisDriver(redisUrl, redisPassword, loggerDriver);
 const encryptionDriver = new BcryptDriver(loggerDriver);
+const serverDriver = new ExpressDriver(loggerDriver, hashDriver, cors);
 // MAPPERS
 const userMapper = new UserMapper(loggerDriver);
 const refreshTokenMapper = new RefreshTokenMapper(loggerDriver);
 const memoMapper = new MemoMapper(loggerDriver);
 // REPOSITORIES
 const memoRepository = new MemoRepository(
-  memoSource,
+  memosSource,
   loggerDriver,
   <IDbDriver<IDbMemo>>dbDriver,
   cacheDriver,
@@ -124,7 +132,38 @@ const refreshTokenRepository = new RefreshTokenRepository(
   refreshTokenMapper,
   refreshTokenExpirationTime,
 );
+// EVENTS
+const createRootUseCase = new CreateRoot(
+  loggerDriver,
+  hashDriver,
+  encryptionDriver,
+  userRepository,
+);
+const createRootUserEvent = new CreateRootUserEvent(
+  loggerDriver,
+  createRootUseCase,
+);
 // USE CASES
+const startAppUseCase = new StartApp(
+  serverDriver,
+  dbDriver,
+  cacheDriver,
+  createRootUserEvent,
+  usersSource,
+  memosSource,
+  rootUserEmail,
+  rootUserPassword,
+  httpPort,
+  environment,
+);
+const stopAppUseCase = new StopApp(
+  serverDriver,
+  dbDriver,
+  cacheDriver,
+  refreshTokenRepository,
+  rootUserEmail,
+  environment,
+);
 const registerCustomerUseCase = new RegisterCustomer(
   loggerDriver,
   hashDriver,
@@ -143,10 +182,7 @@ const refreshAccessTokenUseCase = new RefreshAccessToken(
   tokenDriver,
   refreshTokenRepository,
 );
-const deleteRefreshTokenUseCase = new DeleteRefreshToken(
-  loggerDriver,
-  refreshTokenRepository,
-);
+const logoutUseCase = new Logout(loggerDriver, refreshTokenRepository);
 const validateAuthenticationUseCase = new ValidateAuthentication(
   loggerDriver,
   tokenDriver,
@@ -154,12 +190,6 @@ const validateAuthenticationUseCase = new ValidateAuthentication(
   userRepository,
 );
 const validateAuthorizationUseCase = new ValidateAuthorization(loggerDriver);
-const createRootUseCase = new CreateRoot(
-  loggerDriver,
-  hashDriver,
-  encryptionDriver,
-  userRepository,
-);
 const findUsersUseCase = new FindUsers(loggerDriver, userRepository);
 const findUserByIdUseCase = new FindUserById(loggerDriver, userRepository);
 const updateUserUseCase = new UpdateUser(
@@ -215,7 +245,7 @@ const refreshAccessTokenController = new RefreshAccessTokenController({
 });
 const logoutController = new LogoutController({
   logger: loggerDriver,
-  useCase: deleteRefreshTokenUseCase,
+  useCase: logoutUseCase,
   schema: LogoutSchema,
   validateAuthenticationUseCase,
 });
@@ -290,17 +320,13 @@ const deleteMemoController = new DeleteMemoController({
   validateAuthenticationUseCase,
   validateAuthorizationUseCase,
 });
-// EVENTS
-const createRootUserEvent = new CreateRootUserEvent(
-  loggerDriver,
-  createRootUseCase,
-);
 
 export default {
   dbDriver,
   loggerDriver,
   cacheDriver,
   hashDriver,
+  refreshTokenRepository,
   registerCustomerController,
   loginController,
   refreshAccessTokenController,
@@ -315,5 +341,6 @@ export default {
   findMemosByUserIdController,
   updateMemoController,
   deleteMemoController,
-  createRootUserEvent,
+  startAppUseCase,
+  stopAppUseCase,
 };

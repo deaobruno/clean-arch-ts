@@ -12,6 +12,7 @@ import UnauthorizedError from '../../../../../src/application/errors/Unauthorize
 import RefreshToken from '../../../../../src/domain/refreshToken/RefreshToken';
 import UserRole from '../../../../../src/domain/user/UserRole';
 import User from '../../../../../src/domain/user/User';
+import InternalServerError from '../../../../../src/application/errors/InternalServerError';
 
 const sandbox = sinon.createSandbox();
 const userId = faker.string.uuid();
@@ -58,6 +59,7 @@ describe('/application/useCases/auth/Login.ts', () => {
       refreshTokenRepository,
     );
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { accessToken, refreshToken } = <any>await login.exec(userData);
 
     expect(accessToken).equal('access-token');
@@ -113,5 +115,32 @@ describe('/application/useCases/auth/Login.ts', () => {
     expect(error instanceof UnauthorizedError).equal(true);
     expect(error.message).equal('Unauthorized');
     expect(error.statusCode).equal(401);
+  });
+
+  it('should return an InternalServerError when RefreshToken entity returns error', async () => {
+    const loggerDriver = sandbox.createStubInstance(PinoDriver);
+    const encryptionDriver = sandbox.createStubInstance(BcryptDriver);
+    const tokenDriver = sandbox.createStubInstance(JwtDriver);
+    const userRepository = sandbox.createStubInstance(UserRepository);
+    const refreshTokenRepository = sandbox.createStubInstance(
+      RefreshTokenRepository,
+    );
+
+    encryptionDriver.compare.resolves(true);
+    userRepository.findOneByEmail.resolves(<User>User.create(userData));
+
+    const login = new Login(
+      loggerDriver,
+      encryptionDriver,
+      tokenDriver,
+      userRepository,
+      refreshTokenRepository,
+    );
+
+    const error = <BaseError>await login.exec({ ...userData, email: '' });
+
+    expect(error instanceof InternalServerError).equal(true);
+    expect(error.message).equal('[RefreshToken] "token" required');
+    expect(error.statusCode).equal(500);
   });
 });

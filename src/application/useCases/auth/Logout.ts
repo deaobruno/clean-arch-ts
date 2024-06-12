@@ -10,7 +10,7 @@ type Input = {
 
 type Output = void | BaseError;
 
-export default class DeleteRefreshToken implements IUseCase<Input, Output> {
+export default class Logout implements IUseCase<Input, Output> {
   constructor(
     private loggerDriver: ILoggerDriver,
     private refreshTokenRepository: IRefreshTokenRepository,
@@ -18,14 +18,14 @@ export default class DeleteRefreshToken implements IUseCase<Input, Output> {
 
   async exec(input: Input): Promise<Output> {
     const { refreshToken } = input;
+    const { userId } = refreshToken;
 
     await this.refreshTokenRepository.deleteOne(refreshToken);
 
-    // TODO: add userId to log
     this.loggerDriver.debug({
       message: '[Logout] User logged out',
       input,
-      userId: '',
+      userId,
       refreshToken,
     });
   }

@@ -349,7 +349,44 @@ describe('/adapters/repositories/RefreshTokenRepository', () => {
     expect(result).equal(undefined);
   });
 
-  it('should delete a RefreshToken from DB', async () => {
+  it('should delete all RefreshTokens from DB', async () => {
+    const loggerDriver = sandbox.createStubInstance(PinoDriver);
+    const dbDriver = sandbox.createStubInstance(MongoDbDriver);
+    const cacheDriver = sandbox.createStubInstance(RedisDriver);
+    const refreshTokenMapper = sandbox.createStubInstance(RefreshTokenMapper);
+    const refreshTokenRepository = new RefreshTokenRepository(
+      config.db.refreshTokensSource,
+      loggerDriver,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      <any>dbDriver,
+      cacheDriver,
+      refreshTokenMapper,
+      config.app.refreshTokenExpirationTime,
+    );
+    const dbRefreshTokens = [
+      {
+        user_id: faker.string.uuid(),
+        token: 'refresh-token-1',
+      },
+      {
+        user_id: faker.string.uuid(),
+        token: 'refresh-token-2',
+      },
+      {
+        user_id: faker.string.uuid(),
+        token: 'refresh-token-3',
+      },
+    ];
+
+    dbDriver.find.resolves(dbRefreshTokens);
+    dbDriver.delete.resolves();
+
+    const result = await refreshTokenRepository.deleteAll();
+
+    expect(result).equal(undefined);
+  });
+
+  it('should delete all RefreshTokens by User from DB', async () => {
     const user = <User>User.create({
       userId: faker.string.uuid(),
       email: faker.internet.email(),

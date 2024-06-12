@@ -1,14 +1,11 @@
-import pino, { Logger } from 'pino';
+import pino from 'pino';
 import ILoggerDriver from './ILoggerDriver';
 import EventEmitter from 'events';
 
 export default class PinoDriver extends EventEmitter implements ILoggerDriver {
-  private logger: Logger;
-
-  constructor(level: string) {
-    super();
-
-    this.logger = pino({
+  constructor(
+    level: string,
+    private logger = pino({
       level,
       transport: {
         targets: [
@@ -21,7 +18,9 @@ export default class PinoDriver extends EventEmitter implements ILoggerDriver {
           },
         ],
       },
-    });
+    }),
+  ) {
+    super();
 
     this.on('debug', (data) => this.logger.debug(data));
     this.on('info', (data) => this.logger.info(data));
@@ -55,7 +54,7 @@ export default class PinoDriver extends EventEmitter implements ILoggerDriver {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   obfuscateData(data: any): void {
-    if (typeof data !== 'object') return data;
+    if (typeof data !== 'object') return;
 
     Object.keys(data).forEach((attribute) => {
       const value = data[attribute];
@@ -71,9 +70,6 @@ export default class PinoDriver extends EventEmitter implements ILoggerDriver {
 
         case 'email':
           data[attribute] = this.obfuscate(value, value.indexOf('@'));
-          break;
-
-        default:
           break;
       }
     });

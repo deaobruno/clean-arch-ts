@@ -1,47 +1,24 @@
 import cluster from 'node:cluster';
 import process from 'node:process';
 import { availableParallelism } from 'node:os';
-import server from './infra/http/v1/server';
-import config from './config';
 import dependencies from './dependencies';
+import routes from './routes/routes';
 
-const {
-  db: { usersSource, memoSource },
-  app: { environment, rootUserEmail, rootUserPassword },
-  server: { httpPort },
-} = config;
-const { dbDriver, loggerDriver, cacheDriver, createRootUserEvent } =
-  dependencies;
+const { loggerDriver, startAppUseCase, stopAppUseCase } = dependencies;
 
 (async () => {
-  await dbDriver.connect();
-  await dbDriver.createIndex(usersSource, 'user_id');
-  await dbDriver.createIndex(usersSource, 'email');
-  await dbDriver.createIndex(memoSource, 'memo_id');
-  await cacheDriver.connect();
-
-  createRootUserEvent.trigger({
-    email: rootUserEmail,
-    password: rootUserPassword,
+  await startAppUseCase.exec({
+    cluster,
+    numCPUs: availableParallelism(),
+    dependencies,
+    routes,
   });
 })();
 
-if (environment === 'production' && cluster.isPrimary) {
-  const numCPUs = availableParallelism();
+const gracefulShutdown = async (signal: string, code: number) => {
+  await stopAppUseCase.exec();
 
-  for (let i = 0; i < numCPUs; i++) cluster.fork();
-} else {
-  server.start(httpPort);
-}
-
-const gracefulShutdown = (signal: string, code: number) => {
-  server.stop(async () => {
-    await cacheDriver.del(rootUserEmail);
-    await dbDriver.disconnect();
-    await cacheDriver.disconnect();
-
-    process.exit(code);
-  });
+  process.exit(code);
 };
 
 process.on('uncaughtException', (error, origin) => {

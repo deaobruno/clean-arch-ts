@@ -2,19 +2,25 @@ import axios from 'axios';
 import { faker } from '@faker-js/faker';
 import { expect } from 'chai';
 import sinon from 'sinon';
-import server from '../../../src/infra/http/v1/server';
+import ExpressDriver from '../../../src/infra/drivers/server/ExpressDriver';
 import CryptoDriver from '../../../src/infra/drivers/hash/CryptoDriver';
 import UserRole from '../../../src/domain/user/UserRole';
 import MongoDbDriver from '../../../src/infra/drivers/db/MongoDbDriver';
 import BcryptDriver from '../../../src/infra/drivers/encryption/BcryptDriver';
 import PinoDriver from '../../../src/infra/drivers/logger/PinoDriver';
+import dependencies from '../../../src/dependencies';
+import routes from '../../../src/routes/routes';
+import config from '../../../src/config';
 
 const sandbox = sinon.createSandbox();
 const loggerDriver = sinon.createStubInstance(PinoDriver);
 const hashDriver = new CryptoDriver(loggerDriver);
+const server = new ExpressDriver(loggerDriver, hashDriver, config.cors);
 const url = 'http://localhost:8080/api/v1/auth/login';
 const email = faker.internet.email();
 const password = faker.internet.password();
+
+routes(dependencies, server);
 
 describe('POST /auth', () => {
   before(() => server.start(8080));

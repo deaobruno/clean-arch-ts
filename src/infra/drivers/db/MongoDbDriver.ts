@@ -68,10 +68,19 @@ export default class MongoDbDriver implements IDbDriver<unknown> {
     }
   }
 
-  private static getCollection(collectionName: string): Collection {
-    if (!this.connected) throw new Error('MongoDB driver not connected');
+  async createCollection(collectionName: string): Promise<void> {
+    await MongoDbDriver.client
+      .db(MongoDbDriver.dbName)
+      .createCollection(collectionName);
+  }
 
-    return this.client.db(this.dbName).collection(collectionName);
+  private getCollection(collectionName: string): Collection {
+    if (!MongoDbDriver.connected)
+      throw new Error('MongoDB driver not connected');
+
+    return MongoDbDriver.client
+      .db(MongoDbDriver.dbName)
+      .collection(collectionName);
   }
 
   private async transact(operation: Operation): Promise<DbResponse> {
@@ -80,12 +89,30 @@ export default class MongoDbDriver implements IDbDriver<unknown> {
     try {
       return session.withTransaction(async () => await operation());
     } finally {
-      if (session) await session.endSession();
+      await session.endSession();
     }
   }
 
   async createIndex(source: string, column: string, order = 1): Promise<void> {
-    await MongoDbDriver.getCollection(source).createIndex({ [column]: order });
+    const collection = this.getCollection(source);
+    const newIndex = { [column]: order };
+    const indexes = await collection.listIndexes().toArray();
+    const exists = indexes.filter(
+      (index) => JSON.stringify(index.key) === JSON.stringify(newIndex),
+    )[0];
+
+    if (exists) {
+      this.logger.debug({
+        message: '[MongoDbDriver] Index already exists',
+        source,
+        column,
+        order,
+      });
+
+      return;
+    }
+
+    await collection.createIndex(newIndex);
 
     this.logger.debug({
       message: '[MongoDbDriver] Index created',
@@ -103,7 +130,7 @@ export default class MongoDbDriver implements IDbDriver<unknown> {
     await this.transact(async () => {
       data.created_at = new Date().toISOString();
 
-      await MongoDbDriver.getCollection(source).insertOne(data, options);
+      await this.getCollection(source).insertOne(data, options);
 
       this.logger.debug({
         message: '[MongoDbDriver] Document created',
@@ -125,7 +152,7 @@ export default class MongoDbDriver implements IDbDriver<unknown> {
       options.limit = limit;
       options.skip = (options.skip ?? 0) * limit;
 
-      const documents = await MongoDbDriver.getCollection(source)
+      const documents = await this.getCollection(source)
         .find(filters, options)
         .toArray();
 
@@ -148,9 +175,9 @@ export default class MongoDbDriver implements IDbDriver<unknown> {
     source: string,
     filters: Filter<Document>,
     options?: FindOptions,
-  ): Promise<Document | null> {
-    return <Document | null>await this.transact(async () => {
-      const document = await MongoDbDriver.getCollection(source).findOne(
+  ): Promise<Document | undefined> {
+    return <Document | undefined>await this.transact(async () => {
+      const document = await this.getCollection(source).findOne(
         filters,
         options,
       );
@@ -178,7 +205,7 @@ export default class MongoDbDriver implements IDbDriver<unknown> {
     await this.transact(async () => {
       data.updated_at = new Date().toISOString();
 
-      await MongoDbDriver.getCollection(source).updateOne(
+      await this.getCollection(source).updateOne(
         filters,
         { $set: data },
         options,
@@ -200,7 +227,7 @@ export default class MongoDbDriver implements IDbDriver<unknown> {
     options?: DeleteOptions,
   ): Promise<void> {
     await this.transact(async () => {
-      await MongoDbDriver.getCollection(source).deleteOne(filters, options);
+      await this.getCollection(source).deleteOne(filters, options);
 
       this.logger.debug({
         message: '[MongoDbDriver] Document deleted',
@@ -217,7 +244,7 @@ export default class MongoDbDriver implements IDbDriver<unknown> {
     options?: DeleteOptions,
   ): Promise<void> {
     await this.transact(async () => {
-      await MongoDbDriver.getCollection(source).deleteMany(filters, options);
+      await this.getCollection(source).deleteMany(filters, options);
 
       this.logger.debug({
         message: '[MongoDbDriver] Documents deleted',

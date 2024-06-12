@@ -52,6 +52,7 @@ describe('/application/useCases/auth/ValidateAuthentication.ts', () => {
     userRepository.findOneById.resolves(fakeUser);
 
     const authorization = 'Bearer token';
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { user, refreshToken } = <any>(
       await validateAuthentication.exec({ authorization })
     );

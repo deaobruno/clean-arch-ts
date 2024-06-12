@@ -1,5 +1,5 @@
-import dependenciesContainer from '../../../../dependencies';
-import IServer from '../../../drivers/server/IServerDriver';
+import dependenciesContainer from '../dependencies';
+import IServer from '../infra/drivers/server/IServerDriver';
 
 export default (
   dependencies: typeof dependenciesContainer,

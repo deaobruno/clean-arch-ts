@@ -46,6 +46,7 @@ export default class Login implements IUseCase<Input, Output> {
 
       return new UnauthorizedError();
     }
+
     const { userId } = user;
     const userData = { id: userId };
     const accessToken = this.tokenDriver.generateAccessToken(userData);
